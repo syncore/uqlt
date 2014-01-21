@@ -1,0 +1,15 @@
+﻿<Application x:Class="UQLT.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:local="clr-namespace:UQLT"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <local:UQLTBootstrapper x:Key="bootstrapper"/>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
