@@ -3,6 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="UQLT v0.1 - Server Browser" Height="780" Width="1000">
     <Grid>
-        
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="543*"/>
+            <ColumnDefinition Width="217*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="133*"/>
+            <RowDefinition Height="423*"/>
+        </Grid.RowDefinitions>
+        <ContentControl Name="FilterViewModel"/>
     </Grid>
 </Window>

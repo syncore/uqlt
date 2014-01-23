@@ -3,9 +3,47 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
              d:DesignWidth="300" Width="727" Height="170">
-    <Grid>
-            
+    
+    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="727">
+        <!--<ComboBox x:Name="cboGameType" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" SelectedValuePath="game_type"ShouldPreserveUserEnteredPrefix="True"/>-->
+        <ComboBox x:Name="cboGameType" ItemsSource="{Binding game_types}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameArena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="427,24,0,0" SelectedValuePath="arena" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameLocation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" SelectedValuePath="location_id" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameState" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="427,74,0,0" SelectedValuePath="state" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameVisibility" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0"/>
+
+        <CheckBox x:Name="chkPremium" Content="Premium Games" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="428,107,0,0"/>
+        <Button x:Name="btnSaveFilters" Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="462,141,0,0">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <cal:ActionMessage MethodName="SaveNewUserFilters">
+                        <cal:Parameter Value="{Binding ElementName=cboGameType, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameArena, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameLocation, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameState, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameVisibility, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
+                    </cal:ActionMessage>
+                </i:EventTrigger>
+                <!--TODO: MakeFilterJson method here-->
+            </i:Interaction.Triggers>
+        </Button>
+        <Button x:Name="btnResetFilters" Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="599,141,0,0">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <cal:ActionMessage MethodName="ClearSavedUserFilters"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
+        <Label x:Name="lblGameType" Content="Game Type" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,1,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameArena" Content="Arena" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="424,1,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameLocation" Content="Game Location" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,50,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameStatus" Content="Game Status" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="424,50,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameVisibility" Content="Game Visibility" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,101,0,0" FontWeight="Bold"/>
+
     </Grid>
 </UserControl>

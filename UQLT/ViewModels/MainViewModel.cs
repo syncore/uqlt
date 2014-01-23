@@ -19,11 +19,13 @@ namespace UQLT.ViewModels
             get { return _displayName;  }
             set { _displayName = value; }
         }
+        public FilterViewModel FilterViewModel { get; set; }
         
         [ImportingConstructor]
     public MainViewModel(IWindowManager WindowManager)
     {
         _windowManager = WindowManager;
+        this.FilterViewModel = new FilterViewModel();
     }
     
     }
