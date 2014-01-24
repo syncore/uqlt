@@ -73,8 +73,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Models\ImportedFilters.cs" />
+    <Compile Include="Models\QuakeLiveFilters.cs" />
     <Compile Include="Models\SavedFilters.cs" />
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTFilepaths.cs" />

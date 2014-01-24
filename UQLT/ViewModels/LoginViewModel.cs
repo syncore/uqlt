@@ -17,11 +17,13 @@ namespace UQLT.ViewModels
         private string _displayName = "Login to Quake Live";
         private Window dialogWindow;
         private readonly IWindowManager _windowManager;
+        private readonly IEventAggregator _events;
 
         [ImportingConstructor]
-        public LoginViewModel(IWindowManager WindowManager)
+        public LoginViewModel(IWindowManager WindowManager, IEventAggregator events)
         {
             _windowManager = WindowManager;
+            _events = events;
         }
 
         public string DisplayName
@@ -55,7 +57,7 @@ namespace UQLT.ViewModels
         {
             // have some login logic here.. if successful then show main window and close this current window
             
-            _windowManager.ShowWindow(new MainViewModel(_windowManager));
+            _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
             CloseWin();
         }
 

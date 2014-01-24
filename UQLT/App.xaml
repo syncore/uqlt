@@ -10,7 +10,9 @@
                 <ResourceDictionary>
                     <!--The application bootstrapper-->
                     <local:UQLTBootstrapper x:Key="bootstrapper"/>
+                    <!--::::::::::::::::::::-->
                     <!--Global datatemplates-->
+                    <!--::::::::::::::::::::-->
                     <!--DT: Render the appropriate location name for FilterView combobox-->
                     <DataTemplate DataType="{x:Type models:ActiveLocation}">
                         <TextBlock Text="{Binding display_name}"/>
@@ -31,6 +33,10 @@
                     <DataTemplate DataType="{x:Type models:GameType}">
                         <TextBlock Text="{Binding display_name}"/>
                     </DataTemplate>
+                    <!--::::::::::::::::::::-->
+                    <!--Converters-->
+                    <!--::::::::::::::::::::-->
+                    <BooleanToVisibilityConverter x:Key="BoolToVis" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

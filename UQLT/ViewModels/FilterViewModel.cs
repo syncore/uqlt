@@ -7,6 +7,7 @@ using Caliburn.Micro;
 using UQLT.Models;
 using System.IO;
 using UQLT.Helpers;
+using UQLT.Events;
 using Newtonsoft.Json;
 using System.Windows;
 using System.ComponentModel.Composition;
@@ -14,7 +15,7 @@ using System.ComponentModel.Composition;
 namespace UQLT.ViewModels
 {
     [Export(typeof(FilterViewModel))]
-    public class FilterViewModel : PropertyChangedBase
+    public class FilterViewModel : PropertyChangedBase, IHandle<FilterVisibilityEvent>
     {
         // list of maps that receive "tag" description for arena_type when building filter string
         static List<String> arenatag = new List<String>();
@@ -22,28 +23,32 @@ namespace UQLT.ViewModels
         static List<String> arenamap = new List<String>();
 
         SavedFilters sf = new SavedFilters();
-        
-        // Backing collection fields for filter information
-        List<ActiveLocation> _active_locations;
-        List<InactiveLocation> _inactive_locations;
-        List<ServerBrowserLocations> _serverbrowser_locations;
-        List<Arena> _arenas;
-        List<Difficulty> _difficulty;
-        List<GameState> _gamestate;
-        List<GameType> _game_types;
-        List<GameInfo> _game_info;
-        List<String> _game_visibility = new List<String>();
-        // SelectedIndex fields for comboboxes
-        int _gametype_index;
-        int _gamearena_index;
-        int _gamelocation_index;
-        int _gamestate_index;
-        int _gamevisibility_index;
-        int _gamepremium_index;
-        bool _gamepremium_bool;
 
-        public FilterViewModel()
+        private bool _isVisible = true;
+        // Backing collection fields for filter information
+        private List<ActiveLocation> _active_locations;
+        private List<InactiveLocation> _inactive_locations;
+        private List<ServerBrowserLocations> _serverbrowser_locations;
+        private List<Arena> _arenas;
+        private List<Difficulty> _difficulty;
+        private List<GameState> _gamestate;
+        private List<GameType> _game_types;
+        private List<GameInfo> _game_info;
+        private List<String> _game_visibility = new List<String>();
+        // SelectedIndex fields for comboboxes
+        private int _gametype_index;
+        private int _gamearena_index;
+        private int _gamelocation_index;
+        private int _gamestate_index;
+        private int _gamevisibility_index;
+        private int _gamepremium_index;
+        private bool _gamepremium_bool;
+
+        [ImportingConstructor]
+        public FilterViewModel(IEventAggregator events)
         {
+            events.Subscribe(this);
+            
             // load hard-coded fail-safe filters if downloaded list doesn't exist
             if (!downloadedFilterListExists())
             {
@@ -74,6 +79,12 @@ namespace UQLT.ViewModels
         private bool downloadedFilterListExists()
         {
             return (File.Exists(UQLTFilepaths.currentfilterpath)) ? true : false;
+        }
+
+        public bool isVisible
+        {
+            get { return _isVisible; }
+            set { NotifyOfPropertyChange(() => isVisible); }
         }
         
         public List<ActiveLocation> active_locations
@@ -108,7 +119,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-               // _serverbrowser_locations = new List<ServerBrowserLocations>(importedfilters.serverbrowser_locations);
+                // _serverbrowser_locations = new List<ServerBrowserLocations>(importedfilters.serverbrowser_locations);
                 return _serverbrowser_locations;
             }
             set
@@ -145,7 +156,7 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => difficulty);
             }
         }
-        
+
         public List<GameState> gamestate
         {
             get
@@ -198,7 +209,8 @@ namespace UQLT.ViewModels
         public int gametype_index
         {
             get { return _gametype_index; }
-            set {
+            set
+            {
                 _gametype_index = value;
                 NotifyOfPropertyChange(() => gametype_index);
             }
@@ -207,7 +219,8 @@ namespace UQLT.ViewModels
         public int gamearena_index
         {
             get { return _gamearena_index; }
-            set { 
+            set
+            {
                 _gamearena_index = value;
                 NotifyOfPropertyChange(() => gamearena_index);
             }
@@ -216,7 +229,8 @@ namespace UQLT.ViewModels
         public int gamelocation_index
         {
             get { return _gamelocation_index; }
-            set { 
+            set
+            {
                 _gamelocation_index = value;
                 NotifyOfPropertyChange(() => gamelocation_index);
             }
@@ -225,7 +239,8 @@ namespace UQLT.ViewModels
         public int gamestate_index
         {
             get { return _gamestate_index; }
-            set { 
+            set
+            {
                 _gamestate_index = value;
                 NotifyOfPropertyChange(() => gamestate_index);
             }
@@ -234,7 +249,8 @@ namespace UQLT.ViewModels
         public int gamevisibility_index
         {
             get { return _gamevisibility_index; }
-            set { 
+            set
+            {
                 _gamevisibility_index = value;
                 NotifyOfPropertyChange(() => gamevisibility_index);
             }
@@ -242,8 +258,9 @@ namespace UQLT.ViewModels
 
         public int gamepremium_index
         {
-            get { return _gamepremium_index;  }
-            set { 
+            get { return _gamepremium_index; }
+            set
+            {
                 _gamepremium_index = value;
                 NotifyOfPropertyChange(() => gamepremium_index);
             }
@@ -252,12 +269,18 @@ namespace UQLT.ViewModels
         public bool gamepremium_bool
         {
             get { return _gamepremium_bool; }
-            set { 
+            set
+            {
                 _gamepremium_bool = value;
                 NotifyOfPropertyChange(() => gamepremium_bool);
             }
         }
 
+        public void Handle(FilterVisibilityEvent message)
+        {
+            isVisible = message.FilterViewVisibility;
+            Console.WriteLine("Visibility: " + message.FilterViewVisibility);
+        }
 
         // load the most current filter list (downloaded from application's web server)
         private async void LoadFilterList()
@@ -269,7 +292,7 @@ namespace UQLT.ViewModels
                 {
                     var x = await sr.ReadToEndAsync();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
-                    
+
                     // set our viewmodel's properties to those in the model
                     game_types = filters.game_types;
                     arenas = filters.arenas;
@@ -300,7 +323,7 @@ namespace UQLT.ViewModels
 
             }
         }
-        
+
         // set default filters (i.e.: "Any Location", "Any Game State", etc.)
         private void SetStandardDefaultFilters()
         {
@@ -311,7 +334,7 @@ namespace UQLT.ViewModels
             gamevisibility_index = 0;
             gamepremium_bool = false;
         }
-        
+
         private void ApplySavedUserFilters()
         {
             try
@@ -327,7 +350,7 @@ namespace UQLT.ViewModels
                     sf.gamevisibility_index = savedFilterJson.gamevisibility_index;
                     sf.gamepremium_index = savedFilterJson.gamepremium_index;
 
-                    
+
                     // set our viewmodel's index properties to appropriate properties from saved filter file
                     gametype_index = sf.gametype_index;
                     gamearena_index = sf.gamearena_index;
@@ -358,36 +381,9 @@ namespace UQLT.ViewModels
 
         public void SaveNewUserFilters(int sgametype_index, int sgamearena_index, int sgamelocation_index, int sgamestate_index, int sgamevisibility_index, bool sgamepremium_bool)
         {
-            //Console.WriteLine("sender: " + sender + "e: " + e);
-            // Combo Box strings and visibility/prem ints, used for passing to makeFilterJson method
-            /*
-            selectedgametype = cboGameType.SelectedValue.ToString();
-            String selectedgamearena = cboGameArena.SelectedValue.ToString();
-            String selectedgamelocation = cboGameLocation.SelectedValue.ToString();
-            String selectedgamestate = cboGameState.SelectedValue.ToString();
-            int selectedgamevisibility = 0;
-            int selectedgamepremium = 0;
-
-            // Combo Box index numbers for making filter default for user
-            int sgtypeindex = cboGameType.SelectedIndex;
-            int sgarenaindex = cboGameArena.SelectedIndex;
-            int sglocationindex = cboGameLocation.SelectedIndex;
-            int sgstateindex = cboGameState.SelectedIndex;
-            int sgvisibilityindex = cboGameVisibility.SelectedIndex;
-            */
-
-            // SelectedIndex 0: "Public games", 1: "Private games"
-            //if (cboGameVisibility.SelectedIndex == 0) { selectedgamevisibility = 0; } // private = 0 
-            //else if (cboGameVisibility.SelectedIndex == 1) { selectedgamevisibility = 1; } // private = 1
-
             int sgamepremium_index = 0;
-
-
             if (sgamepremium_bool == true) { sgamepremium_index = 1; }
             else if (sgamepremium_bool == false) { sgamepremium_index = 0; }
-
-            //Console.WriteLine("[SELECTED VALUES]: Game type: {0} | Game Arena: {1} | Game Location: {2} | Game Status: {3} | Game Visibility: {4} | Game Premium: {5}",
-            //selectedgametype, selectedgamearena, selectedgamelocation, selectedgamestate, selectedgamevisibility, selectedgamepremium);
 
             // Save this filter information as the new default
             sf.gametype_index = sgametype_index;
@@ -408,6 +404,95 @@ namespace UQLT.ViewModels
             // make filter url based on user selections
             //makeFilterJson(selectedgametype, selectedgamearena, selectedgamestate, selectedgamelocation, selectedgamevisibility, selectedgamepremium);
 
+        }
+
+        // take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
+        public String MakeFilterUrl(String gametype, String arena, String state, Object location, Object priv, bool ispremium)
+        {
+            String encodedFilterUrl = null;
+            String jsonFilterString = null;
+            List<String> players = new List<String>(); // always empty for purposes of filter encoding
+
+            // arena_type is determined from arena. ig, game_types array, and ranked are determined from gametype
+            String arena_type = null;
+            Object ig = null;
+            List<int> gtarr = null;
+            Object ranked = null;
+            int premium = 0;
+
+            if (ispremium == true) { premium = 1; }
+            else { premium = 0; }
+
+            // arena_type determination from arena:
+            if (arena.Equals("any")) { arena_type = ""; }
+
+            if (arenamap.Contains(arena)) { arena_type = "map"; }
+            else if (arenatag.Contains(arena)) { arena_type = "tag"; }
+
+            Console.WriteLine("Arena type for " + arena + " is: " + arena_type);
+
+            // ig, game_types array, ranked determination from gametype:
+            try
+            {
+                // read filter json from filedir\data\currentfilters.json
+                using (StreamReader sr = new StreamReader(UQLTFilepaths.currentfilterpath))
+                {
+                    var x = sr.ReadToEnd();
+                    var gi = JsonConvert.DeserializeObject<ImportedFilters>(x);
+
+                    // get appropriate ig, game_types array, and ranked for gametype
+                    foreach (var g in gi.game_info)
+                    {
+                        if (g.type.Equals(gametype))
+                        {
+                            ig = g.ig;
+                            gtarr = g.gtarr;
+                            ranked = g.ranked;
+                        }
+                    }
+
+                }
+
+                // create objects to be converted to json
+                QuakeLiveFilters qlf = new QuakeLiveFilters
+                {
+                    group = "any", //hard-code
+                    game_type = gametype,
+                    arena = arena,
+                    state = state,
+                    difficulty = "any", //hard-code
+                    location = location,
+                    @private = priv,
+                    premium_only = premium,
+                    ranked = ranked,
+                    invitation_only = 0, //hard-code
+                };
+
+                QuakeLiveFilterObject qlfo = new QuakeLiveFilterObject
+                {
+                    filters = qlf,
+                    arena_type = arena_type,
+                    players = players,
+                    game_types = gtarr,
+                    ig = ig
+                };
+
+                // convert to json
+                jsonFilterString = JsonConvert.SerializeObject(qlfo);
+
+                // format url and base64 encode the json
+                encodedFilterUrl = "http://www.quakelive.com/browser/list?filter=" + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(jsonFilterString)) + "&_="
+                    + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
+
+                Console.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | game_types: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
+                Console.WriteLine(jsonFilterString);
+                Console.WriteLine(encodedFilterUrl);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to read filter data. Error: " + ex);
+            }
+            return encodedFilterUrl;
         }
 
     }

@@ -1,6 +1,8 @@
 ﻿<Window x:Class="UQLT.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:cal="http://www.caliburnproject.org"
         Title="UQLT v0.1 - Server Browser" Height="780" Width="1000">
     <Grid>
 
@@ -13,5 +15,12 @@
             <RowDefinition Height="423*"/>
         </Grid.RowDefinitions>
         <ContentControl Name="FilterViewModel"/>
+        <Button Content="Hide Filters" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Column="1" Margin="81,68,94,0">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <cal:ActionMessage MethodName="HideFilters"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
     </Grid>
 </Window>
