@@ -6,18 +6,17 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
-             d:DesignWidth="300" Width="727" Height="170">
-    
-    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="727">
-        <!--<ComboBox x:Name="cboGameType" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" SelectedValuePath="game_type"ShouldPreserveUserEnteredPrefix="True"/>-->
-        <ComboBox x:Name="cboGameType" ItemsSource="{Binding game_types}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameArena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="427,24,0,0" SelectedValuePath="arena" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameLocation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" SelectedValuePath="location_id" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameState" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="427,74,0,0" SelectedValuePath="state" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameVisibility" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0"/>
+             d:DesignWidth="300" Width="686" Height="170">
 
-        <CheckBox x:Name="chkPremium" Content="Premium Games" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="428,107,0,0"/>
-        <Button x:Name="btnSaveFilters" Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="462,141,0,0">
+    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="686">
+        <ComboBox x:Name="cboGameType" ItemsSource="{Binding game_types}" SelectedIndex="{Binding gametype_index}" SelectedValuePath="game_type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameArena" ItemsSource="{Binding arenas}" SelectedIndex="{Binding gamearena_index}" SelectedValuePath="arena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,24,0,0"  ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameLocation" ItemsSource="{Binding active_locations}" SelectedIndex="{Binding gamelocation_index}" SelectedValuePath="location_id" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameState" ItemsSource="{Binding gamestate}" SelectedIndex="{Binding gamestate_index}" SelectedValuePath="state" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameVisibility" ItemsSource="{Binding game_visibility}" SelectedIndex="{Binding gamevisibility_index}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0"/>
+
+        <CheckBox x:Name="chkPremium" Content="Premium Games" IsChecked="{Binding gamepremium_bool}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="398,107,0,0"/>
+        <Button x:Name="btnSaveFilters" Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="422,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="SaveNewUserFilters">
@@ -32,7 +31,7 @@
                 <!--TODO: MakeFilterJson method here-->
             </i:Interaction.Triggers>
         </Button>
-        <Button x:Name="btnResetFilters" Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="599,141,0,0">
+        <Button x:Name="btnResetFilters" Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="559,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="ClearSavedUserFilters"/>
@@ -40,9 +39,9 @@
             </i:Interaction.Triggers>
         </Button>
         <Label x:Name="lblGameType" Content="Game Type" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,1,0,0" FontWeight="Bold"/>
-        <Label x:Name="lblGameArena" Content="Arena" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="424,1,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameArena" Content="Arena" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,1,0,0" FontWeight="Bold"/>
         <Label x:Name="lblGameLocation" Content="Game Location" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,50,0,0" FontWeight="Bold"/>
-        <Label x:Name="lblGameStatus" Content="Game Status" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="424,50,0,0" FontWeight="Bold"/>
+        <Label x:Name="lblGameStatus" Content="Game Status" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,50,0,0" FontWeight="Bold"/>
         <Label x:Name="lblGameVisibility" Content="Game Visibility" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,101,0,0" FontWeight="Bold"/>
 
     </Grid>

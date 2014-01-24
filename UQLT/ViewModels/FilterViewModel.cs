@@ -14,7 +14,7 @@ using System.ComponentModel.Composition;
 namespace UQLT.ViewModels
 {
     [Export(typeof(FilterViewModel))]
-    public class FilterViewModel
+    public class FilterViewModel : PropertyChangedBase
     {
         // list of maps that receive "tag" description for arena_type when building filter string
         static List<String> arenatag = new List<String>();
@@ -23,7 +23,7 @@ namespace UQLT.ViewModels
 
         SavedFilters sf = new SavedFilters();
         
-        //ImportedFilters importedfilters;
+        // Backing collection fields for filter information
         List<ActiveLocation> _active_locations;
         List<InactiveLocation> _inactive_locations;
         List<ServerBrowserLocations> _serverbrowser_locations;
@@ -33,6 +33,7 @@ namespace UQLT.ViewModels
         List<GameType> _game_types;
         List<GameInfo> _game_info;
         List<String> _game_visibility = new List<String>();
+        // SelectedIndex fields for comboboxes
         int _gametype_index;
         int _gamearena_index;
         int _gamelocation_index;
@@ -59,7 +60,7 @@ namespace UQLT.ViewModels
                 { ApplySavedUserFilters(); }
                 else { SetStandardDefaultFilters(); }
             }
-
+            // game visibility types don't depend on saved filter file
             _game_visibility.Add("Public games");
             _game_visibility.Add("Private games");
 
@@ -85,6 +86,7 @@ namespace UQLT.ViewModels
             set
             {
                 _active_locations = value;
+                NotifyOfPropertyChange(() => active_locations);
             }
         }
 
@@ -98,6 +100,7 @@ namespace UQLT.ViewModels
             set
             {
                 _inactive_locations = value;
+                NotifyOfPropertyChange(() => inactive_locations);
             }
         }
 
@@ -111,6 +114,7 @@ namespace UQLT.ViewModels
             set
             {
                 _serverbrowser_locations = value;
+                NotifyOfPropertyChange(() => serverbrowser_locations);
             }
         }
 
@@ -124,6 +128,7 @@ namespace UQLT.ViewModels
             set
             {
                 _arenas = value;
+                NotifyOfPropertyChange(() => arenas);
             }
         }
 
@@ -137,6 +142,7 @@ namespace UQLT.ViewModels
             set
             {
                 _difficulty = value;
+                NotifyOfPropertyChange(() => difficulty);
             }
         }
         
@@ -150,6 +156,7 @@ namespace UQLT.ViewModels
             set
             {
                 _gamestate = value;
+                NotifyOfPropertyChange(() => gamestate);
             }
         }
 
@@ -159,10 +166,12 @@ namespace UQLT.ViewModels
             {
                 //_game_types = new List<GameType>(importedfilters.game_types);
                 return _game_types;
+                //return this.ImpFilter.game_types;
             }
             set
             {
                 _game_types = value;
+                NotifyOfPropertyChange(() => game_types);
             }
         }
 
@@ -176,6 +185,7 @@ namespace UQLT.ViewModels
             set
             {
                 _game_info = value;
+                NotifyOfPropertyChange(() => game_info);
             }
         }
 
@@ -184,46 +194,68 @@ namespace UQLT.ViewModels
             get { return _game_visibility; }
         }
 
+
         public int gametype_index
         {
             get { return _gametype_index; }
-            set { _gametype_index = value; }
+            set {
+                _gametype_index = value;
+                NotifyOfPropertyChange(() => gametype_index);
+            }
         }
 
         public int gamearena_index
         {
             get { return _gamearena_index; }
-            set { _gamearena_index = value; }
+            set { 
+                _gamearena_index = value;
+                NotifyOfPropertyChange(() => gamearena_index);
+            }
         }
 
         public int gamelocation_index
         {
             get { return _gamelocation_index; }
-            set { _gamelocation_index = value; }
+            set { 
+                _gamelocation_index = value;
+                NotifyOfPropertyChange(() => gamelocation_index);
+            }
         }
 
         public int gamestate_index
         {
             get { return _gamestate_index; }
-            set { _gamestate_index = value; }
+            set { 
+                _gamestate_index = value;
+                NotifyOfPropertyChange(() => gamestate_index);
+            }
         }
 
         public int gamevisibility_index
         {
             get { return _gamevisibility_index; }
-            set { _gamevisibility_index = value; }
+            set { 
+                _gamevisibility_index = value;
+                NotifyOfPropertyChange(() => gamevisibility_index);
+            }
         }
 
         public int gamepremium_index
         {
             get { return _gamepremium_index;  }
-            set { _gamepremium_index = value; }
+            set { 
+                _gamepremium_index = value;
+                NotifyOfPropertyChange(() => gamepremium_index);
+            }
         }
 
         public bool gamepremium_bool
         {
             get { return _gamepremium_bool; }
-            set { _gamepremium_bool = value; }
+            set { 
+                _gamepremium_bool = value;
+                NotifyOfPropertyChange(() => gamepremium_bool);
+            }
         }
 
 
@@ -235,28 +267,14 @@ namespace UQLT.ViewModels
                 // read filter json from filedir\data\currentfilters.json
                 using (StreamReader sr = new StreamReader(UQLTFilepaths.currentfilterpath))
                 {
-                    Console.WriteLine("**DEBUG: Now reading filters from: " + UQLTFilepaths.currentfilterpath);
                     var x = await sr.ReadToEndAsync();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
-                    // set combo boxes' itemsources to appropriate filter in code
-                    /*
-                    cboGameType.ItemsSource = filters.game_types;
-                    cboGameArena.ItemsSource = filters.arenas;
-                    cboGameLocation.ItemsSource = filters.active_locations;
-                    cboGameState.ItemsSource = filters.gamestate;
-                    */
-                    // game visibility will never change, so it's hard-coded
-                    /*
-                    cboGameVisibility.Items.Add("Public games");
-                    cboGameVisibility.Items.Add("Private games");
-                    */
-
+                    
+                    // set our viewmodel's properties to those in the model
                     game_types = filters.game_types;
                     arenas = filters.arenas;
                     active_locations = filters.active_locations;
                     gamestate = filters.gamestate;
-
-                    Console.WriteLine("**DEBUG: Gametypes: " + string.Join(",", game_types));
 
                     // add to appropriate list in order to set proper arena tag when building filter
                     foreach (var arena in filters.arenas)
@@ -300,22 +318,17 @@ namespace UQLT.ViewModels
             {
                 using (StreamReader sr = new StreamReader(UQLTFilepaths.saveduserfilterpath))
                 {
-                    var x = sr.ReadToEnd();
-                    var sfj = JsonConvert.DeserializeObject<SavedFilters>(x);
-                    sf.gametype_index = sfj.gametype_index;
-                    sf.gamearena_index = sfj.gamearena_index;
-                    sf.gamelocation_index = sfj.gamelocation_index;
-                    sf.gamestate_index = sfj.gamestate_index;
-                    sf.gamevisibility_index = sfj.gamevisibility_index;
-                    sf.gamepremium_index = sfj.gamepremium_index;
+                    String savedblob = sr.ReadToEnd();
+                    var savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
+                    sf.gametype_index = savedFilterJson.gametype_index;
+                    sf.gamearena_index = savedFilterJson.gamearena_index;
+                    sf.gamelocation_index = savedFilterJson.gamelocation_index;
+                    sf.gamestate_index = savedFilterJson.gamestate_index;
+                    sf.gamevisibility_index = savedFilterJson.gamevisibility_index;
+                    sf.gamepremium_index = savedFilterJson.gamepremium_index;
 
-                    /*
-                    cboGameType.SelectedIndex = sf.gametype_index;
-                    cboGameArena.SelectedIndex = sf.gamearena_index;
-                    cboGameLocation.SelectedIndex = sf.gamelocation_index;
-                    cboGameState.SelectedIndex = sf.gamestate_index;
-                    */
-
+                    
+                    // set our viewmodel's index properties to appropriate properties from saved filter file
                     gametype_index = sf.gametype_index;
                     gamearena_index = sf.gamearena_index;
                     gamelocation_index = sf.gamelocation_index;
@@ -325,18 +338,17 @@ namespace UQLT.ViewModels
                     else { gamevisibility_index = 1; }
                     if (sf.gamepremium_index == 0) { gamepremium_bool = false; }
                     else { gamepremium_bool = true; }
-                    //Console.WriteLine(sfj.saved_gamearena);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error applying saved filters: " + ex);
-                ClearSavedUserFilters(null, null);
+                ClearSavedUserFilters();
             }
         }
 
         // clear the user's saved default filters when "Clear Filters" button is clicked
-        private void ClearSavedUserFilters(object sender, RoutedEventArgs e)
+        public void ClearSavedUserFilters()
         {
             if (savedUserFiltersExist())
                 File.Delete(UQLTFilepaths.saveduserfilterpath);
@@ -344,7 +356,7 @@ namespace UQLT.ViewModels
             Console.WriteLine("Saved filters cleared!");
         }
 
-        private void SaveNewUserFilters(int sgametype_index, int sgamearena_index, int sgamelocation_index, int sgamestate_index, int sgamevisibility_index, bool sgamepremium_bool)
+        public void SaveNewUserFilters(int sgametype_index, int sgamearena_index, int sgamelocation_index, int sgamestate_index, int sgamevisibility_index, bool sgamepremium_bool)
         {
             //Console.WriteLine("sender: " + sender + "e: " + e);
             // Combo Box strings and visibility/prem ints, used for passing to makeFilterJson method
