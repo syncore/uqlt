@@ -8,7 +8,6 @@ namespace UQLT.Events
 {
     public class FilterVisibilityEvent
     {
-        //public bool FilterViewVisibility;
         public FilterVisibilityEvent(bool visibility)
         {
             FilterViewVisibility = visibility;

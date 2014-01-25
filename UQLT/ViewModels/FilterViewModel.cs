@@ -84,7 +84,10 @@ namespace UQLT.ViewModels
         public bool isVisible
         {
             get { return _isVisible; }
-            set { NotifyOfPropertyChange(() => isVisible); }
+            set {
+                _isVisible = value;
+                NotifyOfPropertyChange(() => isVisible);
+            }
         }
         
         public List<ActiveLocation> active_locations
@@ -279,7 +282,7 @@ namespace UQLT.ViewModels
         public void Handle(FilterVisibilityEvent message)
         {
             isVisible = message.FilterViewVisibility;
-            Console.WriteLine("Visibility: " + message.FilterViewVisibility);
+            //Console.WriteLine("Visibility: " + message.FilterViewVisibility);
         }
 
         // load the most current filter list (downloaded from application's web server)

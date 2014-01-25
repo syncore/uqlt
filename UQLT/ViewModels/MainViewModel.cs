@@ -13,6 +13,7 @@ namespace UQLT.ViewModels
     public class MainViewModel : PropertyChangedBase, IHaveDisplayName
     {
         private string _displayName = "UQLT v0.1";
+        private FilterViewModel _FilterViewModel;
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
 
@@ -22,21 +23,31 @@ namespace UQLT.ViewModels
             set { _displayName = value; }
         }
 
-        public FilterViewModel FilterViewModel { get; private set; }
+        public FilterViewModel FilterViewModel {
+            get { return _FilterViewModel; }
+            set { _FilterViewModel = value; }
+        }
         
         [ImportingConstructor]
     public MainViewModel(IWindowManager WindowManager, IEventAggregator events)
     {
         _windowManager = WindowManager;
         _events = events;
-        this.FilterViewModel = new FilterViewModel(_events);
+        _FilterViewModel = new FilterViewModel(_events);
     }
 
         public void HideFilters()
         {
-            Console.WriteLine("Attempting to publish event");
-            _events.Publish(new FilterVisibilityEvent(false));
-            //_events.Publish(new FilterVisibilityEvent { FilterViewVisibility = false});
+            //Console.WriteLine("Attempting to publish event");
+            if (_FilterViewModel.isVisible)
+            {
+                _events.Publish(new FilterVisibilityEvent(false));
+            }
+            else
+            {
+                _events.Publish(new FilterVisibilityEvent(true));
+            }
+
         }
     }
 }
