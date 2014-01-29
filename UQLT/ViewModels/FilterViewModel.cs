@@ -73,134 +73,66 @@ namespace UQLT.ViewModels
 
         private bool savedUserFiltersExist()
         {
-            return (File.Exists(UQLTFilepaths.saveduserfilterpath)) ? true : false;
+            return (File.Exists(UQLTGlobals.saveduserfilterpath)) ? true : false;
         }
 
         private bool downloadedFilterListExists()
         {
-            return (File.Exists(UQLTFilepaths.currentfilterpath)) ? true : false;
+            return (File.Exists(UQLTGlobals.currentfilterpath)) ? true : false;
         }
 
         public bool isVisible
         {
             get { return _isVisible; }
-            set {
-                _isVisible = value;
-                NotifyOfPropertyChange(() => isVisible);
-            }
+            set { _isVisible = value; NotifyOfPropertyChange(() => isVisible); }
         }
-        
+
         public List<ActiveLocation> active_locations
         {
-            get
-            {
-                //_active_locations = new List<ActiveLocation>(importedfilters.active_locations);
-                return _active_locations;
-            }
-            set
-            {
-                _active_locations = value;
-                NotifyOfPropertyChange(() => active_locations);
-            }
+            get { return _active_locations; }
+            set { _active_locations = value; NotifyOfPropertyChange(() => active_locations); }
         }
 
         public List<InactiveLocation> inactive_locations
         {
-            get
-            {
-                //_inactive_locations = new List<InactiveLocation>(importedfilters.inactive_locations);
-                return _inactive_locations;
-            }
-            set
-            {
-                _inactive_locations = value;
-                NotifyOfPropertyChange(() => inactive_locations);
-            }
+            get { return _inactive_locations; }
+            set { _inactive_locations = value; NotifyOfPropertyChange(() => inactive_locations); }
         }
 
         public List<ServerBrowserLocations> serverbrowser_locations
         {
-            get
-            {
-                // _serverbrowser_locations = new List<ServerBrowserLocations>(importedfilters.serverbrowser_locations);
-                return _serverbrowser_locations;
-            }
-            set
-            {
-                _serverbrowser_locations = value;
-                NotifyOfPropertyChange(() => serverbrowser_locations);
-            }
+            get { return _serverbrowser_locations; }
+            set { _serverbrowser_locations = value; NotifyOfPropertyChange(() => serverbrowser_locations); }
         }
 
         public List<Arena> arenas
         {
-            get
-            {
-                //_arenas = new List<Arena>(importedfilters.arenas);
-                return _arenas;
-            }
-            set
-            {
-                _arenas = value;
-                NotifyOfPropertyChange(() => arenas);
-            }
+            get { return _arenas; }
+            set { _arenas = value; NotifyOfPropertyChange(() => arenas); }
         }
 
         public List<Difficulty> difficulty
         {
-            get
-            {
-                //_difficulty = new List<Difficulty>(importedfilters.difficulty);
-                return _difficulty;
-            }
-            set
-            {
-                _difficulty = value;
-                NotifyOfPropertyChange(() => difficulty);
-            }
+            get { return _difficulty; }
+            set { _difficulty = value; NotifyOfPropertyChange(() => difficulty); }
         }
 
         public List<GameState> gamestate
         {
-            get
-            {
-                //_gamestate = new List<GameState>(importedfilters.gamestate);
-                return _gamestate;
-            }
-            set
-            {
-                _gamestate = value;
-                NotifyOfPropertyChange(() => gamestate);
-            }
+            get { return _gamestate; }
+            set { _gamestate = value; NotifyOfPropertyChange(() => gamestate); }
         }
 
         public List<GameType> game_types
         {
-            get
-            {
-                //_game_types = new List<GameType>(importedfilters.game_types);
-                return _game_types;
-                //return this.ImpFilter.game_types;
-            }
-            set
-            {
-                _game_types = value;
-                NotifyOfPropertyChange(() => game_types);
-            }
+            get { return _game_types; }
+            set { _game_types = value; NotifyOfPropertyChange(() => game_types); }
         }
 
         public List<GameInfo> game_info
         {
-            get
-            {
-                //_game_info = new List<GameInfo>(importedfilters.game_info);
-                return _game_info;
-            }
-            set
-            {
-                _game_info = value;
-                NotifyOfPropertyChange(() => game_info);
-            }
+            get { return _game_info; }
+            set { _game_info = value; NotifyOfPropertyChange(() => game_info); }
         }
 
         public List<String> game_visibility
@@ -208,75 +140,46 @@ namespace UQLT.ViewModels
             get { return _game_visibility; }
         }
 
-
         public int gametype_index
         {
             get { return _gametype_index; }
-            set
-            {
-                _gametype_index = value;
-                NotifyOfPropertyChange(() => gametype_index);
-            }
+            set { _gametype_index = value; NotifyOfPropertyChange(() => gametype_index); }
         }
 
         public int gamearena_index
         {
             get { return _gamearena_index; }
-            set
-            {
-                _gamearena_index = value;
-                NotifyOfPropertyChange(() => gamearena_index);
-            }
+            set { _gamearena_index = value; NotifyOfPropertyChange(() => gamearena_index); }
         }
 
         public int gamelocation_index
         {
             get { return _gamelocation_index; }
-            set
-            {
-                _gamelocation_index = value;
-                NotifyOfPropertyChange(() => gamelocation_index);
-            }
+            set { _gamelocation_index = value; NotifyOfPropertyChange(() => gamelocation_index); }
         }
 
         public int gamestate_index
         {
             get { return _gamestate_index; }
-            set
-            {
-                _gamestate_index = value;
-                NotifyOfPropertyChange(() => gamestate_index);
-            }
+            set { _gamestate_index = value; NotifyOfPropertyChange(() => gamestate_index); }
         }
 
         public int gamevisibility_index
         {
             get { return _gamevisibility_index; }
-            set
-            {
-                _gamevisibility_index = value;
-                NotifyOfPropertyChange(() => gamevisibility_index);
-            }
+            set { _gamevisibility_index = value; NotifyOfPropertyChange(() => gamevisibility_index); }
         }
 
         public int gamepremium_index
         {
             get { return _gamepremium_index; }
-            set
-            {
-                _gamepremium_index = value;
-                NotifyOfPropertyChange(() => gamepremium_index);
-            }
+            set { _gamepremium_index = value; NotifyOfPropertyChange(() => gamepremium_index); }
         }
 
         public bool gamepremium_bool
         {
             get { return _gamepremium_bool; }
-            set
-            {
-                _gamepremium_bool = value;
-                NotifyOfPropertyChange(() => gamepremium_bool);
-            }
+            set { _gamepremium_bool = value; NotifyOfPropertyChange(() => gamepremium_bool); }
         }
 
         public void Handle(FilterVisibilityEvent message)
@@ -291,7 +194,7 @@ namespace UQLT.ViewModels
             try
             {
                 // read filter json from filedir\data\currentfilters.json
-                using (StreamReader sr = new StreamReader(UQLTFilepaths.currentfilterpath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.currentfilterpath))
                 {
                     var x = await sr.ReadToEndAsync();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
@@ -342,7 +245,7 @@ namespace UQLT.ViewModels
         {
             try
             {
-                using (StreamReader sr = new StreamReader(UQLTFilepaths.saveduserfilterpath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.saveduserfilterpath))
                 {
                     String savedblob = sr.ReadToEnd();
                     var savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
@@ -377,7 +280,7 @@ namespace UQLT.ViewModels
         public void ClearSavedUserFilters()
         {
             if (savedUserFiltersExist())
-                File.Delete(UQLTFilepaths.saveduserfilterpath);
+                File.Delete(UQLTGlobals.saveduserfilterpath);
             SetStandardDefaultFilters();
             Console.WriteLine("Saved filters cleared!");
         }
@@ -398,7 +301,7 @@ namespace UQLT.ViewModels
 
             // write to disk
             String savedfilterjson = JsonConvert.SerializeObject(sf);
-            using (FileStream fs = File.Create(UQLTFilepaths.saveduserfilterpath))
+            using (FileStream fs = File.Create(UQLTGlobals.saveduserfilterpath))
             using (TextWriter writer = new StreamWriter(fs))
             {
                 writer.WriteLine(savedfilterjson);
@@ -438,7 +341,7 @@ namespace UQLT.ViewModels
             try
             {
                 // read filter json from filedir\data\currentfilters.json
-                using (StreamReader sr = new StreamReader(UQLTFilepaths.currentfilterpath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.currentfilterpath))
                 {
                     var x = sr.ReadToEnd();
                     var gi = JsonConvert.DeserializeObject<ImportedFilters>(x);

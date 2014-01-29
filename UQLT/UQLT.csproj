@@ -49,6 +49,11 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.1.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Caliburn.Micro.1.5.2\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -73,17 +78,23 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\LocIdToNameConverter.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
+    <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Models\ImportedFilters.cs" />
+    <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\QLRanks.cs" />
     <Compile Include="Models\QuakeLiveFilters.cs" />
     <Compile Include="Models\SavedFilters.cs" />
+    <Compile Include="Models\ServerDetails.cs" />
     <Compile Include="UQLTBootstrapper.cs" />
-    <Compile Include="UQLTFilepaths.cs" />
+    <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SBMasterViewModel.cs" />
     <Compile Include="Views\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
@@ -92,6 +103,9 @@
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SBMasterView.xaml.cs">
+      <DependentUpon>SBMasterView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +152,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SBMasterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
