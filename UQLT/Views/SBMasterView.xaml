@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="UQLT.Views.SBMasterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:helpers="clr-namespace:UQLT.Helpers"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="717">
+    <Grid Width="717">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="717" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding server_details}">
+
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="location_name">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Name="FlagImage" Width="16" Height="11" Source="{Binding flag_image}" Margin="0,0,5,0"/>
+                                    <TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="ping" DisplayMemberBinding="{Binding ping}"/>
+
+                    <GridViewColumn Header="Game Type" helpers:GridViewSort.PropertyName="game_type_title">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding gametype_image}"/>
+                                    <TextBlock Name="GameTypeName" Text="{Binding game_type_title}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="map" DisplayMemberBinding="{Binding map}"/>
+                    <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="totalplayers">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding totalplayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Server Name" helpers:GridViewSort.PropertyName="host_name" DisplayMemberBinding="{Binding host_name}"/>
+
+                    <GridViewColumn Header="Modded" helpers:GridViewSort.PropertyName="modded" DisplayMemberBinding="{Binding modded}"/>
+                    <GridViewColumn Header="Instagib" helpers:GridViewSort.PropertyName="instagib" DisplayMemberBinding="{Binding instagib}"/>
+                    <GridViewColumn Header="Id" helpers:GridViewSort.PropertyName="public_id" DisplayMemberBinding="{Binding public_id}"/>
+                    <GridViewColumn Header="Address" helpers:GridViewSort.PropertyName="host_address" DisplayMemberBinding="{Binding host_address}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+
+</UserControl>
