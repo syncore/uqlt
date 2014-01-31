@@ -79,6 +79,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\LocIdToNameConverter.cs" />
+    <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
@@ -87,14 +88,16 @@
     <Compile Include="Models\QLRanks.cs" />
     <Compile Include="Models\QuakeLiveFilters.cs" />
     <Compile Include="Models\SavedFilters.cs" />
-    <Compile Include="Models\ServerDetails.cs" />
+    <Compile Include="Models\Server.cs" />
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\SBMasterViewModel.cs" />
+    <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
+    <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
+    <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
     <Compile Include="Views\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
@@ -106,6 +109,12 @@
     </Compile>
     <Compile Include="Views\SBMasterView.xaml.cs">
       <DependentUpon>SBMasterView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ServerBrowserView.xaml.cs">
+      <DependentUpon>ServerBrowserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ServerDetailsViewModel.xaml.cs">
+      <DependentUpon>ServerDetailsViewModel.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +165,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SBMasterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ServerBrowserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ServerDetailsViewModel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

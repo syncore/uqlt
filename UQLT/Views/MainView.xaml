@@ -15,7 +15,7 @@
             <RowDefinition Height="423*"/>
         </Grid.RowDefinitions>
         <ContentControl Name="FilterViewModel"/>
-        <ContentControl Name="SBMasterViewModel" Grid.Row="1" Margin="0,10,0,0"/>
+        <ContentControl Name="ServerBrowserViewModel" Grid.Row="1" Margin="0,10,0,0"/>
         <Button Content="Hide Filters" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Column="1" Margin="81,68,94,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">

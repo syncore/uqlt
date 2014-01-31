@@ -15,7 +15,7 @@ namespace UQLT.ViewModels
     {
         private string _displayName = "UQLT v0.1";
         private FilterViewModel _FilterViewModel;
-        private SBMasterViewModel _SBMasterViewModel;
+        private ServerBrowserViewModel _ServerBrowserViewModel;
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
         
@@ -29,10 +29,10 @@ namespace UQLT.ViewModels
             get { return _FilterViewModel; }
             set { _FilterViewModel = value; }
         }
-        public SBMasterViewModel SBMasterViewModel
+        public ServerBrowserViewModel ServerBrowserViewModel
         {
-            get { return _SBMasterViewModel; }
-            set { _SBMasterViewModel = value; }
+            get { return _ServerBrowserViewModel; }
+            set { _ServerBrowserViewModel = value; }
         }
         
         [ImportingConstructor]
@@ -41,7 +41,7 @@ namespace UQLT.ViewModels
         _windowManager = WindowManager;
         _events = events;
         _FilterViewModel = new FilterViewModel(_events);
-        _SBMasterViewModel = new SBMasterViewModel();
+        _ServerBrowserViewModel = new ServerBrowserViewModel();
     }
 
         public void HideFilters()

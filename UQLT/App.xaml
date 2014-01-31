@@ -39,6 +39,7 @@
                     <!--::::::::::::::::::::-->
                     <BooleanToVisibilityConverter x:Key="BoolToVis" />
                     <converters:LocIdToNameConverter x:Key="LocIdToName"/>
+                    <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

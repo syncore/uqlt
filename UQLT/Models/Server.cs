@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models
 {
-    public class ServerDetails
+    public class Server
     {
         public int num_players { get; set; }
         public int public_id { get; set; }
