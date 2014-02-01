@@ -41,7 +41,7 @@
         </Grid.RowDefinitions>
 
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="717" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="717" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}">
 
             <ListView.View>
                 <GridView>
@@ -89,7 +89,7 @@
         </ListView>
         <!--Player Details-->
         <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="717"
-                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Servers.Players}" SelectionMode="Single" Grid.Row="1">
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="1">
 
             <ListView.View>
                 <GridView>

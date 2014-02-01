@@ -19,27 +19,38 @@ namespace UQLT.ViewModels
     public class ServerBrowserViewModel : PropertyChangedBase
     {
 
-        [ImportingConstructor]
-        public ServerBrowserViewModel() {
-            Servers = new ObservableCollection<ServerDetailsViewModel>();
-            InitOrRefreshServers();
-        }
-       
         static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
         List<String> currentplayerlist = new List<string>(); // player list for elo updating
-        private ServerDetailsViewModel _selectedServer;
-        public ObservableCollection<ServerDetailsViewModel> Servers
+
+        [ImportingConstructor]
+        public ServerBrowserViewModel()
         {
-            get;
-            private set;
+            _servers = new ObservableCollection<ServerDetailsViewModel>();
+            InitOrRefreshServers();
         }
 
+        private ObservableCollection<ServerDetailsViewModel> _servers;
+        public ObservableCollection<ServerDetailsViewModel> Servers
+        {
+            get { return _servers; }
+            set
+            {
+                _servers = value;
+                NotifyOfPropertyChange(() => Servers);
+            }
+        }
+
+        private ServerDetailsViewModel _selectedServer;
         public ServerDetailsViewModel SelectedServer
         {
             get { return _selectedServer; }
-            set { _selectedServer = value; NotifyOfPropertyChange(() => SelectedServer); }
+            set
+            {
+                _selectedServer = value;
+                NotifyOfPropertyChange(() => SelectedServer);
+            }
         }
-        
+
         private async void InitOrRefreshServers()
         {
             var servers = await GetServerList(); //TODO: proper filter url
@@ -53,7 +64,7 @@ namespace UQLT.ViewModels
             }
 
         }
-        
+
         // code for retrieving servers
         private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/2.json")
         {
@@ -122,7 +133,7 @@ namespace UQLT.ViewModels
                 //Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
             }
 
-            
+
             // UI: automatically sort the server browser view by location
             //CollectionViewSource.GetDefaultView(serverdetails).SortDescriptions.Add(new SortDescription("cust_location", ListSortDirection.Ascending));
 

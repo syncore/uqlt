@@ -15,18 +15,13 @@ namespace UQLT.ViewModels
     [Export(typeof(PlayerDetailsViewModel))]
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
-        private string _team_name;
-        private string _cleaned_clan;
-        private int _player_elo;
         static Regex namecolors = new Regex(@"[\^]\d");
-
 
         [ImportingConstructor]
         public PlayerDetailsViewModel(Player player)
         {
             Player = player;
         }
-
         public Player Player
         {
             get;
@@ -98,6 +93,7 @@ namespace UQLT.ViewModels
             //set { Player.model = value; NotifyOfPropertyChange(() => model); }
         }
         // Custom UI properties
+        private string _team_name;
         public string team_name
         {
             get
@@ -127,6 +123,7 @@ namespace UQLT.ViewModels
 
         }
 
+        private string _cleaned_clan;
         public string cleaned_clan
         {
             get
@@ -156,6 +153,7 @@ namespace UQLT.ViewModels
             set;
         }
 
+        private int _player_elo;
         public int player_elo
         {
             get
