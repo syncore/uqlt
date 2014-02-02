@@ -149,8 +149,7 @@ namespace UQLT.ViewModels
 
         public int player_game_type
         {
-            get;
-            set;
+            get { return Player.player_game_type; }
         }
 
         private int _player_elo;

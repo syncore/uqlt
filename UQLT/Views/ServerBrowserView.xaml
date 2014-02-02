@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:helpers="clr-namespace:UQLT.Helpers"
              mc:Ignorable="d" 
-             d:DesignHeight="423" d:DesignWidth="717">
-    
+             d:DesignHeight="423" d:DesignWidth="1040">
+
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
@@ -31,17 +31,87 @@
                 </TextBlock.Text>
             </TextBlock>
         </DataTemplate>
+        <!--Template for displaying extended server details-->
+        <DataTemplate x:Key="extendedDetailsTemplate">
+
+            <StackPanel Margin="12,0,0,0">
+                <StackPanel Orientation="Vertical">
+                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding map_image}" Margin="0,0,0,0"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Map: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Path=map_title}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Location: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding location_name}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Ping: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ping}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Mode: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding game_type_title}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding game_type, Converter={StaticResource GameTypeToRound}}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding roundlimit}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Game Status: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding formatted_game_state}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Time Left: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding time_remaining}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Players: " FontWeight="Bold"/>
+                        <TextBlock Text="{Binding totalplayers}"/>
+                    </StackPanel>
+                    <StackPanel x:Name="TeamScoreboard" Orientation="Vertical" Margin="0,10,5,5">
+
+                        <TextBlock FontWeight="Bold" HorizontalAlignment="Center">
+                                Team Scoreboard
+                                <LineBreak/>
+                        </TextBlock>
+
+                        <StackPanel x:Name="RedScore" Orientation="Horizontal">
+                            <TextBlock Text="Red " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding red_team_elo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="{Binding g_redscore}"/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="BlueScore" Orientation="Horizontal">
+                            <TextBlock Text="Blue " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding blue_team_elo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="{Binding g_bluescore}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                </StackPanel>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding is_team_game}" Value="False">
+                    <Setter TargetName="TeamScoreboard" Property="Visibility" Value="Hidden"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </UserControl.Resources>
-    
-    
-    <Grid Width="717">
+
+
+    <Grid Width="1040">
         <Grid.RowDefinitions>
             <RowDefinition Height="210*"/>
             <RowDefinition Height="210*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="770*"/>
+            <ColumnDefinition Width="270*"/>
+        </Grid.ColumnDefinitions>
 
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="717" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}">
 
             <ListView.View>
                 <GridView>
@@ -88,7 +158,7 @@
             </ListView.View>
         </ListView>
         <!--Player Details-->
-        <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="717"
+        <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
                   IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="1">
 
             <ListView.View>
@@ -113,6 +183,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-
+        <!--Extended server details-->
+        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2"/>
     </Grid>
 </UserControl>

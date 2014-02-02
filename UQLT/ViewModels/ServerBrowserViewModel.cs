@@ -76,7 +76,7 @@ namespace UQLT.ViewModels
         }
 
         // code for retrieving servers
-        private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/2.json")
+        private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
         {
             // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
             HttpClient client = new HttpClient();

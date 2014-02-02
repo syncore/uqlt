@@ -269,6 +269,22 @@ namespace UQLT.ViewModels
                 }
             }
         }
+
+        public ImageSource map_image
+        {
+            get
+            {
+                try
+                {
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/" + map.ToString() + ".jpg", UriKind.RelativeOrAbsolute));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex);
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/unknown_map.jpg", UriKind.RelativeOrAbsolute));
+                }
+            }
+        }
         public string totalplayers
         {
             get { return "" + num_players + "/" + max_clients; }
@@ -467,7 +483,177 @@ namespace UQLT.ViewModels
                 return _location_name;
             }
         }
+        public bool is_team_game
+        {
+            get
+            {
+                return ((game_type == 3 || game_type == 4 || game_type == 5 || game_type == 6 || game_type == 8 || game_type == 9 || game_type == 10 || game_type == 11)) ? true : false;
+            }
+        }
+        
+        private string _formatted_game_state;
+        public string formatted_game_state
+        {
+            get
+            {
+                if (g_gamestate.Equals("IN_PROGRESS"))
+                {
+                    _formatted_game_state = "In Progress";
+                }
+                else if (g_gamestate.Equals("PRE_GAME"))
+                {
+                    _formatted_game_state = "Pre-Game Warmup";
+                }
+                return _formatted_game_state;
+            }
+            // set { _formatted_game_state = value; NotifyOfPropertyChange(() => formatted_game_state); }
 
+        }
+        private string _time_remaining;
+        public string time_remaining
+        {
+            get
+            {
+                if (g_gamestate.Equals("IN_PROGRESS"))
+                {
+                    var now = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
+                    var secsLeft = (long)(timelimit * 60) - (now - g_levelstarttime);
+                    if (secsLeft > 0)
+                    {
+                        var minsLeft = (long)(secsLeft / 60);
+                        secsLeft -= minsLeft * 60;
+                        _time_remaining = String.Format("{0}:{1}", minsLeft.ToString(), secsLeft.ToString("D2"));
+                    }
+                    else
+                    {
+                        _time_remaining = "None";
+                    }
+
+                }
+                else
+                {
+                    _time_remaining = "None";
+                }
+                return _time_remaining;
+            }
+            set
+            {
+                _time_remaining = value;
+                NotifyOfPropertyChange(() => time_remaining);
+            }
+        }
+
+        // This is a weird situation that occurs on some team servers, where the players are on the server,
+        // yet they are not reported as being on red (team: 1) or blue (team: 2) but instead team 0
+        public bool is_team0_condition
+        {
+            get
+            {
+                int redsize = 0, bluesize = 0, zerosize = 0;
+                foreach (var p in Players)
+                {
+                    if (p.team == 0) { zerosize++; }
+                    else if (p.team == 1) { redsize++; }
+                    else if (p.team == 2) { bluesize++; }
+                }
+                if (((redsize == 0) && (bluesize == 0)) && (zerosize > 0)) { return true; }
+                return false;
+            }
+        }
+
+
+        private int _red_team_elo;
+        public int red_team_elo
+        {
+            get
+            {
+                int redtotalplayers = 0, totaleloredteam = 0, redplayerelo = 0;
+
+                if (num_players == 0 || is_team0_condition) { return 0; }
+                else
+                {
+                    if (game_type == 3 || game_type == 4 || game_type == 5)
+                    {
+                        foreach (var p in Players)
+                        {
+                            if (p.team == 1)
+                            {
+                                if (game_type == 3)
+                                {
+                                    redplayerelo = UQLTGlobals.playerelotdm[p.name.ToLower()];
+                                }
+                                else if (game_type == 4)
+                                {
+                                    redplayerelo = UQLTGlobals.playereloca[p.name.ToLower()];
+                                }
+                                else if (game_type == 5)
+                                {
+                                    redplayerelo = UQLTGlobals.playereloctf[p.name.ToLower()];
+                                }
+                                redtotalplayers++;
+                                totaleloredteam += redplayerelo;
+                            }
+                        }
+
+                        if (redtotalplayers == 0) { return 0; }
+                    }
+                    else { return 0; }
+                    _red_team_elo = (totaleloredteam / redtotalplayers);
+                    return _red_team_elo;
+                }
+            }
+            set
+            {
+                _red_team_elo = value;
+                NotifyOfPropertyChange(() => red_team_elo);
+            }
+        }
+        private int _blue_team_elo;
+        public int blue_team_elo
+        {
+            get
+            {
+                int bluetotalplayers = 0, totaleloblueteam = 0, blueplayerelo = 0;
+
+                if (num_players == 0 || is_team0_condition) { return 0; }
+                else
+                {
+                    if (game_type == 3 || game_type == 4 || game_type == 5)
+                    {
+                        foreach (var p in Players)
+                        {
+                            if (p.team == 2)
+                            {
+                                if (game_type == 3)
+                                {
+                                    blueplayerelo = UQLTGlobals.playerelotdm[p.name.ToLower()];
+                                }
+                                else if (game_type == 4)
+                                {
+                                    blueplayerelo = UQLTGlobals.playereloca[p.name.ToLower()];
+                                }
+                                else if (game_type == 5)
+                                {
+                                    blueplayerelo = UQLTGlobals.playereloctf[p.name.ToLower()];
+                                }
+                                bluetotalplayers++;
+                                totaleloblueteam += blueplayerelo;
+                            }
+                        }
+
+                        if (bluetotalplayers == 0) { return 0; }
+                    }
+                    else { return 0; }
+                    _blue_team_elo = (totaleloblueteam / bluetotalplayers);
+                    return _blue_team_elo;
+                }
+            }
+            set
+            {
+                _blue_team_elo = value;
+                NotifyOfPropertyChange(() => blue_team_elo);
+            }
+        }
     }
 
 }
