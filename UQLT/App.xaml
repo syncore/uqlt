@@ -12,29 +12,6 @@
                     <!--The application bootstrapper-->
                     <local:UQLTBootstrapper x:Key="bootstrapper"/>
                     <!--::::::::::::::::::::-->
-                    <!--Global datatemplates-->
-                    <!--::::::::::::::::::::-->
-                    <!--DT: Render the appropriate location name for FilterView combobox-->
-                    <DataTemplate DataType="{x:Type models:ActiveLocation}">
-                        <TextBlock Text="{Binding display_name}"/>
-                    </DataTemplate>
-                    <!--DT: Render the appropriate arena name for FilterView combobox-->
-                    <DataTemplate DataType="{x:Type models:Arena}">
-                        <TextBlock Text="{Binding display_name}"/>
-                    </DataTemplate>
-                    <!--DT: Render the appropriate difficulty name for FilterView combobox-->
-                    <DataTemplate DataType="{x:Type models:Difficulty}">
-                        <TextBlock Text="{Binding display_name}"/>
-                    </DataTemplate>
-                    <!--DT: Render the appropriate game state name for FilterView combobox-->
-                    <DataTemplate DataType="{x:Type models:GameState}">
-                        <TextBlock Text="{Binding display_name}"/>
-                    </DataTemplate>
-                    <!--DT: Render the appropriate game type name for FilterView combobox-->
-                    <DataTemplate DataType="{x:Type models:GameType}">
-                        <TextBlock Text="{Binding display_name}"/>
-                    </DataTemplate>
-                    <!--::::::::::::::::::::-->
                     <!--Converters-->
                     <!--::::::::::::::::::::-->
                     <BooleanToVisibilityConverter x:Key="BoolToVis" />

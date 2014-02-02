@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Windows.Data;
+using System.ComponentModel;
 
 namespace UQLT.ViewModels
 {
@@ -30,6 +32,16 @@ namespace UQLT.ViewModels
             Server = server;
             _FormattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
             _FormattedPlayerList = AddFormattedPlayers(server.players);
+            GroupScoresAndPlayers("score", "team");
+        }
+
+        private void GroupScoresAndPlayers(string sortby, string groupby)
+        {
+            var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
+            var sortDescription = new SortDescription(sortby, ListSortDirection.Descending);
+            var groupDescription = new PropertyGroupDescription(groupby);
+            view.SortDescriptions.Add(sortDescription);
+            view.GroupDescriptions.Add(groupDescription);
         }
 
         private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(List<Player> players)
@@ -281,13 +293,13 @@ namespace UQLT.ViewModels
                 switch (location_id)
                 {
                     case 6:
-                        _location_name = "USA, Dallas, TX";
+                        _location_name = "USA, Dallas";
                         break;
                     case 10:
-                        _location_name = "USA, Palo Alto, CA";
+                        _location_name = "USA, Palo Alto";
                         break;
                     case 11:
-                        _location_name = "USA, Ashburn, VA";
+                        _location_name = "USA, Ashburn";
                         break;
                     case 12:
                         _location_name = "USA, Richardson, TX (LAN)";
@@ -296,7 +308,7 @@ namespace UQLT.ViewModels
                         _location_name = "AUS, Sydney";
                         break;
                     case 16:
-                        _location_name = "USA, San Francisco, CA";
+                        _location_name = "USA, San Francisco";
                         break;
                     case 17:
                         _location_name = "NLD, Amsterdam";
@@ -311,22 +323,22 @@ namespace UQLT.ViewModels
                         _location_name = "FRA, Paris";
                         break;
                     case 21:
-                        _location_name = "USA, Chicago, IL";
+                        _location_name = "USA, Chicago";
                         break;
                     case 22:
-                        _location_name = "USA, Atlanta, GA";
+                        _location_name = "USA, Atlanta";
                         break;
                     case 23:
-                        _location_name = "USA, Seattle, WA";
+                        _location_name = "USA, Seattle";
                         break;
                     case 24:
-                        _location_name = "USA, New York, NY";
+                        _location_name = "USA, New York";
                         break;
                     case 25:
-                        _location_name = "USA, Los Angeles, CA";
+                        _location_name = "USA, Los Angeles";
                         break;
                     case 26:
-                        _location_name = "CAN, Toronto, ON";
+                        _location_name = "CAN, Toronto";
                         break;
                     case 27:
                         _location_name = "JPN, Tokyo";

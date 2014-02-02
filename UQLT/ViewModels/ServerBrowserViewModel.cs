@@ -12,6 +12,8 @@ using UQLT.Models;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Windows.Data;
+using System.ComponentModel;
 
 namespace UQLT.ViewModels
 {
@@ -26,7 +28,15 @@ namespace UQLT.ViewModels
         public ServerBrowserViewModel()
         {
             _servers = new ObservableCollection<ServerDetailsViewModel>();
+            DoServerBrowserAutoSort("location_name");
             InitOrRefreshServers();
+        }
+
+        private void DoServerBrowserAutoSort(string property)
+        {
+            var view = CollectionViewSource.GetDefaultView(Servers);
+            var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
+            view.SortDescriptions.Add(sortDescription);
         }
 
         private ObservableCollection<ServerDetailsViewModel> _servers;
@@ -132,18 +142,7 @@ namespace UQLT.ViewModels
                 UQLTGlobals.ipdict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
                 //Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
             }
-
-
-            // UI: automatically sort the server browser view by location
-            //CollectionViewSource.GetDefaultView(serverdetails).SortDescriptions.Add(new SortDescription("cust_location", ListSortDirection.Ascending));
-
-            // UI: automatically sort the server details view by score and group by team
-            //((ItemCollection)(ServerDetailList.Items)).SortDescriptions.Add(new SortDescription("score", ListSortDirection.Descending));
-            //((ItemCollection)(ServerDetailList.Items)).GroupDescriptions.Add(new PropertyGroupDescription("team"));
-
-            //Console.WriteLine("Current playerlist List: " + string.Join(",", currentplayerlist));
             splitPlayerList(currentplayerlist);
-
             return serverlist;
         }
 

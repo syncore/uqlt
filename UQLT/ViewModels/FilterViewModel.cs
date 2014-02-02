@@ -24,31 +24,11 @@ namespace UQLT.ViewModels
 
         SavedFilters sf = new SavedFilters();
 
-        private bool _isVisible = true;
-        // Backing collection fields for filter information
-        private List<ActiveLocation> _active_locations;
-        private List<InactiveLocation> _inactive_locations;
-        private List<ServerBrowserLocations> _serverbrowser_locations;
-        private List<Arena> _arenas;
-        private List<Difficulty> _difficulty;
-        private List<GameState> _gamestate;
-        private List<GameType> _game_types;
-        private List<GameInfo> _game_info;
-        private List<String> _game_visibility = new List<String>();
-        // SelectedIndex fields for comboboxes
-        private int _gametype_index;
-        private int _gamearena_index;
-        private int _gamelocation_index;
-        private int _gamestate_index;
-        private int _gamevisibility_index;
-        private int _gamepremium_index;
-        private bool _gamepremium_bool;
-
         [ImportingConstructor]
         public FilterViewModel(IEventAggregator events)
         {
             events.Subscribe(this);
-            
+
             // load hard-coded fail-safe filters if downloaded list doesn't exist
             if (!downloadedFilterListExists())
             {
@@ -81,101 +61,118 @@ namespace UQLT.ViewModels
             return (File.Exists(UQLTGlobals.currentfilterpath)) ? true : false;
         }
 
+        private bool _isVisible = true;
         public bool isVisible
         {
             get { return _isVisible; }
             set { _isVisible = value; NotifyOfPropertyChange(() => isVisible); }
         }
 
+        private List<ActiveLocation> _active_locations;
         public List<ActiveLocation> active_locations
         {
             get { return _active_locations; }
             set { _active_locations = value; NotifyOfPropertyChange(() => active_locations); }
         }
 
+        private List<InactiveLocation> _inactive_locations;
         public List<InactiveLocation> inactive_locations
         {
             get { return _inactive_locations; }
             set { _inactive_locations = value; NotifyOfPropertyChange(() => inactive_locations); }
         }
 
+        private List<ServerBrowserLocations> _serverbrowser_locations;
         public List<ServerBrowserLocations> serverbrowser_locations
         {
             get { return _serverbrowser_locations; }
             set { _serverbrowser_locations = value; NotifyOfPropertyChange(() => serverbrowser_locations); }
         }
 
+        private List<Arena> _arenas;
         public List<Arena> arenas
         {
             get { return _arenas; }
             set { _arenas = value; NotifyOfPropertyChange(() => arenas); }
         }
 
+        private List<Difficulty> _difficulty;
         public List<Difficulty> difficulty
         {
             get { return _difficulty; }
             set { _difficulty = value; NotifyOfPropertyChange(() => difficulty); }
         }
 
+        private List<GameState> _gamestate;
         public List<GameState> gamestate
         {
             get { return _gamestate; }
             set { _gamestate = value; NotifyOfPropertyChange(() => gamestate); }
         }
 
+        private List<GameType> _game_types;
         public List<GameType> game_types
         {
             get { return _game_types; }
             set { _game_types = value; NotifyOfPropertyChange(() => game_types); }
         }
 
+        private List<GameInfo> _game_info;
         public List<GameInfo> game_info
         {
             get { return _game_info; }
             set { _game_info = value; NotifyOfPropertyChange(() => game_info); }
         }
 
+        private List<String> _game_visibility = new List<String>();
         public List<String> game_visibility
         {
             get { return _game_visibility; }
         }
 
+        private int _gametype_index;
         public int gametype_index
         {
             get { return _gametype_index; }
             set { _gametype_index = value; NotifyOfPropertyChange(() => gametype_index); }
         }
 
+        private int _gamearena_index;
         public int gamearena_index
         {
             get { return _gamearena_index; }
             set { _gamearena_index = value; NotifyOfPropertyChange(() => gamearena_index); }
         }
 
+        private int _gamelocation_index;
         public int gamelocation_index
         {
             get { return _gamelocation_index; }
             set { _gamelocation_index = value; NotifyOfPropertyChange(() => gamelocation_index); }
         }
 
+        private int _gamestate_index;
         public int gamestate_index
         {
             get { return _gamestate_index; }
             set { _gamestate_index = value; NotifyOfPropertyChange(() => gamestate_index); }
         }
 
+        private int _gamevisibility_index;
         public int gamevisibility_index
         {
             get { return _gamevisibility_index; }
             set { _gamevisibility_index = value; NotifyOfPropertyChange(() => gamevisibility_index); }
         }
 
+        private int _gamepremium_index;
         public int gamepremium_index
         {
             get { return _gamepremium_index; }
             set { _gamepremium_index = value; NotifyOfPropertyChange(() => gamepremium_index); }
         }
 
+        private bool _gamepremium_bool;
         public bool gamepremium_bool
         {
             get { return _gamepremium_bool; }

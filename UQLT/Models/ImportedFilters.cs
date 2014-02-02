@@ -23,18 +23,33 @@ namespace UQLT.Models
     {
         public string display_name { get; set; }
         public object location_id { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class ServerBrowserLocations
     {
         public string display_name { get; set; }
         public object location_id { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class InactiveLocation
     {
         public string display_name { get; set; }
         public int location_id { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class Arena
@@ -42,24 +57,44 @@ namespace UQLT.Models
         public string display_name { get; set; }
         public string arena_type { get; set; }
         public string arena { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class Difficulty
     {
         public string display_name { get; set; }
         public string difficulty { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class GameState
     {
         public string display_name { get; set; }
         public string state { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
 
     public class GameType
     {
         public string display_name { get; set; }
         public string game_type { get; set; }
+
+        public override string ToString()
+        {
+            return display_name;
+        }
     }
     public class GameInfo
     {
