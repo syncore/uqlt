@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using UQLT.Models;
+using UQLT.Events;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
@@ -18,18 +19,19 @@ using System.ComponentModel;
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerBrowserViewModel))]
-    public class ServerBrowserViewModel : PropertyChangedBase
+    public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
 
         static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
         List<String> currentplayerlist = new List<string>(); // player list for elo updating
-
+        
         [ImportingConstructor]
-        public ServerBrowserViewModel()
+        public ServerBrowserViewModel(IEventAggregator events)
         {
+            events.Subscribe(this);
             _servers = new ObservableCollection<ServerDetailsViewModel>();
             DoServerBrowserAutoSort("location_name");
-            InitOrRefreshServers();
+            InitOrRefreshServers(FilterURL);
         }
 
         private void DoServerBrowserAutoSort(string property)
@@ -61,9 +63,24 @@ namespace UQLT.ViewModels
             }
         }
 
-        private async void InitOrRefreshServers()
+        // default value for filter URL
+        private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=1391549611901";
+        // TODO: save the filter url in the savedfilters on disk, also code a failsafe default url
+        public string FilterURL
         {
-            var servers = await GetServerList(); //TODO: proper filter url
+            get { return _filterURL; }
+            set
+            {
+                _filterURL = value;
+                NotifyOfPropertyChange(() => FilterURL);
+            }
+        }
+        
+        private async void InitOrRefreshServers(string url)
+        {
+            url = FilterURL;
+            var detailsurl = await GetServerIdsFromFilter(url);
+            var servers = await GetServerList(detailsurl); //TODO: proper filter url
             if (servers != null)
             {
                 Servers.Clear();
@@ -75,8 +92,33 @@ namespace UQLT.ViewModels
 
         }
 
-        // code for retrieving servers
-        private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
+        // Get the list of server ids for a given filter, then return a nicely formatted details url
+        private async Task<string> GetServerIdsFromFilter(string url)
+        {
+            url = FilterURL;
+            HttpClient client = new HttpClient();
+            List<String> ids = new List<string>();
+
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
+            HttpResponseMessage response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode(); // Throw on error code
+            String serverfilterjson = await response.Content.ReadAsStringAsync();
+
+            QLFilterObject qlfilter = JsonConvert.DeserializeObject<QLFilterObject>(serverfilterjson);
+
+            foreach (QLFilterServer qfs in qlfilter.servers) {
+                ids.Add(qfs.public_id.ToString());
+            }
+
+            Console.WriteLine("Formatted details URL: " + "http://www.quakelive.com/browser/details?ids=" + string.Join(",", ids));
+            return "http://www.quakelive.com/browser/details?ids=" + string.Join(",", ids);
+        }
+        
+        
+        // Get the actual server details for the list of servers based on the server ids
+        //private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
+        private async Task<IList<Server>> GetServerList(string url)
         {
             // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
             HttpClient client = new HttpClient();
@@ -85,11 +127,11 @@ namespace UQLT.ViewModels
             currentplayerlist.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
-            HttpResponseMessage response = await client.GetAsync(FilterURL);
+            HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode(); // Throw on error code
-            String serverlistjson = await response.Content.ReadAsStringAsync();
+            String serverdetailsjson = await response.Content.ReadAsStringAsync();
 
-            ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverlistjson);
+            ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
             List<String> addresses = new List<string>();
             int elo;
 
@@ -185,8 +227,8 @@ namespace UQLT.ViewModels
             HttpClient client = new HttpClient();
             try
             {
-                //client.BaseAddress = new Uri("http://www.qlranks.com");
-                client.BaseAddress = new Uri("http://10.0.0.7");
+                client.BaseAddress = new Uri("http://www.qlranks.com");
+                //client.BaseAddress = new Uri("http://10.0.0.7");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
                 HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
@@ -224,6 +266,11 @@ namespace UQLT.ViewModels
             ping.SendAsync(address, new object());
             return tcs.Task;
         }
-
+        public void Handle(ServerRequestEvent message)
+        {
+            FilterURL = message.ServerRequestURL;
+            InitOrRefreshServers(FilterURL);
+            Console.WriteLine("[EVENT] Filter URL: " + message.ServerRequestURL);
+        }
     }
 }

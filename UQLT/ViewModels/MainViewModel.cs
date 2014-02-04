@@ -41,7 +41,7 @@ namespace UQLT.ViewModels
         _windowManager = WindowManager;
         _events = events;
         _FilterViewModel = new FilterViewModel(_events);
-        _ServerBrowserViewModel = new ServerBrowserViewModel();
+        _ServerBrowserViewModel = new ServerBrowserViewModel(_events);
     }
 
         public void HideFilters()

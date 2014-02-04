@@ -82,10 +82,12 @@
     <Compile Include="Converters\LocIdToNameConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
+    <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Models\ImportedFilters.cs" />
     <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\QLFilterObject.cs" />
     <Compile Include="Models\QLRanks.cs" />
     <Compile Include="Models\QuakeLiveFilters.cs" />
     <Compile Include="Models\SavedFilters.cs" />
@@ -111,14 +113,11 @@
     <Compile Include="Views\PlayerDetailsView.xaml.cs">
       <DependentUpon>PlayerDetailsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SBMasterView.xaml.cs">
-      <DependentUpon>SBMasterView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ServerBrowserView.xaml.cs">
       <DependentUpon>ServerBrowserView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ServerDetailsViewModel.xaml.cs">
-      <DependentUpon>ServerDetailsViewModel.xaml</DependentUpon>
+    <Compile Include="Views\ServerDetailsView.xaml.cs">
+      <DependentUpon>ServerDetailsView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -172,15 +171,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SBMasterView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\ServerBrowserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ServerDetailsViewModel.xaml">
+    <Page Include="Views\ServerDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

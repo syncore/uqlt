@@ -22,11 +22,14 @@ namespace UQLT.ViewModels
         // list of maps that receive "map" description for arena_type when building filter string
         static List<String> arenamap = new List<String>();
 
+        private readonly IEventAggregator _events;
+
         SavedFilters sf = new SavedFilters();
 
         [ImportingConstructor]
         public FilterViewModel(IEventAggregator events)
         {
+            _events = events;
             events.Subscribe(this);
 
             // load hard-coded fail-safe filters if downloaded list doesn't exist
@@ -395,8 +398,15 @@ namespace UQLT.ViewModels
             {
                 MessageBox.Show("Unable to read filter data. Error: " + ex);
             }
+            // fire event to server browser
+            SetServerBrowserUrl(encodedFilterUrl);
             return encodedFilterUrl;
         }
 
+        public void SetServerBrowserUrl(string url)
+        {
+            //Console.WriteLine("Attempting to publish event");
+            _events.Publish(new ServerRequestEvent(url));
+        }
     }
 }
