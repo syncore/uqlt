@@ -8,11 +8,11 @@ namespace UQLT.Events
 {
     public class ServerRequestEvent
     {
-        public ServerRequestEvent(string FilterURL)
+        public ServerRequestEvent(string filterURL)
         {
-            ServerRequestURL = FilterURL;
+            ServerRequestURL = filterURL;
         }
-        public string ServerRequestURL { get; set; }
 
+        public string ServerRequestURL { get; set; }
     }
 }

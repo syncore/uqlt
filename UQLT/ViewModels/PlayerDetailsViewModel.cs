@@ -1,190 +1,199 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Caliburn.Micro;
-using UQLT.Models;
-using System.ComponentModel.Composition;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Text.RegularExpressions;
+using Caliburn.Micro;
+using UQLT.Models;
+using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
     [Export(typeof(PlayerDetailsViewModel))]
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
-        static Regex namecolors = new Regex(@"[\^]\d");
+        private static Regex namecolors = new Regex(@"[\^]\d");
 
         [ImportingConstructor]
         public PlayerDetailsViewModel(Player player)
         {
             Player = player;
         }
+
         public Player Player
         {
             get;
             private set;
         }
 
-        public string clan
+        public string Clan
         {
             get
             {
                 return Player.clan;
             }
-            //set { Player.clan = value; NotifyOfPropertyChange(() => clan); }
         }
-        public int sub_level
+
+        public int SubLevel
         {
             get
             {
                 return Player.sub_level;
             }
-            //set { Player.sub_level = value; NotifyOfPropertyChange(() => sub_level); }
         }
-        public string name
+
+        public string Name
         {
             get
             {
                 return Player.name;
             }
-            //set { Player.name = value; NotifyOfPropertyChange(() => name); }
         }
-        public int bot
+
+        public int Bot
         {
             get
             {
                 return Player.bot;
             }
-            //set { Player.bot = value; NotifyOfPropertyChange(() => bot); }
         }
-        public int rank
+
+        public int Rank
         {
             get
             {
                 return Player.rank;
             }
-            //set { Player.rank = value; NotifyOfPropertyChange(() => rank); }
         }
-        public int score
+
+        public int Score
         {
             get
             {
                 return Player.score;
             }
-            //set { Player.score = value; NotifyOfPropertyChange(() => score); }
         }
-        public int team
+
+        public int Team
         {
             get
             {
                 return Player.team;
             }
-            //set { Player.team = value; NotifyOfPropertyChange(() => team; }
         }
-        public string model
+
+        public string Model
         {
             get
             {
                 return Player.model;
             }
-            //set { Player.model = value; NotifyOfPropertyChange(() => model); }
         }
+
         // Custom UI properties
-        private string _team_name;
-        public string team_name
+        private string _teamName;
+
+        public string TeamName
         {
             get
             {
-                switch (team)
+                switch (Team)
                 {
                     case 0:
-                        _team_name = "None";
+                        _teamName = "None";
                         break;
                     case 1:
-                        _team_name = "Red";
+                        _teamName = "Red";
                         break;
                     case 2:
-                        _team_name = "Blue";
+                        _teamName = "Blue";
                         break;
                     case 3:
-                        _team_name = "Spec";
+                        _teamName = "Spec";
                         break;
                 }
-                return _team_name;
+
+                return _teamName;
             }
+
             set
             {
-                _team_name = value;
-                NotifyOfPropertyChange(() => team_name);
+                _teamName = value;
+                NotifyOfPropertyChange(() => TeamName);
             }
-
         }
 
-        private string _cleaned_clan;
-        public string cleaned_clan
+        private string _cleanedClan;
+
+        public string CleanedClan
         {
             get
             {
-                _cleaned_clan = namecolors.Replace(clan, "");
-                return _cleaned_clan;
+                _cleanedClan = namecolors.Replace(Clan, string.Empty);
+                return _cleanedClan;
             }
+
             set
             {
-                _cleaned_clan = value;
-                NotifyOfPropertyChange(() => cleaned_clan);
+                _cleanedClan = value;
+                NotifyOfPropertyChange(() => CleanedClan);
             }
         }
 
-        public ImageSource account_image
+        public ImageSource AccountImage
         {
             get
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + sub_level.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + SubLevel.ToString() + ".gif", UriKind.RelativeOrAbsolute));
             }
         }
 
-
-        public int player_game_type
+        public int PlayerGameType
         {
-            get { return Player.player_game_type; }
+            get
+            { 
+                return Player.player_game_type;
+            }
         }
 
-        private int _player_elo;
-        public int player_elo
+        private int _playerElo;
+
+        public int PlayerElo
         {
             get
             {
-                switch (player_game_type)
+                switch (PlayerGameType)
                 {
                     case 0:
-                        _player_elo = UQLTGlobals.playereloffa[name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloFfa[Name.ToLower()];
                         break;
 
                     case 4:
-                        _player_elo = UQLTGlobals.playereloca[name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloCa[Name.ToLower()];
                         break;
 
                     case 1:
-                        _player_elo = UQLTGlobals.playereloduel[name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloDuel[Name.ToLower()];
                         break;
 
                     case 3:
-                        _player_elo = UQLTGlobals.playerelotdm[name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloTdm[Name.ToLower()];
                         break;
 
                     case 5:
-                        _player_elo = UQLTGlobals.playereloctf[name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloCtf[Name.ToLower()];
                         break;
 
                     default:
-                        _player_elo = 0;
+                        _playerElo = 0;
                         break;
                 }
-                return _player_elo;
 
+                return _playerElo;
             }
         }
     }

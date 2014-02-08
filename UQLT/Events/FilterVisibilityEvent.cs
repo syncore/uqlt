@@ -12,7 +12,7 @@ namespace UQLT.Events
         {
             FilterViewVisibility = visibility;
         }
-        public bool FilterViewVisibility { get; set; }
-        
+
+        public bool FilterViewVisibility { get; set; }  
     }
 }

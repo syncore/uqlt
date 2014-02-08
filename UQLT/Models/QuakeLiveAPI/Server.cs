@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UQLT.Models
+namespace UQLT.Models.QuakeLiveAPI
 {
     public class Server
     {

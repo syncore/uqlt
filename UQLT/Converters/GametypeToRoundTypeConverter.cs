@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,15 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using Newtonsoft.Json;
 
 namespace UQLT.Converters
 {
     public class GametypeToRoundtypeConverter : IValueConverter
     {
-        public GametypeToRoundtypeConverter() { }
-
-        public object Convert(object value, Type targetType,
-        object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string roundtype = null;
             switch (System.Convert.ToInt32(value))
@@ -41,14 +38,13 @@ namespace UQLT.Converters
                     roundtype = "Frag Limit: ";
                     break;
             }
+
             return roundtype;
         }
 
-        public object ConvertBack(object value, Type targetType,
-            object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
-
 }

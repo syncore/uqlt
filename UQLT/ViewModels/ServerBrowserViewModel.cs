@@ -1,37 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Caliburn.Micro;
-using System.ComponentModel.Composition;
-using Newtonsoft.Json;
-using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
-using UQLT.Models;
-using UQLT.Events;
+using System.ComponentModel;
+using System.ComponentModel.Composition;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.NetworkInformation;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Data;
-using System.ComponentModel;
+using Caliburn.Micro;
+using Newtonsoft.Json;
+using UQLT.Events;
+using UQLT.Models;
+using UQLT.Models.Filters.Remote;
+using UQLT.Models.QLRanks;
+using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerBrowserViewModel))]
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
+        private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
+        
+        private List<string> currentplayerlist = new List<string>(); // player list for elo updating
+        
+        private ObservableCollection<ServerDetailsViewModel> _servers;
 
-        static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
-        List<String> currentplayerlist = new List<string>(); // player list for elo updating
+        public ObservableCollection<ServerDetailsViewModel> Servers
+        {
+            get 
+            { 
+                return _servers;
+            }
+            
+            set
+            {
+                _servers = value;
+                NotifyOfPropertyChange(() => Servers);
+            }
+        }
+
+        private ServerDetailsViewModel _selectedServer;
+
+        public ServerDetailsViewModel SelectedServer
+        {
+            get 
+            { 
+                return _selectedServer;
+            }
+            
+            set
+            {
+                _selectedServer = value;
+                NotifyOfPropertyChange(() => SelectedServer);
+            }
+        }
+
+        // default value for filter URL
+        // private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=1391549611901";
+        private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiMyIsImFyZW5hIjoiYW55Iiwic3RhdGUiOiJQT1BVTEFURUQiLCJkaWZmaWN1bHR5IjoiYW55IiwibG9jYXRpb24iOiJhbnkiLCJwcml2YXRlIjowLCJwcmVtaXVtX29ubHkiOjAsImludml0YXRpb25fb25seSI6MCwicmFua2VkIjoiYW55In0sImFyZW5hX3R5cGUiOiIiLCJwbGF5ZXJzIjpbXSwiZ2FtZV90eXBlcyI6WzVdLCJpZyI6MH0%3D&_=1391656617403";
+        // private string _filterURL;
+        
+        // TODO: save the filter url in the savedfilters on disk, also code a failsafe default url
+        public string FilterURL
+        {
+            get 
+            { 
+                return _filterURL;
+            }
+            
+            set
+            {
+                _filterURL = value;
+                NotifyOfPropertyChange(() => FilterURL);
+            }
+        }
         
         [ImportingConstructor]
         public ServerBrowserViewModel(IEventAggregator events)
         {
             events.Subscribe(this);
             _servers = new ObservableCollection<ServerDetailsViewModel>();
-            DoServerBrowserAutoSort("location_name");
+            DoServerBrowserAutoSort("LocationName");
             InitOrRefreshServers(FilterURL);
+        }
+
+        public void Handle(ServerRequestEvent message)
+        {
+            FilterURL = message.ServerRequestURL;
+            InitOrRefreshServers(FilterURL);
+            Console.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
         }
 
         private void DoServerBrowserAutoSort(string property)
@@ -41,46 +103,11 @@ namespace UQLT.ViewModels
             view.SortDescriptions.Add(sortDescription);
         }
 
-        private ObservableCollection<ServerDetailsViewModel> _servers;
-        public ObservableCollection<ServerDetailsViewModel> Servers
-        {
-            get { return _servers; }
-            set
-            {
-                _servers = value;
-                NotifyOfPropertyChange(() => Servers);
-            }
-        }
-
-        private ServerDetailsViewModel _selectedServer;
-        public ServerDetailsViewModel SelectedServer
-        {
-            get { return _selectedServer; }
-            set
-            {
-                _selectedServer = value;
-                NotifyOfPropertyChange(() => SelectedServer);
-            }
-        }
-
-        // default value for filter URL
-        private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=1391549611901";
-        // TODO: save the filter url in the savedfilters on disk, also code a failsafe default url
-        public string FilterURL
-        {
-            get { return _filterURL; }
-            set
-            {
-                _filterURL = value;
-                NotifyOfPropertyChange(() => FilterURL);
-            }
-        }
-        
         private async void InitOrRefreshServers(string url)
         {
             url = FilterURL;
             var detailsurl = await GetServerIdsFromFilter(url);
-            var servers = await GetServerList(detailsurl); //TODO: proper filter url
+            var servers = await GetServerList(detailsurl); // TODO: proper filter url
             if (servers != null)
             {
                 Servers.Clear();
@@ -89,7 +116,6 @@ namespace UQLT.ViewModels
                     Servers.Add(new ServerDetailsViewModel(server));
                 }
             }
-
         }
 
         // Get the list of server ids for a given filter, then return a nicely formatted details url
@@ -97,17 +123,18 @@ namespace UQLT.ViewModels
         {
             url = FilterURL;
             HttpClient client = new HttpClient();
-            List<String> ids = new List<string>();
+            List<string> ids = new List<string>();
 
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode(); // Throw on error code
-            String serverfilterjson = await response.Content.ReadAsStringAsync();
+            string serverfilterjson = await response.Content.ReadAsStringAsync();
 
-            QLFilterObject qlfilter = JsonConvert.DeserializeObject<QLFilterObject>(serverfilterjson);
+            QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
 
-            foreach (QLFilterServer qfs in qlfilter.servers) {
+            foreach (QLAPIFilterServer qfs in qlfilter.servers)
+            {
                 ids.Add(qfs.public_id.ToString());
             }
 
@@ -115,97 +142,99 @@ namespace UQLT.ViewModels
             return "http://www.quakelive.com/browser/details?ids=" + string.Join(",", ids);
         }
         
-        
         // Get the actual server details for the list of servers based on the server ids
-        //private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
+        // private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
         private async Task<IList<Server>> GetServerList(string url)
         {
             // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
             HttpClient client = new HttpClient();
 
-            UQLTGlobals.ipdict.Clear();
+            UQLTGlobals.IPAddressDict.Clear();
             currentplayerlist.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode(); // Throw on error code
-            String serverdetailsjson = await response.Content.ReadAsStringAsync();
+            string serverdetailsjson = await response.Content.ReadAsStringAsync();
 
             ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
-            List<String> addresses = new List<string>();
+            List<string> addresses = new List<string>();
             int elo;
 
             foreach (Server s in serverlist)
             {
-                string cleanedip = port.Replace(s.host_address, "");
+                string cleanedip = port.Replace(s.host_address, string.Empty);
                 addresses.Add(cleanedip);
-                UQLTGlobals.ipdict.TryAdd(cleanedip, 0); // initially set ping at 0
+                UQLTGlobals.IPAddressDict.TryAdd(cleanedip, 0); // initially set ping at 0
 
                 foreach (Player p in s.players)
                 {
                     // in the interests of time, only check duel elo. player will be included in all dicts if in duel dict
-                    if (!UQLTGlobals.playereloduel.TryGetValue(p.name.ToLower(), out elo))
+                    if (!UQLTGlobals.PlayerEloDuel.TryGetValue(p.name.ToLower(), out elo))
                     {
                         currentplayerlist.Add(p.name.ToLower());
-                        //temporarily set default elo to 0
+                        
+                        // temporarily set default elo to 0
                         SetQLranksDefaultElo(p.name.ToLower());
                     }
                     else
                     {
                         if (elo != 0)
                         {
-                            Console.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.playereloduel[p.name.ToLower()]
-                                + " [CA]: " + UQLTGlobals.playereloca[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.playerelotdm[p.name.ToLower()] + " [CTF]: "
-                                + UQLTGlobals.playereloctf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.playereloffa[p.name.ToLower()]);
+                            Console.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
+                                + " [CA]: " + UQLTGlobals.PlayerEloCa[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.PlayerEloTdm[p.name.ToLower()] + " [CTF]: "
+                                + UQLTGlobals.PlayerEloCtf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.PlayerEloFfa[p.name.ToLower()]);
                         }
                         else
                         {
                             SetQLranksDefaultElo(p.name.ToLower());
                         }
-
                     }
                 }
+                
                 // set a custom property for game_type for each server's players
                 s.setPlayerGameTypeFromServer(s.game_type);
             }
 
             List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
-            foreach (String address in addresses)
+            foreach (string address in addresses)
             {
                 pingTasks.Add(PingAsync(address));
             }
 
-            //wait for all the tasks to complete
+            // wait for all the tasks to complete
             await Task.WhenAll(pingTasks.ToArray());
 
-            //iterate over list of pingTasks
+            // iterate over list of pingTasks
             foreach (var pingTask in pingTasks)
             {
-                UQLTGlobals.ipdict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
-                //Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
+                UQLTGlobals.IPAddressDict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
+                // Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
             }
-            splitPlayerList(currentplayerlist);
+
+            SplitPlayerList(currentplayerlist);
             return serverlist;
         }
 
+        private void SetQLranksDefaultElo(string player)
+        {
+            UQLTGlobals.PlayerEloDuel.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloCa.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloTdm.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloFfa.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloCtf.TryAdd(player, 0);
+        }
 
-        private void SetQLranksDefaultElo(String player)
+        private void SetQLranksInfo(string player, int duelElo, int caElo, int tdmElo, int ffaElo, int ctfElo)
         {
-            UQLTGlobals.playereloduel.TryAdd(player, 0);
-            UQLTGlobals.playereloca.TryAdd(player, 0);
-            UQLTGlobals.playerelotdm.TryAdd(player, 0);
-            UQLTGlobals.playereloffa.TryAdd(player, 0);
-            UQLTGlobals.playereloctf.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloDuel.TryUpdate(player, duelElo, 0);
+            UQLTGlobals.PlayerEloCa.TryUpdate(player, caElo, 0);
+            UQLTGlobals.PlayerEloTdm.TryUpdate(player, tdmElo, 0);
+            UQLTGlobals.PlayerEloFfa.TryUpdate(player, ffaElo, 0);
+            UQLTGlobals.PlayerEloCtf.TryUpdate(player, ctfElo, 0);
         }
-        private void SetQLranksInfo(String player, int duelelo, int caelo, int tdmelo, int ffaelo, int ctfelo)
-        {
-            UQLTGlobals.playereloduel.TryUpdate(player, duelelo, 0);
-            UQLTGlobals.playereloca.TryUpdate(player, caelo, 0);
-            UQLTGlobals.playerelotdm.TryUpdate(player, tdmelo, 0);
-            UQLTGlobals.playereloffa.TryUpdate(player, ffaelo, 0);
-            UQLTGlobals.playereloctf.TryUpdate(player, ctfelo, 0);
-        }
-        private void splitPlayerList(List<string> input, int maxPlayers = 150)
+
+        private void SplitPlayerList(List<string> input, int maxPlayers = 150)
         {
             List<List<string>> list = new List<List<string>>();
 
@@ -214,15 +243,16 @@ namespace UQLT.ViewModels
                 list.Add(currentplayerlist.GetRange(i, Math.Min(maxPlayers, currentplayerlist.Count - i)));
                 Console.WriteLine("QLR API Call Index: " + i.ToString());
             }
+
             foreach (var x in list)
             {
                 GetQlranksInfo(string.Join("+", x));
-                //Console.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
+                
+                // Console.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
             }
-
         }
 
-        private async void GetQlranksInfo(String players)
+        private async void GetQlranksInfo(string players)
         {
             HttpClient client = new HttpClient();
             try
@@ -233,7 +263,7 @@ namespace UQLT.ViewModels
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
                 HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
                 response.EnsureSuccessStatusCode(); // Throw on error code
-                String eloinfojson = await response.Content.ReadAsStringAsync();
+                string eloinfojson = await response.Content.ReadAsStringAsync();
 
                 QLRanks qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
 
@@ -241,20 +271,22 @@ namespace UQLT.ViewModels
                 {
                     SetQLranksInfo(qp.nick.ToLower(), qp.duel.elo, qp.ca.elo, qp.tdm.elo, qp.ffa.elo, qp.ctf.elo);
                 }
-
             }
             catch (Newtonsoft.Json.JsonException jEx)
             {
                 // This exception indicates a problem deserializing the request body.
                 Console.WriteLine(jEx.Message);
-                //MessageBox.Show(jEx.Message);
+                
+                // MessageBox.Show(jEx.Message);
             }
             catch (HttpRequestException ex)
-            {
+            { 
                 Console.WriteLine(ex.Message);
-                //MessageBox.Show(ex.Message);
+                
+                // MessageBox.Show(ex.Message);
             }
         }
+
         private Task<PingReply> PingAsync(string address)
         {
             var tcs = new TaskCompletionSource<PingReply>();
@@ -265,12 +297,6 @@ namespace UQLT.ViewModels
             };
             ping.SendAsync(address, new object());
             return tcs.Task;
-        }
-        public void Handle(ServerRequestEvent message)
-        {
-            FilterURL = message.ServerRequestURL;
-            InitOrRefreshServers(FilterURL);
-            Console.WriteLine("[EVENT] Filter URL: " + message.ServerRequestURL);
         }
     }
 }

@@ -8,40 +8,38 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using Newtonsoft.Json;
 using UQLT.Helpers;
-using UQLT.Models;
+using UQLT.Models.Filters.User;
 
 namespace UQLT.Converters
 {
     public class LocIdToNameConverter : IValueConverter
     {
-
         public LocIdToNameConverter()
         {
-            if (!File.Exists(UQLTGlobals.currentfilterpath))
+            if (!File.Exists(UQLTGlobals.CurrentFilterPath))
             {
                 FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
-                failsafe.getFilterBackup();
+                failsafe.DumpBackupFilters();
             }
         }
 
-        public object Convert(object value, Type targetType,
-        object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string realname = null;
             try
             {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.currentfilterpath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
                 {
                     var x = sr.ReadToEnd();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
 
                     foreach (var loc in filters.serverbrowser_locations)
                     {
-
                         if (System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value))
                         {
                             realname = loc.display_name;
-                            //Console.WriteLine("Match found: " + loc.location_id + " matches: " + value);
+                            
+                            // Console.WriteLine("Match found: " + loc.location_id + " matches: " + value);
                         }
                     }
                 }
@@ -54,11 +52,9 @@ namespace UQLT.Converters
             return realname;
         }
 
-        public object ConvertBack(object value, Type targetType,
-            object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-
     }
 }

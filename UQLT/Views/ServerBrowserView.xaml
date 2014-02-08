@@ -10,12 +10,12 @@
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
-            <TextBlock Text="{Binding team_name}"/>
+            <TextBlock Text="{Binding TeamName}"/>
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding team}" Value="1">
+                <DataTrigger Binding="{Binding Team}" Value="1">
                     <Setter Property="TextBlock.Foreground" Value="Red"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding team}" Value="2">
+                <DataTrigger Binding="{Binding Team}" Value="2">
                     <Setter Property="TextBlock.Foreground" Value="Blue"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
@@ -25,8 +25,8 @@
             <TextBlock>
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource ScoreToRace}">
-                        <Binding Path="player_game_type"/>
-                        <Binding Path="score"/>
+                        <Binding Path="PlayerGameType"/>
+                        <Binding Path="Score"/>
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
@@ -36,38 +36,38 @@
 
             <StackPanel Margin="12,0,0,0">
                 <StackPanel Orientation="Vertical">
-                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding map_image}" Margin="0,0,0,0"/>
+                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding MapImage}" Margin="0,0,0,0"/>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Map: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Path=map_title}"/>
+                        <TextBlock Text="{Binding Path=MapTitle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Location: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding location_name}"/>
+                        <TextBlock Text="{Binding LocationName}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Ping: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding ping}"/>
+                        <TextBlock Text="{Binding Ping}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Mode: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding game_type_title}"/>
+                        <TextBlock Text="{Binding GameTypeTitle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding game_type, Converter={StaticResource GameTypeToRound}}" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding roundlimit}"/>
+                        <TextBlock Text="{Binding GameType, Converter={StaticResource GameTypeToRound}}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding RoundLimit}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Game Status: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding formatted_game_state}"/>
+                        <TextBlock Text="{Binding FormattedGameState}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Time Left: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding time_remaining}"/>
+                        <TextBlock Text="{Binding TimeRemaining}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Players: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding totalplayers}"/>
+                        <TextBlock Text="{Binding TotalPlayers}"/>
                     </StackPanel>
                     <StackPanel x:Name="TeamScoreboard" Orientation="Vertical" Margin="0,10,5,5">
 
@@ -78,21 +78,21 @@
 
                         <StackPanel x:Name="RedScore" Orientation="Horizontal">
                             <TextBlock Text="Red " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding red_team_elo, StringFormat='({0} Elo): '}"/>
-                            <TextBlock Text="{Binding g_redscore}"/>
+                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="{Binding GRedScore}"/>
                         </StackPanel>
 
                         <StackPanel x:Name="BlueScore" Orientation="Horizontal">
                             <TextBlock Text="Blue " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding blue_team_elo, StringFormat='({0} Elo): '}"/>
-                            <TextBlock Text="{Binding g_bluescore}"/>
+                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="{Binding GBlueScore}"/>
                         </StackPanel>
                     </StackPanel>
 
                 </StackPanel>
             </StackPanel>
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding is_team_game}" Value="False">
+                <DataTrigger Binding="{Binding IsTeamGame}" Value="False">
                     <Setter TargetName="TeamScoreboard" Property="Visibility" Value="Hidden"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
@@ -115,45 +115,45 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="location_name">
+                    <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="LocationName">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="FlagImage" Width="16" Height="11" Source="{Binding flag_image}" Margin="0,0,5,0"/>
+                                    <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0"/>
                                     <!--<TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}"/>-->
-                                    <TextBlock Name="CountryName" Text="{Binding location_name}"/>
+                                    <TextBlock Name="CountryName" Text="{Binding LocationName}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="ping" DisplayMemberBinding="{Binding ping}"/>
+                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="Ping" DisplayMemberBinding="{Binding Ping}"/>
 
-                    <GridViewColumn Header="Game Type" helpers:GridViewSort.PropertyName="game_type_title">
+                    <GridViewColumn Header="Game Type" helpers:GridViewSort.PropertyName="GameTypeTitle">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding gametype_image}"/>
-                                    <TextBlock Name="GameTypeName" Text="{Binding game_type_title}"/>
+                                    <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}"/>
+                                    <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="map" DisplayMemberBinding="{Binding map}"/>
-                    <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="totalplayers">
+                    <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="Map" DisplayMemberBinding="{Binding Map}"/>
+                    <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="TotalPlayers">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding totalplayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand"/>
+                                <TextBlock Text="{Binding TotalPlayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Server Name" helpers:GridViewSort.PropertyName="host_name" DisplayMemberBinding="{Binding host_name}"/>
+                    <GridViewColumn Header="Server Name" helpers:GridViewSort.PropertyName="HostName" DisplayMemberBinding="{Binding HostName}"/>
 
-                    <GridViewColumn Header="Modded" helpers:GridViewSort.PropertyName="modded" DisplayMemberBinding="{Binding modded}"/>
-                    <GridViewColumn Header="Instagib" helpers:GridViewSort.PropertyName="instagib" DisplayMemberBinding="{Binding instagib}"/>
-                    <GridViewColumn Header="Id" helpers:GridViewSort.PropertyName="public_id" DisplayMemberBinding="{Binding public_id}"/>
-                    <GridViewColumn Header="Address" helpers:GridViewSort.PropertyName="host_address" DisplayMemberBinding="{Binding host_address}"/>
+                    <GridViewColumn Header="Modded" helpers:GridViewSort.PropertyName="Modded" DisplayMemberBinding="{Binding Modded}"/>
+                    <GridViewColumn Header="Instagib" helpers:GridViewSort.PropertyName="Instagib" DisplayMemberBinding="{Binding Instagib}"/>
+                    <GridViewColumn Header="Id" helpers:GridViewSort.PropertyName="PublicId" DisplayMemberBinding="{Binding PublicId}"/>
+                    <GridViewColumn Header="Address" helpers:GridViewSort.PropertyName="HostAddress" DisplayMemberBinding="{Binding HostAddress}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -163,22 +163,22 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="team" CellTemplate="{StaticResource TeamColors}"/>
-                    <GridViewColumn Header="Clan" helpers:GridViewSort.PropertyName="clan" DisplayMemberBinding="{Binding cleaned_clan}"/>
-                    <GridViewColumn Header="Name" helpers:GridViewSort.PropertyName="name">
+                    <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}"/>
+                    <GridViewColumn Header="Clan" helpers:GridViewSort.PropertyName="Clan" DisplayMemberBinding="{Binding CleanedClan}"/>
+                    <GridViewColumn Header="Name" helpers:GridViewSort.PropertyName="Name">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding account_image}" Margin="0,0,5,0"/>
-                                    <TextBlock Text="{Binding name}"/>
+                                    <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding Name}"/>
                                 </StackPanel>
                             </DataTemplate>
 
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="score" CellTemplate="{StaticResource ScoreTemplate}"/>
+                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}"/>
 
-                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="player_elo" DisplayMemberBinding="{Binding player_elo}"/>
+                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}"/>
 
                 </GridView>
             </ListView.View>

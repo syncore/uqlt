@@ -1,53 +1,55 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using UQLT.Events;
-using System.ComponentModel.Composition;
-using System.Collections.Concurrent;
 
 namespace UQLT.ViewModels
 {
-    [Export (typeof(MainViewModel))]
+    [Export(typeof(MainViewModel))]
     public class MainViewModel : PropertyChangedBase, IHaveDisplayName
     {
-        private string _displayName = "UQLT v0.1";
-        private FilterViewModel _FilterViewModel;
-        private ServerBrowserViewModel _ServerBrowserViewModel;
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
+        private string _displayName = "UQLT v0.1";
+        private FilterViewModel _filterViewModel;
+        private ServerBrowserViewModel _serverBrowserViewModel;
         
-        public string DisplayName
-        {
-            get { return _displayName;  }
-            set { _displayName = value; }
-        }
-
-        public FilterViewModel FilterViewModel {
-            get { return _FilterViewModel; }
-            set { _FilterViewModel = value; }
-        }
-        public ServerBrowserViewModel ServerBrowserViewModel
-        {
-            get { return _ServerBrowserViewModel; }
-            set { _ServerBrowserViewModel = value; }
-        }
-        
-        [ImportingConstructor]
-    public MainViewModel(IWindowManager WindowManager, IEventAggregator events)
+    [ImportingConstructor]
+    public MainViewModel(IWindowManager windowManager, IEventAggregator events)
     {
-        _windowManager = WindowManager;
+        _windowManager = windowManager;
         _events = events;
-        _FilterViewModel = new FilterViewModel(_events);
-        _ServerBrowserViewModel = new ServerBrowserViewModel(_events);
+        _filterViewModel = new FilterViewModel(_events);
+        _serverBrowserViewModel = new ServerBrowserViewModel(_events);
     }
 
-        public void HideFilters()
+    public string DisplayName
+    {
+        get { return _displayName; }
+        set { _displayName = value; }
+    }
+
+    public FilterViewModel FilterViewModel
+    {
+        get { return _filterViewModel; }
+        set { _filterViewModel = value; }
+    }
+
+    public ServerBrowserViewModel ServerBrowserViewModel
+    {
+        get { return _serverBrowserViewModel; }
+        set { _serverBrowserViewModel = value; }
+    }
+
+    public void HideFilters()
         {
-            //Console.WriteLine("Attempting to publish event");
-            if (_FilterViewModel.isVisible)
+            // Console.WriteLine("Attempting to publish event");
+            if (_filterViewModel.IsVisible)
             {
                 _events.Publish(new FilterVisibilityEvent(false));
             }
@@ -55,7 +57,6 @@ namespace UQLT.ViewModels
             {
                 _events.Publish(new FilterVisibilityEvent(true));
             }
-
         }
     }
 }

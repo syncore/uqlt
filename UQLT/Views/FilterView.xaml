@@ -8,14 +8,14 @@
              mc:Ignorable="d" 
              d:DesignWidth="300" Width="686" Height="170">
 
-    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="686" Visibility="{Binding isVisible, Converter={StaticResource BoolToVis}}">
-        <ComboBox x:Name="cboGameType" ItemsSource="{Binding game_types}" SelectedIndex="{Binding gametype_index}" SelectedValuePath="game_type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameArena" ItemsSource="{Binding arenas}" SelectedIndex="{Binding gamearena_index}" SelectedValuePath="arena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,24,0,0"  ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameLocation" ItemsSource="{Binding active_locations}" SelectedIndex="{Binding gamelocation_index}" SelectedValuePath="location_id" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameState" ItemsSource="{Binding gamestate}" SelectedIndex="{Binding gamestate_index}" SelectedValuePath="state" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
-        <ComboBox x:Name="cboGameVisibility" ItemsSource="{Binding game_visibility}" SelectedIndex="{Binding gamevisibility_index}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0"/>
+    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="686" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}">
+        <ComboBox x:Name="cboGameType" ItemsSource="{Binding GameTypes}" SelectedIndex="{Binding GameTypeIndex}" SelectedValuePath="game_type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameArena" ItemsSource="{Binding Arenas}" SelectedIndex="{Binding GameArenaIndex}" SelectedValuePath="arena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,24,0,0"  ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameLocation" ItemsSource="{Binding ActiveLocations}" SelectedIndex="{Binding GameLocationIndex}" SelectedValuePath="location_id" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameState" ItemsSource="{Binding GameState}" SelectedIndex="{Binding GameStateIndex}" SelectedValuePath="state" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,74,0,0" ShouldPreserveUserEnteredPrefix="True"/>
+        <ComboBox x:Name="cboGameVisibility" ItemsSource="{Binding GameVisibility}" SelectedIndex="{Binding GameVisibilityIndex}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0"/>
 
-        <CheckBox x:Name="chkPremium" Content="Premium Games" IsChecked="{Binding gamepremium_bool}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="398,107,0,0"/>
+        <CheckBox x:Name="chkPremium" Content="Premium Games" IsChecked="{Binding GamePremiumBool}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="398,107,0,0"/>
         <Button x:Name="btnSaveFilters" Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="422,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
@@ -26,16 +26,6 @@
                         <cal:Parameter Value="{Binding ElementName=cboGameState, Path=SelectedIndex}"/>
                         <cal:Parameter Value="{Binding ElementName=cboGameVisibility, Path=SelectedIndex}"/>
                         <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
-                    </cal:ActionMessage>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="Click">
-                    <cal:ActionMessage MethodName="MakeFilterUrl">
-                        <cal:Parameter Value="{Binding ElementName=cboGameType, Path=SelectedValue}"/>
-                        <cal:Parameter Value="{Binding ElementName=cboGameArena, Path=SelectedValue}"/>
-                        <cal:Parameter Value="{Binding ElementName=cboGameState, Path=SelectedValue}"/>
-                        <cal:Parameter Value="{Binding ElementName=cboGameLocation, Path=SelectedValue}"/>
-                        <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
-                        <cal:Parameter Value="{Binding ElementName=cboGameVisibility, Path=SelectedIndex}"/>
                     </cal:ActionMessage>
                 </i:EventTrigger>
                 </i:Interaction.Triggers>

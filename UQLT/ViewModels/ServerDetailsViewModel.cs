@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Caliburn.Micro;
-using System.ComponentModel.Composition;
-using UQLT.Models;
-using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
+using System.Threading.Tasks;
 using System.Windows.Data;
-using System.ComponentModel;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Caliburn.Micro;
+using UQLT.Models;
+using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
@@ -24,228 +25,306 @@ namespace UQLT.ViewModels
             private set;
         }
 
-        static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
+        private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 
         [ImportingConstructor]
         public ServerDetailsViewModel(Server server)
         {
             Server = server;
-            _FormattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
-            _FormattedPlayerList = AddFormattedPlayers(server.players);
-            GroupScoresAndPlayers("score", "team");
+            _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
+            _formattedPlayerList = AddFormattedPlayers(server.players);
+            GroupScoresAndPlayers("Score", "Team");
         }
 
-        private void GroupScoresAndPlayers(string sortby, string groupby)
-        {
-            var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
-            var sortDescription = new SortDescription(sortby, ListSortDirection.Descending);
-            var groupDescription = new PropertyGroupDescription(groupby);
-            view.SortDescriptions.Add(sortDescription);
-            view.GroupDescriptions.Add(groupDescription);
-        }
+        private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList;
 
-        private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(List<Player> players)
-        {
-            _FormattedPlayerList.Clear();
-            foreach (var player in players)
-            {
-                _FormattedPlayerList.Add(new PlayerDetailsViewModel(player));
-            }
-            return _FormattedPlayerList;
-        }
-
-        private ObservableCollection<PlayerDetailsViewModel> _FormattedPlayerList;
         public ObservableCollection<PlayerDetailsViewModel> FormattedPlayerList
         {
-            get { return _FormattedPlayerList; }
+            get
+            { 
+                return _formattedPlayerList;
+            }
+
             set
             {
-                _FormattedPlayerList = value;
+                _formattedPlayerList = value;
                 NotifyOfPropertyChange(() => FormattedPlayerList);
             }
         }
 
         public List<Player> Players
         {
-            get { return Server.players; }
-            // set { this._players = value; NotifyOfPropertyChange(() => Players); }
-        }
-
-        public int num_players
-        {
-            get { return Server.num_players; }
-            // set { num_players = value; NotifyOfPropertyChange(() => num_players); }
-        }
-
-        public int public_id
-        {
-            get { return Server.public_id; }
-            // set { public_id = value; NotifyOfPropertyChange(() => public_id); }
-        }
-        public int ECODE
-        {
-            get { return Server.ECODE; }
-            // set { ECODE = value; NotifyOfPropertyChange(() => ECODE); }
-        }
-        public int teamsize
-        {
-            get { return Server.teamsize; }
-            // set { teamsize = value; NotifyOfPropertyChange(() => teamsize); }
-        }
-        public string g_customSettings
-        {
-            get { return Server.g_customSettings; }
-            // set { g_customSettings = value; NotifyOfPropertyChange(() => g_customSettings); }
-        }
-        public int g_levelstarttime
-        {
-            get { return Server.g_levelstarttime; }
-            // set { g_levelstarttime = value; NotifyOfPropertyChange(() => g_levelstarttime); }
-        }
-        public int location_id
-        {
-            get { return Server.location_id; }
-            // set { location_id = value; NotifyOfPropertyChange(() => location_id); }
-        }
-
-        public int max_clients
-        {
-            get { return Server.max_clients; }
-            // set { max_clients = value; NotifyOfPropertyChange(() => max_clients); }
-        }
-        public int roundtimelimit
-        {
-            get { return Server.roundtimelimit; }
-            // set { roundtimelimit = value; NotifyOfPropertyChange(() => roundtimelimit); }
-        }
-        public string map_title
-        {
-            get { return Server.map_title; }
-            // set { map_title = value; NotifyOfPropertyChange(() => map_title); }
-        }
-        public string scorelimit
-        {
-            get { return Server.scorelimit; }
-            // set { scorelimit = value; NotifyOfPropertyChange(() => scorelimit); }
-        }
-        public string ruleset
-        {
-            get { return Server.ruleset; }
-            // set { ruleset = value; NotifyOfPropertyChange(() => ruleset); }
-        }
-        public int skillDelta
-        {
-            get { return Server.skillDelta; }
-            // set { skillDelta = value; NotifyOfPropertyChange(() => skillDelta); }
-        }
-        public string game_type_title
-        {
-            get { return Server.game_type_title; }
-            // set { game_type_title = value; NotifyOfPropertyChange(() => game_type_title); }
-        }
-        public string map
-        {
-            get { return Server.map; }
-            // set { map = value; NotifyOfPropertyChange(() => map); }
-        }
-        public object premium
-        {
-            get { return Server.premium; }
-            // set { premium = value; NotifyOfPropertyChange(() => premium); }
-        }
-        public int g_needpass
-        {
-            get { return Server.g_needpass; }
-            // set { g_needpass = value; NotifyOfPropertyChange(() => g_needpass); }
-        }
-        public int ranked
-        {
-            get { return Server.ranked; }
-            // set { ranked = value; NotifyOfPropertyChange(() => ranked); }
-        }
-        public int g_instagib
-        {
-            get { return Server.g_instagib; }
-            // set { g_instagib = value; NotifyOfPropertyChange(() => g_instagib); }
-        }
-        public int g_bluescore
-        {
-            get { return Server.g_bluescore; }
-            // set { g_bluescore = value; NotifyOfPropertyChange(() => g_bluescore); }
-        }
-        public string g_gamestate
-        {
-            get { return Server.g_gamestate; }
-            // set { g_gamestate = value; NotifyOfPropertyChange(() => g_gamestate); }
-        }
-        public string host_address
-        {
-            get { return Server.host_address; }
-            // set { host_address = value; NotifyOfPropertyChange(() => host_address); }
-        }
-        public int fraglimit
-        {
-            get { return Server.fraglimit; }
-            // set { fraglimit = value; NotifyOfPropertyChange(() => fraglimit); }
-        }
-        public int num_clients
-        {
-            get { return Server.num_clients; }
-            // set { num_clients = value; NotifyOfPropertyChange(() => num_clients); }
-        }
-        public int capturelimit
-        {
-            get { return Server.capturelimit; }
-            // set { capturelimit = value; NotifyOfPropertyChange(() => capturelimit); }
-        }
-        public int game_type
-        {
-            get { return Server.game_type; }
-            // set { game_type = value; NotifyOfPropertyChange(() => game_type); }
-        }
-        public int timelimit
-        {
-            get { return Server.timelimit; }
-            // set { timelimit = value; NotifyOfPropertyChange(() => timelimit); }
-        }
-        public int roundlimit
-        {
-            get { return Server.roundlimit; }
-            // set { roundlimit = value; NotifyOfPropertyChange(() => roundlimit); }
-        }
-        public string host_name
-        {
-            get { return Server.host_name; }
-            // set { host_name = value; NotifyOfPropertyChange(() => host_name); }
-        }
-        public int g_redscore
-        {
-            get { return Server.g_redscore; }
-            // set { g_redscore = value; NotifyOfPropertyChange(() => g_redscore); }
-        }
-        public string owner
-        {
-            get { return Server.owner; }
-            // set { owner = value; NotifyOfPropertyChange(() => owner); }
-        }
-
-        // specially formatted properties for view:
-        public long ping
-        {
             get
-            {
-                string cleanedip = port.Replace(host_address, "");
-                return UQLTGlobals.ipdict[cleanedip];
+            { 
+                return Server.players;
             }
         }
 
-        public ImageSource flag_image
+        public int NumPlayers
+        {
+            get
+            { 
+                return Server.num_players;
+            }
+        }
+
+        public int PublicId
+        {
+            get
+            { 
+                return Server.public_id;
+            }
+        }
+
+        public int ECODE
+        {
+            get
+            { 
+                return Server.ECODE;
+            }
+        }
+
+        public int TeamSize
+        {
+            get
+            { 
+                return Server.teamsize;
+            }
+        }
+
+        public string GCustomSettings
+        {
+            get
+            { 
+                return Server.g_customSettings;
+            }
+        }
+
+        public int GLevelStartTime
+        {
+            get
+            { 
+                return Server.g_levelstarttime;
+            }
+        }
+
+        public int LocationId
+        {
+            get
+            { 
+                return Server.location_id;
+            }
+        }
+
+        public int MaxClients
+        {
+            get
+            {
+                return Server.max_clients;
+            }
+        }
+
+        public int RoundTimeLimit
+        {
+            get
+            {
+                return Server.roundtimelimit;
+            }
+        }
+
+        public string MapTitle
+        {
+            get
+            { 
+                return Server.map_title;
+            }
+        }
+
+        public string ScoreLimit
+        {
+            get
+            {
+                return Server.scorelimit;
+            }
+        }
+
+        public string RuleSet
+        {
+            get
+            {
+                return Server.ruleset;
+            }
+        }
+
+        public int SkillDelta
+        {
+            get
+            { 
+                return Server.skillDelta;
+            }
+        }
+
+        public string GameTypeTitle
+        {
+            get
+            { 
+                return Server.game_type_title;
+            }
+        }
+
+        public string Map
+        {
+            get
+            {
+                return Server.map;
+            }
+        }
+
+        public object Premium
+        {
+            get
+            { 
+                return Server.premium;
+            }
+        }
+
+        public int GNeedPass
+        {
+            get
+            {
+                return Server.g_needpass;
+            }
+        }
+
+        public int Ranked
+        {
+            get
+            {
+                return Server.ranked;
+            }
+        }
+
+        public int GInstagib
+        {
+            get
+            {
+                return Server.g_instagib;
+            }            
+        }
+
+        public int GBlueScore
+        {
+            get
+            {
+                return Server.g_bluescore;
+            }
+        }
+
+        public string GGameState
+        {
+            get
+            {
+                return Server.g_gamestate;
+            }
+        }
+
+        public string HostAddress
+        {
+            get
+            {
+                return Server.host_address;
+            }
+        }
+
+        public int FragLimit
+        {
+            get
+            {
+                return Server.fraglimit;
+            }
+        }
+
+        public int NumClients
+        {
+            get
+            {
+                return Server.num_clients;
+            }
+        }
+
+        public int CaptureLimit
+        {
+            get
+            {
+                return Server.capturelimit;
+            }
+        }
+
+        public int GameType
+        {
+            get 
+            {
+                return Server.game_type;
+            }
+        }
+
+        public int TimeLimit
+        {
+            get
+            {
+                return Server.timelimit;
+            }
+        }
+
+        public int RoundLimit
+        {
+            get
+            {
+                return Server.roundlimit;
+            }
+        }
+
+        public string HostName
+        {
+            get
+            {
+                return Server.host_name;
+            }
+        }
+
+        public int GRedScore
+        {
+            get
+            {
+                return Server.g_redscore;
+            }
+        }
+
+        public string Owner
+        {
+            get 
+            {
+                return Server.owner;
+            }
+        }
+
+        // specially formatted properties for view:
+        public long Ping
+        {
+            get
+            {
+                string cleanedip = port.Replace(HostAddress, string.Empty);
+                return UQLTGlobals.IPAddressDict[cleanedip];
+            }
+        }
+
+        public ImageSource FlagImage
         {
             get
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + location_id.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + LocationId.ToString() + ".gif", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -254,13 +333,14 @@ namespace UQLT.ViewModels
                 }
             }
         }
-        public ImageSource gametype_image
+
+        public ImageSource GameTypeImage
         {
             get
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + game_type.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + GameType.ToString() + ".gif", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -270,13 +350,13 @@ namespace UQLT.ViewModels
             }
         }
 
-        public ImageSource map_image
+        public ImageSource MapImage
         {
             get
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/" + map.ToString() + ".jpg", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/" + Map.ToString() + ".jpg", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -285,375 +365,450 @@ namespace UQLT.ViewModels
                 }
             }
         }
-        public string totalplayers
+
+        public string TotalPlayers
         {
-            get { return "" + num_players + "/" + max_clients; }
+            get
+            { 
+                return string.Empty + NumPlayers + "/" + MaxClients;
+            }
         }
 
-        public string modded
+        public string Modded
         {
-            get { return (g_customSettings.Equals("0")) ? "No" : "Yes"; }
+            get
+            { 
+                return GCustomSettings.Equals("0") ? "No" : "Yes";
+            }
         }
 
-        public string instagib
+        public string Instagib
         {
-            get { return (g_instagib == 0) ? "No" : "Yes"; }
+            get
+            { 
+                return GInstagib == 0 ? "No" : "Yes";
+            }
         }
 
         // QL does not include the physical location in the server detauls API, so this monstrosity is used for the info pane and for sorting the listview header by location
-        private string _location_name;
-        public string location_name
+        private string _locationName;
+
+        public string LocationName
         {
             get
             {
-                switch (location_id)
+                switch (LocationId)
                 {
                     case 6:
-                        _location_name = "USA, Dallas";
+                        _locationName = "USA, Dallas";
                         break;
                     case 10:
-                        _location_name = "USA, Palo Alto";
+                        _locationName = "USA, Palo Alto";
                         break;
                     case 11:
-                        _location_name = "USA, Ashburn";
+                        _locationName = "USA, Ashburn";
                         break;
                     case 12:
-                        _location_name = "USA, Richardson, TX (LAN)";
+                        _locationName = "USA, Richardson, TX (LAN)";
                         break;
                     case 14:
-                        _location_name = "AUS, Sydney";
+                        _locationName = "AUS, Sydney";
                         break;
                     case 16:
-                        _location_name = "USA, San Francisco";
+                        _locationName = "USA, San Francisco";
                         break;
                     case 17:
-                        _location_name = "NLD, Amsterdam";
+                        _locationName = "NLD, Amsterdam";
                         break;
                     case 18:
-                        _location_name = "DEU, Frankfurt";
+                        _locationName = "DEU, Frankfurt";
                         break;
                     case 19:
-                        _location_name = "GBR, Maidenhead";
+                        _locationName = "GBR, Maidenhead";
                         break;
                     case 20:
-                        _location_name = "FRA, Paris";
+                        _locationName = "FRA, Paris";
                         break;
                     case 21:
-                        _location_name = "USA, Chicago";
+                        _locationName = "USA, Chicago";
                         break;
                     case 22:
-                        _location_name = "USA, Atlanta";
+                        _locationName = "USA, Atlanta";
                         break;
                     case 23:
-                        _location_name = "USA, Seattle";
+                        _locationName = "USA, Seattle";
                         break;
                     case 24:
-                        _location_name = "USA, New York";
+                        _locationName = "USA, New York";
                         break;
                     case 25:
-                        _location_name = "USA, Los Angeles";
+                        _locationName = "USA, Los Angeles";
                         break;
                     case 26:
-                        _location_name = "CAN, Toronto";
+                        _locationName = "CAN, Toronto";
                         break;
                     case 27:
-                        _location_name = "JPN, Tokyo";
+                        _locationName = "JPN, Tokyo";
                         break;
                     case 28:
-                        _location_name = "ESP, Madrid";
+                        _locationName = "ESP, Madrid";
                         break;
                     case 29:
-                        _location_name = "SWE, Stockholm";
+                        _locationName = "SWE, Stockholm";
                         break;
                     case 30:
-                        _location_name = "POL, Warsaw";
+                        _locationName = "POL, Warsaw";
                         break;
                     case 31:
-                        _location_name = "CHN, Hangzhou";
+                        _locationName = "CHN, Hangzhou";
                         break;
                     case 32:
-                        _location_name = "POL, Warsaw";
+                        _locationName = "POL, Warsaw";
                         break;
                     case 33:
-                        _location_name = "AUS, Sydney";
+                        _locationName = "AUS, Sydney";
                         break;
                     case 34:
-                        _location_name = "SWE, Malmo";
+                        _locationName = "SWE, Malmo";
                         break;
                     case 35:
-                        _location_name = "AUS, Perth";
+                        _locationName = "AUS, Perth";
                         break;
                     case 36:
-                        _location_name = "SWE, Stockholm";
+                        _locationName = "SWE, Stockholm";
                         break;
                     case 37:
-                        _location_name = "ROM, Bucharest";
+                        _locationName = "ROM, Bucharest";
                         break;
                     case 38:
-                        _location_name = "CHL, Santiago";
+                        _locationName = "CHL, Santiago";
                         break;
                     case 39:
-                        _location_name = "ROM, Bucharest";
+                        _locationName = "ROM, Bucharest";
                         break;
                     case 40:
-                        _location_name = "ARG, Buenos Aires";
+                        _locationName = "ARG, Buenos Aires";
                         break;
                     case 41:
-                        _location_name = "ISL, Keflavik";
+                        _locationName = "ISL, Keflavik";
                         break;
                     case 42:
-                        _location_name = "JPN, Tokyo";
+                        _locationName = "JPN, Tokyo";
                         break;
                     case 43:
-                        _location_name = "RUS, Moscow";
+                        _locationName = "RUS, Moscow";
                         break;
                     case 44:
-                        _location_name = "RUS, Moscow";
+                        _locationName = "RUS, Moscow";
                         break;
                     case 45:
-                        _location_name = "SGP, Singapore";
+                        _locationName = "SGP, Singapore";
                         break;
                     case 46:
-                        _location_name = "ZAF, Johannesburg";
+                        _locationName = "ZAF, Johannesburg";
                         break;
                     case 47:
-                        _location_name = "SRB, Beograd";
+                        _locationName = "SRB, Beograd";
                         break;
                     case 48:
-                        _location_name = "BGR, Sofia";
+                        _locationName = "BGR, Sofia";
                         break;
                     case 49:
-                        _location_name = "KOR, Seoul";
+                        _locationName = "KOR, Seoul";
                         break;
                     case 50:
-                        _location_name = "ITA, Milan";
+                        _locationName = "ITA, Milan";
                         break;
                     case 51:
-                        _location_name = "AUS, Adelaide";
+                        _locationName = "AUS, Adelaide";
                         break;
                     case 52:
-                        _location_name = "DEU, Cologne (LAN)";
+                        _locationName = "DEU, Cologne (LAN)";
                         break;
                     case 53:
-                        _location_name = "USA, Dallas,TX (LAN)";
+                        _locationName = "USA, Dallas,TX (LAN)";
                         break;
                     case 54:
-                        _location_name = "SWE, Jonkoping (LAN)";
+                        _locationName = "SWE, Jonkoping (LAN)";
                         break;
                     case 58:
-                        _location_name = "UKR, Kiev";
+                        _locationName = "UKR, Kiev";
                         break;
                     case 59:
-                        _location_name = "ITA, Lignano Sabbiadoro (LAN)";
+                        _locationName = "ITA, Lignano Sabbiadoro (LAN)";
                         break;
                     case 60:
-                        _location_name = "AUS, Adelaide (LAN)";
+                        _locationName = "AUS, Adelaide (LAN)";
                         break;
                     case 61:
-                        _location_name = "NLD, Benelux (LAN)";
+                        _locationName = "NLD, Benelux (LAN)";
                         break;
                     case 62:
-                        _location_name = "USA, Washington DC";
+                        _locationName = "USA, Washington DC";
                         break;
                     case 666:
-                        _location_name = "USA, QuakeCon LAN";
+                        _locationName = "USA, QuakeCon LAN";
                         break;
                     case 63:
-                        _location_name = "USA, Indianapolis, IN";
+                        _locationName = "USA, Indianapolis, IN";
                         break;
                     case 64:
-                        _location_name = "NLD, Rotterdam";
+                        _locationName = "NLD, Rotterdam";
                         break;
                     case 65:
-                        _location_name = "NOR, Oslo";
+                        _locationName = "NOR, Oslo";
                         break;
                     case 66:
-                        _location_name = "BRA, Sao Paulo";
+                        _locationName = "BRA, Sao Paulo";
                         break;
                     case 67:
-                        _location_name = "TUR, Istanbul";
+                        _locationName = "TUR, Istanbul";
                         break;
                     case 68:
-                        _location_name = "NZL, Auckland";
+                        _locationName = "NZL, Auckland";
                         break;
                     default:
-                        _location_name = "Unknown";
+                        _locationName = "Unknown";
                         break;
                 }
-                return _location_name;
+
+                return _locationName;
             }
         }
-        public bool is_team_game
+
+        public bool IsTeamGame
         {
             get
             {
-                return ((game_type == 3 || game_type == 4 || game_type == 5 || game_type == 6 || game_type == 8 || game_type == 9 || game_type == 10 || game_type == 11)) ? true : false;
+                return (GameType == 3 || GameType == 4 || GameType == 5 || GameType == 6 || GameType == 8 || GameType == 9 || GameType == 10 || GameType == 11) ? true : false;
             }
         }
         
-        private string _formatted_game_state;
-        public string formatted_game_state
-        {
-            get
-            {
-                if (g_gamestate.Equals("IN_PROGRESS"))
-                {
-                    _formatted_game_state = "In Progress";
-                }
-                else if (g_gamestate.Equals("PRE_GAME"))
-                {
-                    _formatted_game_state = "Pre-Game Warmup";
-                }
-                return _formatted_game_state;
-            }
-            // set { _formatted_game_state = value; NotifyOfPropertyChange(() => formatted_game_state); }
+        private string _formattedGameState;
 
-        }
-        private string _time_remaining;
-        public string time_remaining
+        public string FormattedGameState
         {
             get
             {
-                if (g_gamestate.Equals("IN_PROGRESS"))
+                if (GGameState.Equals("IN_PROGRESS"))
+                {
+                    _formattedGameState = "In Progress";
+                }
+                else if (GGameState.Equals("PRE_GAME"))
+                {
+                    _formattedGameState = "Pre-Game Warmup";
+                }
+
+                return _formattedGameState;
+            }
+        }
+
+        private string _timeRemaining;
+
+        public string TimeRemaining
+        {
+            get
+            {
+                if (GGameState.Equals("IN_PROGRESS"))
                 {
                     var now = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
-                    var secsLeft = (long)(timelimit * 60) - (now - g_levelstarttime);
+                    var secsLeft = (long)(TimeLimit * 60) - (now - GLevelStartTime);
                     if (secsLeft > 0)
                     {
                         var minsLeft = (long)(secsLeft / 60);
                         secsLeft -= minsLeft * 60;
-                        _time_remaining = String.Format("{0}:{1}", minsLeft.ToString(), secsLeft.ToString("D2"));
+                        _timeRemaining = string.Format("{0}:{1}", minsLeft.ToString(), secsLeft.ToString("D2"));
                     }
                     else
                     {
-                        _time_remaining = "None";
+                        _timeRemaining = "None";
                     }
-
                 }
                 else
                 {
-                    _time_remaining = "None";
+                    _timeRemaining = "None";
                 }
-                return _time_remaining;
+
+                return _timeRemaining;
             }
+
             set
             {
-                _time_remaining = value;
-                NotifyOfPropertyChange(() => time_remaining);
+                _timeRemaining = value;
+                NotifyOfPropertyChange(() => TimeRemaining);
             }
         }
 
         // This is a weird situation that occurs on some team servers, where the players are on the server,
         // yet they are not reported as being on red (team: 1) or blue (team: 2) but instead team 0
-        public bool is_team0_condition
+        public bool IsTeam0Condition
         {
             get
             {
                 int redsize = 0, bluesize = 0, zerosize = 0;
                 foreach (var p in Players)
                 {
-                    if (p.team == 0) { zerosize++; }
-                    else if (p.team == 1) { redsize++; }
-                    else if (p.team == 2) { bluesize++; }
+                    if (p.team == 0)
+                    {
+                        zerosize++;
+                    }
+                    else if (p.team == 1)
+                    {
+                        redsize++;
+                    }
+                    else if (p.team == 2)
+                    {
+                        bluesize++;
+                    }
                 }
-                if (((redsize == 0) && (bluesize == 0)) && (zerosize > 0)) { return true; }
+
+                if (((redsize == 0) && (bluesize == 0)) && (zerosize > 0))
+                { 
+                    return true;
+                }
+
                 return false;
             }
         }
 
+        private int _redTeamElo;
 
-        private int _red_team_elo;
-        public int red_team_elo
+        public int RedTeamElo
         {
             get
             {
                 int redtotalplayers = 0, totaleloredteam = 0, redplayerelo = 0;
 
-                if (num_players == 0 || is_team0_condition) { return 0; }
+                if (NumPlayers == 0 || IsTeam0Condition)
+                {
+                    return 0;
+                }
                 else
                 {
-                    if (game_type == 3 || game_type == 4 || game_type == 5)
+                    if (GameType == 3 || GameType == 4 || GameType == 5)
                     {
                         foreach (var p in Players)
                         {
                             if (p.team == 1)
                             {
-                                if (game_type == 3)
+                                if (GameType == 3)
                                 {
-                                    redplayerelo = UQLTGlobals.playerelotdm[p.name.ToLower()];
+                                    redplayerelo = UQLTGlobals.PlayerEloTdm[p.name.ToLower()];
                                 }
-                                else if (game_type == 4)
+                                else if (GameType == 4)
                                 {
-                                    redplayerelo = UQLTGlobals.playereloca[p.name.ToLower()];
+                                    redplayerelo = UQLTGlobals.PlayerEloCa[p.name.ToLower()];
                                 }
-                                else if (game_type == 5)
+                                else if (GameType == 5)
                                 {
-                                    redplayerelo = UQLTGlobals.playereloctf[p.name.ToLower()];
+                                    redplayerelo = UQLTGlobals.PlayerEloCtf[p.name.ToLower()];
                                 }
+
                                 redtotalplayers++;
                                 totaleloredteam += redplayerelo;
                             }
                         }
 
-                        if (redtotalplayers == 0) { return 0; }
+                        if (redtotalplayers == 0)
+                        {
+                            return 0;
+                        }
                     }
-                    else { return 0; }
-                    _red_team_elo = (totaleloredteam / redtotalplayers);
-                    return _red_team_elo;
+                    else
+                    {
+                        return 0;
+                    }
+
+                    _redTeamElo = totaleloredteam / redtotalplayers;
+                    return _redTeamElo;
                 }
             }
+
             set
             {
-                _red_team_elo = value;
-                NotifyOfPropertyChange(() => red_team_elo);
+                _redTeamElo = value;
+                NotifyOfPropertyChange(() => RedTeamElo);
             }
         }
-        private int _blue_team_elo;
-        public int blue_team_elo
+
+        private int _blueTeamElo;
+
+        public int BlueTeamElo
         {
             get
             {
                 int bluetotalplayers = 0, totaleloblueteam = 0, blueplayerelo = 0;
 
-                if (num_players == 0 || is_team0_condition) { return 0; }
+                if (NumPlayers == 0 || IsTeam0Condition)
+                {
+                    return 0;
+                }
                 else
                 {
-                    if (game_type == 3 || game_type == 4 || game_type == 5)
+                    if (GameType == 3 || GameType == 4 || GameType == 5)
                     {
                         foreach (var p in Players)
                         {
                             if (p.team == 2)
                             {
-                                if (game_type == 3)
+                                if (GameType == 3)
                                 {
-                                    blueplayerelo = UQLTGlobals.playerelotdm[p.name.ToLower()];
+                                    blueplayerelo = UQLTGlobals.PlayerEloTdm[p.name.ToLower()];
                                 }
-                                else if (game_type == 4)
+                                else if (GameType == 4)
                                 {
-                                    blueplayerelo = UQLTGlobals.playereloca[p.name.ToLower()];
+                                    blueplayerelo = UQLTGlobals.PlayerEloCa[p.name.ToLower()];
                                 }
-                                else if (game_type == 5)
+                                else if (GameType == 5)
                                 {
-                                    blueplayerelo = UQLTGlobals.playereloctf[p.name.ToLower()];
+                                    blueplayerelo = UQLTGlobals.PlayerEloCtf[p.name.ToLower()];
                                 }
+
                                 bluetotalplayers++;
                                 totaleloblueteam += blueplayerelo;
                             }
                         }
 
-                        if (bluetotalplayers == 0) { return 0; }
+                        if (bluetotalplayers == 0)
+                        {
+                            return 0;
+                        }
                     }
-                    else { return 0; }
-                    _blue_team_elo = (totaleloblueteam / bluetotalplayers);
-                    return _blue_team_elo;
+                    else
+                    {
+                        return 0;
+                    }
+
+                    _blueTeamElo = totaleloblueteam / bluetotalplayers;
+                    return _blueTeamElo;
                 }
             }
+
             set
             {
-                _blue_team_elo = value;
-                NotifyOfPropertyChange(() => blue_team_elo);
+                _blueTeamElo = value;
+                NotifyOfPropertyChange(() => BlueTeamElo);
             }
         }
-    }
 
+        private void GroupScoresAndPlayers(string sortBy, string groupBy)
+        {
+            var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
+            var sortDescription = new SortDescription(sortBy, ListSortDirection.Descending);
+            var groupDescription = new PropertyGroupDescription(groupBy);
+            view.SortDescriptions.Add(sortDescription);
+            view.GroupDescriptions.Add(groupDescription);
+        }
+
+        private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(List<Player> players)
+        {
+            _formattedPlayerList.Clear();
+            foreach (var player in players)
+            {
+                _formattedPlayerList.Add(new PlayerDetailsViewModel(player));
+            }
+
+            return _formattedPlayerList;
+        }
+    }
 }

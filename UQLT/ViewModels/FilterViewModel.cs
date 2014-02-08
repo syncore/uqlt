@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Caliburn.Micro;
-using UQLT.Models;
-using System.IO;
-using UQLT.Helpers;
-using UQLT.Events;
-using Newtonsoft.Json;
 using System.Windows;
-using System.ComponentModel.Composition;
+using Caliburn.Micro;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UQLT.Events;
+using UQLT.Helpers;
+using UQLT.Models.Filters;
+using UQLT.Models.Filters.Remote;
+using UQLT.Models.Filters.User;
 
 namespace UQLT.ViewModels
 {
@@ -18,14 +21,279 @@ namespace UQLT.ViewModels
     public class FilterViewModel : PropertyChangedBase, IHandle<FilterVisibilityEvent>
     {
         // list of maps that receive "tag" description for arena_type when building filter string
-        static List<String> arenatag = new List<String>();
+        private static List<string> arenaTag = new List<string>();
+
         // list of maps that receive "map" description for arena_type when building filter string
-        static List<String> arenamap = new List<String>();
+        private static List<string> arenaMap = new List<string>();
 
         private readonly IEventAggregator _events;
+        private SavedFilters sf = new SavedFilters();
+        
+        private bool _isVisible = true;
 
-        SavedFilters sf = new SavedFilters();
+        public bool IsVisible
+        {
+            get 
+            { 
+                return _isVisible;
+            }
+            
+            set
+            { 
+                _isVisible = value;
+                NotifyOfPropertyChange(() => IsVisible);
+            }
+        }
 
+        private List<ActiveLocation> _activeLocations;
+
+        public List<ActiveLocation> ActiveLocations
+        {
+            get 
+            { 
+                return _activeLocations;
+            }
+            
+            set
+            { 
+                _activeLocations = value; 
+                NotifyOfPropertyChange(() => ActiveLocations);
+            }
+        }
+
+        private List<InactiveLocation> _inactiveLocations;
+
+        public List<InactiveLocation> InactiveLocations
+        {
+            get 
+            { 
+                return _inactiveLocations;
+            }
+            
+            set
+            { 
+                _inactiveLocations = value;
+                NotifyOfPropertyChange(() => InactiveLocations);
+            }
+        }
+
+        private List<ServerBrowserLocations> _serverBrowserLocations;
+
+        public List<ServerBrowserLocations> ServerBrowserLocations
+        {
+            get 
+            { 
+                return _serverBrowserLocations;
+            }
+            
+            set
+            { 
+                _serverBrowserLocations = value;
+                NotifyOfPropertyChange(() => ServerBrowserLocations);
+            }
+        }
+
+        private List<Arena> _arenas;
+
+        public List<Arena> Arenas
+        {
+            get 
+            { 
+                return _arenas; 
+            }
+            
+            set
+            { 
+                _arenas = value;
+                NotifyOfPropertyChange(() => Arenas);
+            }
+        }
+
+        private List<Difficulty> _difficulty;
+
+        public List<Difficulty> Difficulty
+        {
+            get 
+            { 
+                return _difficulty;
+            }
+            
+            set
+            { 
+                _difficulty = value;
+                NotifyOfPropertyChange(() => Difficulty);
+            }
+        }
+
+        private List<GameState> _gamestate;
+
+        public List<GameState> GameState
+        {
+            get 
+            { 
+                return _gamestate;
+            }
+            
+            set
+            { 
+                _gamestate = value;
+                NotifyOfPropertyChange(() => GameState);
+            }
+        }
+
+        private List<GameType> _gameTypes;
+
+        public List<GameType> GameTypes
+        {
+            get 
+            { 
+                return _gameTypes;
+            }
+            
+            set
+            { 
+                _gameTypes = value;
+                NotifyOfPropertyChange(() => GameTypes);
+            }
+        }
+
+        private List<GameInfo> _gameInfo;
+
+        public List<GameInfo> GameInfo
+        {
+            get 
+            { 
+                return _gameInfo;
+            }
+            
+            set
+            {
+                _gameInfo = value;
+                NotifyOfPropertyChange(() => GameInfo);
+            }
+        }
+
+        private List<string> _gameVisibility = new List<string>();
+
+        public List<string> GameVisibility
+        {
+            get 
+            { 
+                return _gameVisibility;
+            }
+        }
+
+        private int _gameTypeIndex;
+
+        public int GameTypeIndex
+        {
+            get 
+            { 
+                return _gameTypeIndex;
+            }
+            
+            set
+            { 
+                _gameTypeIndex = value;
+                NotifyOfPropertyChange(() => GameTypeIndex);
+            }
+        }
+
+        private int _gameArenaIndex;
+
+        public int GameArenaIndex
+        {
+            get 
+            { 
+                return _gameArenaIndex;
+            }
+            
+            set
+            { 
+                _gameArenaIndex = value;
+                NotifyOfPropertyChange(() => GameArenaIndex);
+            }
+        }
+
+        private int _gameLocationIndex;
+
+        public int GameLocationIndex
+        {
+            get 
+            { 
+                return _gameLocationIndex;
+            }
+            
+            set
+            { 
+                _gameLocationIndex = value;
+                NotifyOfPropertyChange(() => GameLocationIndex);
+            }
+        }
+
+        private int _gameStateIndex;
+
+        public int GameStateIndex
+        {
+            get 
+            { 
+                return _gameStateIndex;
+            }
+            
+            set
+            { 
+                _gameStateIndex = value;
+                NotifyOfPropertyChange(() => GameStateIndex);
+            }
+        }
+
+        private int _gameVisibilityIndex;
+
+        public int GameVisibilityIndex
+        {
+            get 
+            { 
+                return _gameVisibilityIndex;
+            }
+            
+            set 
+            { 
+                _gameVisibilityIndex = value;
+                NotifyOfPropertyChange(() => GameVisibilityIndex);
+            }
+        }
+
+        private int _gamePremiumIndex;
+
+        public int GamePremiumIndex
+        {
+            get 
+            { 
+                return _gamePremiumIndex;
+            }
+            
+            set
+            { 
+                _gamePremiumIndex = value;
+                NotifyOfPropertyChange(() => GamePremiumIndex);
+            }
+        }
+
+        private bool _gamePremiumBool;
+
+        public bool GamePremiumBool
+        {
+            get 
+            { 
+                return _gamePremiumBool;
+            }
+            
+            set
+            { 
+                _gamePremiumBool = value;
+                NotifyOfPropertyChange(() => GamePremiumBool);
+            }
+        }
         [ImportingConstructor]
         public FilterViewModel(IEventAggregator events)
         {
@@ -33,320 +301,142 @@ namespace UQLT.ViewModels
             events.Subscribe(this);
 
             // load hard-coded fail-safe filters if downloaded list doesn't exist
-            if (!downloadedFilterListExists())
+            if (!DownloadedFilterListExists())
             {
                 FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
-                failsafe.getFilterBackup();
-                LoadFilterList();
-                if (savedUserFiltersExist()) { ApplySavedUserFilters(); }
-                else { SetStandardDefaultFilters(); }
+                failsafe.DumpBackupFilters();
+                PopulateFilters();
+
+                if (SavedUserFiltersExist())
+                {
+                    ApplySavedUserFilters();
+                }
+                else
+                {
+                    SetStandardDefaultFilters();
+                }
             }
             else
             {
-                LoadFilterList();
-                if (savedUserFiltersExist())
-                { ApplySavedUserFilters(); }
-                else { SetStandardDefaultFilters(); }
+                PopulateFilters();
+
+                if (SavedUserFiltersExist())
+                {
+                    ApplySavedUserFilters();
+                }
+                else
+                {
+                    SetStandardDefaultFilters();
+                }
             }
+
             // game visibility types don't depend on saved filter file
-            _game_visibility.Add("Public games");
-            _game_visibility.Add("Private games");
-
-        }
-
-        private bool savedUserFiltersExist()
-        {
-            return (File.Exists(UQLTGlobals.saveduserfilterpath)) ? true : false;
-        }
-
-        private bool downloadedFilterListExists()
-        {
-            return (File.Exists(UQLTGlobals.currentfilterpath)) ? true : false;
-        }
-
-        private bool _isVisible = true;
-        public bool isVisible
-        {
-            get { return _isVisible; }
-            set { _isVisible = value; NotifyOfPropertyChange(() => isVisible); }
-        }
-
-        private List<ActiveLocation> _active_locations;
-        public List<ActiveLocation> active_locations
-        {
-            get { return _active_locations; }
-            set { _active_locations = value; NotifyOfPropertyChange(() => active_locations); }
-        }
-
-        private List<InactiveLocation> _inactive_locations;
-        public List<InactiveLocation> inactive_locations
-        {
-            get { return _inactive_locations; }
-            set { _inactive_locations = value; NotifyOfPropertyChange(() => inactive_locations); }
-        }
-
-        private List<ServerBrowserLocations> _serverbrowser_locations;
-        public List<ServerBrowserLocations> serverbrowser_locations
-        {
-            get { return _serverbrowser_locations; }
-            set { _serverbrowser_locations = value; NotifyOfPropertyChange(() => serverbrowser_locations); }
-        }
-
-        private List<Arena> _arenas;
-        public List<Arena> arenas
-        {
-            get { return _arenas; }
-            set { _arenas = value; NotifyOfPropertyChange(() => arenas); }
-        }
-
-        private List<Difficulty> _difficulty;
-        public List<Difficulty> difficulty
-        {
-            get { return _difficulty; }
-            set { _difficulty = value; NotifyOfPropertyChange(() => difficulty); }
-        }
-
-        private List<GameState> _gamestate;
-        public List<GameState> gamestate
-        {
-            get { return _gamestate; }
-            set { _gamestate = value; NotifyOfPropertyChange(() => gamestate); }
-        }
-
-        private List<GameType> _game_types;
-        public List<GameType> game_types
-        {
-            get { return _game_types; }
-            set { _game_types = value; NotifyOfPropertyChange(() => game_types); }
-        }
-
-        private List<GameInfo> _game_info;
-        public List<GameInfo> game_info
-        {
-            get { return _game_info; }
-            set { _game_info = value; NotifyOfPropertyChange(() => game_info); }
-        }
-
-        private List<String> _game_visibility = new List<String>();
-        public List<String> game_visibility
-        {
-            get { return _game_visibility; }
-        }
-
-        private int _gametype_index;
-        public int gametype_index
-        {
-            get { return _gametype_index; }
-            set { _gametype_index = value; NotifyOfPropertyChange(() => gametype_index); }
-        }
-
-        private int _gamearena_index;
-        public int gamearena_index
-        {
-            get { return _gamearena_index; }
-            set { _gamearena_index = value; NotifyOfPropertyChange(() => gamearena_index); }
-        }
-
-        private int _gamelocation_index;
-        public int gamelocation_index
-        {
-            get { return _gamelocation_index; }
-            set { _gamelocation_index = value; NotifyOfPropertyChange(() => gamelocation_index); }
-        }
-
-        private int _gamestate_index;
-        public int gamestate_index
-        {
-            get { return _gamestate_index; }
-            set { _gamestate_index = value; NotifyOfPropertyChange(() => gamestate_index); }
-        }
-
-        private int _gamevisibility_index;
-        public int gamevisibility_index
-        {
-            get { return _gamevisibility_index; }
-            set { _gamevisibility_index = value; NotifyOfPropertyChange(() => gamevisibility_index); }
-        }
-
-        private int _gamepremium_index;
-        public int gamepremium_index
-        {
-            get { return _gamepremium_index; }
-            set { _gamepremium_index = value; NotifyOfPropertyChange(() => gamepremium_index); }
-        }
-
-        private bool _gamepremium_bool;
-        public bool gamepremium_bool
-        {
-            get { return _gamepremium_bool; }
-            set { _gamepremium_bool = value; NotifyOfPropertyChange(() => gamepremium_bool); }
+            _gameVisibility.Add("Public games");
+            _gameVisibility.Add("Private games");
         }
 
         public void Handle(FilterVisibilityEvent message)
         {
-            isVisible = message.FilterViewVisibility;
-            //Console.WriteLine("Visibility: " + message.FilterViewVisibility);
-        }
-
-        // load the most current filter list (downloaded from application's web server)
-        private async void LoadFilterList()
-        {
-            try
-            {
-                // read filter json from filedir\data\currentfilters.json
-                using (StreamReader sr = new StreamReader(UQLTGlobals.currentfilterpath))
-                {
-                    var x = await sr.ReadToEndAsync();
-                    var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
-
-                    // set our viewmodel's properties to those in the model
-                    game_types = filters.game_types;
-                    arenas = filters.arenas;
-                    active_locations = filters.active_locations;
-                    gamestate = filters.gamestate;
-
-                    // add to appropriate list in order to set proper arena tag when building filter
-                    foreach (var arena in filters.arenas)
-                    {
-                        if (arena.arena_type.Equals("map") && (!arenamap.Contains(arena.arena)))
-                        {
-                            arenamap.Add(arena.arena);
-                        }
-                        else if (arena.arena_type.Equals("tag") && (!arenatag.Contains(arena.arena)))
-                        {
-                            arenatag.Add(arena.arena);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Unable to read filter data.");
-                Console.WriteLine(ex);
-                //TODO: make this download filter from net, if that fails THEN load hard-coded filter
-                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
-                failsafe.getFilterBackup();
-
-            }
-        }
-
-        // set default filters (i.e.: "Any Location", "Any Game State", etc.)
-        private void SetStandardDefaultFilters()
-        {
-            gametype_index = 0;
-            gamearena_index = 0;
-            gamelocation_index = 0;
-            gamestate_index = 0;
-            gamevisibility_index = 0;
-            gamepremium_bool = false;
-        }
-
-        private void ApplySavedUserFilters()
-        {
-            try
-            {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.saveduserfilterpath))
-                {
-                    String savedblob = sr.ReadToEnd();
-                    var savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
-                    sf.gametype_index = savedFilterJson.gametype_index;
-                    sf.gamearena_index = savedFilterJson.gamearena_index;
-                    sf.gamelocation_index = savedFilterJson.gamelocation_index;
-                    sf.gamestate_index = savedFilterJson.gamestate_index;
-                    sf.gamevisibility_index = savedFilterJson.gamevisibility_index;
-                    sf.gamepremium_index = savedFilterJson.gamepremium_index;
-
-
-                    // set our viewmodel's index properties to appropriate properties from saved filter file
-                    gametype_index = sf.gametype_index;
-                    gamearena_index = sf.gamearena_index;
-                    gamelocation_index = sf.gamelocation_index;
-                    gamestate_index = sf.gamestate_index;
-
-                    if (sf.gamevisibility_index == 0) { gamevisibility_index = 0; }
-                    else { gamevisibility_index = 1; }
-                    if (sf.gamepremium_index == 0) { gamepremium_bool = false; }
-                    else { gamepremium_bool = true; }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error applying saved filters: " + ex);
-                ClearSavedUserFilters();
-            }
+            IsVisible = message.FilterViewVisibility;
+            
+            // Console.WriteLine("Visibility: " + message.FilterViewVisibility);
         }
 
         // clear the user's saved default filters when "Clear Filters" button is clicked
         public void ClearSavedUserFilters()
         {
-            if (savedUserFiltersExist())
-                File.Delete(UQLTGlobals.saveduserfilterpath);
+            if (SavedUserFiltersExist())
+            {
+                File.Delete(UQLTGlobals.SavedUserFilterPath);
+            }
+            
             SetStandardDefaultFilters();
             Console.WriteLine("Saved filters cleared!");
         }
 
-        public void SaveNewUserFilters(int sgametype_index, int sgamearena_index, int sgamelocation_index, int sgamestate_index, int sgamevisibility_index, bool sgamepremium_bool)
+        public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
         {
-            int sgamepremium_index = 0;
-            if (sgamepremium_bool == true) { sgamepremium_index = 1; }
-            else if (sgamepremium_bool == false) { sgamepremium_index = 0; }
+            int selGamePremiumIndex = 0;
+            if (selGamePremiumBool == true)
+            {
+                selGamePremiumIndex = 1;
+            }
+            else if (selGamePremiumBool == false)
+            {
+                selGamePremiumIndex = 0;
+            }
 
             // Save this filter information as the new default
-            sf.gametype_index = sgametype_index;
-            sf.gamearena_index = sgamearena_index;
-            sf.gamelocation_index = sgamelocation_index;
-            sf.gamestate_index = sgamestate_index;
-            sf.gamevisibility_index = sgamevisibility_index;
-            sf.gamepremium_index = sgamepremium_index;
+            sf.type_in = selGameTypeIndex;
+            sf.arena_in = selGameArenaIndex;
+            sf.location_in = selGameLocationIndex;
+            sf.state_in = selGameStateIndex;
+            sf.visibility_in = selGameVisibilityIndex;
+            sf.premium_in = selGamePremiumIndex;
+            sf.filterurl = MakeFilterUrlFromIndexes(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool);
 
             // write to disk
-            String savedfilterjson = JsonConvert.SerializeObject(sf);
-            using (FileStream fs = File.Create(UQLTGlobals.saveduserfilterpath))
+            string savedfilterjson = JsonConvert.SerializeObject(sf);
+            using (FileStream fs = File.Create(UQLTGlobals.SavedUserFilterPath))
             using (TextWriter writer = new StreamWriter(fs))
             {
                 writer.WriteLine(savedfilterjson);
             }
 
             // make filter url based on user selections
-            //makeFilterJson(selectedgametype, selectedgamearena, selectedgamestate, selectedgamelocation, selectedgamevisibility, selectedgamepremium);
-
+            // makeFilterJson(selectedgametype, selectedgamearena, selectedgamestate, selectedgamelocation, selectedgamevisibility, selectedgamepremium);
         }
 
         // take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
-        public String MakeFilterUrl(String gametype, String arena, String state, Object location, Object priv, bool ispremium)
+        public string MakeFilterUrl(string gametype, string arena, string state, object location, object priv, bool ispremium)
         {
-            String encodedFilterUrl = null;
-            String jsonFilterString = null;
-            List<String> players = new List<String>(); // always empty for purposes of filter encoding
+            string encodedFilterUrl = null;
+            string jsonFilterString = null;
+            List<string> players = new List<string>(); // always empty for purposes of filter encoding
 
-            // arena_type is determined from arena. ig, game_types array, and ranked are determined from gametype
-            String arena_type = null;
-            Object ig = null;
+            // arena_type is determined from arena. ig, GameTypes array, and ranked are determined from gametype
+            string arena_type = null;
+            object ig = null;
             List<int> gtarr = null;
-            Object ranked = null;
+            object ranked = null;
             int premium = 0;
 
-            if (ispremium == true) { premium = 1; }
-            else { premium = 0; }
+            if (ispremium == true)
+            { 
+                premium = 1;
+            }
+            else
+            {
+                premium = 0;
+            }
 
             // arena_type determination from arena:
-            if (arena.Equals("any")) { arena_type = ""; }
+            if (arena.Equals("any"))
+            { 
+                arena_type = string.Empty;
+            }
 
-            if (arenamap.Contains(arena)) { arena_type = "map"; }
-            else if (arenatag.Contains(arena)) { arena_type = "tag"; }
+            if (arenaMap.Contains(arena))
+            { 
+                arena_type = "map";
+            }
+            else if (arenaTag.Contains(arena)) 
+            { 
+                arena_type = "tag";
+            }
 
             Console.WriteLine("Arena type for " + arena + " is: " + arena_type);
 
-            // ig, game_types array, ranked determination from gametype:
+            // ig, GameTypes array, ranked determination from gametype:
             try
             {
                 // read filter json from filedir\data\currentfilters.json
-                using (StreamReader sr = new StreamReader(UQLTGlobals.currentfilterpath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
                 {
                     var x = sr.ReadToEnd();
                     var gi = JsonConvert.DeserializeObject<ImportedFilters>(x);
 
-                    // get appropriate ig, game_types array, and ranked for gametype
+                    // get appropriate ig, GameTypes array, and ranked for gametype
                     foreach (var g in gi.game_info)
                     {
                         if (g.type.Equals(gametype))
@@ -356,27 +446,26 @@ namespace UQLT.ViewModels
                             ranked = g.ranked;
                         }
                     }
-
                 }
-
+                
                 // create objects to be converted to json
-                QuakeLiveFilters qlf = new QuakeLiveFilters
+                FilterBuilderDetails fbd = new FilterBuilderDetails
                 {
-                    group = "any", //hard-code
+                    group = "any", // hard-code
                     game_type = gametype,
                     arena = arena,
                     state = state,
-                    difficulty = "any", //hard-code
+                    difficulty = "any", // hard-code
                     location = location,
                     @private = priv,
                     premium_only = premium,
                     ranked = ranked,
-                    invitation_only = 0, //hard-code
+                    invitation_only = 0, // hard-code
                 };
 
-                QuakeLiveFilterObject qlfo = new QuakeLiveFilterObject
+                FilterBuilderObject fbo = new FilterBuilderObject
                 {
-                    filters = qlf,
+                    filters = fbd,
                     arena_type = arena_type,
                     players = players,
                     game_types = gtarr,
@@ -384,13 +473,13 @@ namespace UQLT.ViewModels
                 };
 
                 // convert to json
-                jsonFilterString = JsonConvert.SerializeObject(qlfo);
+                jsonFilterString = JsonConvert.SerializeObject(fbo);
 
                 // format url and base64 encode the json
                 encodedFilterUrl = "http://www.quakelive.com/browser/list?filter=" + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(jsonFilterString)) + "&_="
                     + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
 
-                Console.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | game_types: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
+                Console.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | GameTypes: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
                 Console.WriteLine(jsonFilterString);
                 Console.WriteLine(encodedFilterUrl);
             }
@@ -398,6 +487,7 @@ namespace UQLT.ViewModels
             {
                 MessageBox.Show("Unable to read filter data. Error: " + ex);
             }
+            
             // fire event to server browser
             SetServerBrowserUrl(encodedFilterUrl);
             return encodedFilterUrl;
@@ -405,8 +495,196 @@ namespace UQLT.ViewModels
 
         public void SetServerBrowserUrl(string url)
         {
-            //Console.WriteLine("Attempting to publish event");
+            // Console.WriteLine("Attempting to publish event");
             _events.Publish(new ServerRequestEvent(url));
+        }
+
+        private bool SavedUserFiltersExist()
+        {
+            return File.Exists(UQLTGlobals.SavedUserFilterPath) ? true : false;
+        }
+
+        private bool DownloadedFilterListExists()
+        {
+            return File.Exists(UQLTGlobals.CurrentFilterPath) ? true : false;
+        }
+        
+        // load the most current filter list (downloaded from application's web server)
+        private async void PopulateFilters()
+        {
+            try
+            {
+                // read filter json from filedir\data\currentfilters.json
+                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+                {
+                    var x = await sr.ReadToEndAsync();
+                    var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
+
+                    // set our viewmodel's properties to those in the model
+                    GameTypes = filters.game_types;
+                    Arenas = filters.arenas;
+                    ActiveLocations = filters.active_locations;
+                    GameState = filters.gamestate;
+
+                    // add to appropriate list in order to set proper arena tag when building filter
+                    foreach (var arena in filters.arenas)
+                    {
+                        if (arena.arena_type.Equals("map") && (!arenaMap.Contains(arena.arena)))
+                        {
+                            arenaMap.Add(arena.arena);
+                        }
+                        else if (arena.arena_type.Equals("tag") && (!arenaTag.Contains(arena.arena)))
+                        {
+                            arenaTag.Add(arena.arena);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to read filter data.");
+                Console.WriteLine(ex);
+
+                // TODO: make this download filter from net, if that fails THEN load hard-coded filter
+                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
+                failsafe.DumpBackupFilters();
+            }
+        }
+
+        // set default filters (i.e.: "Any Location", "Any Game State", etc.)
+        private void SetStandardDefaultFilters()
+        {
+            GameTypeIndex = 0;
+            GameArenaIndex = 0;
+            GameLocationIndex = 0;
+            GameStateIndex = 0;
+            GameVisibilityIndex = 0;
+            GamePremiumBool = false;
+
+            // default url here
+        }
+
+        private void ApplySavedUserFilters()
+        {
+            try
+            {
+                using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+                {
+                    string savedblob = sr.ReadToEnd();
+                    SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
+                    sf.type_in = savedFilterJson.type_in;
+                    sf.arena_in = savedFilterJson.arena_in;
+                    sf.location_in = savedFilterJson.location_in;
+                    sf.state_in = savedFilterJson.state_in;
+                    sf.visibility_in = savedFilterJson.visibility_in;
+                    sf.premium_in = savedFilterJson.premium_in;
+
+                    // url here
+                    // set our viewmodel's index properties to appropriate properties from saved filter file
+                    GameTypeIndex = sf.type_in;
+                    GameArenaIndex = sf.arena_in;
+                    GameLocationIndex = sf.location_in;
+                    GameStateIndex = sf.state_in;
+
+                    if (sf.visibility_in == 0)
+                    { 
+                        GameVisibilityIndex = 0;
+                    }
+                    else
+                    { 
+                        GameVisibilityIndex = 1;
+                    }
+
+                    if (sf.premium_in == 0)
+                    {
+                        GamePremiumBool = false;
+                    }
+                    else
+                    { 
+                        GamePremiumBool = true;
+                    }
+
+                    // url here
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error applying saved filters: " + ex);
+                ClearSavedUserFilters();
+            }
+        }
+
+        private string MakeFilterUrlFromIndexes(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)
+        {
+            string gt = null;
+            string ar = null;
+            string stat = null;
+            object loc = null;
+
+            try
+            {
+                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+                {
+                    string currentblob = sr.ReadToEnd();
+                    ImportedFilters importedFilterJson = JsonConvert.DeserializeObject<ImportedFilters>(currentblob);
+                    /*
+                    for (int i = 0; i < importedFilterJson.GameTypes.Count; i++)
+                    {
+                        if (i == gt_index)
+                        {
+                            Console.WriteLine("FOUND: " + gt_index);
+                            Console.WriteLine(importedFilterJson.GameTypes.ElementAt(gt_index));
+                        }
+                    }
+                    */
+
+                    foreach (var gametype in importedFilterJson.game_types)
+                    {
+                        if (importedFilterJson.game_types.ElementAt(gtIndex).ToString().Equals(gametype.display_name))
+                        {
+                            Console.WriteLine("Gametype: " + gametype.game_type);
+                            gt = gametype.game_type;
+                        }
+                    }
+
+                    foreach (var arena in importedFilterJson.arenas)
+                    {
+                        if (importedFilterJson.arenas.ElementAt(arIndex).ToString().Equals(arena.display_name))
+                        {
+                            Console.WriteLine("Arena Type: " + arena.arena_type);
+                            Console.WriteLine("Arena: " + arena.arena);
+                            ar = arena.arena;
+                        }
+                    }
+
+                    foreach (var location in importedFilterJson.active_locations)
+                    {
+                        if (importedFilterJson.active_locations.ElementAt(locIndex).ToString().Equals(location.display_name))
+                        {
+                            Console.WriteLine("Location: " + location.location_id);
+                            loc = location.location_id;
+                        }
+                    }
+
+                    foreach (var gamestate in importedFilterJson.gamestate)
+                    {
+                        if (importedFilterJson.gamestate.ElementAt(statIndex).ToString().Equals(gamestate.display_name))
+                        {
+                            Console.WriteLine("Gamestate: " + gamestate.state);
+                            stat = gamestate.state;
+                        }
+                    }
+
+                    // just pass vis_ind to MakeFilterUrl no need to loop
+                    // just pass prem_bool to MakeFilterUrl no need to convert
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error creating url from filters: " + ex);
+            }
+
+            return MakeFilterUrl(gt, ar, stat, loc, visIndex, premBool);
         }
     }
 }
