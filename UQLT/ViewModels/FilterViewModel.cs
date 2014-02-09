@@ -9,6 +9,7 @@ using System.Windows;
 using Caliburn.Micro;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UQLT;
 using UQLT.Events;
 using UQLT.Helpers;
 using UQLT.Models.Filters;
@@ -351,6 +352,7 @@ namespace UQLT.ViewModels
             }
             
             SetStandardDefaultFilters();
+            SetServerBrowserUrl(UQLTGlobals.QLDefaultFilter);
             Console.WriteLine("Saved filters cleared!");
         }
 
@@ -373,7 +375,7 @@ namespace UQLT.ViewModels
             sf.state_in = selGameStateIndex;
             sf.visibility_in = selGameVisibilityIndex;
             sf.premium_in = selGamePremiumIndex;
-            sf.filterurl = MakeFilterUrlFromIndexes(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool);
+            sf.fltr_enc = MakeEncFilterFromIndexes(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool);
 
             // write to disk
             string savedfilterjson = JsonConvert.SerializeObject(sf);
@@ -388,9 +390,9 @@ namespace UQLT.ViewModels
         }
 
         // take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
-        public string MakeFilterUrl(string gametype, string arena, string state, object location, object priv, bool ispremium)
+        public string MakeEncodedFilter(string gametype, string arena, string state, object location, object priv, bool ispremium)
         {
-            string encodedFilterUrl = null;
+            string encodedFilter = null;
             string jsonFilterString = null;
             List<string> players = new List<string>(); // always empty for purposes of filter encoding
 
@@ -475,13 +477,12 @@ namespace UQLT.ViewModels
                 // convert to json
                 jsonFilterString = JsonConvert.SerializeObject(fbo);
 
-                // format url and base64 encode the json
-                encodedFilterUrl = "http://www.quakelive.com/browser/list?filter=" + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(jsonFilterString)) + "&_="
-                    + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
+                // base64 encode the json
+                encodedFilter = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(jsonFilterString))+"&_=";
 
                 Console.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | GameTypes: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
                 Console.WriteLine(jsonFilterString);
-                Console.WriteLine(encodedFilterUrl);
+                Console.WriteLine(encodedFilter);
             }
             catch (Exception ex)
             {
@@ -489,8 +490,8 @@ namespace UQLT.ViewModels
             }
             
             // fire event to server browser
-            SetServerBrowserUrl(encodedFilterUrl);
-            return encodedFilterUrl;
+            SetServerBrowserUrl(UQLTGlobals.QLDomainListFilter+encodedFilter);
+            return encodedFilter;
         }
 
         public void SetServerBrowserUrl(string url)
@@ -556,7 +557,7 @@ namespace UQLT.ViewModels
         {
             GameTypeIndex = 0;
             GameArenaIndex = 0;
-            GameLocationIndex = 0;
+            GameLocationIndex = 1;
             GameStateIndex = 0;
             GameVisibilityIndex = 0;
             GamePremiumBool = false;
@@ -579,7 +580,6 @@ namespace UQLT.ViewModels
                     sf.visibility_in = savedFilterJson.visibility_in;
                     sf.premium_in = savedFilterJson.premium_in;
 
-                    // url here
                     // set our viewmodel's index properties to appropriate properties from saved filter file
                     GameTypeIndex = sf.type_in;
                     GameArenaIndex = sf.arena_in;
@@ -603,8 +603,6 @@ namespace UQLT.ViewModels
                     { 
                         GamePremiumBool = true;
                     }
-
-                    // url here
                 }
             }
             catch (Exception ex)
@@ -614,7 +612,7 @@ namespace UQLT.ViewModels
             }
         }
 
-        private string MakeFilterUrlFromIndexes(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)
+        private string MakeEncFilterFromIndexes(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)
         {
             string gt = null;
             string ar = null;
@@ -684,7 +682,7 @@ namespace UQLT.ViewModels
                 Console.WriteLine("Error creating url from filters: " + ex);
             }
 
-            return MakeFilterUrl(gt, ar, stat, loc, visIndex, premBool);
+            return MakeEncodedFilter(gt, ar, stat, loc, visIndex, premBool);
         }
     }
 }

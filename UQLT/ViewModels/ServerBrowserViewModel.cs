@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,11 +14,14 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using Caliburn.Micro;
 using Newtonsoft.Json;
+using UQLT;
 using UQLT.Events;
 using UQLT.Models;
 using UQLT.Models.Filters.Remote;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
+using UQLT.Models.Filters.User;
+
 
 namespace UQLT.ViewModels
 {
@@ -60,12 +64,8 @@ namespace UQLT.ViewModels
             }
         }
 
-        // default value for filter URL
-        // private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=1391549611901";
-        private string _filterURL = "http://www.quakelive.com/browser/list?filter=eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiMyIsImFyZW5hIjoiYW55Iiwic3RhdGUiOiJQT1BVTEFURUQiLCJkaWZmaWN1bHR5IjoiYW55IiwibG9jYXRpb24iOiJhbnkiLCJwcml2YXRlIjowLCJwcmVtaXVtX29ubHkiOjAsImludml0YXRpb25fb25seSI6MCwicmFua2VkIjoiYW55In0sImFyZW5hX3R5cGUiOiIiLCJwbGF5ZXJzIjpbXSwiZ2FtZV90eXBlcyI6WzVdLCJpZyI6MH0%3D&_=1391656617403";
-        // private string _filterURL;
-        
-        // TODO: save the filter url in the savedfilters on disk, also code a failsafe default url
+        private string _filterURL;
+ 
         public string FilterURL
         {
             get 
@@ -75,7 +75,7 @@ namespace UQLT.ViewModels
             
             set
             {
-                _filterURL = value;
+                _filterURL = value + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
                 NotifyOfPropertyChange(() => FilterURL);
             }
         }
@@ -86,6 +86,7 @@ namespace UQLT.ViewModels
             events.Subscribe(this);
             _servers = new ObservableCollection<ServerDetailsViewModel>();
             DoServerBrowserAutoSort("LocationName");
+            GetAndSetUserFilterUrl();
             InitOrRefreshServers(FilterURL);
         }
 
@@ -138,8 +139,8 @@ namespace UQLT.ViewModels
                 ids.Add(qfs.public_id.ToString());
             }
 
-            Console.WriteLine("Formatted details URL: " + "http://www.quakelive.com/browser/details?ids=" + string.Join(",", ids));
-            return "http://www.quakelive.com/browser/details?ids=" + string.Join(",", ids);
+            Console.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
+            return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
         }
         
         // Get the actual server details for the list of servers based on the server ids
@@ -297,6 +298,31 @@ namespace UQLT.ViewModels
             };
             ping.SendAsync(address, new object());
             return tcs.Task;
+        }
+
+        private void GetAndSetUserFilterUrl()
+        {
+            if (File.Exists(UQLTGlobals.SavedUserFilterPath))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+                    {
+                        string saved = sr.ReadToEnd();
+                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(saved);
+                        FilterURL = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to retrieve filter url: " + ex);
+                    FilterURL = UQLTGlobals.QLDefaultFilter;
+                }
+            }
+            else 
+            {
+                FilterURL = UQLTGlobals.QLDefaultFilter;
+            }
         }
     }
 }
