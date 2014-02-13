@@ -36,6 +36,8 @@ namespace UQLT
 
         public static string QLDefaultFilter { get; private set; }
 
+        public static string QLUserAgent { get; private set; }
+
         static UQLTGlobals()
         {
             // Apparently Visual Studio Designer's ShadowCache cannot create directories, so in debug mode, do not include the data directory in the file path          
@@ -58,6 +60,8 @@ namespace UQLT
             
             // default filter: any gametype, any location, etc.
             QLDefaultFilter = QLDomainListFilter + "eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6IkFMTCIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwicmFua2VkIjoiYW55IiwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbNSw0LDMsMCwxLDksMTAsMTEsOCw2XSwiaWciOiJhbnkifQ==&_=";
+
+            QLUserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1";
         }
     }
 }

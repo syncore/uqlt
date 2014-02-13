@@ -21,6 +21,7 @@ using UQLT.Models.Filters.Remote;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.Models.Filters.User;
+using System.Net;
 
 
 namespace UQLT.ViewModels
@@ -29,18 +30,18 @@ namespace UQLT.ViewModels
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
         private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
-        
+
         private List<string> currentplayerlist = new List<string>(); // player list for elo updating
-        
+
         private ObservableCollection<ServerDetailsViewModel> _servers;
 
         public ObservableCollection<ServerDetailsViewModel> Servers
         {
-            get 
-            { 
+            get
+            {
                 return _servers;
             }
-            
+
             set
             {
                 _servers = value;
@@ -52,11 +53,11 @@ namespace UQLT.ViewModels
 
         public ServerDetailsViewModel SelectedServer
         {
-            get 
-            { 
+            get
+            {
                 return _selectedServer;
             }
-            
+
             set
             {
                 _selectedServer = value;
@@ -65,28 +66,28 @@ namespace UQLT.ViewModels
         }
 
         private string _filterURL;
- 
+
         public string FilterURL
         {
-            get 
-            { 
+            get
+            {
                 return _filterURL;
             }
-            
+
             set
             {
                 _filterURL = value + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
                 NotifyOfPropertyChange(() => FilterURL);
             }
         }
-        
+
         [ImportingConstructor]
         public ServerBrowserViewModel(IEventAggregator events)
         {
             events.Subscribe(this);
             _servers = new ObservableCollection<ServerDetailsViewModel>();
             DoServerBrowserAutoSort("LocationName");
-            GetAndSetUserFilterUrl();
+            FilterURL = GetFilterUrlOnLoad();
             InitOrRefreshServers(FilterURL);
         }
 
@@ -123,14 +124,22 @@ namespace UQLT.ViewModels
         private async Task<string> GetServerIdsFromFilter(string url)
         {
             url = FilterURL;
-            HttpClient client = new HttpClient();
             List<string> ids = new List<string>();
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
 
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
+            // QL site sends gzip compressed responses
+            if (gzipHandler.SupportsAutomaticDecompression)
+                gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            
+            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode(); // Throw on error code
-            string serverfilterjson = await response.Content.ReadAsStringAsync();
+            
+            // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
+            // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+            string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
 
             QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
 
@@ -142,21 +151,28 @@ namespace UQLT.ViewModels
             Console.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
             return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
         }
-        
+
         // Get the actual server details for the list of servers based on the server ids
-        // private async Task<IList<Server>> GetServerList(String FilterURL = "http://10.0.0.7/bigtest.json")
         private async Task<IList<Server>> GetServerList(string url)
         {
             // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
-            HttpClient client = new HttpClient();
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
+
+            // QL site sends gzip compressed responses
+            if (gzipHandler.SupportsAutomaticDecompression)
+                gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             UQLTGlobals.IPAddressDict.Clear();
             currentplayerlist.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
+            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode(); // Throw on error code
-            string serverdetailsjson = await response.Content.ReadAsStringAsync();
+            
+            // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
+            // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+            string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync()); 
 
             ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
             List<string> addresses = new List<string>();
@@ -174,7 +190,7 @@ namespace UQLT.ViewModels
                     if (!UQLTGlobals.PlayerEloDuel.TryGetValue(p.name.ToLower(), out elo))
                     {
                         currentplayerlist.Add(p.name.ToLower());
-                        
+
                         // temporarily set default elo to 0
                         SetQLranksDefaultElo(p.name.ToLower());
                     }
@@ -192,7 +208,7 @@ namespace UQLT.ViewModels
                         }
                     }
                 }
-                
+
                 // set a custom property for game_type for each server's players
                 s.setPlayerGameTypeFromServer(s.game_type);
             }
@@ -248,7 +264,7 @@ namespace UQLT.ViewModels
             foreach (var x in list)
             {
                 GetQlranksInfo(string.Join("+", x));
-                
+
                 // Console.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
             }
         }
@@ -261,7 +277,7 @@ namespace UQLT.ViewModels
                 client.BaseAddress = new Uri("http://www.qlranks.com");
                 //client.BaseAddress = new Uri("http://10.0.0.7");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1");
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
                 HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
                 response.EnsureSuccessStatusCode(); // Throw on error code
                 string eloinfojson = await response.Content.ReadAsStringAsync();
@@ -277,13 +293,13 @@ namespace UQLT.ViewModels
             {
                 // This exception indicates a problem deserializing the request body.
                 Console.WriteLine(jEx.Message);
-                
+
                 // MessageBox.Show(jEx.Message);
             }
             catch (HttpRequestException ex)
-            { 
+            {
                 Console.WriteLine(ex.Message);
-                
+
                 // MessageBox.Show(ex.Message);
             }
         }
@@ -300,8 +316,9 @@ namespace UQLT.ViewModels
             return tcs.Task;
         }
 
-        private void GetAndSetUserFilterUrl()
+        private string GetFilterUrlOnLoad()
         {
+            string url = null;
             if (File.Exists(UQLTGlobals.SavedUserFilterPath))
             {
                 try
@@ -310,19 +327,20 @@ namespace UQLT.ViewModels
                     {
                         string saved = sr.ReadToEnd();
                         SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(saved);
-                        FilterURL = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
+                        url = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Unable to retrieve filter url: " + ex);
-                    FilterURL = UQLTGlobals.QLDefaultFilter;
+                    url = UQLTGlobals.QLDefaultFilter;
                 }
             }
-            else 
+            else
             {
-                FilterURL = UQLTGlobals.QLDefaultFilter;
+                url = UQLTGlobals.QLDefaultFilter;
             }
+            return url;
         }
     }
 }

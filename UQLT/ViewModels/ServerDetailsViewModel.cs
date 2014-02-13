@@ -567,6 +567,9 @@ namespace UQLT.ViewModels
                     case 68:
                         _locationName = "NZL, Auckland";
                         break;
+                    case 69:
+                        _locationName = "RUS, Siberia";
+                        break;
                     default:
                         _locationName = "Unknown";
                         break;
