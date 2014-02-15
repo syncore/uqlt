@@ -55,7 +55,7 @@ namespace UQLT.ViewModels
         public void DoLogin()
         {
             // have some login logic here.. if successful then show main window and close this current window
-            _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
+           _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
             CloseWin();
         }
     }   

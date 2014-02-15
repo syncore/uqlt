@@ -139,6 +139,10 @@ namespace UQLT.ViewModels
             
             // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
             // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+            
+            // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
+
+            
             string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
 
             QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);

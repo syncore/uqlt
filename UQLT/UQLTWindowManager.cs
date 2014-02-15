@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
+using System.Windows.Media.Imaging;
 
 namespace UQLT
 {
@@ -14,6 +15,9 @@ namespace UQLT
         {
             Window window = base.EnsureWindow(model, view, isDialog);
             window.SizeToContent = SizeToContent.WidthAndHeight;
+            // Set an icon using code
+            Uri iconUri = new Uri("pack://application:,,,/icon.ico", UriKind.RelativeOrAbsolute);
+            window.Icon = BitmapFrame.Create(iconUri);
             return window;
         }
     }

@@ -22,9 +22,9 @@ namespace UQLT
             CompositionBatch batch = new CompositionBatch();
 
             // standard caliburn window manager
-            batch.AddExportedValue<IWindowManager>(new WindowManager());
+            //batch.AddExportedValue<IWindowManager>(new WindowManager());
             // custom window manager implementation
-            //batch.AddExportedValue<IWindowManager>(new UQLTWindowManager());
+            batch.AddExportedValue<IWindowManager>(new UQLTWindowManager());
             batch.AddExportedValue<IEventAggregator>(new EventAggregator());
             batch.AddExportedValue(container);
 
