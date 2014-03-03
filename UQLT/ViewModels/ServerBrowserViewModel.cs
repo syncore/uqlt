@@ -278,8 +278,8 @@ namespace UQLT.ViewModels
             HttpClient client = new HttpClient();
             try
             {
-                client.BaseAddress = new Uri("http://www.qlranks.com");
-                //client.BaseAddress = new Uri("http://10.0.0.7");
+                //client.BaseAddress = new Uri("http://www.qlranks.com");
+                client.BaseAddress = new Uri("http://10.0.0.7");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
                 HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);

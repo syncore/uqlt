@@ -37,6 +37,9 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="agsXMPP">
+      <HintPath>.\agsXMPP.dll</HintPath>
+    </Reference>
     <Reference Include="Caliburn.Micro">
       <HintPath>..\packages\Caliburn.Micro.1.5.2\lib\net45\Caliburn.Micro.dll</HintPath>
     </Reference>
@@ -112,12 +115,16 @@
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
+    <Compile Include="ViewModels\ChatListViewModel.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
     <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
     <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
+    <Compile Include="Views\ChatListView.xaml.cs">
+      <DependentUpon>ChatListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
@@ -172,6 +179,10 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\ChatListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\FilterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
