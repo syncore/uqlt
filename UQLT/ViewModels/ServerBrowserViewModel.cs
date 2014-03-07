@@ -22,6 +22,7 @@ using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.Models.Filters.User;
 using System.Net;
+using System.Windows;
 
 
 namespace UQLT.ViewModels
@@ -88,7 +89,9 @@ namespace UQLT.ViewModels
             _servers = new ObservableCollection<ServerDetailsViewModel>();
             DoServerBrowserAutoSort("LocationName");
             FilterURL = GetFilterUrlOnLoad();
-            InitOrRefreshServers(FilterURL);
+            
+            // for debugging: do not hit QL server
+            //InitOrRefreshServers(FilterURL);
         }
 
         public void Handle(ServerRequestEvent message)
@@ -109,7 +112,7 @@ namespace UQLT.ViewModels
         {
             url = FilterURL;
             var detailsurl = await GetServerIdsFromFilter(url);
-            var servers = await GetServerList(detailsurl); // TODO: proper filter url
+            var servers = await GetServerList(detailsurl);
             if (servers != null)
             {
                 Servers.Clear();
@@ -125,118 +128,139 @@ namespace UQLT.ViewModels
         {
             url = FilterURL;
             List<string> ids = new List<string>();
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
 
-            // QL site sends gzip compressed responses
-            if (gzipHandler.SupportsAutomaticDecompression)
-                gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            
-            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode(); // Throw on error code
-            
-            // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
-            // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-            
-            // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
-
-            
-            string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-
-            QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
-
-            foreach (QLAPIFilterServer qfs in qlfilter.servers)
+            try
             {
-                ids.Add(qfs.public_id.ToString());
-            }
 
-            Console.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
-            return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
+                HttpClientHandler gzipHandler = new HttpClientHandler();
+                HttpClient client = new HttpClient(gzipHandler);
+
+                // QL site sends gzip compressed responses
+                if (gzipHandler.SupportsAutomaticDecompression)
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Throw on error code
+
+                // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
+                // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+
+                // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
+
+
+                string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+
+                QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
+
+                foreach (QLAPIFilterServer qfs in qlfilter.servers)
+                {
+                    ids.Add(qfs.public_id.ToString());
+                }
+
+                Console.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
+                return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                MessageBox.Show("Unable to load Quake Live server data. Try refreshing manually.");
+                return null;
+            }
+            
+            
         }
 
         // Get the actual server details for the list of servers based on the server ids
         private async Task<IList<Server>> GetServerList(string url)
         {
-            // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
-
-            // QL site sends gzip compressed responses
-            if (gzipHandler.SupportsAutomaticDecompression)
-                gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-            UQLTGlobals.IPAddressDict.Clear();
-            currentplayerlist.Clear();
-            //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode(); // Throw on error code
-            
-            // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
-            // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-            string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync()); 
-
-            ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
-            List<string> addresses = new List<string>();
-            int elo;
-
-            foreach (Server s in serverlist)
+            try
             {
-                string cleanedip = port.Replace(s.host_address, string.Empty);
-                addresses.Add(cleanedip);
-                UQLTGlobals.IPAddressDict.TryAdd(cleanedip, 0); // initially set ping at 0
+                // 1.json, 2.json, bigtest.json, hugetest.json, hugetest2.json
+                HttpClientHandler gzipHandler = new HttpClientHandler();
+                HttpClient client = new HttpClient(gzipHandler);
 
-                foreach (Player p in s.players)
+                // QL site sends gzip compressed responses
+                if (gzipHandler.SupportsAutomaticDecompression)
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                UQLTGlobals.IPAddressDict.Clear();
+                currentplayerlist.Clear();
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Throw on error code
+
+                // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
+                // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+                string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+
+                ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
+                List<string> addresses = new List<string>();
+                int elo;
+
+                foreach (Server s in serverlist)
                 {
-                    // in the interests of time, only check duel elo. player will be included in all dicts if in duel dict
-                    if (!UQLTGlobals.PlayerEloDuel.TryGetValue(p.name.ToLower(), out elo))
-                    {
-                        currentplayerlist.Add(p.name.ToLower());
+                    string cleanedip = port.Replace(s.host_address, string.Empty);
+                    addresses.Add(cleanedip);
+                    UQLTGlobals.IPAddressDict.TryAdd(cleanedip, 0); // initially set ping at 0
 
-                        // temporarily set default elo to 0
-                        SetQLranksDefaultElo(p.name.ToLower());
-                    }
-                    else
+                    foreach (Player p in s.players)
                     {
-                        if (elo != 0)
+                        // in the interests of time, only check duel elo. player will be included in all dicts if in duel dict
+                        if (!UQLTGlobals.PlayerEloDuel.TryGetValue(p.name.ToLower(), out elo))
                         {
-                            Console.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
-                                + " [CA]: " + UQLTGlobals.PlayerEloCa[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.PlayerEloTdm[p.name.ToLower()] + " [CTF]: "
-                                + UQLTGlobals.PlayerEloCtf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.PlayerEloFfa[p.name.ToLower()]);
+                            currentplayerlist.Add(p.name.ToLower());
+
+                            // temporarily set default elo to 0
+                            SetQLranksDefaultElo(p.name.ToLower());
                         }
                         else
                         {
-                            SetQLranksDefaultElo(p.name.ToLower());
+                            if (elo != 0)
+                            {
+                                Console.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
+                                    + " [CA]: " + UQLTGlobals.PlayerEloCa[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.PlayerEloTdm[p.name.ToLower()] + " [CTF]: "
+                                    + UQLTGlobals.PlayerEloCtf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.PlayerEloFfa[p.name.ToLower()]);
+                            }
+                            else
+                            {
+                                SetQLranksDefaultElo(p.name.ToLower());
+                            }
                         }
                     }
+
+                    // set a custom property for game_type for each server's players
+                    s.setPlayerGameTypeFromServer(s.game_type);
                 }
 
-                // set a custom property for game_type for each server's players
-                s.setPlayerGameTypeFromServer(s.game_type);
-            }
+                List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
+                foreach (string address in addresses)
+                {
+                    pingTasks.Add(PingAsync(address));
+                }
 
-            List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
-            foreach (string address in addresses)
+                // wait for all the tasks to complete
+                await Task.WhenAll(pingTasks.ToArray());
+
+                // iterate over list of pingTasks
+                foreach (var pingTask in pingTasks)
+                {
+                    UQLTGlobals.IPAddressDict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
+                    // Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
+                }
+
+                SplitPlayerList(currentplayerlist);
+                return serverlist;
+            }
+            catch (Exception ex)
             {
-                pingTasks.Add(PingAsync(address));
+                Console.WriteLine(ex); // TODO: debug log
+                MessageBox.Show("Unable to load Quake Live server data. Try refreshing manually.");
+                return null;
             }
-
-            // wait for all the tasks to complete
-            await Task.WhenAll(pingTasks.ToArray());
-
-            // iterate over list of pingTasks
-            foreach (var pingTask in pingTasks)
-            {
-                UQLTGlobals.IPAddressDict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
-                // Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
-            }
-
-            SplitPlayerList(currentplayerlist);
-            return serverlist;
         }
-
         private void SetQLranksDefaultElo(string player)
         {
             UQLTGlobals.PlayerEloDuel.TryAdd(player, 0);
