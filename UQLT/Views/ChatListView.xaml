@@ -4,12 +4,76 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:vm="clr-namespace:UQLT.ViewModels"
              xmlns:cal="http://www.caliburnproject.org"
              mc:Ignorable="d" 
              d:DesignHeight="782" d:DesignWidth="280">
     
     <Grid>
-        <TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280"/>
+
+        <!--<TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280">
+            <TreeViewItem ItemsSource="{Binding OnlineFriends}" Header="Online Friends"/>
+            </TreeView>-->
+
+        <TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding OnlineFriends}">
+            <TreeViewItem>
+                <TreeViewItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="Green" Width="8" Height="12" 
+                        BorderBrush="#00000000"></Border>
+                        <Label Content="Online Friends"></Label>
+                    </StackPanel>
+                </TreeViewItem.Header>
+
+                <!-- Child Item -->
+
+                <TreeViewItem ItemsSource="{Binding OnlineFriends}">
+                    <TreeViewItem.Header>
+                        <TextBlock Text="{Binding Path=Name}"/>
+                        
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+            </TreeViewItem>
+        </TreeView>
+
+        
+
+
+
+        <!-- Conference teamplate -->
+            <!--<TreeViewItem Header="Online Friends"/>-->
+            <!--<TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding OnlineFriends}">
+                    <TextBlock Foreground="Red" Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+            
+        </TreeView>-->
+
+
+
+
+
+        <!--<TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding OnlineFriends}">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="FontWeight" Value="Normal" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate>
+                    <TextBlock Text="{Binding Path=Name}" />
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>-->
 
 
     </Grid>

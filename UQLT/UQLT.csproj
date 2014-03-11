@@ -89,6 +89,7 @@
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
+    <Compile Include="Models\Chat\Friend.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
     <Compile Include="Models\Filters\User\ActiveLocation.cs" />
     <Compile Include="Models\Filters\User\Arena.cs" />
