@@ -40,55 +40,23 @@ namespace UQLT.ViewModels
             }
         }
 
-        private ObservableCollection<RosterGroup> _rosterGroups;
+        private ObservableCollection<RosterGroup> _buddyList;
 
-        public ObservableCollection<RosterGroup> RosterGroups
+        public ObservableCollection<RosterGroup> BuddyList
         {
             get
             {
-                return _rosterGroups;
+                
+                return _buddyList;
             }
 
             set
             {
-                _rosterGroups = value;
-                NotifyOfPropertyChange(() => RosterGroups);
+                _buddyList = value;
+                NotifyOfPropertyChange(() => BuddyList);
             }
         }
-        /*
-        private bool _isExpanded;
-
-        
-        public bool IsExpanded
-        {
-            get
-            {
-                return _isExpanded;
-            }
-
-            set
-            {
-                _isExpanded = value;
-                NotifyOfPropertyChange(() => IsExpanded);
-            }
-        }
-
-        private bool _isSelected;
-
-        public bool IsSelected
-        {
-            get
-            {
-                return _isSelected;
-            }
-
-            set
-            {
-                _isSelected = value;
-                NotifyOfPropertyChange(() => IsSelected);
-            }
-        }
-        */
+       
         private RosterGroup _onlineFriends;
 
         public RosterGroup OnlineFriends
@@ -109,9 +77,9 @@ namespace UQLT.ViewModels
         public ChatListViewModel()
         {
             _roster = new Dictionary<string, string>();
-            _rosterGroups = new ObservableCollection<RosterGroup>();
-            _onlineFriends = new RosterGroup() { Name = "Online Friends" };
-            RosterGroups.Add(_onlineFriends);
+            _buddyList = new ObservableCollection<RosterGroup>();
+            _onlineFriends = new RosterGroup("Online Friends") { Friends = new ObservableCollection<Friend>() };
+            _buddyList.Add(_onlineFriends);
 
             XmppCon = new XmppClientConnection();
 
@@ -212,10 +180,11 @@ namespace UQLT.ViewModels
             if ((!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()) && (!FriendIsOnline(pres.From.User.ToLowerInvariant()))))
             {
                 Console.WriteLine("[FRIEND AVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
-                Console.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + OnlineFriends.Members.Count());
-                OnlineFriends.Members.Add(new RosterMember() { Name = pres.From.User.ToLowerInvariant()});
+                Console.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + OnlineFriends.Friends.Count());
+                OnlineFriends.Friends.Add(new Friend(pres.From.User.ToLowerInvariant()));
                 Console.WriteLine("*** Member's status: " + pres.Status);
-                Console.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + OnlineFriends.Members.Count());
+                Console.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + OnlineFriends.Friends.Count());
+
             }
         }
 
@@ -224,24 +193,24 @@ namespace UQLT.ViewModels
             if ((!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()) && (FriendIsOnline(pres.From.User.ToLowerInvariant()))))
             {
                 Console.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
-                Console.WriteLine("Friends list before removing " + pres.From.User + ", " + OnlineFriends.Members.ToArray() + "," + " count: " + OnlineFriends.Members.Count());
+                Console.WriteLine("Friends list before removing " + pres.From.User + ", " + OnlineFriends.Friends.ToArray() + "," + " count: " + OnlineFriends.Friends.Count());
 
-                foreach (var frnd in OnlineFriends.Members)
+                foreach (var frnd in OnlineFriends.Friends)
                 {
                     if (frnd.Name.ToLowerInvariant().Equals(pres.From.User.ToLowerInvariant()))
                     {
-                        OnlineFriends.Members.Remove(frnd);
+                        OnlineFriends.Friends.Remove(frnd);
                         break;
                     }
                 }
                 //XmppCon.MessageGrabber.Remove(pres.From.Bare.ToLowerInvariant());
-                Console.WriteLine("Friends list after removing " + pres.From.User + ", " + OnlineFriends.Members.ToArray() + "," + " count: " + OnlineFriends.Members.Count());
+                Console.WriteLine("Friends list after removing " + pres.From.User + ", " + OnlineFriends.Friends.ToArray() + "," + " count: " + OnlineFriends.Friends.Count());
             }
         }
 
         private bool FriendIsOnline(string friend)
         {
-            foreach (var frnd in OnlineFriends.Members)
+            foreach (var frnd in OnlineFriends.Friends)
             {
                 if (friend.Equals(frnd.Name.ToLowerInvariant()))
                 {

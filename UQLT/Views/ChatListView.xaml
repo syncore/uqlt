@@ -10,30 +10,24 @@
              mc:Ignorable="d" 
              d:DesignHeight="782" d:DesignWidth="280">
 
-    <Grid Margin="10">
-        <TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding RosterGroups}">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type chat:RosterGroup}" ItemsSource="{Binding Members}">
-                    <StackPanel Orientation="Horizontal">
-                        <!--Image Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" />-->
-                        <TextBlock Text="{Binding Name}" />
-                        <TextBlock Text=" [" Foreground="Green" />
-                        <TextBlock Text="{Binding Members.Count}" Foreground="Green" />
-                        <TextBlock Text="]" Foreground="Green" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-                <DataTemplate DataType="{x:Type chat:RosterMember}">
-                    <StackPanel Orientation="Horizontal">
-                        <!--<Image Source="/WpfTutorialSamples;component/Images/user.png" Margin="0,0,5,0" />-->
-                        <TextBlock Text="{Binding Name}" />
+    <Grid>
+        <TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
 
-                        <!--This will ecome the status-->
-                        <!--<TextBlock Text=" (" Foreground="Green" />-->
-                        <!--<TextBlock Text="{Binding Age}" Foreground="Green" />-->
-                        <!--<TextBlock Text=" years)" Foreground="Green" />-->
-                    </StackPanel>
-                </DataTemplate>
-            </TreeView.Resources>
+            <!-- RosterGroup Template -->
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
+                    <TextBlock Foreground="Red" Text="{Binding Name}" />
+
+                    <!-- Individual friend template -->
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+
         </TreeView>
     </Grid>
 </UserControl>

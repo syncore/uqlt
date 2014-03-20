@@ -10,14 +10,15 @@ namespace UQLT.Models.Chat
     public class RosterGroup
     {
 
-        public RosterGroup()
+        public RosterGroup(string name)
         {
-            this.Members = new ObservableCollection<RosterMember>();
+            Name = name;
+            Friends = new ObservableCollection<Friend>();
         }
 
         public string Name { get; set; }
 
-        public ObservableCollection<RosterMember> Members { get; set; }
+        public ObservableCollection<Friend> Friends { get; set; }
     }
 
 }
