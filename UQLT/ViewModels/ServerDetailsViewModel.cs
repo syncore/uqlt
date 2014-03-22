@@ -17,6 +17,9 @@ using UQLT.Models.QuakeLiveAPI;
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerDetailsViewModel))]
+    
+    // Individual Server information; no associated View
+    
     public class ServerDetailsViewModel : PropertyChangedBase
     {
         public Server Server

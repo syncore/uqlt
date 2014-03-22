@@ -12,10 +12,10 @@ namespace UQLT.Models.Chat
     {
         public Friend(string name)
         {
-            Name = name;
+            FriendName = name;
         }
         
-        public string Name { get; set; }
+        public string FriendName { get; set; }
 
         public string Status { get; set; }
 

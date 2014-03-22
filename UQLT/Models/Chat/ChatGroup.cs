@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Chat
 {
-    public class RosterGroup
+    public class ChatGroup
     {
 
-        public RosterGroup(string name)
+        public ChatGroup(string name)
         {
             Name = name;
             Friends = new ObservableCollection<Friend>();
@@ -19,6 +19,7 @@ namespace UQLT.Models.Chat
         public string Name { get; set; }
 
         public ObservableCollection<Friend> Friends { get; set; }
+        
     }
 
 }

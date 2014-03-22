@@ -89,7 +89,7 @@
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
-    <Compile Include="Models\Chat\RosterGroup.cs" />
+    <Compile Include="Models\Chat\ChatGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
     <Compile Include="Models\Filters\User\ActiveLocation.cs" />
@@ -117,6 +117,7 @@
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
+    <Compile Include="ViewModels\ChatListDetailsViewModel.cs" />
     <Compile Include="ViewModels\ChatListViewModel.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
@@ -124,6 +125,9 @@
     <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
     <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
     <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
+    <Compile Include="Views\ChatListDetailsView.xaml.cs">
+      <DependentUpon>ChatListDetailsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ChatListView.xaml.cs">
       <DependentUpon>ChatListView.xaml</DependentUpon>
     </Compile>
@@ -181,6 +185,10 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\ChatListDetailsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ChatListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

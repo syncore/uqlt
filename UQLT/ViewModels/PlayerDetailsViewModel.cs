@@ -14,6 +14,9 @@ using UQLT.Models.QuakeLiveAPI;
 namespace UQLT.ViewModels
 {
     [Export(typeof(PlayerDetailsViewModel))]
+    
+    // Individual player information, no associated View
+    
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
         private static Regex namecolors = new Regex(@"[\^]\d");

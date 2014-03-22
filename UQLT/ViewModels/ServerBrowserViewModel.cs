@@ -28,6 +28,8 @@ using System.Windows;
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerBrowserViewModel))]
+    
+    // Retrieval : Server population, elo population
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
         private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers

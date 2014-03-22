@@ -11,17 +11,23 @@
              d:DesignHeight="782" d:DesignWidth="280">
 
     <Grid>
-        <TreeView x:Name="FriendList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
+        <TreeView HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
 
             <!-- RosterGroup Template -->
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
-                    <TextBlock Foreground="Red" Text="{Binding Name}" />
+                <HierarchicalDataTemplate ItemsSource="{Binding GroupFriends}">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
+                        <TextBlock Text="{Binding GroupName}" />
+                        <TextBlock Text=" [" />
+                        <TextBlock Text="{Binding GroupFriends.Count}" Foreground="Green" />
+                        <TextBlock Text="]"/>
+                    </StackPanel>
 
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding FriendName}" />
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
 
@@ -29,5 +35,20 @@
             </TreeView.ItemTemplate>
 
         </TreeView>
+
+
+        <!--<ListBox Width="280" Height="782"
+         ItemsSource="{Binding BuddyList}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Path=GroupName}" />
+                        <TextBlock Text="{Binding Path=GroupFriends}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>-->
+
+
     </Grid>
 </UserControl>
