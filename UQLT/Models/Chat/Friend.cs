@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace UQLT.Models.Chat
 {
     // Individual friend
-    
+
     public class Friend
     {
         public Friend(string name)
         {
             FriendName = name;
         }
-        
+
         public string FriendName { get; set; }
 
         public string Status { get; set; }

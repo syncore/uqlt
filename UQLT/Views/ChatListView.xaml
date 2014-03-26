@@ -11,16 +11,16 @@
              d:DesignHeight="782" d:DesignWidth="280">
 
     <Grid>
-        <TreeView HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
+        <TreeView HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding RosterGroups}">
 
             <!-- RosterGroup Template -->
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding GroupFriends}">
+                <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
                     <StackPanel Orientation="Horizontal">
                         <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
                         <TextBlock Text="{Binding GroupName}" />
                         <TextBlock Text=" [" />
-                        <TextBlock Text="{Binding GroupFriends.Count}" Foreground="Green" />
+                        <TextBlock Text="{Binding Friends.Count}" Foreground="Green" />
                         <TextBlock Text="]"/>
                     </StackPanel>
 
@@ -35,20 +35,6 @@
             </TreeView.ItemTemplate>
 
         </TreeView>
-
-
-        <!--<ListBox Width="280" Height="782"
-         ItemsSource="{Binding BuddyList}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Path=GroupName}" />
-                        <TextBlock Text="{Binding Path=GroupFriends}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>-->
-
 
     </Grid>
 </UserControl>
