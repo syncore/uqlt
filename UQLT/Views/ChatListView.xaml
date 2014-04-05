@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="782" d:DesignWidth="280">
 
-    <Grid>
+    <Grid x:Name="ChatListRoot">
         <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
             <!-- Auto expand groups -->
             <TreeView.ItemContainerStyle>
@@ -40,18 +40,19 @@
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock x:Name="IndividualFriend" Text="{Binding FriendName}"/>
+                            <TextBlock x:Name="IndividualFriend" Text="{Binding FriendName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                                <!--Friend context menu actions-->
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)" />
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
 
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
-            <TreeView.ContextMenu>
-                <ContextMenu>
-                <MenuItem Header="Add to Favorite Friends" cal:Message.Attach="AddFav($this)">
-                    </MenuItem>
-                </ContextMenu>
-            </TreeView.ContextMenu>
         </TreeView>
 
     </Grid>

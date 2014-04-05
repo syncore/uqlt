@@ -256,12 +256,11 @@ namespace UQLT.ViewModels
             return false;
         }
 
-        public void AddFav(string name)
+        public void AddFavoriteFriend(Friend friend)
         {
-            //MessageBox.Show("Success.");
-            Console.WriteLine("***** SUCCESS *******: " + name);
+            Console.WriteLine("Added " + friend.FriendName + " to friends");
         }
-        
+
 
         private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
