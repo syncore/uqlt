@@ -17,6 +17,10 @@ namespace UQLT.Models.Chat
 
         public string FriendName { get; set; }
 
+        public bool IsAutoExpanded { get; set; }
+
+        public bool IsFavorite { get; set; }
+
         public string Status { get; set; }
 
     }

@@ -43,19 +43,18 @@ namespace UQLT.ViewModels
             }
         }
 
-        private BindableCollection<RosterGroup> _rosterGroups;
-
-        public BindableCollection<RosterGroup> RosterGroups
+        private BindableCollection<ChatListDetailsViewModel> _buddyList;
+        public BindableCollection<ChatListDetailsViewModel> BuddyList
         {
             get
             {
-                return _rosterGroups;
+                return _buddyList;
             }
 
             set
             {
-                _rosterGroups = value;
-                NotifyOfPropertyChange(() => RosterGroups);
+                _buddyList = value;
+                NotifyOfPropertyChange(() => BuddyList);
             }
         }
 
@@ -91,16 +90,16 @@ namespace UQLT.ViewModels
             }
         }
 
+
         [ImportingConstructor]
         public ChatListViewModel()
         {
             _roster = new Dictionary<string, string>();
-            _rosterGroups = new BindableCollection<RosterGroup>();
             _onlineFriends = new RosterGroup(OnlineGroup);
             _offlineFriends = new RosterGroup(OfflineGroup);
-
-            RosterGroups.Add(_onlineFriends);
-            RosterGroups.Add(_offlineFriends);
+            _buddyList = new BindableCollection<ChatListDetailsViewModel>();
+            BuddyList.Add(new ChatListDetailsViewModel(_onlineFriends, true));
+            BuddyList.Add(new ChatListDetailsViewModel(_offlineFriends, false));
 
             XmppCon = new XmppClientConnection();
 
@@ -108,6 +107,7 @@ namespace UQLT.ViewModels
             XmppCon.OnLogin += new ObjectHandler(XmppCon_OnLogin);
             XmppCon.OnRosterItem += new XmppClientConnection.RosterHandler(XmppCon_OnRosterItem);
             // TODO: will probably need an OnRosterEnd event when Roster is fully loaded
+            XmppCon.OnRosterEnd += new ObjectHandler(XmppCon_OnRosterEnd);
             XmppCon.OnPresence += new PresenceHandler(XmppCon_OnPresence);
             XmppCon.ClientSocket.OnValidateCertificate += new RemoteCertificateValidationCallback(ClientSocket_OnValidateCertificate);
 
@@ -122,21 +122,30 @@ namespace UQLT.ViewModels
             XmppCon.Port = 5222;
             XmppCon.Resource = "quakelive";
             XmppCon.AutoRoster = true;
+            XmppCon.AutoPresence = true;
             XmppCon.Open();
         }
 
         private void XmppCon_OnRosterItem(object sender, RosterItem item)
         {
+            // TODO: if (item.Subscription != SubscriptionType.remove) stuff
             try
             {
                 Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
                 XmppCon.MessageGrabber.Add(new Jid(item.Jid.Bare.ToLowerInvariant()), new BareJidComparer(), new MessageCB(XmppCon_OnMessage), null);
+                OfflineFriends.Friends.Add(new Friend(item.Jid.User.ToLowerInvariant()));
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 //MessageBox.Show(ex.ToString());
             }
+        }
+
+        // Roster has been fully loaded
+        private void XmppCon_OnRosterEnd(object sender)
+        {
+
         }
 
         // We've received a message.
@@ -151,9 +160,9 @@ namespace UQLT.ViewModels
         // We have successfully authenticated to the server.
         private void XmppCon_OnLogin(object sender)
         {
-            Presence p = new Presence(ShowType.chat, "");
-            p.Type = PresenceType.available;
-            XmppCon.Send(p);
+            //Presence p = new Presence(ShowType.chat, "");
+            //p.Type = PresenceType.available;
+            //XmppCon.Send(p);
 
         }
 
@@ -247,6 +256,12 @@ namespace UQLT.ViewModels
             return false;
         }
 
+        public void AddFav(string name)
+        {
+            //MessageBox.Show("Success.");
+            Console.WriteLine("***** SUCCESS *******: " + name);
+        }
+        
 
         private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {

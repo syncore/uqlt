@@ -27,6 +27,9 @@ namespace UQLT
 
         public static ConcurrentDictionary<string, int> PlayerEloCtf { get; private set; }
 
+        // favorite friends
+        //public static List<>
+
         // various quakelive.com things
         public static string QLDomainBase { get; private set; }
 

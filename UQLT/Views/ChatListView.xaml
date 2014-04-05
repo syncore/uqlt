@@ -11,29 +11,47 @@
              d:DesignHeight="782" d:DesignWidth="280">
 
     <Grid>
-        <TreeView HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding RosterGroups}">
-
+        <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
+            <!-- Auto expand groups -->
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsAutoExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
             <!-- RosterGroup Template -->
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
+                <HierarchicalDataTemplate ItemsSource="{Binding GroupFriends}">
                     <StackPanel Orientation="Horizontal">
                         <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
-                        <TextBlock Text="{Binding GroupName}" />
+                        <TextBlock x:Name="GroupName" Text="{Binding GroupName}" />
                         <TextBlock Text=" [" />
-                        <TextBlock Text="{Binding Friends.Count}" Foreground="Green" />
+                        <TextBlock x:Name="FriendCount" Text="{Binding GroupFriends.Count}" Foreground="Green" />
                         <TextBlock Text="]"/>
+                        <!--This is a menu strictly for the group headers-->
+                        <!--<StackPanel.ContextMenu>
+                            <ContextMenu cal:Action.TargetWithoutContext="{Binding DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Cut" cal:Message.Attach="Cut" />
+                                <MenuItem Header="Copy" cal:Message.Attach="Copy" />
+                                <MenuItem Header="Paste" cal:Message.Attach="Paste" />
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>-->
                     </StackPanel>
 
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding FriendName}" />
+                            <TextBlock x:Name="IndividualFriend" Text="{Binding FriendName}"/>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
 
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
-
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                <MenuItem Header="Add to Favorite Friends" cal:Message.Attach="AddFav($this)">
+                    </MenuItem>
+                </ContextMenu>
+            </TreeView.ContextMenu>
         </TreeView>
 
     </Grid>
