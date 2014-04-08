@@ -47,8 +47,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="QLImages">
-      <HintPath>.\QLImages.dll</HintPath>
+    <Reference Include="QLImages, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\resources\QLImages\QLImages\bin\Release\QLImages.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -68,6 +69,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UQLTRes">
+      <HintPath>..\resources\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -117,12 +121,14 @@
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
-    <Compile Include="ViewModels\ChatListDetailsViewModel.cs" />
+    <Compile Include="ViewModels\FriendViewModel.cs" />
+    <Compile Include="ViewModels\RosterGroupViewModel.cs" />
     <Compile Include="ViewModels\ChatListViewModel.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
+    <Compile Include="ViewModels\RosterViewModel.cs" />
     <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
     <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
     <Compile Include="Views\ChatListDetailsViewModel.xaml.cs">

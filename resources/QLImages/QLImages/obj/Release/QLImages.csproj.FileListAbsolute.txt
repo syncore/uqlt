@@ -1,0 +1,8 @@
+D:\csharp\uqlt\resources\QLImages\QLImages\bin\Release\QLImages.dll
+D:\csharp\uqlt\resources\QLImages\QLImages\bin\Release\QLImages.pdb
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\QLImages.csprojResolveAssemblyReference.cache
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\QLImages.g.resources
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\UQLT.Properties.Resources.resources
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\QLImages.csproj.GenerateResource.Cache
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\QLImages.dll
+D:\csharp\uqlt\resources\QLImages\QLImages\obj\Release\QLImages.pdb

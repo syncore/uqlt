@@ -1,0 +1,713 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5B873D8F-7B5B-461D-BC61-00FAD3032665}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UQLT</RootNamespace>
+    <AssemblyName>QLImages</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\6.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\10.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\11.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\12.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\14.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\16.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\17.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\18.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\19.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\20.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\21.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\22.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\23.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\24.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\25.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\26.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\27.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\28.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\29.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\30.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\31.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\32.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\33.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\34.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\35.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\36.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\37.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\38.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\39.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\40.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\41.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\42.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\43.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\44.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\45.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\46.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\47.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\48.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\49.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\50.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\51.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\52.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\53.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\54.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\58.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\59.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\60.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\62.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\63.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\64.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\65.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\66.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\67.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\68.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\666.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\0.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\3.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\4.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\5.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\6.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\7.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\8.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\9.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\10.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\11.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\14.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\15.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\16.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\17.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\18.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\19.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\20.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\21.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\22.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\23.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\24.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\25.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\accounttype\0.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\accounttype\1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\accounttype\2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\aerowalk.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\almostlost.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\arcanecitadel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\arenagate.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\asylum.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\basesiege.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\battleforged.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\beyondreality.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\blackcathedral.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\bloodlust.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\bloodrun.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\brimstoneabbey.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\campercrossings.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\campgrounds.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\cannedheat.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\chemicalreaction.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\cliffside.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\cobaltstation.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\coldcathode.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\coldwar.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\concretepalace.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\corrosion.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\courtyard.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\cure.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\deepinside.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\delirium.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\demonkeep.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\devilish.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\diesirae.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\dismemberment.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\distantscreams.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\doubleimpact.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\dreadfulplace.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\dredwerkz.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\duelingkeeps.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\electrichead.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\eviscerated.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\evolution.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\eyetoeye.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\falloutbunker.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\fatalinstinct.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\finnegans.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\fluorescent.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\focalpoint.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\foolishlegacy.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\forgotten.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\furiousheights.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\fuse.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\futurecrossings.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\golgothacore.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\gospelcrossings.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\gothicrage.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\grimdungeons.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\hearth.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\hektik.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\hellsgate.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\hellsgateredux.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\heroskeep.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\hiddenfortress.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\houseofdecay.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\industrialaccident.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\infinity.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\innersanctums.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\intervention.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\ironworks.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\japanesecastles.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\jumpwerkz.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\leftbehind.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\leviathan.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\limbus.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\longestyard.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\lostworld.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\namelessplace.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\overkill.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\overlord.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\phrantic.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\pillbox.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\powerstation.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\provinggrounds.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\purgatory.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\quarantine.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\railyard.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\realmofsteelrats.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\rebound.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\reflux.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\repent.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\retribution.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\revolver.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\sacellum.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\scornforge.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\seamsandbolts.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\shiningforces.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\siberia.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\silence.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\silentfright.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\sinister.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\skyward.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\solid.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\somewhatdamaged.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\sorrow.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\spacecamp.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\spacechamber.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\spacectf.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\spidercrossings.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\spillway.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\stonekeep.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\stronghold.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\terminalheights.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\terminatria.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\terminus.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\theatreofpain.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\theedge.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\threestory.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\thunderstruck.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\tornado.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\toxicity.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\trinity.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\troubledwaters.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\useandabuse.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\verticalvengeance.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\vortexportal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\warehouse.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\wargrounds.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\wicked.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\windowpain.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\windsongkeep.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\unknown_flag.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\gametypes\unknown_gametype.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\unknown_map.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\qzpractice1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\qzpractice2.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\wintersedge.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\69.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\flags\70.gif" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

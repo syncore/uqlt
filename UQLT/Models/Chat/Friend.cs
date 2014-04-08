@@ -10,14 +10,15 @@ namespace UQLT.Models.Chat
 
     public class Friend
     {
-        public Friend(string name)
+        public Friend(string name, bool isfavorite)
         {
             FriendName = name;
+            IsFavorite = isfavorite;
         }
 
         public string FriendName { get; set; }
 
-        public bool IsAutoExpanded { get; set; }
+       // public bool IsAutoExpanded { get; set; }
 
         public bool IsFavorite { get; set; }
 

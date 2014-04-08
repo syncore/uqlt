@@ -11,6 +11,7 @@
              d:DesignHeight="782" d:DesignWidth="280">
 
     <Grid x:Name="ChatListRoot">
+        
         <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
             <!-- Auto expand groups -->
             <TreeView.ItemContainerStyle>
@@ -20,12 +21,12 @@
             </TreeView.ItemContainerStyle>
             <!-- RosterGroup Template -->
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding GroupFriends}">
+                <HierarchicalDataTemplate ItemsSource="{Binding TestFriends}">
                     <StackPanel Orientation="Horizontal">
                         <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
                         <TextBlock x:Name="GroupName" Text="{Binding GroupName}" />
                         <TextBlock Text=" [" />
-                        <TextBlock x:Name="FriendCount" Text="{Binding GroupFriends.Count}" Foreground="Green" />
+                        <TextBlock x:Name="FriendCount" Text="{Binding TestFriends.Count}" Foreground="Green" />
                         <TextBlock Text="]"/>
                         <!--This is a menu strictly for the group headers-->
                         <!--<StackPanel.ContextMenu>
@@ -40,7 +41,8 @@
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock x:Name="IndividualFriend" Text="{Binding FriendName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="IndividualFriend" Text="{Binding FName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
                                 <!--Friend context menu actions-->
                                 <TextBlock.ContextMenu>
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -48,6 +50,8 @@
                                     </ContextMenu>
                                 </TextBlock.ContextMenu>
                             </TextBlock>
+                                <!--<Image Name="FriendImage" Width="16" Height="16" Source="{Binding FriendImage}" Margin="0,0,5,0"/>-->
+                            </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
 
