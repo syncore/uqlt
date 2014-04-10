@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,18 +30,18 @@ namespace UQLT.ViewModels
 
         private readonly IEventAggregator _events;
         private SavedFilters sf = new SavedFilters();
-        
+
         private bool _isVisible = true;
 
         public bool IsVisible
         {
-            get 
-            { 
+            get
+            {
                 return _isVisible;
             }
-            
+
             set
-            { 
+            {
                 _isVisible = value;
                 NotifyOfPropertyChange(() => IsVisible);
             }
@@ -50,14 +51,14 @@ namespace UQLT.ViewModels
 
         public List<ActiveLocation> ActiveLocations
         {
-            get 
-            { 
+            get
+            {
                 return _activeLocations;
             }
-            
+
             set
-            { 
-                _activeLocations = value; 
+            {
+                _activeLocations = value;
                 NotifyOfPropertyChange(() => ActiveLocations);
             }
         }
@@ -66,13 +67,13 @@ namespace UQLT.ViewModels
 
         public List<InactiveLocation> InactiveLocations
         {
-            get 
-            { 
+            get
+            {
                 return _inactiveLocations;
             }
-            
+
             set
-            { 
+            {
                 _inactiveLocations = value;
                 NotifyOfPropertyChange(() => InactiveLocations);
             }
@@ -82,13 +83,13 @@ namespace UQLT.ViewModels
 
         public List<ServerBrowserLocations> ServerBrowserLocations
         {
-            get 
-            { 
+            get
+            {
                 return _serverBrowserLocations;
             }
-            
+
             set
-            { 
+            {
                 _serverBrowserLocations = value;
                 NotifyOfPropertyChange(() => ServerBrowserLocations);
             }
@@ -98,13 +99,13 @@ namespace UQLT.ViewModels
 
         public List<Arena> Arenas
         {
-            get 
-            { 
-                return _arenas; 
+            get
+            {
+                return _arenas;
             }
-            
+
             set
-            { 
+            {
                 _arenas = value;
                 NotifyOfPropertyChange(() => Arenas);
             }
@@ -114,13 +115,13 @@ namespace UQLT.ViewModels
 
         public List<Difficulty> Difficulty
         {
-            get 
-            { 
+            get
+            {
                 return _difficulty;
             }
-            
+
             set
-            { 
+            {
                 _difficulty = value;
                 NotifyOfPropertyChange(() => Difficulty);
             }
@@ -130,13 +131,13 @@ namespace UQLT.ViewModels
 
         public List<GameState> GameState
         {
-            get 
-            { 
+            get
+            {
                 return _gamestate;
             }
-            
+
             set
-            { 
+            {
                 _gamestate = value;
                 NotifyOfPropertyChange(() => GameState);
             }
@@ -146,13 +147,13 @@ namespace UQLT.ViewModels
 
         public List<GameType> GameTypes
         {
-            get 
-            { 
+            get
+            {
                 return _gameTypes;
             }
-            
+
             set
-            { 
+            {
                 _gameTypes = value;
                 NotifyOfPropertyChange(() => GameTypes);
             }
@@ -162,11 +163,11 @@ namespace UQLT.ViewModels
 
         public List<GameInfo> GameInfo
         {
-            get 
-            { 
+            get
+            {
                 return _gameInfo;
             }
-            
+
             set
             {
                 _gameInfo = value;
@@ -178,8 +179,8 @@ namespace UQLT.ViewModels
 
         public List<string> GameVisibility
         {
-            get 
-            { 
+            get
+            {
                 return _gameVisibility;
             }
         }
@@ -188,13 +189,13 @@ namespace UQLT.ViewModels
 
         public int GameTypeIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gameTypeIndex;
             }
-            
+
             set
-            { 
+            {
                 _gameTypeIndex = value;
                 NotifyOfPropertyChange(() => GameTypeIndex);
             }
@@ -204,13 +205,13 @@ namespace UQLT.ViewModels
 
         public int GameArenaIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gameArenaIndex;
             }
-            
+
             set
-            { 
+            {
                 _gameArenaIndex = value;
                 NotifyOfPropertyChange(() => GameArenaIndex);
             }
@@ -220,13 +221,13 @@ namespace UQLT.ViewModels
 
         public int GameLocationIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gameLocationIndex;
             }
-            
+
             set
-            { 
+            {
                 _gameLocationIndex = value;
                 NotifyOfPropertyChange(() => GameLocationIndex);
             }
@@ -236,13 +237,13 @@ namespace UQLT.ViewModels
 
         public int GameStateIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gameStateIndex;
             }
-            
+
             set
-            { 
+            {
                 _gameStateIndex = value;
                 NotifyOfPropertyChange(() => GameStateIndex);
             }
@@ -252,13 +253,13 @@ namespace UQLT.ViewModels
 
         public int GameVisibilityIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gameVisibilityIndex;
             }
-            
-            set 
-            { 
+
+            set
+            {
                 _gameVisibilityIndex = value;
                 NotifyOfPropertyChange(() => GameVisibilityIndex);
             }
@@ -268,13 +269,13 @@ namespace UQLT.ViewModels
 
         public int GamePremiumIndex
         {
-            get 
-            { 
+            get
+            {
                 return _gamePremiumIndex;
             }
-            
+
             set
-            { 
+            {
                 _gamePremiumIndex = value;
                 NotifyOfPropertyChange(() => GamePremiumIndex);
             }
@@ -284,13 +285,13 @@ namespace UQLT.ViewModels
 
         public bool GamePremiumBool
         {
-            get 
-            { 
+            get
+            {
                 return _gamePremiumBool;
             }
-            
+
             set
-            { 
+            {
                 _gamePremiumBool = value;
                 NotifyOfPropertyChange(() => GamePremiumBool);
             }
@@ -339,8 +340,8 @@ namespace UQLT.ViewModels
         public void Handle(FilterVisibilityEvent message)
         {
             IsVisible = message.FilterViewVisibility;
-            
-            // Console.WriteLine("Visibility: " + message.FilterViewVisibility);
+
+            // Debug.WriteLine("Visibility: " + message.FilterViewVisibility);
         }
 
         // clear the user's saved default filters when "Clear Filters" button is clicked
@@ -350,10 +351,10 @@ namespace UQLT.ViewModels
             {
                 File.Delete(UQLTGlobals.SavedUserFilterPath);
             }
-            
+
             SetStandardDefaultFilters();
             SetServerBrowserUrl(UQLTGlobals.QLDefaultFilter);
-            Console.WriteLine("Saved filters cleared!");
+            Debug.WriteLine("Saved filters cleared!");
         }
 
         public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
@@ -404,7 +405,7 @@ namespace UQLT.ViewModels
             int premium = 0;
 
             if (ispremium == true)
-            { 
+            {
                 premium = 1;
             }
             else
@@ -414,20 +415,20 @@ namespace UQLT.ViewModels
 
             // arena_type determination from arena:
             if (arena.Equals("any"))
-            { 
+            {
                 arena_type = string.Empty;
             }
 
             if (arenaMap.Contains(arena))
-            { 
+            {
                 arena_type = "map";
             }
-            else if (arenaTag.Contains(arena)) 
-            { 
+            else if (arenaTag.Contains(arena))
+            {
                 arena_type = "tag";
             }
 
-            Console.WriteLine("Arena type for " + arena + " is: " + arena_type);
+            Debug.WriteLine("Arena type for " + arena + " is: " + arena_type);
 
             // ig, GameTypes array, ranked determination from gametype:
             try
@@ -449,7 +450,7 @@ namespace UQLT.ViewModels
                         }
                     }
                 }
-                
+
                 // create objects to be converted to json
                 FilterBuilderDetails fbd = new FilterBuilderDetails
                 {
@@ -480,15 +481,15 @@ namespace UQLT.ViewModels
                 // base64 encode the json
                 encodedFilter = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(jsonFilterString))+"&_=";
 
-                Console.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | GameTypes: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
-                Console.WriteLine(jsonFilterString);
-                Console.WriteLine(encodedFilter);
+                Debug.WriteLine("Arena ({0}) type: {1} | Gametype ({2}) ig: {3} | GameTypes: {4} | ranked: {5}", arena, arena_type, gametype, ig, string.Join(", ", gtarr), ranked);
+                Debug.WriteLine(jsonFilterString);
+                Debug.WriteLine(encodedFilter);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Unable to read filter data. Error: " + ex);
             }
-            
+
             // fire event to server browser
             SetServerBrowserUrl(UQLTGlobals.QLDomainListFilter+encodedFilter);
             return encodedFilter;
@@ -496,7 +497,7 @@ namespace UQLT.ViewModels
 
         public void SetServerBrowserUrl(string url)
         {
-            // Console.WriteLine("Attempting to publish event");
+            // Debug.WriteLine("Attempting to publish event");
             _events.Publish(new ServerRequestEvent(url));
         }
 
@@ -509,7 +510,7 @@ namespace UQLT.ViewModels
         {
             return File.Exists(UQLTGlobals.CurrentFilterPath) ? true : false;
         }
-        
+
         // load the most current filter list (downloaded from application's web server)
         private async void PopulateFilters()
         {
@@ -544,7 +545,7 @@ namespace UQLT.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show("Unable to read filter data.");
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
 
                 // TODO: make this download filter from net, if that fails THEN load hard-coded filter
                 FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
@@ -587,11 +588,11 @@ namespace UQLT.ViewModels
                     GameStateIndex = sf.state_in;
 
                     if (sf.visibility_in == 0)
-                    { 
+                    {
                         GameVisibilityIndex = 0;
                     }
                     else
-                    { 
+                    {
                         GameVisibilityIndex = 1;
                     }
 
@@ -600,14 +601,14 @@ namespace UQLT.ViewModels
                         GamePremiumBool = false;
                     }
                     else
-                    { 
+                    {
                         GamePremiumBool = true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error applying saved filters: " + ex);
+                Debug.WriteLine("Error applying saved filters: " + ex);
                 ClearSavedUserFilters();
             }
         }
@@ -630,8 +631,8 @@ namespace UQLT.ViewModels
                     {
                         if (i == gt_index)
                         {
-                            Console.WriteLine("FOUND: " + gt_index);
-                            Console.WriteLine(importedFilterJson.GameTypes.ElementAt(gt_index));
+                            Debug.WriteLine("FOUND: " + gt_index);
+                            Debug.WriteLine(importedFilterJson.GameTypes.ElementAt(gt_index));
                         }
                     }
                     */
@@ -640,7 +641,7 @@ namespace UQLT.ViewModels
                     {
                         if (importedFilterJson.game_types.ElementAt(gtIndex).ToString().Equals(gametype.display_name))
                         {
-                            Console.WriteLine("Gametype: " + gametype.game_type);
+                            Debug.WriteLine("Gametype: " + gametype.game_type);
                             gt = gametype.game_type;
                         }
                     }
@@ -649,8 +650,8 @@ namespace UQLT.ViewModels
                     {
                         if (importedFilterJson.arenas.ElementAt(arIndex).ToString().Equals(arena.display_name))
                         {
-                            Console.WriteLine("Arena Type: " + arena.arena_type);
-                            Console.WriteLine("Arena: " + arena.arena);
+                            Debug.WriteLine("Arena Type: " + arena.arena_type);
+                            Debug.WriteLine("Arena: " + arena.arena);
                             ar = arena.arena;
                         }
                     }
@@ -659,7 +660,7 @@ namespace UQLT.ViewModels
                     {
                         if (importedFilterJson.active_locations.ElementAt(locIndex).ToString().Equals(location.display_name))
                         {
-                            Console.WriteLine("Location: " + location.location_id);
+                            Debug.WriteLine("Location: " + location.location_id);
                             loc = location.location_id;
                         }
                     }
@@ -668,7 +669,7 @@ namespace UQLT.ViewModels
                     {
                         if (importedFilterJson.gamestate.ElementAt(statIndex).ToString().Equals(gamestate.display_name))
                         {
-                            Console.WriteLine("Gamestate: " + gamestate.state);
+                            Debug.WriteLine("Gamestate: " + gamestate.state);
                             stat = gamestate.state;
                         }
                     }
@@ -679,7 +680,7 @@ namespace UQLT.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error creating url from filters: " + ex);
+                Debug.WriteLine("Error creating url from filters: " + ex);
             }
 
             return MakeEncodedFilter(gt, ar, stat, loc, visIndex, premBool);

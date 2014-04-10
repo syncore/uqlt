@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,15 +39,15 @@ namespace UQLT.Converters
                         if (System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value))
                         {
                             realname = loc.display_name;
-                            
-                            // Console.WriteLine("Match found: " + loc.location_id + " matches: " + value);
+
+                            // Debug.WriteLine("Match found: " + loc.location_id + " matches: " + value);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex);
+                Debug.WriteLine("Error: " + ex);
             }
 
             return realname;

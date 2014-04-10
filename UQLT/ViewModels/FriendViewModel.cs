@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using UQLT.Models.Chat;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace UQLT.ViewModels
 {
@@ -21,7 +23,7 @@ namespace UQLT.ViewModels
             private set;
         }
 
-        public string FName
+        public string FriendName
         {
             get
             {
@@ -49,9 +51,26 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => IsFavorite);
             }
         }
-        
+ 
         public bool IsAutoExpanded { get; set; }
 
+        public ImageSource FriendImage
+        {
+            get
+            {
+                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
+
+            }
+        }
+
+        public ImageSource FavoriteImage
+        {
+            get
+            {
+                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
+            }
+        }
+        
         [ImportingConstructor]
         public FriendViewModel(Friend friend, bool isautoexpanded)
         {

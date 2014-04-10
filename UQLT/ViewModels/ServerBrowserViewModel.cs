@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -28,7 +29,7 @@ using System.Windows;
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerBrowserViewModel))]
-    
+
     // Retrieval : Server population, elo population
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
@@ -91,7 +92,7 @@ namespace UQLT.ViewModels
             _servers = new ObservableCollection<ServerDetailsViewModel>();
             DoServerBrowserAutoSort("LocationName");
             FilterURL = GetFilterUrlOnLoad();
-            
+
             // for debugging: do not hit QL server
             //InitOrRefreshServers(FilterURL);
         }
@@ -100,7 +101,7 @@ namespace UQLT.ViewModels
         {
             FilterURL = message.ServerRequestURL;
             InitOrRefreshServers(FilterURL);
-            Console.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
+            Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
         }
 
         private void DoServerBrowserAutoSort(string property)
@@ -161,17 +162,17 @@ namespace UQLT.ViewModels
                     ids.Add(qfs.public_id.ToString());
                 }
 
-                Console.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
+                Debug.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
                 return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
                 MessageBox.Show("Unable to load Quake Live server data. Try refreshing manually.");
                 return null;
             }
-            
-            
+
+
         }
 
         // Get the actual server details for the list of servers based on the server ids
@@ -222,7 +223,7 @@ namespace UQLT.ViewModels
                         {
                             if (elo != 0)
                             {
-                                Console.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
+                                Debug.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
                                     + " [CA]: " + UQLTGlobals.PlayerEloCa[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.PlayerEloTdm[p.name.ToLower()] + " [CTF]: "
                                     + UQLTGlobals.PlayerEloCtf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.PlayerEloFfa[p.name.ToLower()]);
                             }
@@ -250,7 +251,7 @@ namespace UQLT.ViewModels
                 foreach (var pingTask in pingTasks)
                 {
                     UQLTGlobals.IPAddressDict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
-                    // Console.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
+                    // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
                 }
 
                 SplitPlayerList(currentplayerlist);
@@ -258,7 +259,7 @@ namespace UQLT.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex); // TODO: debug log
+                Debug.WriteLine(ex); // TODO: debug log
                 MessageBox.Show("Unable to load Quake Live server data. Try refreshing manually.");
                 return null;
             }
@@ -288,14 +289,14 @@ namespace UQLT.ViewModels
             for (int i = 0; i < currentplayerlist.Count; i += maxPlayers)
             {
                 list.Add(currentplayerlist.GetRange(i, Math.Min(maxPlayers, currentplayerlist.Count - i)));
-                Console.WriteLine("QLR API Call Index: " + i.ToString());
+                Debug.WriteLine("QLR API Call Index: " + i.ToString());
             }
 
             foreach (var x in list)
             {
                 GetQlranksInfo(string.Join("+", x));
 
-                // Console.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
+                // Debug.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
             }
         }
 
@@ -322,13 +323,13 @@ namespace UQLT.ViewModels
             catch (Newtonsoft.Json.JsonException jEx)
             {
                 // This exception indicates a problem deserializing the request body.
-                Console.WriteLine(jEx.Message);
+                Debug.WriteLine(jEx.Message);
 
                 // MessageBox.Show(jEx.Message);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
 
                 // MessageBox.Show(ex.Message);
             }
@@ -362,7 +363,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Unable to retrieve filter url: " + ex);
+                    Debug.WriteLine("Unable to retrieve filter url: " + ex);
                     url = UQLTGlobals.QLDefaultFilter;
                 }
             }

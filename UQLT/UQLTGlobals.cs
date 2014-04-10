@@ -13,7 +13,7 @@ namespace UQLT
 
         public static string CurrentFilterPath { get; private set; }
 
-        public static string FavFriendPath { get; private set; }
+        public static string SavedFavFriendPath { get; private set; }
 
         // ip address, ping
         public static ConcurrentDictionary<string, long> IPAddressDict { get; private set; }
@@ -30,7 +30,7 @@ namespace UQLT
         public static ConcurrentDictionary<string, int> PlayerEloCtf { get; private set; }
 
         // favorite friends
-        public static List<string> FavoriteFriends { get; private set; }
+        public static List<string> SavedFavoriteFriends { get; private set; }
 
         // various quakelive.com things
         public static string QLDomainBase { get; private set; }
@@ -51,7 +51,7 @@ namespace UQLT
           #if (DEBUG)
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "currentfilters.json");
-            FavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rosterfav.json");
+            SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rosterfav.json");
           #elif (!DEBUG)
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
@@ -62,7 +62,7 @@ namespace UQLT
             PlayerEloTdm = new ConcurrentDictionary<string, int>();
             PlayerEloFfa = new ConcurrentDictionary<string, int>();
             PlayerEloCtf = new ConcurrentDictionary<string, int>();
-            FavoriteFriends = new List<string>();
+            SavedFavoriteFriends = new List<string>();
             QLDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
             QLDomainListFilter = QLDomainBase+"/browser/list?filter=";
             QLDomainDetailsIds = QLDomainBase+"/browser/details?ids=";

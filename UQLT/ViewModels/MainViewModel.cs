@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace UQLT.ViewModels
         private FilterViewModel _filterViewModel;
         private ServerBrowserViewModel _serverBrowserViewModel;
         private ChatListViewModel _chatListViewModel;
-        
+
     [ImportingConstructor]
     public MainViewModel(IWindowManager windowManager, IEventAggregator events)
     {
@@ -56,7 +57,7 @@ namespace UQLT.ViewModels
 
     public void HideFilters()
         {
-            // Console.WriteLine("Attempting to publish event");
+            // Debug.WriteLine("Attempting to publish event");
             if (_filterViewModel.IsVisible)
             {
                 _events.Publish(new FilterVisibilityEvent(false));

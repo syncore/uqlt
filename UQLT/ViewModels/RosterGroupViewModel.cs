@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Caliburn.Micro;
-using System.ComponentModel.Composition;
-using UQLT.Models.Chat;
 using System.Windows;
+using Caliburn.Micro;
+using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
@@ -24,7 +24,6 @@ namespace UQLT.ViewModels
 
         public bool IsAutoExpanded { get; set; }
 
-        // Wrapped properties
         public string GroupName
         {
             get
@@ -33,51 +32,27 @@ namespace UQLT.ViewModels
             }
         }
 
-        private BindableCollection<FriendViewModel> _testFriends;
-        public BindableCollection<FriendViewModel> TestFriends {
+        private BindableCollection<FriendViewModel> _friends;
+        public BindableCollection<FriendViewModel> Friends
+        {
             get
             {
-                return _testFriends;
+                return _friends;
             }
             set
             {
-                _testFriends = value;
-                NotifyOfPropertyChange(() => TestFriends);
+                _friends = value;
+                NotifyOfPropertyChange(() => Friends);
             }
         }
 
-        public void AddFriend(FriendViewModel fvm)
-        {
-            if (!TestFriends.Contains(fvm))
-                TestFriends.Add(fvm);
-        }
-
-        private BindableCollection<FriendViewModel> AddFriends(BindableCollection<Friend> friends)
-        {
-            //_testFriends.Clear();
-            foreach (var friend in friends)
-            {
-                _testFriends.Add(new FriendViewModel(friend, true));
-            }
-
-            return _testFriends;
-        }
-
-        public BindableCollection<Friend> GroupFriends
-        {
-            get
-            {
-                return RostGroup.Friends;
-            }
-        }
 
         [ImportingConstructor]
         public RosterGroupViewModel(RosterGroup rostergroup, bool isautoexpanded)
         {
             RostGroup = rostergroup;
             IsAutoExpanded = isautoexpanded;
-            _testFriends = new BindableCollection<FriendViewModel>();
-            _testFriends = AddFriends(rostergroup.Friends);
+            _friends = new BindableCollection<FriendViewModel>();
         }
 
     }

@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.Composition;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using Caliburn.Micro;
-using agsXMPP;
-using agsXMPP.protocol.client;
-using agsXMPP.protocol.iq.roster;
-using agsXMPP.Collections;
 using System.Windows;
-using UQLT.Models.Chat;
-using agsXMPP.Xml.Dom;
-using System.Collections.ObjectModel;
-using Newtonsoft.Json;
-using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using agsXMPP;
+using agsXMPP.Collections;
+using agsXMPP.protocol.client;
+using agsXMPP.protocol.iq.roster;
+using agsXMPP.Xml.Dom;
+using Caliburn.Micro;
+using Newtonsoft.Json;
+using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
@@ -28,8 +29,8 @@ namespace UQLT.ViewModels
 
         private XmppClientConnection XmppCon;
 
-        private static string OnlineGroup = "Online Friends";
-        private static string OfflineGroup = "Offline Friends";
+        private static string OnlineGroupTitle = "Online Friends";
+        private static string OfflineGroupTitle = "Offline Friends";
 
         private Dictionary<string, string> _roster;
 
@@ -62,84 +63,19 @@ namespace UQLT.ViewModels
             }
         }
 
-        private RosterGroup _onlineFriends;
-
-        public RosterGroup OnlineFriends
+        public RosterGroupViewModel OnlineGroup
         {
             get
             {
-                return _onlineFriends;
-            }
-
-            set
-            {
-                _onlineFriends = value;
-                NotifyOfPropertyChange(() => OnlineFriends);
+                return BuddyList[0];
             }
         }
 
-        private RosterGroup _offlineFriends;
-
-        public RosterGroup OfflineFriends
+        public RosterGroupViewModel OfflineGroup
         {
             get
             {
-                return _offlineFriends;
-            }
-
-            set
-            {
-                _offlineFriends = value;
-                NotifyOfPropertyChange(() => OfflineFriends);
-            }
-        }
-
-        private RosterGroupViewModel _oll;
-        public RosterGroupViewModel Oll
-        {
-            get
-            {
-                foreach (var g in BuddyList)
-                {
-                    if (g.GroupName.Equals(OnlineGroup))
-                    {
-                        _oll = g;
-                    }
-                }
-                return _oll;
-            }
-        }
-
-        private RosterGroupViewModel _off;
-        public RosterGroupViewModel Off
-        {
-            get
-            {
-                foreach (var g in BuddyList)
-                {
-                    if (g.GroupName.Equals(OfflineGroup))
-                    {
-                        _off = g;
-                    }
-                }
-                return _off;
-            }
-        }
-
-        public ImageSource FavoriteImage
-        {
-            get
-            {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
-            }
-        }
-
-        public ImageSource FriendImage
-        {
-            get
-            {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
-
+                return BuddyList[1];
             }
         }
 
@@ -147,11 +83,9 @@ namespace UQLT.ViewModels
         public ChatListViewModel()
         {
             _roster = new Dictionary<string, string>();
-            _onlineFriends = new RosterGroup(OnlineGroup);
-            _offlineFriends = new RosterGroup(OfflineGroup);
             _buddyList = new BindableCollection<RosterGroupViewModel>();
-            BuddyList.Add(new RosterGroupViewModel(_onlineFriends, true));
-            BuddyList.Add(new RosterGroupViewModel(_offlineFriends, false));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
             LoadFavoriteFriends();
 
             XmppCon = new XmppClientConnection();
@@ -186,13 +120,12 @@ namespace UQLT.ViewModels
             {
                 Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
                 XmppCon.MessageGrabber.Add(new Jid(item.Jid.Bare.ToLowerInvariant()), new BareJidComparer(), new MessageCB(XmppCon_OnMessage), null);
-                bool isfavorite = (UQLTGlobals.FavoriteFriends.Contains(item.Jid.User.ToLowerInvariant())) ? true : false;
-                //OfflineFriends.Friends.Add(new Friend(item.Jid.User.ToLowerInvariant(), isfavorite));
-                Off.TestFriends.Add(new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), isfavorite), true));
+                bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(item.Jid.User.ToLowerInvariant())) ? true : false;
+                OfflineGroup.Friends.Add(new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), isfavorite), true));
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
                 //MessageBox.Show(ex.ToString());
             }
         }
@@ -259,22 +192,20 @@ namespace UQLT.ViewModels
                 // prevent "double" online status
                 if (!FriendAlreadyOnline(pres.From.User.ToLowerInvariant()))
                 {
-                    Console.WriteLine("[FRIEND AVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
-                    Console.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + Oll.TestFriends.Count());
-                    bool isfavorite = (UQLTGlobals.FavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
-                    Oll.TestFriends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
-                    Console.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + Oll.TestFriends.Count());
+                    Debug.WriteLine("[FRIEND AVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
+                    Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + OnlineGroup.Friends.Count());
+                    bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
+                    OnlineGroup.Friends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
+                    Debug.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + OnlineGroup.Friends.Count());
                 }
 
                 // user was previously offline
-                foreach (var friend in Off.TestFriends)
-                //foreach (var friend in OfflineFriends.Friends)
+                foreach (var friend in OfflineGroup.Friends)
                 {
-                    if (friend.FName.Equals(pres.From.User.ToLowerInvariant()))
+                    if (friend.FriendName.Equals(pres.From.User.ToLowerInvariant()))
                     {
-                        //OfflineFriends.Friends.Remove(friend);
-                        Off.TestFriends.Remove(friend);
-                        Console.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + Oll.TestFriends.Count() + " After: " + Oll.TestFriends.Count());
+                        OfflineGroup.Friends.Remove(friend);
+                        Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + OnlineGroup.Friends.Count() + " After: " + OnlineGroup.Friends.Count());
                         break;
                     }
                 }
@@ -286,18 +217,17 @@ namespace UQLT.ViewModels
         {
             if (!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()))
             {
-                Console.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
+                Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
 
-                foreach (var friend in OnlineFriends.Friends)
+                foreach (var friend in OnlineGroup.Friends)
                 {
                     if (friend.FriendName.ToLowerInvariant().Equals(pres.From.User.ToLowerInvariant()))
                     {
-                        Console.WriteLine("Friends list before removing " + pres.From.User + "," + " count: " + Oll.TestFriends.Count());
-                        OnlineFriends.Friends.Remove(friend);
-                        bool isfavorite = (UQLTGlobals.FavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
-                        //OfflineFriends.Friends.Add(new Friend(pres.From.User.ToLowerInvariant(), isfavorite));
-                        Off.TestFriends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
-                        Console.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + Oll.TestFriends.Count());
+                        Debug.WriteLine("Friends list before removing " + pres.From.User + "," + " count: " + OnlineGroup.Friends.Count());
+                        OnlineGroup.Friends.Remove(friend);
+                        bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
+                        OfflineGroup.Friends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
+                        Debug.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + OnlineGroup.Friends.Count());
                         break;
                     }
                 }
@@ -306,7 +236,7 @@ namespace UQLT.ViewModels
 
         private bool FriendAlreadyOnline(string friend)
         {
-            foreach (var frnd in OnlineFriends.Friends)
+            foreach (var frnd in OnlineGroup.Friends)
             {
                 if (friend.Equals(frnd.FriendName.ToLowerInvariant()))
                 {
@@ -316,13 +246,24 @@ namespace UQLT.ViewModels
             return false;
         }
 
+        // Caliburn.Micro Action Guard (https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions)
+        public bool CanAddFavoriteFriend(FriendViewModel friend)
+        {
+            return (!UQLTGlobals.SavedFavoriteFriends.Contains(friend.FriendName)) ? true : false;
+        }
+
+        // Caliburn.Micro Action Guard (https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions)
+        public bool CanRemoveFavoriteFriend(FriendViewModel friend)
+        {
+            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.FriendName)) ? true : false;
+        }
+
         public void AddFavoriteFriend(FriendViewModel friend)
         {
-
-            if (!UQLTGlobals.FavoriteFriends.Contains(friend.FName))
+            if (CanAddFavoriteFriend(friend))
             {
-                UQLTGlobals.FavoriteFriends.Add(friend.FName);
-                Console.WriteLine("Added " + friend.FName + " to favorite friends");
+                UQLTGlobals.SavedFavoriteFriends.Add(friend.FriendName);
+                Debug.WriteLine("Added " + friend.FriendName + " to favorite friends");
                 SaveFavoriteFriends();
 
                 // reflect changes now
@@ -331,17 +272,33 @@ namespace UQLT.ViewModels
             }
             else
             {
-                Console.WriteLine("Favorites already contains " + friend.FName);
+                Debug.WriteLine("Favorites already contains " + friend.FriendName);
             }
 
+        }
+
+        public void RemoveFavoriteFriend(FriendViewModel friend)
+        {
+            if (CanRemoveFavoriteFriend(friend))
+            {
+                UQLTGlobals.SavedFavoriteFriends.Remove(friend.FriendName);
+                Debug.WriteLine("Removed " + friend.FriendName + " from favorite friends");
+                SaveFavoriteFriends();
+
+                friend.IsFavorite = false;
+            }
+            else
+            {
+                Debug.WriteLine("Favorites did not contain " + friend.FriendName);
+            }
         }
 
         private void SaveFavoriteFriends()
         {
             try
             {
-                string friendjson = JsonConvert.SerializeObject(UQLTGlobals.FavoriteFriends);
-                using (FileStream fs = File.Create(UQLTGlobals.FavFriendPath))
+                string friendjson = JsonConvert.SerializeObject(UQLTGlobals.SavedFavoriteFriends);
+                using (FileStream fs = File.Create(UQLTGlobals.SavedFavFriendPath))
                 using (TextWriter writer = new StreamWriter(fs))
                 {
                     writer.WriteLine(friendjson);
@@ -349,7 +306,7 @@ namespace UQLT.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
             }
 
         }
@@ -358,20 +315,20 @@ namespace UQLT.ViewModels
         {
             try
             {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.FavFriendPath))
+                using (StreamReader sr = new StreamReader(UQLTGlobals.SavedFavFriendPath))
                 {
                     var s = sr.ReadToEnd();
                     var favorites = JsonConvert.DeserializeObject<List<string>>(s);
                     foreach (var favorite in favorites)
                     {
-                        UQLTGlobals.FavoriteFriends.Add(favorite);
-                        Console.WriteLine("Auto-added " + favorite + " to favorite friends");
+                        UQLTGlobals.SavedFavoriteFriends.Add(favorite);
+                        Debug.WriteLine("Auto-added " + favorite + " to favorite friends");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
             }
         }
 

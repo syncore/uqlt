@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,9 +18,9 @@ using UQLT.Models.QuakeLiveAPI;
 namespace UQLT.ViewModels
 {
     [Export(typeof(ServerDetailsViewModel))]
-    
+
     // Individual Server information; no associated View
-    
+
     public class ServerDetailsViewModel : PropertyChangedBase
     {
         public Server Server
@@ -44,7 +45,7 @@ namespace UQLT.ViewModels
         public ObservableCollection<PlayerDetailsViewModel> FormattedPlayerList
         {
             get
-            { 
+            {
                 return _formattedPlayerList;
             }
 
@@ -58,7 +59,7 @@ namespace UQLT.ViewModels
         public List<Player> Players
         {
             get
-            { 
+            {
                 return Server.players;
             }
         }
@@ -66,7 +67,7 @@ namespace UQLT.ViewModels
         public int NumPlayers
         {
             get
-            { 
+            {
                 return Server.num_players;
             }
         }
@@ -74,7 +75,7 @@ namespace UQLT.ViewModels
         public int PublicId
         {
             get
-            { 
+            {
                 return Server.public_id;
             }
         }
@@ -82,7 +83,7 @@ namespace UQLT.ViewModels
         public int ECODE
         {
             get
-            { 
+            {
                 return Server.ECODE;
             }
         }
@@ -90,7 +91,7 @@ namespace UQLT.ViewModels
         public int TeamSize
         {
             get
-            { 
+            {
                 return Server.teamsize;
             }
         }
@@ -98,7 +99,7 @@ namespace UQLT.ViewModels
         public string GCustomSettings
         {
             get
-            { 
+            {
                 return Server.g_customSettings;
             }
         }
@@ -106,7 +107,7 @@ namespace UQLT.ViewModels
         public int GLevelStartTime
         {
             get
-            { 
+            {
                 return Server.g_levelstarttime;
             }
         }
@@ -114,7 +115,7 @@ namespace UQLT.ViewModels
         public int LocationId
         {
             get
-            { 
+            {
                 return Server.location_id;
             }
         }
@@ -138,7 +139,7 @@ namespace UQLT.ViewModels
         public string MapTitle
         {
             get
-            { 
+            {
                 return Server.map_title;
             }
         }
@@ -162,7 +163,7 @@ namespace UQLT.ViewModels
         public int SkillDelta
         {
             get
-            { 
+            {
                 return Server.skillDelta;
             }
         }
@@ -170,7 +171,7 @@ namespace UQLT.ViewModels
         public string GameTypeTitle
         {
             get
-            { 
+            {
                 return Server.game_type_title;
             }
         }
@@ -186,7 +187,7 @@ namespace UQLT.ViewModels
         public object Premium
         {
             get
-            { 
+            {
                 return Server.premium;
             }
         }
@@ -212,7 +213,7 @@ namespace UQLT.ViewModels
             get
             {
                 return Server.g_instagib;
-            }            
+            }
         }
 
         public int GBlueScore
@@ -265,7 +266,7 @@ namespace UQLT.ViewModels
 
         public int GameType
         {
-            get 
+            get
             {
                 return Server.game_type;
             }
@@ -305,7 +306,7 @@ namespace UQLT.ViewModels
 
         public string Owner
         {
-            get 
+            get
             {
                 return Server.owner;
             }
@@ -331,7 +332,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex);
+                    Debug.WriteLine("Error: " + ex);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -347,7 +348,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex);
+                    Debug.WriteLine("Error: " + ex);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/unknown_game_type.gif", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -363,7 +364,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: " + ex);
+                    Debug.WriteLine("Error: " + ex);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/unknown_map.jpg", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -372,7 +373,7 @@ namespace UQLT.ViewModels
         public string TotalPlayers
         {
             get
-            { 
+            {
                 return string.Empty + NumPlayers + "/" + MaxClients;
             }
         }
@@ -380,7 +381,7 @@ namespace UQLT.ViewModels
         public string Modded
         {
             get
-            { 
+            {
                 return GCustomSettings.Equals("0") ? "No" : "Yes";
             }
         }
@@ -388,7 +389,7 @@ namespace UQLT.ViewModels
         public string Instagib
         {
             get
-            { 
+            {
                 return GInstagib == 0 ? "No" : "Yes";
             }
         }
@@ -592,7 +593,7 @@ namespace UQLT.ViewModels
                 return (GameType == 3 || GameType == 4 || GameType == 5 || GameType == 6 || GameType == 8 || GameType == 9 || GameType == 10 || GameType == 11) ? true : false;
             }
         }
-        
+
         private string _formattedGameState;
 
         public string FormattedGameState
@@ -672,7 +673,7 @@ namespace UQLT.ViewModels
                 }
 
                 if (((redsize == 0) && (bluesize == 0)) && (zerosize > 0))
-                { 
+                {
                     return true;
                 }
 
