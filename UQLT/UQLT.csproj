@@ -47,9 +47,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="QLImages, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\resources\QLImages\QLImages\bin\Release\QLImages.dll</HintPath>
+    <Reference Include="QLImages">
+      <HintPath>..\ResourceProjects\QLImages\QLImages\bin\Release\QLImages.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -71,7 +70,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UQLTRes">
-      <HintPath>..\resources\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll</HintPath>
+      <HintPath>..\ResourceProjects\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -89,6 +88,7 @@
     <Compile Include="Converters\GametypeToRoundTypeConverter.cs" />
     <Compile Include="Converters\LocIdToNameConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
+    <Compile Include="Core\Chat\QLChatConnection.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />

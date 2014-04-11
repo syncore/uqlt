@@ -31,6 +31,14 @@ namespace UQLT.ViewModels
             }
         }
 
+        /*public bool HasStatus
+        {
+            get
+            {
+            return (string.IsNullOrEmpty(RosterFriend.Status))
+            }
+        }*/
+
         public string Status
         {
             get
