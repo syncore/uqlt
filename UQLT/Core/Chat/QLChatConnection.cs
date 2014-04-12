@@ -133,6 +133,20 @@ namespace UQLT.Core.Chat
             }
         }
 
+        // Check a user's status to determine what the user is doing in QL
+        private void CheckStatus(Presence pres)
+        {
+            string status = pres.Status;
+            if (status.Equals(""))
+            {
+                Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
+            }
+            else
+            {
+                Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is: " + status);
+            }
+        }
+
         private void FriendBecameAvailable(Presence pres)
         {
             if (!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()))
@@ -159,6 +173,9 @@ namespace UQLT.Core.Chat
                 }
 
             }
+
+            // Check the user's status
+            CheckStatus(pres);
         }
 
         private void FriendBecameUnavailble(Presence pres)
