@@ -11,12 +11,11 @@
              d:DesignHeight="782" d:DesignWidth="280">
 
     <Grid x:Name="ChatListRoot">
-        
         <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
             <!-- Auto expand groups -->
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
-                    <Setter Property="IsExpanded" Value="{Binding IsAutoExpanded, Mode=TwoWay}" />
+                    <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=IsAutoExpanded}" />
                 </Style>
             </TreeView.ItemContainerStyle>
             <!-- RosterGroup Template -->
@@ -37,14 +36,21 @@
                             </ContextMenu>
                         </StackPanel.ContextMenu>-->
                     </StackPanel>
-
+                    <!--This separate HDT.ItemContainerStyle is needed specifically for the ObservableDictionary. The general TreeView.ItemContainerStyle IsAutoExpanded
+                    property does not apply to this because it is a collection of KeyValuePair(s) and the IsAutoExpanded property is not found on KVP without this, though
+                    it is still a TreeViewItem-->
+                    <HierarchicalDataTemplate.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=Value.IsAutoExpanded}" />
+                        </Style>
+                    </HierarchicalDataTemplate.ItemContainerStyle>
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding FriendImage}" Margin="0,0,5,0"/>
-                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding FavoriteImage}" Margin="0,0,5,0" Visibility="{Binding IsFavorite, Converter ={StaticResource BoolToVis}}"/>
-                                <TextBlock x:Name="IndividualFriend" Text="{Binding FriendName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" Margin="0,0,5,0"/>
+                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0,0,5,0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}"/>
+                                <TextBlock x:Name="IndividualFriend" Text="{Binding Value.FriendName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
                                 <!--Friend context menu actions-->
                                     <TextBlock.ContextMenu>
                                         <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -56,7 +62,7 @@
                             </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
-
+                   
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>

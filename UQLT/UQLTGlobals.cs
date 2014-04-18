@@ -29,7 +29,7 @@ namespace UQLT
 
         public static ConcurrentDictionary<string, int> PlayerEloCtf { get; private set; }
 
-        // favorite friends
+        // favorite friends (because we don't have access to XMPP roster until authenticated)
         public static List<string> SavedFavoriteFriends { get; private set; }
 
         // various quakelive.com things

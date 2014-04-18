@@ -31,19 +31,31 @@ namespace UQLT.ViewModels
             }
         }
 
-        /*public bool HasStatus
+        public bool HasStatus
         {
             get
             {
-            return (string.IsNullOrEmpty(RosterFriend.Status))
+            //return (string.IsNullOrEmpty(RosterFriend.Status))
+                return RosterFriend.HasStatus;
             }
-        }*/
+            set
+            {
+                RosterFriend.HasStatus = value;
+                NotifyOfPropertyChange(() => HasStatus);
+            }
+
+        }
 
         public string Status
         {
             get
             {
                 return RosterFriend.Status;
+            }
+            set
+            {
+                RosterFriend.Status = value;
+                NotifyOfPropertyChange(() => Status);
             }
         }
 
@@ -59,8 +71,12 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => IsFavorite);
             }
         }
- 
-        public bool IsAutoExpanded { get; set; }
+
+        public bool IsAutoExpanded
+        {
+            get;
+            private set;
+        }
 
         public ImageSource FriendImage
         {
@@ -80,10 +96,11 @@ namespace UQLT.ViewModels
         }
         
         [ImportingConstructor]
-        public FriendViewModel(Friend friend, bool isautoexpanded)
+        public FriendViewModel(Friend friend)
         {
             RosterFriend = friend;
-            IsAutoExpanded = isautoexpanded;
+            // required for treeview
+            IsAutoExpanded = true;
         }
 
     }

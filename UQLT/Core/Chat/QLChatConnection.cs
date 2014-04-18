@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using agsXMPP;
 using agsXMPP.Collections;
 using agsXMPP.protocol.client;
 using agsXMPP.protocol.iq.roster;
 using agsXMPP.Xml.Dom;
+using Caliburn.Micro;
 using Newtonsoft.Json;
+using UQLT.Helpers;
 using UQLT.Models.Chat;
 using UQLT.ViewModels;
-using System.Windows;
-using System.Diagnostics;
-using System.IO;
 
 namespace UQLT.Core.Chat
 {
@@ -24,7 +26,7 @@ namespace UQLT.Core.Chat
     public class QLChatConnection
     {
         private XmppClientConnection XmppCon;
-        public ChatListViewModel CVM
+        public ChatListViewModel CLVM
         {
             get;
             private set;
@@ -32,9 +34,9 @@ namespace UQLT.Core.Chat
 
         public Dictionary<string, string> Roster { get; set; }
 
-        public QLChatConnection(ChatListViewModel cvm)
+        public QLChatConnection(ChatListViewModel clvm)
         {
-            CVM = cvm;
+            CLVM = clvm;
             Roster = new Dictionary<string, string>();
             XmppCon = new XmppClientConnection();
 
@@ -68,8 +70,12 @@ namespace UQLT.Core.Chat
             {
                 Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
                 XmppCon.MessageGrabber.Add(new Jid(item.Jid.Bare.ToLowerInvariant()), new BareJidComparer(), new MessageCB(XmppCon_OnMessage), null);
-                bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(item.Jid.User.ToLowerInvariant())) ? true : false;
-                CVM.OfflineGroup.Friends.Add(new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), isfavorite), true));
+
+                // Must be done on the UI thread
+                Execute.OnUIThread(() =>
+                {
+                    CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
+                });
             }
             catch (Exception ex)
             {
@@ -134,42 +140,59 @@ namespace UQLT.Core.Chat
         }
 
         // Check a user's status to determine what the user is doing in QL
+        // Only fired when availability changes (user: offline -> online OR leave game server <-> join game server)
         private void CheckStatus(Presence pres)
         {
             string status = pres.Status;
-            if (status.Equals(""))
+            if (string.IsNullOrEmpty(status))
             {
+                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = false;
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
             }
             else
             {
+                UpdateStatus(pres.From.User, status);
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is: " + status);
             }
         }
 
+        private void UpdateStatus(string friend, string status)
+        {
+            // Probably does not have to be done on UI thread. TODO: test this
+            //Execute.OnUIThread(() =>
+            //{
+            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].HasStatus = true;
+            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = status;
+            //});
+        }
+
         private void FriendBecameAvailable(Presence pres)
         {
-            if (!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()))
+            if (!IsMe(pres))
             {
                 // prevent "double" online status
-                if (!FriendAlreadyOnline(pres.From.User.ToLowerInvariant()))
+                if (!IsFriendAlreadyOnline(pres.From.User))
                 {
                     Debug.WriteLine("[FRIEND AVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
-                    Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + CVM.OnlineGroup.Friends.Count());
-                    bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
-                    CVM.OnlineGroup.Friends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
-                    Debug.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + CVM.OnlineGroup.Friends.Count());
+                    Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+
+                    // Must be done on the UI thread
+                    Execute.OnUIThread(() =>
+                {
+                    CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
+                });
+                    Debug.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
                 }
 
                 // user was previously offline
-                foreach (var friend in CVM.OfflineGroup.Friends)
+                if (CLVM.OfflineGroup.Friends.ContainsKey(pres.From.User.ToLowerInvariant()))
                 {
-                    if (friend.FriendName.Equals(pres.From.User.ToLowerInvariant()))
-                    {
-                        CVM.OfflineGroup.Friends.Remove(friend);
-                        Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + CVM.OnlineGroup.Friends.Count() + " After: " + CVM.OnlineGroup.Friends.Count());
-                        break;
-                    }
+                    // Must be done on the UI thread
+                    Execute.OnUIThread(() =>
+                {
+                    CLVM.OfflineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
+                });
+                    Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
                 }
 
             }
@@ -180,38 +203,35 @@ namespace UQLT.Core.Chat
 
         private void FriendBecameUnavailble(Presence pres)
         {
-            if (!pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()))
+            if (!IsMe(pres))
             {
                 Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
-
-                foreach (var friend in CVM.OnlineGroup.Friends)
+                Debug.WriteLine("Friends list before removing " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+                // Must be done on the UI thread
+                Execute.OnUIThread(() =>
                 {
-                    if (friend.FriendName.ToLowerInvariant().Equals(pres.From.User.ToLowerInvariant()))
-                    {
-                        Debug.WriteLine("Friends list before removing " + pres.From.User + "," + " count: " + CVM.OnlineGroup.Friends.Count());
-                        CVM.OnlineGroup.Friends.Remove(friend);
-                        bool isfavorite = (UQLTGlobals.SavedFavoriteFriends.Contains(pres.From.User.ToLowerInvariant())) ? true : false;
-                        CVM.OfflineGroup.Friends.Add(new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), isfavorite), true));
-                        Debug.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + CVM.OnlineGroup.Friends.Count());
-                        break;
-                    }
-                }
+                    CLVM.OnlineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
+                    CLVM.OfflineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
+                });
+                Debug.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
             }
         }
 
-        private bool FriendAlreadyOnline(string friend)
+        private bool IsMe(Presence pres)
         {
-            foreach (var frnd in CVM.OnlineGroup.Friends)
-            {
-                if (friend.Equals(frnd.FriendName.ToLowerInvariant()))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return (pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant())) ? true : false;
         }
 
+        private bool IsFavoriteFriend(string friend)
+        {
+            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.ToLowerInvariant())) ? true : false;
+        }
 
+        private bool IsFriendAlreadyOnline(string friend)
+        {
+            return (CLVM.OnlineGroup.Friends.ContainsKey(friend.ToLowerInvariant())) ? true : false;
+
+        }
 
         private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
+using UQLT.Helpers;
 using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
@@ -22,7 +23,11 @@ namespace UQLT.ViewModels
             private set;
         }
 
-        public bool IsAutoExpanded { get; set; }
+        public bool IsAutoExpanded
+        {
+            get;
+            private set;
+        }
 
         public string GroupName
         {
@@ -32,27 +37,29 @@ namespace UQLT.ViewModels
             }
         }
 
-        private BindableCollection<FriendViewModel> _friends;
-        public BindableCollection<FriendViewModel> Friends
+        private ObservableDictionary<string, FriendViewModel> _friends;
+
+        public ObservableDictionary<string, FriendViewModel> Friends
         {
             get
             {
                 return _friends;
             }
+            
             set
             {
                 _friends = value;
+                // Not really needed, ObservableDictionary class handles INPC
                 NotifyOfPropertyChange(() => Friends);
             }
         }
-
 
         [ImportingConstructor]
         public RosterGroupViewModel(RosterGroup rostergroup, bool isautoexpanded)
         {
             RostGroup = rostergroup;
             IsAutoExpanded = isautoexpanded;
-            _friends = new BindableCollection<FriendViewModel>();
+            _friends = new ObservableDictionary<string, FriendViewModel>();
         }
 
     }

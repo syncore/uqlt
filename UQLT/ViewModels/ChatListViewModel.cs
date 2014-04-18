@@ -7,6 +7,7 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Models.Chat;
 using UQLT.Core.Chat;
+using UQLT.Helpers;
 
 namespace UQLT.ViewModels
 {
@@ -108,53 +109,53 @@ namespace UQLT.ViewModels
 
         // This user can be added as a favorite friend. Also a Caliburn.Micro action guard
         // Automatically hooks up IsEnabled in View, see: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
-        public bool CanAddFavoriteFriend(FriendViewModel friend)
+        public bool CanAddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            return (!UQLTGlobals.SavedFavoriteFriends.Contains(friend.FriendName)) ? true : false;
+            return (!UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
         }
 
         // This user can be removed from favorite friends. Also a Caliburn.Micro action guard
         // Automatically hooks up IsEnabled in View, see: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
-        public bool CanRemoveFavoriteFriend(FriendViewModel friend)
+        public bool CanRemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.FriendName)) ? true : false;
+            return (UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
         }
 
         // Add user to favorite friends
-        public void AddFavoriteFriend(FriendViewModel friend)
+        public void AddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            if (CanAddFavoriteFriend(friend))
+            if (CanAddFavoriteFriend(kvp))
             {
-                UQLTGlobals.SavedFavoriteFriends.Add(friend.FriendName);
-                Debug.WriteLine("Added " + friend.FriendName + " to favorite friends");
+                UQLTGlobals.SavedFavoriteFriends.Add(kvp.Key);
+                Debug.WriteLine("Added " + kvp.Key + " to favorite friends");
                 // Dump to disk
                 SaveFavoriteFriends();
                 // Reflect changes now
-                friend.IsFavorite = true;
+                kvp.Value.IsFavorite = true;
 
             }
             else
             {
-                Debug.WriteLine("Favorites already contains " + friend.FriendName);
+                Debug.WriteLine("Favorites already contains " + kvp.Key);
             }
 
         }
 
         // Remove user from favorite friends
-        public void RemoveFavoriteFriend(FriendViewModel friend)
+        public void RemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            if (CanRemoveFavoriteFriend(friend))
+            if (CanRemoveFavoriteFriend(kvp))
             {
-                UQLTGlobals.SavedFavoriteFriends.Remove(friend.FriendName);
-                Debug.WriteLine("Removed " + friend.FriendName + " from favorite friends");
+                UQLTGlobals.SavedFavoriteFriends.Remove(kvp.Key);
+                Debug.WriteLine("Removed " + kvp.Key + " from favorite friends");
                 // Dump to disk
                 SaveFavoriteFriends();
                 // Reflect changes now
-                friend.IsFavorite = false;
+                kvp.Value.IsFavorite = false;
             }
             else
             {
-                Debug.WriteLine("Favorites did not contain " + friend.FriendName);
+                Debug.WriteLine("Favorites did not contain " + kvp.Key);
             }
         }
 
