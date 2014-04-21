@@ -72,6 +72,19 @@ namespace UQLT.ViewModels
             }
         }
 
+        public bool IsInGame
+        {
+            get
+            {
+                return RosterFriend.IsInGame;
+            }
+            set
+            {
+                RosterFriend.IsInGame = value;
+                NotifyOfPropertyChange(() => IsInGame);
+            }
+        }
+
         public bool IsAutoExpanded
         {
             get;
@@ -92,6 +105,14 @@ namespace UQLT.ViewModels
             get
             {
                 return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
+            }
+        }
+
+        public ImageSource InGameImage
+        {
+            get
+            {
+                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
             }
         }
         

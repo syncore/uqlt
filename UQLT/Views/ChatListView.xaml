@@ -47,22 +47,24 @@
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" Margin="0,0,5,0"/>
-                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0,0,5,0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}"/>
-                                <TextBlock x:Name="IndividualFriend" Text="{Binding Value.FriendName}" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                            <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left"/>
+                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
+                                <Image Name="InGameImage" Width="16" Height="16" Source="{Binding Value.InGameImage}" HorizontalAlignment="Left" Visibility="{Binding Value.IsInGame, Converter ={StaticResource BoolToVis}}"/>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock x:Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>    
+                                    <TextBlock x:Name="FriendStatus" Text="{Binding Value.Status}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>
+                                </StackPanel>
                                 <!--Friend context menu actions-->
-                                    <TextBlock.ContextMenu>
-                                        <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)"/>
-                                            <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)"/>
-                                        </ContextMenu>
-                                    </TextBlock.ContextMenu>
-                                </TextBlock>
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)"/>
+                                        <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)"/>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
                             </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
-                   
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>

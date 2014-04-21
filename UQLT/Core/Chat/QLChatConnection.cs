@@ -71,7 +71,7 @@ namespace UQLT.Core.Chat
                 Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
                 XmppCon.MessageGrabber.Add(new Jid(item.Jid.Bare.ToLowerInvariant()), new BareJidComparer(), new MessageCB(XmppCon_OnMessage), null);
 
-                // Must be done on the UI thread
+                // Additions and removals to ObservableDictionary must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
                     CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
@@ -147,6 +147,7 @@ namespace UQLT.Core.Chat
             if (string.IsNullOrEmpty(status))
             {
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = false;
+                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
             }
             else
@@ -158,12 +159,9 @@ namespace UQLT.Core.Chat
 
         private void UpdateStatus(string friend, string status)
         {
-            // Probably does not have to be done on UI thread. TODO: test this
-            //Execute.OnUIThread(() =>
-            //{
             CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].HasStatus = true;
             CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = status;
-            //});
+            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
         }
 
         private void FriendBecameAvailable(Presence pres)
@@ -187,7 +185,7 @@ namespace UQLT.Core.Chat
                 // user was previously offline
                 if (CLVM.OfflineGroup.Friends.ContainsKey(pres.From.User.ToLowerInvariant()))
                 {
-                    // Must be done on the UI thread
+                    // Additions and removals to ObservableDictionary must be done on the UI thread
                     Execute.OnUIThread(() =>
                 {
                     CLVM.OfflineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
@@ -207,7 +205,7 @@ namespace UQLT.Core.Chat
             {
                 Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + pres.From.Bare + " User: " + pres.From.User);
                 Debug.WriteLine("Friends list before removing " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
-                // Must be done on the UI thread
+                // Additions and removals to ObservableDictionary must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
                     CLVM.OnlineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
