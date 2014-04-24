@@ -17,6 +17,12 @@ namespace UQLT.ViewModels
     public class FriendViewModel : PropertyChangedBase
     {
 
+        // image types for player status
+        private BitmapImage image_demo = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/demo.gif", UriKind.RelativeOrAbsolute));
+        private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
+        private BitmapImage image_ingame = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
+
+        
         public Friend RosterFriend
         {
             get;
@@ -59,6 +65,19 @@ namespace UQLT.ViewModels
             }
         }
 
+        public int StatusType
+        {
+            get
+            {
+                return RosterFriend.StatusType;
+            }
+            set
+            {
+                RosterFriend.StatusType = value;
+                NotifyOfPropertyChange(() => StatusType);
+            }
+        }
+        
         public bool IsFavorite
         {
             get
@@ -108,11 +127,23 @@ namespace UQLT.ViewModels
             }
         }
 
-        public ImageSource InGameImage
+        public ImageSource StatusImage
         {
             get
             {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
+                switch (StatusType)
+                {
+                    case 0:
+                    default:
+                        return default(BitmapImage);
+                    case 1:
+                        return image_demo;
+                    case 2:
+                        return image_practice;
+                    case 3:
+                        return image_ingame;
+                    
+                }
             }
         }
         

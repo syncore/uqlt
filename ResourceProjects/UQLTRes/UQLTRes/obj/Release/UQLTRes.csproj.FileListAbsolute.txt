@@ -1,5 +1,6 @@
 D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll
 D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\bin\Release\UQLTRes.pdb
+D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\obj\Release\UQLTRes.csprojResolveAssemblyReference.cache
 D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\obj\Release\UQLTRes.g.resources
 D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\obj\Release\UQLT.Properties.Resources.resources
 D:\csharp\uqlt\ResourceProjects\UQLTRes\UQLTRes\obj\Release\UQLTRes.csproj.GenerateResource.Cache

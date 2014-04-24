@@ -50,7 +50,7 @@
                             <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
                                 <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left"/>
                                 <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
-                                <Image Name="InGameImage" Width="16" Height="16" Source="{Binding Value.InGameImage}" HorizontalAlignment="Left" Visibility="{Binding Value.IsInGame, Converter ={StaticResource BoolToVis}}"/>
+                                <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}"/>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock x:Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>    
                                     <TextBlock x:Name="FriendStatus" Text="{Binding Value.Status}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>

@@ -63,6 +63,16 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap demo {
+            get {
+                object obj = ResourceManager.GetObject("demo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap favorite {
             get {
                 object obj = ResourceManager.GetObject("favorite", resourceCulture);
@@ -86,6 +96,16 @@ namespace UQLT.Properties {
         internal static System.Drawing.Bitmap ingame {
             get {
                 object obj = ResourceManager.GetObject("ingame", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap practice {
+            get {
+                object obj = ResourceManager.GetObject("practice", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

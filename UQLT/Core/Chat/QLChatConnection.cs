@@ -148,6 +148,7 @@ namespace UQLT.Core.Chat
             {
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = false;
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
+                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
             }
             else
@@ -160,8 +161,39 @@ namespace UQLT.Core.Chat
         private void UpdateStatus(string friend, string status)
         {
             CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].HasStatus = true;
-            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = status;
-            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
+
+            try
+            {
+                StatusInfo si = JsonConvert.DeserializeObject<StatusInfo>(status);
+
+                // BOT_GAME = 0: player could either be watching a demo (ADDRESS = "bot") or actually in a real server (ADDRESS = "ip:port")
+                if (si.bot_game == 0)
+                {
+                    // player is watching a demo
+                    if (si.address.Equals("bot"))
+                    {
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 1;
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = "Watching a demo";
+                    }
+                    // player is actually in game
+                    else
+                    {
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
+                    }
+                }
+                
+                // BOT_GAME = 1: player is in a practice game or training match (we don't care about ADDRESS, but it will be = "loopback")
+                if (si.bot_game == 1)
+                {
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 2;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = "Playing a practice match";
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         private void FriendBecameAvailable(Presence pres)

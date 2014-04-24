@@ -22,6 +22,9 @@ namespace UQLT.Models.Chat
 
         public string Status { get; set; }
 
+        // 1: demo, 2: practice, 3: in-game
+        public int StatusType { get; set; }
+
         public bool HasStatus { get; set; }
 
         public bool IsInGame { get; set; }

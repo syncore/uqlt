@@ -97,6 +97,7 @@
     <Compile Include="Helpers\ObservableDictionary.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />
+    <Compile Include="Models\Chat\StatusInfo.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
     <Compile Include="Models\Filters\User\ActiveLocation.cs" />
     <Compile Include="Models\Filters\User\Arena.cs" />
