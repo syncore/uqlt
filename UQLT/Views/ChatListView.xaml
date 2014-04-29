@@ -52,8 +52,15 @@
                                 <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
                                 <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}"/>
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock x:Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>    
-                                    <TextBlock x:Name="FriendStatus" Text="{Binding Value.Status}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>
+                                    <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>    
+                                    <!--<TextBlock x:Name="FriendStatus" Text="{Binding Value.Status}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>-->
+                                    <!-- Player's game server information -->
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Name="StatusGameType" Text="{Binding Value.StatusGameType}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.StatusGameMap}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameLocation" Text="{Binding Value.StatusGameLocation}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.StatusGamePlayerCount}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                    </StackPanel>
                                 </StackPanel>
                                 <!--Friend context menu actions-->
                                 <StackPanel.ContextMenu>

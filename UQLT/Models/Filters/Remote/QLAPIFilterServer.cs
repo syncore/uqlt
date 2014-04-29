@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.Remote
 {
+    // this is the format of an individual server returned from http://www.quakelive.com/browser/list?filter={base64_encoded_json_filter} - it's different from that returned by /browser/details?ids={server_id(s)}
+    // note: /list?filter={base64_encoded_json_filter} does not a list of players for a given server at all, unlike /browser/details?ids={server_id}
+    
     public class QLAPIFilterServer
     {
         public int num_players { get; set; }

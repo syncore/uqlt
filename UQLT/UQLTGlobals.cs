@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UQLT.Helpers;
 
 namespace UQLT
 {
@@ -45,17 +46,18 @@ namespace UQLT
 
         public static string QLXMPPDomain { get; private set; }
 
+
         static UQLTGlobals()
         {
             // Apparently Visual Studio Designer's ShadowCache cannot create directories, so in debug mode, do not include the data directory in the file path          
-          #if (DEBUG)
+#if (DEBUG)
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "currentfilters.json");
             SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rosterfav.json");
-          #elif (!DEBUG)
+#elif (!DEBUG)
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
-           #endif
+#endif
             IPAddressDict = new ConcurrentDictionary<string, long>();
             PlayerEloDuel = new ConcurrentDictionary<string, int>();
             PlayerEloCa = new ConcurrentDictionary<string, int>();
@@ -64,9 +66,9 @@ namespace UQLT
             PlayerEloCtf = new ConcurrentDictionary<string, int>();
             SavedFavoriteFriends = new List<string>();
             QLDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
-            QLDomainListFilter = QLDomainBase+"/browser/list?filter=";
-            QLDomainDetailsIds = QLDomainBase+"/browser/details?ids=";
-            
+            QLDomainListFilter = QLDomainBase + "/browser/list?filter=";
+            QLDomainDetailsIds = QLDomainBase + "/browser/details?ids=";
+
             // default filter: any gametype, any location, etc.
             QLDefaultFilter = QLDomainListFilter + "eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6IkFMTCIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwicmFua2VkIjoiYW55IiwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbNSw0LDMsMCwxLDksMTAsMTEsOCw2XSwiaWciOiJhbnkifQ==&_=";
 

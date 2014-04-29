@@ -94,6 +94,7 @@
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
+    <Compile Include="Helpers\LocationFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />

@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
+using UQLT.Helpers;
 using UQLT.Models;
 using UQLT.Models.QuakeLiveAPI;
 
@@ -19,7 +20,7 @@ namespace UQLT.ViewModels
 {
     [Export(typeof(ServerDetailsViewModel))]
 
-    // Individual Server information; no associated View
+    // Individual Server viewmodel wrapper; no associated View
 
     public class ServerDetailsViewModel : PropertyChangedBase
     {
@@ -394,196 +395,33 @@ namespace UQLT.ViewModels
             }
         }
 
-        // QL does not include the physical location in the server detauls API, so this monstrosity is used for the info pane and for sorting the listview header by location
-        private string _locationName;
-
+        // QL does not include the physical location in the server details API (this is used for the info pane and for sorting the listview header by location)
         public string LocationName
         {
             get
             {
-                switch (LocationId)
+                try
                 {
-                    case 6:
-                        _locationName = "USA, Dallas";
-                        break;
-                    case 10:
-                        _locationName = "USA, Palo Alto";
-                        break;
-                    case 11:
-                        _locationName = "USA, Ashburn";
-                        break;
-                    case 12:
-                        _locationName = "USA, Richardson, TX (LAN)";
-                        break;
-                    case 14:
-                        _locationName = "AUS, Sydney";
-                        break;
-                    case 16:
-                        _locationName = "USA, San Francisco";
-                        break;
-                    case 17:
-                        _locationName = "NLD, Amsterdam";
-                        break;
-                    case 18:
-                        _locationName = "DEU, Frankfurt";
-                        break;
-                    case 19:
-                        _locationName = "GBR, Maidenhead";
-                        break;
-                    case 20:
-                        _locationName = "FRA, Paris";
-                        break;
-                    case 21:
-                        _locationName = "USA, Chicago";
-                        break;
-                    case 22:
-                        _locationName = "USA, Atlanta";
-                        break;
-                    case 23:
-                        _locationName = "USA, Seattle";
-                        break;
-                    case 24:
-                        _locationName = "USA, New York";
-                        break;
-                    case 25:
-                        _locationName = "USA, Los Angeles";
-                        break;
-                    case 26:
-                        _locationName = "CAN, Toronto";
-                        break;
-                    case 27:
-                        _locationName = "JPN, Tokyo";
-                        break;
-                    case 28:
-                        _locationName = "ESP, Madrid";
-                        break;
-                    case 29:
-                        _locationName = "SWE, Stockholm";
-                        break;
-                    case 30:
-                        _locationName = "POL, Warsaw";
-                        break;
-                    case 31:
-                        _locationName = "CHN, Hangzhou";
-                        break;
-                    case 32:
-                        _locationName = "POL, Warsaw";
-                        break;
-                    case 33:
-                        _locationName = "AUS, Sydney";
-                        break;
-                    case 34:
-                        _locationName = "SWE, Malmo";
-                        break;
-                    case 35:
-                        _locationName = "AUS, Perth";
-                        break;
-                    case 36:
-                        _locationName = "SWE, Stockholm";
-                        break;
-                    case 37:
-                        _locationName = "ROM, Bucharest";
-                        break;
-                    case 38:
-                        _locationName = "CHL, Santiago";
-                        break;
-                    case 39:
-                        _locationName = "ROM, Bucharest";
-                        break;
-                    case 40:
-                        _locationName = "ARG, Buenos Aires";
-                        break;
-                    case 41:
-                        _locationName = "ISL, Keflavik";
-                        break;
-                    case 42:
-                        _locationName = "JPN, Tokyo";
-                        break;
-                    case 43:
-                        _locationName = "RUS, Moscow";
-                        break;
-                    case 44:
-                        _locationName = "RUS, Moscow";
-                        break;
-                    case 45:
-                        _locationName = "SGP, Singapore";
-                        break;
-                    case 46:
-                        _locationName = "ZAF, Johannesburg";
-                        break;
-                    case 47:
-                        _locationName = "SRB, Beograd";
-                        break;
-                    case 48:
-                        _locationName = "BGR, Sofia";
-                        break;
-                    case 49:
-                        _locationName = "KOR, Seoul";
-                        break;
-                    case 50:
-                        _locationName = "ITA, Milan";
-                        break;
-                    case 51:
-                        _locationName = "AUS, Adelaide";
-                        break;
-                    case 52:
-                        _locationName = "DEU, Cologne (LAN)";
-                        break;
-                    case 53:
-                        _locationName = "USA, Dallas,TX (LAN)";
-                        break;
-                    case 54:
-                        _locationName = "SWE, Jonkoping (LAN)";
-                        break;
-                    case 58:
-                        _locationName = "UKR, Kiev";
-                        break;
-                    case 59:
-                        _locationName = "ITA, Lignano Sabbiadoro (LAN)";
-                        break;
-                    case 60:
-                        _locationName = "AUS, Adelaide (LAN)";
-                        break;
-                    case 61:
-                        _locationName = "NLD, Benelux (LAN)";
-                        break;
-                    case 62:
-                        _locationName = "USA, Washington DC";
-                        break;
-                    case 666:
-                        _locationName = "USA, QuakeCon LAN";
-                        break;
-                    case 63:
-                        _locationName = "USA, Indianapolis, IN";
-                        break;
-                    case 64:
-                        _locationName = "NLD, Rotterdam";
-                        break;
-                    case 65:
-                        _locationName = "NOR, Oslo";
-                        break;
-                    case 66:
-                        _locationName = "BRA, Sao Paulo";
-                        break;
-                    case 67:
-                        _locationName = "TUR, Istanbul";
-                        break;
-                    case 68:
-                        _locationName = "NZL, Auckland";
-                        break;
-                    case 69:
-                        _locationName = "RUS, Siberia";
-                        break;
-                    case 70:
-                        _locationName = "USA, Irvine, CA";
-                        break;
-                    default:
-                        _locationName = "Unknown";
-                        break;
+                    return LocationFormatHelper.Locations[LocationId].FullLocationName;
                 }
-
-                return _locationName;
+                catch (KeyNotFoundException)
+                {
+                    return "Unknown";
+                }
             }
+
+            /*get
+            {
+                LocationData value = null;
+                if (LocationHelper.Locations.TryGetValue(LocationId, out value))
+                {
+                    return value.FullLocationName;
+                }
+                else
+                {
+                    return "Unknown";
+                }
+            }*/
         }
 
         public bool IsTeamGame

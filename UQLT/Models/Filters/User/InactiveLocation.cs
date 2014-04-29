@@ -10,6 +10,7 @@ namespace UQLT.Models.Filters.User
     {
         public string display_name { get; set; }
         public int location_id { get; set; }
+        public string city { get; set; }
 
         public override string ToString()
         {

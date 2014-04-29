@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.Remote
 {
+    // this is the format of the object (including array) of servers (list of individual QLAPIFilterServer) returned from http://www.quakelive.com/browser/list?filter={base64_encoded_json_filter}
+    
     public class QLAPIFilterObject
     {
         public int lfg_requests { get; set; }

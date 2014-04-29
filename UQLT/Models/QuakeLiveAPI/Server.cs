@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.QuakeLiveAPI
 {
+    // this is the format of an individual server returned from http://www.quakelive.com/browser/details?ids={server_id(s)} - it's different from that returned by /list?filter={base64_encoded_json_filter}
+    // note: browser/details?ids={server_id(s)} actually includes a list of players for a given server, unlike /list?filter={base64_encoded_json_filter}
+    
     public class Server
     {
         public int num_players { get; set; }

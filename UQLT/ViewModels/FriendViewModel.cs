@@ -146,7 +146,63 @@ namespace UQLT.ViewModels
                 }
             }
         }
-        
+
+        public string StatusGameType
+        {
+            get
+            {
+                return RosterFriend.StatusGameType;
+            }
+            
+            set
+            {
+                RosterFriend.StatusGameType = value;
+                NotifyOfPropertyChange(() => StatusGameType);
+            }
+        }
+
+        public string StatusGameMap
+        {
+            get
+            {
+                return RosterFriend.StatusGameMap;
+            }
+
+            set
+            {
+                RosterFriend.StatusGameMap = value;
+                NotifyOfPropertyChange(() => StatusGameMap);
+            }
+        }
+
+        public string StatusGameLocation
+        {
+            get
+            {
+                return RosterFriend.StatusGameLocation;
+            }
+
+            set
+            {
+                RosterFriend.StatusGameLocation = value;
+                NotifyOfPropertyChange(() => StatusGameLocation);
+            }
+        }
+
+        public string StatusGamePlayerCount
+        {
+            get
+            {
+                return RosterFriend.StatusGamePlayerCount;
+            }
+
+            set
+            {
+                RosterFriend.StatusGameType = value;
+                NotifyOfPropertyChange(() => StatusGamePlayerCount);
+            }
+        }
+
         [ImportingConstructor]
         public FriendViewModel(Friend friend)
         {

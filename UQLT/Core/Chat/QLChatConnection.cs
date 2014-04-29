@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -17,6 +19,7 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Helpers;
 using UQLT.Models.Chat;
+using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
@@ -26,6 +29,7 @@ namespace UQLT.Core.Chat
     public class QLChatConnection
     {
         private XmppClientConnection XmppCon;
+        
         public ChatListViewModel CLVM
         {
             get;
@@ -180,9 +184,10 @@ namespace UQLT.Core.Chat
                     {
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
+                        // query API to get type, map, location, player count info for status message
                     }
                 }
-                
+
                 // BOT_GAME = 1: player is in a practice game or training match (we don't care about ADDRESS, but it will be = "loopback")
                 if (si.bot_game == 1)
                 {
@@ -244,6 +249,40 @@ namespace UQLT.Core.Chat
                     CLVM.OfflineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
                 });
                 Debug.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+            }
+        }
+
+        private async void GetServerInfoForStatus(string friend, int server_id)
+        {
+
+            try
+            {
+
+                HttpClientHandler gzipHandler = new HttpClientHandler();
+                HttpClient client = new HttpClient(gzipHandler);
+
+                // QL site sends gzip compressed responses
+                if (gzipHandler.SupportsAutomaticDecompression)
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + server_id);
+                response.EnsureSuccessStatusCode();
+
+                // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
+                // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+
+                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                Server qlserver = JsonConvert.DeserializeObject<Server>(json);
+
+                // set the player info for status
+                //CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameType = 
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                // need something here so it re-tries again in X seconds on failure
             }
         }
 
