@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace UQLT.Models.Chat
 {
@@ -34,6 +35,8 @@ namespace UQLT.Models.Chat
         public string StatusGameMap { get; set; }
 
         public string StatusGameLocation { get; set; }
+
+        public BitmapImage StatusGameFlag { get; set; }
 
         public string StatusGamePlayerCount { get; set; }
     }

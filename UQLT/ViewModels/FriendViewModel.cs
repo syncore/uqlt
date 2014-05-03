@@ -75,6 +75,7 @@ namespace UQLT.ViewModels
             {
                 RosterFriend.StatusType = value;
                 NotifyOfPropertyChange(() => StatusType);
+                NotifyOfPropertyChange(() => StatusImage);
             }
         }
         
@@ -133,15 +134,15 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case 0:
-                    default:
-                        return default(BitmapImage);
                     case 1:
                         return image_demo;
                     case 2:
                         return image_practice;
                     case 3:
                         return image_ingame;
+                    case 0:
+                    default:
+                        return default(BitmapImage);
                     
                 }
             }
@@ -189,6 +190,19 @@ namespace UQLT.ViewModels
             }
         }
 
+        public BitmapImage StatusGameFlag
+        {
+            get
+            {
+                return RosterFriend.StatusGameFlag;
+            }
+            set
+            {
+                RosterFriend.StatusGameFlag = value;
+                NotifyOfPropertyChange(() => StatusGameFlag);
+            }
+        }
+        
         public string StatusGamePlayerCount
         {
             get
@@ -198,7 +212,7 @@ namespace UQLT.ViewModels
 
             set
             {
-                RosterFriend.StatusGameType = value;
+                RosterFriend.StatusGamePlayerCount = value;
                 NotifyOfPropertyChange(() => StatusGamePlayerCount);
             }
         }

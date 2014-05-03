@@ -30,7 +30,9 @@ namespace UQLT.ViewModels
             private set;
         }
 
-        private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
+        private QLFormatHelper FormatHelper = QLFormatHelper.Instance;
+
+        private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 
         [ImportingConstructor]
         public ServerDetailsViewModel(Server server)
@@ -113,7 +115,7 @@ namespace UQLT.ViewModels
             }
         }
 
-        public int LocationId
+        public long LocationId
         {
             get
             {
@@ -400,20 +402,8 @@ namespace UQLT.ViewModels
         {
             get
             {
-                try
-                {
-                    return LocationFormatHelper.Locations[LocationId].FullLocationName;
-                }
-                catch (KeyNotFoundException)
-                {
-                    return "Unknown";
-                }
-            }
-
-            /*get
-            {
                 LocationData value = null;
-                if (LocationHelper.Locations.TryGetValue(LocationId, out value))
+                if (FormatHelper.Locations.TryGetValue(LocationId, out value))
                 {
                     return value.FullLocationName;
                 }
@@ -421,7 +411,20 @@ namespace UQLT.ViewModels
                 {
                     return "Unknown";
                 }
+            }
+            /*get
+            {
+                try
+                {
+                    return FormatHelper.Locations[LocationId].FullLocationName;
+                }
+                catch (Exception)
+                {
+                    return "Unknown";
+                }
             }*/
+
+
         }
 
         public bool IsTeamGame

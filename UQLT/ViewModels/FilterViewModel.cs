@@ -47,51 +47,19 @@ namespace UQLT.ViewModels
             }
         }
 
-        private List<ActiveLocation> _activeLocations;
+        private List<Location> _locations;
 
-        public List<ActiveLocation> ActiveLocations
+        public List<Location> Locations
         {
             get
             {
-                return _activeLocations;
+                return _locations;
             }
 
             set
             {
-                _activeLocations = value;
-                NotifyOfPropertyChange(() => ActiveLocations);
-            }
-        }
-
-        private List<InactiveLocation> _inactiveLocations;
-
-        public List<InactiveLocation> InactiveLocations
-        {
-            get
-            {
-                return _inactiveLocations;
-            }
-
-            set
-            {
-                _inactiveLocations = value;
-                NotifyOfPropertyChange(() => InactiveLocations);
-            }
-        }
-
-        private List<ServerBrowserLocations> _serverBrowserLocations;
-
-        public List<ServerBrowserLocations> ServerBrowserLocations
-        {
-            get
-            {
-                return _serverBrowserLocations;
-            }
-
-            set
-            {
-                _serverBrowserLocations = value;
-                NotifyOfPropertyChange(() => ServerBrowserLocations);
+                _locations = value;
+                NotifyOfPropertyChange(() => Locations);
             }
         }
 
@@ -525,7 +493,7 @@ namespace UQLT.ViewModels
                     // set our viewmodel's properties to those in the model
                     GameTypes = filters.game_types;
                     Arenas = filters.arenas;
-                    ActiveLocations = filters.active_locations;
+                    Locations = filters.locations.Where(location => location.active).ToList();
                     GameState = filters.gamestate;
 
                     // add to appropriate list in order to set proper arena tag when building filter
@@ -639,7 +607,7 @@ namespace UQLT.ViewModels
 
                     foreach (var gametype in importedFilterJson.game_types)
                     {
-                        if (importedFilterJson.game_types.ElementAt(gtIndex).ToString().Equals(gametype.display_name))
+                        if (importedFilterJson.game_types[gtIndex].ToString().Equals(gametype.display_name))
                         {
                             Debug.WriteLine("Gametype: " + gametype.game_type);
                             gt = gametype.game_type;
@@ -648,7 +616,7 @@ namespace UQLT.ViewModels
 
                     foreach (var arena in importedFilterJson.arenas)
                     {
-                        if (importedFilterJson.arenas.ElementAt(arIndex).ToString().Equals(arena.display_name))
+                        if (importedFilterJson.arenas[arIndex].ToString().Equals(arena.display_name))
                         {
                             Debug.WriteLine("Arena Type: " + arena.arena_type);
                             Debug.WriteLine("Arena: " + arena.arena);
@@ -656,9 +624,9 @@ namespace UQLT.ViewModels
                         }
                     }
 
-                    foreach (var location in importedFilterJson.active_locations)
+                    foreach (var location in importedFilterJson.locations)
                     {
-                        if (importedFilterJson.active_locations.ElementAt(locIndex).ToString().Equals(location.display_name))
+                        if (importedFilterJson.locations[locIndex].ToString().Equals(location.display_name))
                         {
                             Debug.WriteLine("Location: " + location.location_id);
                             loc = location.location_id;
@@ -667,7 +635,7 @@ namespace UQLT.ViewModels
 
                     foreach (var gamestate in importedFilterJson.gamestate)
                     {
-                        if (importedFilterJson.gamestate.ElementAt(statIndex).ToString().Equals(gamestate.display_name))
+                        if (importedFilterJson.gamestate[statIndex].ToString().Equals(gamestate.display_name))
                         {
                             Debug.WriteLine("Gamestate: " + gamestate.state);
                             stat = gamestate.state;

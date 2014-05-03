@@ -18,7 +18,7 @@ namespace UQLT.Models.QuakeLiveAPI
         public int teamsize { get; set; }
         public string g_customSettings { get; set; }
         public int g_levelstarttime { get; set; }
-        public int location_id { get; set; }
+        public long location_id { get; set; }
         public List<Player> players { get; set; }
         public int max_clients { get; set; }
         public int roundtimelimit { get; set; }

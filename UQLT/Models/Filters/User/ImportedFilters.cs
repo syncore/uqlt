@@ -8,11 +8,9 @@ namespace UQLT.Models.Filters.User
 {
     public class ImportedFilters
     {
-        public List<ActiveLocation> active_locations { get; set; }
-
-        public List<InactiveLocation> inactive_locations { get; set; }
-
-        public List<ServerBrowserLocations> serverbrowser_locations { get; set; }
+        public List<Location> locations { get; set; }
+        
+        public List<BasicGametypes> basic_gametypes { get; set; }
 
         public List<Arena> arenas { get; set; }
 

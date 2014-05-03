@@ -14,6 +14,6 @@ namespace UQLT.Models.Chat
         public int bot_game { get; set; }
         public string map { get; set; }
         public int public_id { get; set; }
-        public string server_id { get; set; }
+        public int server_id { get; set; }
     }
 }

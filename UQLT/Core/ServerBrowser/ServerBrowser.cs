@@ -30,8 +30,8 @@ namespace UQLT.Core.ServerBrowser
     {
         private List<string> currentplayerlist = new List<string>(); // player list for elo updating
 
-        private static Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
-        
+        private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
+
         public ServerBrowserViewModel SBVM
         {
             get;
@@ -46,7 +46,7 @@ namespace UQLT.Core.ServerBrowser
             //InitOrRefreshServers(SBVM.FilterURL);
         }
 
-         private string GetFilterUrlOnLoad()
+        private string GetFilterUrlOnLoad()
         {
             string url = null;
             if (File.Exists(UQLTGlobals.SavedUserFilterPath))
@@ -309,5 +309,5 @@ namespace UQLT.Core.ServerBrowser
     }
 }
 
-    
+
 

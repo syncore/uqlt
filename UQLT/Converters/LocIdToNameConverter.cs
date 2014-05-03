@@ -34,7 +34,7 @@ namespace UQLT.Converters
                     var x = sr.ReadToEnd();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
 
-                    foreach (var loc in filters.serverbrowser_locations)
+                    foreach (var loc in filters.locations)
                     {
                         if (System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value))
                         {

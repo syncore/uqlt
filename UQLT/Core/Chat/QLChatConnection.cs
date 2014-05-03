@@ -29,7 +29,8 @@ namespace UQLT.Core.Chat
     public class QLChatConnection
     {
         private XmppClientConnection XmppCon;
-        
+        private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
+
         public ChatListViewModel CLVM
         {
             get;
@@ -147,25 +148,25 @@ namespace UQLT.Core.Chat
         // Only fired when availability changes (user: offline -> online OR leave game server <-> join game server)
         private void CheckStatus(Presence pres)
         {
-            string status = pres.Status;
-            if (string.IsNullOrEmpty(status))
+            if (string.IsNullOrEmpty(pres.Status))
             {
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = false;
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
                 CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
+                //TODO
+                // if player is in list of in game players to be updated every X (90? 120?) seconds, then remove him
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
             }
             else
             {
-                UpdateStatus(pres.From.User, status);
-                Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is: " + status);
+                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = true;
+                UpdateStatus(pres.From.User, pres.Status);
+                Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is: " + pres.Status);
             }
         }
 
         private void UpdateStatus(string friend, string status)
         {
-            CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].HasStatus = true;
-
             try
             {
                 StatusInfo si = JsonConvert.DeserializeObject<StatusInfo>(status);
@@ -185,6 +186,9 @@ namespace UQLT.Core.Chat
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
+                        GetServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
+                        // TODO
+                        // Add to a list of players to be updated every X (90? 120?) seconds
                     }
                 }
 
@@ -254,10 +258,8 @@ namespace UQLT.Core.Chat
 
         private async void GetServerInfoForStatus(string friend, int server_id)
         {
-
             try
             {
-
                 HttpClientHandler gzipHandler = new HttpClientHandler();
                 HttpClient client = new HttpClient(gzipHandler);
 
@@ -273,11 +275,18 @@ namespace UQLT.Core.Chat
                 // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
                 string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                Server qlserver = JsonConvert.DeserializeObject<Server>(json);
+                // QL API returns an array, even for individual servers as in this case
+                List<Server> qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // set the player info for status
-                //CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameType = 
-
+                foreach (var qlserver in qlservers)
+                {
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameType = QLFormatter.Gametypes[qlserver.game_type].ShortGametypeName;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameMap = "on " + qlserver.map_title;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameFlag = QLFormatter.Locations[qlserver.location_id].Flag;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameLocation = QLFormatter.Locations[qlserver.location_id].City;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGamePlayerCount = string.Format("({0}/{1})", qlserver.num_players, qlserver.max_clients);
+                }
             }
             catch (Exception ex)
             {

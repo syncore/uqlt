@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.User
 {
-    public class ActiveLocation
+    public class BasicGametypes
     {
         public string display_name { get; set; }
-        public object location_id { get; set; }
-        public string city { get; set; }
+        public string short_name { get; set; }
+        public int game_type { get; set; }
 
         public override string ToString()
         {

@@ -28,7 +28,6 @@ namespace UQLT.ViewModels
         _windowManager = windowManager;
         _events = events;
         _filterViewModel = new FilterViewModel(_events);
-        LocationFormatHelper.LoadLocations();
         _serverBrowserViewModel = new ServerBrowserViewModel(_events);
         _chatListViewModel = new ChatListViewModel(); // TODO: _events for any events, i.e.: hiding buddy list
     }
