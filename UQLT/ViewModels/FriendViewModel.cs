@@ -37,32 +37,19 @@ namespace UQLT.ViewModels
             }
         }
 
-        public bool HasStatus
+        public bool HasXMPPStatus
         {
             get
             {
             //return (string.IsNullOrEmpty(RosterFriend.Status))
-                return RosterFriend.HasStatus;
+                return RosterFriend.HasXMPPStatus;
             }
             set
             {
-                RosterFriend.HasStatus = value;
-                NotifyOfPropertyChange(() => HasStatus);
+                RosterFriend.HasXMPPStatus = value;
+                NotifyOfPropertyChange(() => HasXMPPStatus);
             }
 
-        }
-
-        public string Status
-        {
-            get
-            {
-                return RosterFriend.Status;
-            }
-            set
-            {
-                RosterFriend.Status = value;
-                NotifyOfPropertyChange(() => Status);
-            }
         }
 
         public int StatusType
@@ -76,6 +63,8 @@ namespace UQLT.ViewModels
                 RosterFriend.StatusType = value;
                 NotifyOfPropertyChange(() => StatusType);
                 NotifyOfPropertyChange(() => StatusImage);
+                NotifyOfPropertyChange(() => PracticeDemoMessage);
+                NotifyOfPropertyChange(() => IsPracticeOrDemo);
             }
         }
         
@@ -102,6 +91,38 @@ namespace UQLT.ViewModels
             {
                 RosterFriend.IsInGame = value;
                 NotifyOfPropertyChange(() => IsInGame);
+            }
+        }
+
+        public bool IsPracticeOrDemo
+        {
+            get
+            {
+                switch (StatusType)
+                {
+                    case 1:
+                        return true;
+                    case 2:
+                        return true;
+                    case 3:
+                        return false;
+                    case 0:
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public string StatusServerId
+        {
+            get
+            {
+                return RosterFriend.StatusServerId;
+            }
+            set
+            {
+                RosterFriend.StatusServerId = value;
+                NotifyOfPropertyChange(() => StatusServerId);
             }
         }
 
@@ -144,6 +165,24 @@ namespace UQLT.ViewModels
                     default:
                         return default(BitmapImage);
                     
+                }
+            }
+        }
+
+        public string PracticeDemoMessage
+        {
+            get
+            {
+                switch (StatusType)
+                {
+                    case 1:
+                        return "Watching a demo";
+                    case 2:
+                        return "Playing a practice match";
+                    case 0:
+                    case 3:
+                    default:
+                        return "";
                 }
             }
         }

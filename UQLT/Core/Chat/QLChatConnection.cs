@@ -9,6 +9,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using agsXMPP;
 using agsXMPP.Collections;
@@ -30,6 +31,7 @@ namespace UQLT.Core.Chat
     {
         private XmppClientConnection XmppCon;
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
+        private Timer GameServerUpdateTimer;
 
         public ChatListViewModel CLVM
         {
@@ -44,6 +46,7 @@ namespace UQLT.Core.Chat
             CLVM = clvm;
             Roster = new Dictionary<string, string>();
             XmppCon = new XmppClientConnection();
+            GameServerUpdateTimer = new Timer();
 
             // XmppClientConnection event handlers
             XmppCon.OnLogin += new ObjectHandler(XmppCon_OnLogin);
@@ -92,7 +95,6 @@ namespace UQLT.Core.Chat
         // Roster has been fully loaded
         private void XmppCon_OnRosterEnd(object sender)
         {
-
         }
 
         // We've received a message.
@@ -107,9 +109,40 @@ namespace UQLT.Core.Chat
         // We have successfully authenticated to the server.
         private void XmppCon_OnLogin(object sender)
         {
-            //Presence p = new Presence(ShowType.chat, "");
-            //p.Type = PresenceType.available;
-            //XmppCon.Send(p);
+            // start timer
+            StartServerUpdateTimer();
+
+        }
+
+        private void StartServerUpdateTimer()
+        {
+            GameServerUpdateTimer.Elapsed += new ElapsedEventHandler(OnTimedServerInfoUpdate);
+            GameServerUpdateTimer.Interval = 5000;
+            GameServerUpdateTimer.Enabled = true;
+            GameServerUpdateTimer.AutoReset = true;
+        }
+
+        private void StopServerUpdateTimer()
+        {
+            // TODO: stop timer if we have launched a game, to prevent lag during game
+            GameServerUpdateTimer.Enabled = false;
+        }
+
+        private void OnTimedServerInfoUpdate(object source, ElapsedEventArgs e)
+        {
+            //TODO: only send one request, not 30 to QL API
+            foreach (KeyValuePair<string, FriendViewModel> kvp in CLVM.OnlineGroup.Friends)
+            {
+                if (kvp.Value.IsInGame)
+                {
+                    Debug.WriteLine("Timer: Updating server info for : " + kvp.Key + " server id: " + kvp.Value.StatusServerId);
+                }
+                else
+                {
+                    Debug.WriteLine("" + kvp.Key + "is not in a game server. Skipping...");
+                }
+            }
+
 
         }
 
@@ -146,26 +179,24 @@ namespace UQLT.Core.Chat
 
         // Check a user's status to determine what the user is doing in QL
         // Only fired when availability changes (user: offline -> online OR leave game server <-> join game server)
-        private void CheckStatus(Presence pres)
+        private void CheckPlayerStatus(Presence pres)
         {
             if (string.IsNullOrEmpty(pres.Status))
             {
-                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = false;
-                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
-                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
+                ClearPlayerStatus(pres);
                 //TODO
                 // if player is in list of in game players to be updated every X (90? 120?) seconds, then remove him
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
             }
             else
             {
-                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasStatus = true;
-                UpdateStatus(pres.From.User, pres.Status);
+                CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasXMPPStatus = true;
+                UpdatePlayerStatus(pres.From.User, pres.Status);
                 Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is: " + pres.Status);
             }
         }
 
-        private void UpdateStatus(string friend, string status)
+        private void UpdatePlayerStatus(string friend, string status)
         {
             try
             {
@@ -178,7 +209,6 @@ namespace UQLT.Core.Chat
                     if (si.address.Equals("bot"))
                     {
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 1;
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = "Watching a demo";
                     }
                     // player is actually in game
                     else
@@ -187,6 +217,7 @@ namespace UQLT.Core.Chat
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
                         GetServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
+
                         // TODO
                         // Add to a list of players to be updated every X (90? 120?) seconds
                     }
@@ -196,7 +227,6 @@ namespace UQLT.Core.Chat
                 if (si.bot_game == 1)
                 {
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 2;
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Status = "Playing a practice match";
                 }
             }
             catch (Exception e)
@@ -205,6 +235,17 @@ namespace UQLT.Core.Chat
             }
         }
 
+        private void ClearPlayerStatus(Presence pres)
+        {
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasXMPPStatus = false;
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusServerId = "";
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusGameType = "";
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusGameMap = "";
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusGameLocation = "";
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusGamePlayerCount = "";
+            CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
+        }
         private void FriendBecameAvailable(Presence pres)
         {
             if (!IsMe(pres))
@@ -237,7 +278,7 @@ namespace UQLT.Core.Chat
             }
 
             // Check the user's status
-            CheckStatus(pres);
+            CheckPlayerStatus(pres);
         }
 
         private void FriendBecameUnavailble(Presence pres)
@@ -256,7 +297,8 @@ namespace UQLT.Core.Chat
             }
         }
 
-        private async void GetServerInfoForStatus(string friend, int server_id)
+        // Call the QL API to get the server information for a friend, then update the friend's details
+        public async void GetServerInfoForStatus(string friend, string server_id)
         {
             try
             {
@@ -281,6 +323,7 @@ namespace UQLT.Core.Chat
                 // set the player info for status
                 foreach (var qlserver in qlservers)
                 {
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusServerId = qlserver.public_id.ToString();
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameType = QLFormatter.Gametypes[qlserver.game_type].ShortGametypeName;
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameMap = "on " + qlserver.map_title;
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusGameFlag = QLFormatter.Locations[qlserver.location_id].Flag;

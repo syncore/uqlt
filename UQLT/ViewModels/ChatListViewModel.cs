@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using UQLT.Models.Chat;
 using UQLT.Core.Chat;
 using UQLT.Helpers;
+using System.Windows.Input;
 
 namespace UQLT.ViewModels
 {
@@ -62,7 +63,6 @@ namespace UQLT.ViewModels
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
             QLChat = new QLChatConnection(this);
-
 
         }
 
@@ -157,6 +157,24 @@ namespace UQLT.ViewModels
             {
                 Debug.WriteLine("Favorites did not contain " + kvp.Key);
             }
+        }
+
+
+        // Refresh a player's game server information when the user highlights the player (via clicking his name or with keyboard) in the buddy list
+        // but only do so if the player is currently in a server
+        public void UpdatePlayerGameServerInfo(KeyValuePair<string, FriendViewModel> kvp)
+        {
+
+            if (kvp.Value.IsInGame)
+            {
+                Debug.WriteLine("Requesting server information for friend: " + kvp.Key + " server id: " + kvp.Value.StatusServerId);
+                QLChat.GetServerInfoForStatus(kvp.Key, kvp.Value.StatusServerId);
+            }
+            else
+            {
+                Debug.WriteLine("Not refreshing server info for player: " + kvp.Key + " because player isn't currently in a game server.");
+            }
+
         }
 
     }

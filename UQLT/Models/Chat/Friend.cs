@@ -21,15 +21,15 @@ namespace UQLT.Models.Chat
 
         public bool IsFavorite { get; set; }
 
-        public string Status { get; set; }
-
         // 1: demo, 2: practice, 3: in-game
         public int StatusType { get; set; }
 
-        public bool HasStatus { get; set; }
+        public bool HasXMPPStatus { get; set; }
 
         public bool IsInGame { get; set; }
 
+        public string StatusServerId { get; set; }
+        
         public string StatusGameType { get; set; }
 
         public string StatusGameMap { get; set; }

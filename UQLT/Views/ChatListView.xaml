@@ -12,6 +12,9 @@
 
     <Grid x:Name="ChatListRoot">
         <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" Width="280" ItemsSource="{Binding BuddyList}">
+       
+
+
             <!-- Auto expand groups -->
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
@@ -47,14 +50,18 @@
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                            <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}"
+                                        cal:Message.Attach="[Event MouseLeftButtonUp] = [Action UpdatePlayerGameServerInfo($dataContext)]">
                                 <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left"/>
                                 <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
-                                <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasStatus, Converter={StaticResource BoolToVis}}"/>
+                                <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXMPPStatus, Converter={StaticResource BoolToVis}}"/>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>    
-                                    <!--<TextBlock x:Name="FriendStatus" Text="{Binding Value.Status}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.HasStatus, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>-->
-                                    <!-- Player's game server information -->
+                                    
+                                    <!-- Player's demo or practice game message (only shown if player is watching demo or in practice match) -->
+                                    <TextBlock x:Name="FriendStatus" Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>
+                                    
+                                    <!-- Player's game server information (only shown if player is in game) -->
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
                                         <TextBlock Name="StatusGameType" Text="{Binding Value.StatusGameType}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
                                         <TextBlock Name="StatusGameMap" Text="{Binding Value.StatusGameMap}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
@@ -72,6 +79,7 @@
                                         <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)"/>
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
+                                
                             </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
