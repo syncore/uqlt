@@ -22,11 +22,25 @@ namespace UQLT.ViewModels
         private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
         private BitmapImage image_ingame = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
 
-        
+
         public Friend RosterFriend
         {
             get;
             private set;
+        }
+
+        private ServerDetailsViewModel _server;
+        public ServerDetailsViewModel Server
+        {
+            get
+            {
+                return _server;
+            }
+            set
+            {
+                _server = value;
+                NotifyOfPropertyChange(() => Server);
+            }
         }
 
         public string FriendName
@@ -41,7 +55,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-            //return (string.IsNullOrEmpty(RosterFriend.Status))
+                //return (string.IsNullOrEmpty(RosterFriend.Status))
                 return RosterFriend.HasXMPPStatus;
             }
             set
@@ -67,7 +81,7 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => IsPracticeOrDemo);
             }
         }
-        
+
         public bool IsFavorite
         {
             get
@@ -113,18 +127,6 @@ namespace UQLT.ViewModels
             }
         }
 
-        public string StatusServerId
-        {
-            get
-            {
-                return RosterFriend.StatusServerId;
-            }
-            set
-            {
-                RosterFriend.StatusServerId = value;
-                NotifyOfPropertyChange(() => StatusServerId);
-            }
-        }
 
         public bool IsAutoExpanded
         {
@@ -164,7 +166,7 @@ namespace UQLT.ViewModels
                     case 0:
                     default:
                         return default(BitmapImage);
-                    
+
                 }
             }
         }
@@ -187,74 +189,7 @@ namespace UQLT.ViewModels
             }
         }
 
-        public string StatusGameType
-        {
-            get
-            {
-                return RosterFriend.StatusGameType;
-            }
-            
-            set
-            {
-                RosterFriend.StatusGameType = value;
-                NotifyOfPropertyChange(() => StatusGameType);
-            }
-        }
 
-        public string StatusGameMap
-        {
-            get
-            {
-                return RosterFriend.StatusGameMap;
-            }
-
-            set
-            {
-                RosterFriend.StatusGameMap = value;
-                NotifyOfPropertyChange(() => StatusGameMap);
-            }
-        }
-
-        public string StatusGameLocation
-        {
-            get
-            {
-                return RosterFriend.StatusGameLocation;
-            }
-
-            set
-            {
-                RosterFriend.StatusGameLocation = value;
-                NotifyOfPropertyChange(() => StatusGameLocation);
-            }
-        }
-
-        public BitmapImage StatusGameFlag
-        {
-            get
-            {
-                return RosterFriend.StatusGameFlag;
-            }
-            set
-            {
-                RosterFriend.StatusGameFlag = value;
-                NotifyOfPropertyChange(() => StatusGameFlag);
-            }
-        }
-        
-        public string StatusGamePlayerCount
-        {
-            get
-            {
-                return RosterFriend.StatusGamePlayerCount;
-            }
-
-            set
-            {
-                RosterFriend.StatusGamePlayerCount = value;
-                NotifyOfPropertyChange(() => StatusGamePlayerCount);
-            }
-        }
 
         [ImportingConstructor]
         public FriendViewModel(Friend friend)

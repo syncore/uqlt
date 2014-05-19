@@ -27,17 +27,5 @@ namespace UQLT.Models.Chat
         public bool HasXMPPStatus { get; set; }
 
         public bool IsInGame { get; set; }
-
-        public string StatusServerId { get; set; }
-        
-        public string StatusGameType { get; set; }
-
-        public string StatusGameMap { get; set; }
-
-        public string StatusGameLocation { get; set; }
-
-        public BitmapImage StatusGameFlag { get; set; }
-
-        public string StatusGamePlayerCount { get; set; }
     }
 }

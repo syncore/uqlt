@@ -43,7 +43,7 @@ namespace UQLT.Core.ServerBrowser
             SBVM = sbvm;
             SBVM.FilterURL = GetFilterUrlOnLoad();
             // Don't hit QL servers (debugging)
-            //InitOrRefreshServers(SBVM.FilterURL);
+            InitOrRefreshServers(SBVM.FilterURL);
         }
 
         private string GetFilterUrlOnLoad()
@@ -160,7 +160,6 @@ namespace UQLT.Core.ServerBrowser
 
                 ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
                 List<string> addresses = new List<string>();
-                int elo;
 
                 foreach (Server s in serverlist)
                 {
@@ -170,26 +169,18 @@ namespace UQLT.Core.ServerBrowser
 
                     foreach (Player p in s.players)
                     {
-                        // in the interests of time, only check duel elo. player will be included in all dicts if in duel dict
-                        if (!UQLTGlobals.PlayerEloDuel.TryGetValue(p.name.ToLower(), out elo))
+                        // Has this player already been indexed at some point this session
+                        if (!UQLTGlobals.PlayerEloInfo.ContainsKey(p.name.ToLower()))
                         {
                             currentplayerlist.Add(p.name.ToLower());
 
-                            // temporarily set default elo to 0
+                            // set default elo to 0
                             SetQLranksDefaultElo(p.name.ToLower());
                         }
                         else
                         {
-                            if (elo != 0)
-                            {
-                                Debug.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Elo info: [DUEL]: " + UQLTGlobals.PlayerEloDuel[p.name.ToLower()]
-                                    + " [CA]: " + UQLTGlobals.PlayerEloCa[p.name.ToLower()] + " [TDM]: " + UQLTGlobals.PlayerEloTdm[p.name.ToLower()] + " [CTF]: "
-                                    + UQLTGlobals.PlayerEloCtf[p.name.ToLower()] + " [FFA]: " + UQLTGlobals.PlayerEloFfa[p.name.ToLower()]);
-                            }
-                            else
-                            {
-                                SetQLranksDefaultElo(p.name.ToLower());
-                            }
+
+                            Debug.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Info: [DUEL]: {0} | [CA]: {1} | [TDM]: {2} | [CTF]: {3} | [FFA]: {4}", UQLTGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo);
                         }
                     }
 
@@ -225,20 +216,17 @@ namespace UQLT.Core.ServerBrowser
         }
         private void SetQLranksDefaultElo(string player)
         {
-            UQLTGlobals.PlayerEloDuel.TryAdd(player, 0);
-            UQLTGlobals.PlayerEloCa.TryAdd(player, 0);
-            UQLTGlobals.PlayerEloTdm.TryAdd(player, 0);
-            UQLTGlobals.PlayerEloFfa.TryAdd(player, 0);
-            UQLTGlobals.PlayerEloCtf.TryAdd(player, 0);
+            UQLTGlobals.PlayerEloInfo[player] = new EloData() { DuelElo = 0, CaElo = 0, TdmElo = 0, FfaElo = 0, CtfElo = 0 };
         }
 
         private void SetQLranksInfo(string player, int duelElo, int caElo, int tdmElo, int ffaElo, int ctfElo)
         {
-            UQLTGlobals.PlayerEloDuel.TryUpdate(player, duelElo, 0);
-            UQLTGlobals.PlayerEloCa.TryUpdate(player, caElo, 0);
-            UQLTGlobals.PlayerEloTdm.TryUpdate(player, tdmElo, 0);
-            UQLTGlobals.PlayerEloFfa.TryUpdate(player, ffaElo, 0);
-            UQLTGlobals.PlayerEloCtf.TryUpdate(player, ctfElo, 0);
+            UQLTGlobals.PlayerEloInfo[player].DuelElo = duelElo;
+            UQLTGlobals.PlayerEloInfo[player].CaElo = caElo;
+            UQLTGlobals.PlayerEloInfo[player].TdmElo = tdmElo;
+            UQLTGlobals.PlayerEloInfo[player].FfaElo = ffaElo;
+            UQLTGlobals.PlayerEloInfo[player].CtfElo = ctfElo;
+
         }
 
         private void SplitPlayerList(List<string> input, int maxPlayers = 150)
@@ -264,8 +252,8 @@ namespace UQLT.Core.ServerBrowser
             HttpClient client = new HttpClient();
             try
             {
-                //client.BaseAddress = new Uri("http://www.qlranks.com");
-                client.BaseAddress = new Uri("http://10.0.0.7");
+                client.BaseAddress = new Uri("http://www.qlranks.com");
+                //client.BaseAddress = new Uri("http://10.0.0.7");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
                 HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
@@ -308,6 +296,5 @@ namespace UQLT.Core.ServerBrowser
 
     }
 }
-
 
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UQLT.Helpers;
+using UQLT.Models.QLRanks;
 
 namespace UQLT
 {
@@ -20,16 +21,8 @@ namespace UQLT
         public static ConcurrentDictionary<string, long> IPAddressDict { get; private set; }
 
         // player elos
-        public static ConcurrentDictionary<string, int> PlayerEloDuel { get; private set; }
-
-        public static ConcurrentDictionary<string, int> PlayerEloCa { get; private set; }
-
-        public static ConcurrentDictionary<string, int> PlayerEloTdm { get; private set; }
-
-        public static ConcurrentDictionary<string, int> PlayerEloFfa { get; private set; }
-
-        public static ConcurrentDictionary<string, int> PlayerEloCtf { get; private set; }
-
+        public static ConcurrentDictionary<string, EloData> PlayerEloInfo { get; private set; }
+        
         // favorite friends (because we don't have access to XMPP roster until authenticated)
         public static List<string> SavedFavoriteFriends { get; private set; }
 
@@ -59,11 +52,7 @@ namespace UQLT
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
 #endif
             IPAddressDict = new ConcurrentDictionary<string, long>();
-            PlayerEloDuel = new ConcurrentDictionary<string, int>();
-            PlayerEloCa = new ConcurrentDictionary<string, int>();
-            PlayerEloTdm = new ConcurrentDictionary<string, int>();
-            PlayerEloFfa = new ConcurrentDictionary<string, int>();
-            PlayerEloCtf = new ConcurrentDictionary<string, int>();
+            PlayerEloInfo = new ConcurrentDictionary<string, EloData>();
             SavedFavoriteFriends = new List<string>();
             QLDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
             QLDomainListFilter = QLDomainBase + "/browser/list?filter=";

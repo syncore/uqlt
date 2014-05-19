@@ -89,7 +89,7 @@ namespace UQLT.ViewModels
         {
             events.Subscribe(this);
             _servers = new ObservableCollection<ServerDetailsViewModel>();
-            DoServerBrowserAutoSort("LocationName");
+            DoServerBrowserAutoSort("FullLocationName");
             // Instantiate a new server browser for this viewmodel
             SB = new ServerBrowser(this);
 

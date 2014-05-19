@@ -163,32 +163,32 @@ namespace UQLT.ViewModels
             }
         }
 
-        private int _playerElo;
+        private long _playerElo;
 
-        public int PlayerElo
+        public long PlayerElo
         {
             get
             {
                 switch (PlayerGameType)
                 {
                     case 0:
-                        _playerElo = UQLTGlobals.PlayerEloFfa[Name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].FfaElo;
                         break;
 
                     case 4:
-                        _playerElo = UQLTGlobals.PlayerEloCa[Name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].CaElo;
                         break;
 
                     case 1:
-                        _playerElo = UQLTGlobals.PlayerEloDuel[Name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].DuelElo;
                         break;
 
                     case 3:
-                        _playerElo = UQLTGlobals.PlayerEloTdm[Name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].TdmElo;
                         break;
 
                     case 5:
-                        _playerElo = UQLTGlobals.PlayerEloCtf[Name.ToLower()];
+                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].CtfElo;
                         break;
 
                     default:

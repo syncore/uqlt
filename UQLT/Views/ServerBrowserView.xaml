@@ -43,7 +43,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Location: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding LocationName}"/>
+                        <TextBlock Text="{Binding FullLocationName}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Ping: " FontWeight="Bold"/>
@@ -115,13 +115,13 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="LocationName">
+                    <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="FullLocationName">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0"/>
                                     <!--<TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}"/>-->
-                                    <TextBlock Name="CountryName" Text="{Binding LocationName}"/>
+                                    <TextBlock Name="CountryName" Text="{Binding FullLocationName}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

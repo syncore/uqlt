@@ -65,14 +65,73 @@
                                     <!-- Player's game server information (only shown if player is in game) -->
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
 
-                                        <TextBlock Name="StatusGameType" Text="{Binding Value.StatusGameType}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.StatusGameMap}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameType" Text="{Binding Value.Server.ShortGameTypeName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.Map}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
 
-                                        <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.StatusGameFlag}" HorizontalAlignment="Left"/>
-                                        <TextBlock Name="StatusGameLocation" Text="{Binding Value.StatusGameLocation}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                                        <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.StatusGamePlayerCount}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left"/>
+                                        <TextBlock Name="StatusGameLocation" Text="{Binding Value.Server.ShortLocationName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.Server.TotalPlayers}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
 
                                     </StackPanel>
+
+                                    <!-- Tooltip displaying server info on hover -->
+                                    <StackPanel.ToolTip>
+                                        <StackPanel Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
+                                            <!--<TextBlock TextWrapping="Wrap">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0} playing {1} {2} at {3} {4}">
+                                                        <Binding Path="Value.FriendName"/>
+                                                        <Binding Path="Value.StatusGameType"/>
+                                                        <Binding Path="Value.StatusGameMap"/>
+                                                        <Binding Path="Value.StatusGameLocation"/>
+                                                        <Binding Path="Value.StatusGamePlayerCount"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>-->
+                                            
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Value.Server.Map}"/>
+                                                <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}"/>
+                                            
+                                            <!--Scoreboard for team games-->
+                                                <TextBlock Text="Red"/>
+                                                <TextBlock TextWrapping="Wrap">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}({0} Elo): {1}">
+                                                            <Binding Path="Value.Server.RedTeamElo"/>
+                                                            <Binding Path="Value.Server.GRedScore"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+
+                                                <TextBlock Text="Blue"/>
+                                                <TextBlock TextWrapping="Wrap">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}({0} Elo): {1}">
+                                                            <Binding Path="Value.Server.BlueTeamElo"/>
+                                                            <Binding Path="Value.Server.GBlueScore"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+
+
+                                            </StackPanel>
+                                            
+                                            
+                                            <TextBlock TextWrapping="Wrap">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}Red Score: {0} Blue Score: {1}">
+                                                        <Binding Path="Value.Server.GRedScore"/>
+                                                        <Binding Path="Value.Server.GBlueScore"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+
+
+
+                                        </StackPanel>
+                                    </StackPanel.ToolTip>
+
                                 </StackPanel>
 
                                 <!--Friend context menu actions-->
