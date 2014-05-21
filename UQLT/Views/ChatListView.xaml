@@ -66,7 +66,7 @@
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
 
                                         <TextBlock Name="StatusGameType" Text="{Binding Value.Server.ShortGameTypeName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.Map}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.MapTitle, StringFormat='on {0}'}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
 
                                         <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left"/>
                                         <TextBlock Name="StatusGameLocation" Text="{Binding Value.Server.ShortLocationName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
@@ -90,25 +90,23 @@
                                             </TextBlock>-->
                                             
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Value.Server.Map}"/>
+                                                <TextBlock Text="{Binding Value.Server.MapTitle}"/>
                                                 <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}"/>
                                             
                                             <!--Scoreboard for team games-->
-                                                <TextBlock Text="Red"/>
                                                 <TextBlock TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}({0} Elo): {1}">
-                                                            <Binding Path="Value.Server.RedTeamElo"/>
+                                                        <MultiBinding StringFormat="{}Red ({0} Elo): {1}">
+                                                            <Binding Path="Value.Server.RedTeamElo" FallbackValue="0"/>
                                                             <Binding Path="Value.Server.GRedScore"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
 
-                                                <TextBlock Text="Blue"/>
                                                 <TextBlock TextWrapping="Wrap">
                                                     <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}({0} Elo): {1}">
-                                                            <Binding Path="Value.Server.BlueTeamElo"/>
+                                                        <MultiBinding StringFormat="{}Blue ({0} Elo): {1}">
+                                                            <Binding Path="Value.Server.BlueTeamElo" FallbackValue="0"/>
                                                             <Binding Path="Value.Server.GBlueScore"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>

@@ -711,6 +711,33 @@
   <ItemGroup>
     <Resource Include="images\maps\campgroundsintel.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\arkinholm.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\citycrossings.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\deadandgone.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\divineintermission.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\henhouse.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\mcsarges.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\monastery.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\newcerberon.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\maps\shakennotstirred.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

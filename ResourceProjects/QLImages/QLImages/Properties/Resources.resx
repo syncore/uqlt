@@ -775,4 +775,31 @@
   <data name="campgroundsintel" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\images\maps\campgroundsintel.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="arkinholm" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\arkinholm.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="citycrossings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\citycrossings.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="deadandgone" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\deadandgone.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="divineintermission" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\divineintermission.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="henhouse" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\henhouse.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="mcsarges" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\mcsarges.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="monastery" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\monastery.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="newcerberon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\newcerberon.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="shakennotstirred" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\maps\shakennotstirred.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

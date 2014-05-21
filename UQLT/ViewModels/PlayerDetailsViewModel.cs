@@ -14,9 +14,9 @@ using UQLT.Models.QuakeLiveAPI;
 namespace UQLT.ViewModels
 {
     [Export(typeof(PlayerDetailsViewModel))]
-    
+
     // Individual player information, no associated View
-    
+
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
         private static Regex namecolors = new Regex(@"[\^]\d");
@@ -158,12 +158,75 @@ namespace UQLT.ViewModels
         public int PlayerGameType
         {
             get
-            { 
+            {
                 return Player.player_game_type;
             }
         }
 
-        private long _playerElo;
+        public long PlayerTdmElo
+        {
+            get
+            {
+                return Player.tdmelo;
+            }
+            set
+            {
+                Player.tdmelo = value;
+                NotifyOfPropertyChange(() => PlayerTdmElo);
+            }
+        }
+
+        public long PlayerCaElo
+        {
+            get
+            {
+                return Player.caelo;
+            }
+            set
+            {
+                Player.caelo = value;
+                NotifyOfPropertyChange(() => PlayerCaElo);
+            }
+        }
+
+        public long PlayerFfaElo
+        {
+            get
+            {
+                return Player.ffaelo;
+            }
+            set
+            {
+                Player.ffaelo = value;
+                NotifyOfPropertyChange(() => PlayerFfaElo);
+            }
+        }
+
+        public long PlayerDuelElo
+        {
+            get
+            {
+                return Player.duelelo;
+            }
+            set
+            {
+                Player.duelelo = value;
+                NotifyOfPropertyChange(() => PlayerDuelElo);
+            }
+        }
+
+        public long PlayerCtfElo
+        {
+            get
+            {
+                return Player.ctfelo;
+            }
+            set
+            {
+                Player.ctfelo = value;
+                NotifyOfPropertyChange(() => PlayerCtfElo);
+            }
+        }
 
         public long PlayerElo
         {
@@ -172,31 +235,18 @@ namespace UQLT.ViewModels
                 switch (PlayerGameType)
                 {
                     case 0:
-                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].FfaElo;
-                        break;
-
+                        return PlayerFfaElo;
                     case 4:
-                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].CaElo;
-                        break;
-
+                        return PlayerCaElo;
                     case 1:
-                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].DuelElo;
-                        break;
-
+                        return PlayerDuelElo;
                     case 3:
-                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].TdmElo;
-                        break;
-
+                        return PlayerTdmElo;
                     case 5:
-                        _playerElo = UQLTGlobals.PlayerEloInfo[Name.ToLower()].CtfElo;
-                        break;
-
+                        return PlayerCtfElo;
                     default:
-                        _playerElo = 0;
-                        break;
+                        return 0;
                 }
-
-                return _playerElo;
             }
         }
     }

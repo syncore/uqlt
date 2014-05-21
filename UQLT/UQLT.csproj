@@ -96,6 +96,7 @@
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
+    <Compile Include="Interfaces\IQLRanksUpdater.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />
     <Compile Include="Models\Chat\StatusInfo.cs" />

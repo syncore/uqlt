@@ -364,8 +364,9 @@ namespace UQLT.Core.Chat
                 foreach (var qlserver in qlservers)
                 {
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = qlserver.public_id;
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlserver.game_type].ShortGametypeName;
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = qlserver.map_title;
+                    //CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlserver.game_type].ShortGametypeName;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = qlserver.map;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = qlserver.map_title;
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = qlserver.num_players;
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = qlserver.max_clients;
                     CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = qlserver.g_redscore;
@@ -419,8 +420,9 @@ namespace UQLT.Core.Chat
                 {                 
                  
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = qlservers[i].public_id;
-                    CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlservers[i].game_type].ShortGametypeName;
-                    CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = qlservers[i].map_title;
+                    //CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlservers[i].game_type].ShortGametypeName;
+                    CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = qlservers[i].map;
+                    CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = qlservers[i].map_title;
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = qlservers[i].num_players;
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = qlservers[i].max_clients;
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = qlservers[i].g_redscore;

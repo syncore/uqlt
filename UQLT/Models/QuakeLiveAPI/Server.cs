@@ -58,5 +58,19 @@ namespace UQLT.Models.QuakeLiveAPI
             }
 
         }
+        // Set the server's player elo info on each Player object. This allows the elo to be set as a property in the PlayerDetailsViewModel
+        // which enables automatic UI updating via NotifyOfPropertyChange when elo information is received.
+        public void setPlayerElos()
+        {
+            foreach (var p in players)
+            {
+                p.tdmelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                p.caelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                p.ffaelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                p.duelelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                p.ctfelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+
+            }
+        }
     }
 }

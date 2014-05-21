@@ -963,6 +963,16 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap arkinholm {
+            get {
+                object obj = ResourceManager.GetObject("arkinholm", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap asylum {
             get {
                 object obj = ResourceManager.GetObject("asylum", resourceCulture);
@@ -1093,6 +1103,16 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap citycrossings {
+            get {
+                object obj = ResourceManager.GetObject("citycrossings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap cliffside {
             get {
                 object obj = ResourceManager.GetObject("cliffside", resourceCulture);
@@ -1173,6 +1193,16 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap deadandgone {
+            get {
+                object obj = ResourceManager.GetObject("deadandgone", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap deepinside {
             get {
                 object obj = ResourceManager.GetObject("deepinside", resourceCulture);
@@ -1236,6 +1266,16 @@ namespace UQLT.Properties {
         internal static System.Drawing.Bitmap distantscreams {
             get {
                 object obj = ResourceManager.GetObject("distantscreams", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap divineintermission {
+            get {
+                object obj = ResourceManager.GetObject("divineintermission", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1503,6 +1543,16 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap henhouse {
+            get {
+                object obj = ResourceManager.GetObject("henhouse", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap heroskeep {
             get {
                 object obj = ResourceManager.GetObject("heroskeep", resourceCulture);
@@ -1653,9 +1703,39 @@ namespace UQLT.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap mcsarges {
+            get {
+                object obj = ResourceManager.GetObject("mcsarges", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap monastery {
+            get {
+                object obj = ResourceManager.GetObject("monastery", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap namelessplace {
             get {
                 object obj = ResourceManager.GetObject("namelessplace", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap newcerberon {
+            get {
+                object obj = ResourceManager.GetObject("newcerberon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1856,6 +1936,16 @@ namespace UQLT.Properties {
         internal static System.Drawing.Bitmap seamsandbolts {
             get {
                 object obj = ResourceManager.GetObject("seamsandbolts", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap shakennotstirred {
+            get {
+                object obj = ResourceManager.GetObject("shakennotstirred", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

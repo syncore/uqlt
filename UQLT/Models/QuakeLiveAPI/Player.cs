@@ -16,7 +16,16 @@ namespace UQLT.Models.QuakeLiveAPI
         public int score { get; set; }
         public int team { get; set; }
         public string model { get; set; }
-        // custom property
+        
+        // Custom properties
         public int player_game_type { get; set; }
+        
+        // QLRanks:
+        public long tdmelo { get; set; }
+        public long caelo { get; set; }
+        public long ffaelo { get; set; }
+        public long ctfelo { get; set; }
+        public long duelelo { get; set; }
+
     }
 }

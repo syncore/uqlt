@@ -22,14 +22,13 @@ using UQLT.Models.Filters.User;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
+using UQLT.Interfaces;
 
 namespace UQLT.Core.ServerBrowser
 {
     // Helper class responsible for server retrieval and elo details for a ServerBrowserViewModel
-    public class ServerBrowser
+    public class ServerBrowser : IQLRanksUpdater
     {
-        private List<string> currentplayerlist = new List<string>(); // player list for elo updating
-
         private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 
         public ServerBrowserViewModel SBVM
@@ -78,6 +77,7 @@ namespace UQLT.Core.ServerBrowser
             url = SBVM.FilterURL;
             var detailsurl = await GetServerIdsFromFilter(url);
             var servers = await GetServerList(detailsurl);
+            await GetQLRanksPlayers(servers);
             if (servers != null)
             {
                 SBVM.Servers.Clear();
@@ -148,8 +148,6 @@ namespace UQLT.Core.ServerBrowser
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
                 UQLTGlobals.IPAddressDict.Clear();
-                currentplayerlist.Clear();
-                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
@@ -165,27 +163,11 @@ namespace UQLT.Core.ServerBrowser
                 {
                     string cleanedip = port.Replace(s.host_address, string.Empty);
                     addresses.Add(cleanedip);
-                    UQLTGlobals.IPAddressDict.TryAdd(cleanedip, 0); // initially set ping at 0
-
-                    foreach (Player p in s.players)
-                    {
-                        // Has this player already been indexed at some point this session
-                        if (!UQLTGlobals.PlayerEloInfo.ContainsKey(p.name.ToLower()))
-                        {
-                            currentplayerlist.Add(p.name.ToLower());
-
-                            // set default elo to 0
-                            SetQLranksDefaultElo(p.name.ToLower());
-                        }
-                        else
-                        {
-
-                            Debug.WriteLine("Player: " + p.name.ToLower() + " has already been indexed. Info: [DUEL]: {0} | [CA]: {1} | [TDM]: {2} | [CTF]: {3} | [FFA]: {4}", UQLTGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo, UQLTGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo);
-                        }
-                    }
+                    UQLTGlobals.IPAddressDict[cleanedip] = 0; // initially set ping at 0
 
                     // set a custom property for game_type for each server's players
                     s.setPlayerGameTypeFromServer(s.game_type);
+
                 }
 
                 List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
@@ -200,54 +182,84 @@ namespace UQLT.Core.ServerBrowser
                 // iterate over list of pingTasks
                 foreach (var pingTask in pingTasks)
                 {
-                    UQLTGlobals.IPAddressDict.TryUpdate(pingTask.Result.Address.ToString(), pingTask.Result.RoundtripTime, 0); // update based on ping response time
+                    UQLTGlobals.IPAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
                     // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
                 }
 
-                SplitPlayerList(currentplayerlist);
                 return serverlist;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex); // TODO: debug log
+                Debug.WriteLine(ex); // TODO: create a debug log on the disk
                 MessageBox.Show("Unable to load Quake Live server data. Try refreshing manually.");
                 return null;
             }
         }
-        private void SetQLranksDefaultElo(string player)
+        public void SetQLranksDefaultElo(string player)
         {
             UQLTGlobals.PlayerEloInfo[player] = new EloData() { DuelElo = 0, CaElo = 0, TdmElo = 0, FfaElo = 0, CtfElo = 0 };
         }
 
-        private void SetQLranksInfo(string player, int duelElo, int caElo, int tdmElo, int ffaElo, int ctfElo)
+        // Extract the players from the server list
+        public async Task GetQLRanksPlayers(IList<Server> servers, int maxPlayers = 150)
         {
-            UQLTGlobals.PlayerEloInfo[player].DuelElo = duelElo;
-            UQLTGlobals.PlayerEloInfo[player].CaElo = caElo;
-            UQLTGlobals.PlayerEloInfo[player].TdmElo = tdmElo;
-            UQLTGlobals.PlayerEloInfo[player].FfaElo = ffaElo;
-            UQLTGlobals.PlayerEloInfo[player].CtfElo = ctfElo;
+            List<string> playerstoupdate = new List<string>();
+            List<List<string>> qlrapicalls = new List<List<string>>();
+            // extract players, add to a list to update, then split the list, then update
 
-        }
-
-        private void SplitPlayerList(List<string> input, int maxPlayers = 150)
-        {
-            List<List<string>> list = new List<List<string>>();
-
-            for (int i = 0; i < currentplayerlist.Count; i += maxPlayers)
+            foreach (var s in servers)
             {
-                list.Add(currentplayerlist.GetRange(i, Math.Min(maxPlayers, currentplayerlist.Count - i)));
-                Debug.WriteLine("QLR API Call Index: " + i.ToString());
+                foreach (var player in s.players)
+                {
+                    // add to a list of players to be updated
+                    playerstoupdate.Add(player.name.ToLower());
+                    // create the QLRanks elo data object for the player and set elo to 0
+                    SetQLranksDefaultElo(player.name.ToLower());
+                }
+
+            }
+            // split servers
+            for (int i = 0; i < playerstoupdate.Count; i += maxPlayers)
+            {
+                qlrapicalls.Add(playerstoupdate.GetRange(i, Math.Min(maxPlayers, playerstoupdate.Count - i)));
+                Debug.WriteLine("QLRANKS: API Call Index: " + i.ToString());
             }
 
-            foreach (var x in list)
-            {
-                GetQlranksInfo(string.Join("+", x));
+            // perform the tasks
+            List<Task<QLRanks>> qlrankstasks = new List<Task<QLRanks>>();
 
-                // Debug.WriteLine("http://www.qlranks.com/api.aspx?nick="+string.Join("+", x));
+            for (int i = 0; i < qlrapicalls.Count; i++)
+            {
+                qlrankstasks.Add(GetEloDataFromQLRanksAPI(string.Join("+", qlrapicalls[i])));
+                Debug.WriteLine("QLRANKS: API Task: " + i + " URL: http://www.qlranks.com/api.aspx?nick=" + string.Join("+", qlrapicalls[i]));
+            }
+            await Task.WhenAll(qlrankstasks.ToArray());
+
+            // set the player elos
+            foreach (var qlrt in qlrankstasks)
+            {
+                foreach (QLRanksPlayer qp in qlrt.Result.players)
+                {
+                    UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
+                    UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
+                    UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
+                    UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
+                    UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
+                }
+            }
+            // Player elos have been set in dictionary, now set on the Player object itself
+            // TODO: this will allow using Properties and NotifyPropertyChange to update the player view in the server browser.
+            foreach (var s in servers)
+            {
+                foreach (var player in s.players)
+                {
+                    s.setPlayerElos();
+                }
             }
         }
 
-        private async void GetQlranksInfo(string players)
+
+        public async Task<QLRanks> GetEloDataFromQLRanksAPI(string players)
         {
             HttpClient client = new HttpClient();
             try
@@ -262,21 +274,20 @@ namespace UQLT.Core.ServerBrowser
 
                 QLRanks qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
 
-                foreach (QLRanksPlayer qp in qlr.players)
-                {
-                    SetQLranksInfo(qp.nick.ToLower(), qp.duel.elo, qp.ca.elo, qp.tdm.elo, qp.ffa.elo, qp.ctf.elo);
-                }
+                return qlr;
             }
             catch (Newtonsoft.Json.JsonException jEx)
             {
                 // This exception indicates a problem deserializing the request body.
                 Debug.WriteLine(jEx.Message);
+                return null;
 
                 // MessageBox.Show(jEx.Message);
             }
             catch (HttpRequestException ex)
             {
                 Debug.WriteLine(ex.Message);
+                return null;
 
                 // MessageBox.Show(ex.Message);
             }
