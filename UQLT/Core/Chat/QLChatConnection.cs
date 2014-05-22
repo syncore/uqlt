@@ -116,7 +116,7 @@ namespace UQLT.Core.Chat
         private void StartServerUpdateTimer()
         {
             GameServerUpdateTimer.Elapsed += new ElapsedEventHandler(OnTimedServerInfoUpdate);
-            GameServerUpdateTimer.Interval = 25000;
+            GameServerUpdateTimer.Interval = 75000;
             GameServerUpdateTimer.Enabled = true;
             GameServerUpdateTimer.AutoReset = true;
         }

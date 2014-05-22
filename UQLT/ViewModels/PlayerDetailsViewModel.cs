@@ -186,6 +186,7 @@ namespace UQLT.ViewModels
             {
                 Player.caelo = value;
                 NotifyOfPropertyChange(() => PlayerCaElo);
+                //NotifyOfPropertyChange(() => PlayerElo);
             }
         }
 

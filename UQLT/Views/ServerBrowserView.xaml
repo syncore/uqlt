@@ -110,6 +110,8 @@
             <ColumnDefinition Width="270*"/>
         </Grid.ColumnDefinitions>
 
+               
+
         <!--Server Details-->
         <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}">
 
@@ -178,12 +180,31 @@
                     </GridViewColumn>
                     <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}"/>
 
-                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}"/>
+                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQLRanksSupported, Converter={StaticResource QLRanksTypeToVis}, ConverterParameter=85}"/>
 
                 </GridView>
             </ListView.View>
         </ListView>
         <!--Extended server details-->
         <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2"/>
+        
+        <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6">
+            
+            <Border Background="#333" Width="400" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="75" HorizontalAlignment="Center" Padding="8,0"/>
+            <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}"/>
+            <TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating {0} servers...'}"/>-->
+
+            <TextBlock TextWrapping="Wrap" Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="8,0">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}Updating {0} servers and getting QLRanks data for {1} players...)">
+                        <Binding Path="NumberOfServersToUpdate"/>
+                        <Binding Path="NumberOfPlayersToUpdate"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </Grid>
+
     </Grid>
 </UserControl>

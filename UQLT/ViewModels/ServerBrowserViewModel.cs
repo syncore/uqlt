@@ -68,6 +68,8 @@ namespace UQLT.ViewModels
             }
         }
 
+
+
         private string _filterURL;
 
         public string FilterURL
@@ -83,6 +85,64 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => FilterURL);
             }
         }
+
+
+        private bool _isUpdatingServers;
+        public bool IsUpdatingServers
+        {
+            get
+            {
+                return _isUpdatingServers;
+            }
+            set
+            {
+                _isUpdatingServers = value;
+                NotifyOfPropertyChange(() => IsUpdatingServers);
+            }
+        }
+
+        private int _numberOfServersToUpdate;
+        public int NumberOfServersToUpdate
+        {
+            get
+            {
+                return _numberOfServersToUpdate;
+            }
+            set
+            {
+                _numberOfServersToUpdate = value;
+                NotifyOfPropertyChange(() => NumberOfServersToUpdate);
+            }
+        }
+
+        private int _numberOfPlayersToUpdate;
+        public int NumberOfPlayersToUpdate
+        {
+            get
+            {
+                return _numberOfPlayersToUpdate;
+            }
+            set
+            {
+                _numberOfPlayersToUpdate = value;
+                NotifyOfPropertyChange(() => NumberOfPlayersToUpdate);
+            }
+        }
+
+        private string _serverUpdatingProgressText;
+        public string ServerUpdatingProgressText
+        {
+            get
+            {
+                return _serverUpdatingProgressText;
+            }
+            set
+            {
+                _serverUpdatingProgressText = value;
+                NotifyOfPropertyChange(() => ServerUpdatingProgressText);
+            }
+        }
+        
 
         [ImportingConstructor]
         public ServerBrowserViewModel(IEventAggregator events)

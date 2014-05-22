@@ -499,6 +499,14 @@ namespace UQLT.ViewModels
             }
         }
 
+        public bool IsQLRanksSupported
+        {
+            get
+            {
+                return (GameType == 0 || GameType == 1 || GameType == 3 || GameType == 4 || GameType == 5) ? true : false;
+            }
+        }
+
         public ImageSource FlagImage
         {
             get

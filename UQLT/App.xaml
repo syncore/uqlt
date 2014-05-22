@@ -18,6 +18,7 @@
                     <converters:LocIdToNameConverter x:Key="LocIdToName"/>
                     <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace"/>
                     <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound"/>
+                    <converters:QLRanksTypeToVisiblityConverter x:Key="QLRanksTypeToVis"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

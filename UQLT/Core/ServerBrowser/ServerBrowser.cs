@@ -26,7 +26,9 @@ using UQLT.Interfaces;
 
 namespace UQLT.Core.ServerBrowser
 {
-    // Helper class responsible for server retrieval and elo details for a ServerBrowserViewModel
+    /// <summary>
+    /// Helper class responsible for server retrieval, pinging servers, and elo details for a ServerBrowserViewModel
+    /// </summary>
     public class ServerBrowser : IQLRanksUpdater
     {
         private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
@@ -75,19 +77,27 @@ namespace UQLT.Core.ServerBrowser
         public async void InitOrRefreshServers(string url)
         {
             url = SBVM.FilterURL;
+            SBVM.IsUpdatingServers = true;
             var detailsurl = await GetServerIdsFromFilter(url);
             var servers = await GetServerList(detailsurl);
+            SBVM.NumberOfServersToUpdate = servers.Count;
             await GetQLRanksPlayers(servers);
             if (servers != null)
             {
                 SBVM.Servers.Clear();
                 foreach (var server in servers)
-                {
+                {   
                     SBVM.Servers.Add(new ServerDetailsViewModel(server));
                 }
             }
+            SBVM.IsUpdatingServers = false;
+            SBVM.NumberOfServersToUpdate = 0;
+            SBVM.NumberOfPlayersToUpdate = 0;
+            
+            //await GetQLRanksPlayers(servers);
         }
 
+      
         // Get the list of server ids for a given filter, then return a nicely formatted details url
         private async Task<string> GetServerIdsFromFilter(string url)
         {
@@ -158,7 +168,7 @@ namespace UQLT.Core.ServerBrowser
 
                 ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
                 List<string> addresses = new List<string>();
-
+                
                 foreach (Server s in serverlist)
                 {
                     string cleanedip = port.Replace(s.host_address, string.Empty);
@@ -218,6 +228,8 @@ namespace UQLT.Core.ServerBrowser
                 }
 
             }
+            SBVM.NumberOfPlayersToUpdate = playerstoupdate.Count;
+
             // split servers
             for (int i = 0; i < playerstoupdate.Count; i += maxPlayers)
             {
@@ -234,7 +246,9 @@ namespace UQLT.Core.ServerBrowser
                 Debug.WriteLine("QLRANKS: API Task: " + i + " URL: http://www.qlranks.com/api.aspx?nick=" + string.Join("+", qlrapicalls[i]));
             }
             await Task.WhenAll(qlrankstasks.ToArray());
-
+            
+            
+            try {
             // set the player elos
             foreach (var qlrt in qlrankstasks)
             {
@@ -256,6 +270,10 @@ namespace UQLT.Core.ServerBrowser
                     s.setPlayerElos();
                 }
             }
+        } catch (Exception e) {
+            MessageBox.Show("Error retrieving QLRanks data.");
+            Debug.WriteLine(e);
+        }
         }
 
 

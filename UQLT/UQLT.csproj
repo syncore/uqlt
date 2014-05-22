@@ -87,6 +87,7 @@
     </Compile>
     <Compile Include="Converters\GametypeToRoundTypeConverter.cs" />
     <Compile Include="Converters\LocIdToNameConverter.cs" />
+    <Compile Include="Converters\QLRanksTypeToVisiblityConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
     <Compile Include="Core\Chat\QLChatConnection.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
