@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.QuakeLiveAPI
 {
+    /// <summary>
+    /// This represents a player on a QL server contained within the Server class.
+    /// </summary>
     public class Player
     {
         public string clan { get; set; }
@@ -20,7 +23,7 @@ namespace UQLT.Models.QuakeLiveAPI
         // Custom properties
         public int player_game_type { get; set; }
         
-        // QLRanks:
+        // QLRanks
         public long tdmelo { get; set; }
         public long caelo { get; set; }
         public long ffaelo { get; set; }

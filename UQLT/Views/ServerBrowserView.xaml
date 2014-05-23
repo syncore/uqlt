@@ -190,20 +190,11 @@
         
         <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6">
             
-            <Border Background="#333" Width="400" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="75" HorizontalAlignment="Center" Padding="8,0"/>
-            <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}"/>
-            <TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating {0} servers...'}"/>-->
-
-            <TextBlock TextWrapping="Wrap" Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="8,0">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}Updating {0} servers and getting QLRanks data for {1} players...)">
-                        <Binding Path="NumberOfServersToUpdate"/>
-                        <Binding Path="NumberOfPlayersToUpdate"/>
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
+            <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="75" HorizontalAlignment="Center"/>
+           <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}"/>-->
+            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0"/>
         </Grid>
 
     </Grid>

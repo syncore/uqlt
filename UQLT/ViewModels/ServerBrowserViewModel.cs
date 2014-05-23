@@ -159,7 +159,7 @@ namespace UQLT.ViewModels
         public void Handle(ServerRequestEvent message)
         {
             FilterURL = message.ServerRequestURL;
-            SB.InitOrRefreshServers(FilterURL);
+            var l = SB.LoadServerListAsync(FilterURL);
             Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
         }
 
