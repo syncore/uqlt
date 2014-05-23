@@ -13,8 +13,10 @@ using UQLT.Models.Filters.User;
 
 namespace UQLT.Converters
 {
+    //-----------------------------------------------------------------------------------------------------
     public class LocIdToNameConverter : IValueConverter
     {
+        //-----------------------------------------------------------------------------------------------------
         public LocIdToNameConverter()
         {
             if (!File.Exists(UQLTGlobals.CurrentFilterPath))
@@ -24,6 +26,7 @@ namespace UQLT.Converters
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string realname = null;
@@ -53,6 +56,7 @@ namespace UQLT.Converters
             return realname;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

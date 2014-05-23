@@ -20,12 +20,16 @@ using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(ServerDetailsViewModel))]
-
-    // Individual Server viewmodel wrapper; no associated View
-
+    //-----------------------------------------------------------------------------------------------------
+    
+    /// <summary>
+    /// Individual server viewmodel. Wraps Server class and exposes additional properties specific to the View (in this case, ServerBrowserView)
+    /// </summary>
     public class ServerDetailsViewModel : PropertyChangedBase
     {
+        //-----------------------------------------------------------------------------------------------------
         public Server Server
         {
             get;
@@ -36,6 +40,7 @@ namespace UQLT.ViewModels
 
         private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public ServerDetailsViewModel(Server server)
         {
@@ -47,6 +52,7 @@ namespace UQLT.ViewModels
 
         private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList;
 
+        //-----------------------------------------------------------------------------------------------------
         public ObservableCollection<PlayerDetailsViewModel> FormattedPlayerList
         {
             get
@@ -61,6 +67,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public List<Player> Players
         {
             get
@@ -69,6 +76,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int NumPlayers
         {
             get
@@ -83,6 +91,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int PublicId
         {
             get
@@ -96,6 +105,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int ECODE
         {
             get
@@ -109,6 +119,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int TeamSize
         {
             get
@@ -122,6 +133,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string GCustomSettings
         {
             get
@@ -135,6 +147,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GLevelStartTime
         {
             get
@@ -148,6 +161,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long LocationId
         {
             get
@@ -165,6 +179,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int MaxClients
         {
             get
@@ -173,12 +188,13 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.max_clients = value;
+                Server.max_clients = value;
                 NotifyOfPropertyChange(() => MaxClients);
                 NotifyOfPropertyChange(() => TotalPlayers);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int RoundTimeLimit
         {
             get
@@ -187,11 +203,12 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.roundtimelimit = value;
+                Server.roundtimelimit = value;
                 NotifyOfPropertyChange(() => RoundLimit);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string MapTitle
         {
             get
@@ -200,11 +217,12 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.map_title = value;
+                Server.map_title = value;
                 NotifyOfPropertyChange(() => MapTitle);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string ScoreLimit
         {
             get
@@ -213,11 +231,12 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.scorelimit = value;
+                Server.scorelimit = value;
                 NotifyOfPropertyChange(() => ScoreLimit);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string RuleSet
         {
             get
@@ -226,11 +245,12 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.ruleset = value;
+                Server.ruleset = value;
                 NotifyOfPropertyChange(() => RuleSet);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int SkillDelta
         {
             get
@@ -239,11 +259,12 @@ namespace UQLT.ViewModels
             }
             set
             {
-               Server.skillDelta = value;
+                Server.skillDelta = value;
                 NotifyOfPropertyChange(() => SkillDelta);
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string GameTypeTitle
         {
             get
@@ -257,6 +278,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Map
         {
             get
@@ -270,6 +292,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public object Premium
         {
             get
@@ -283,6 +306,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GNeedPass
         {
             get
@@ -296,6 +320,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int Ranked
         {
             get
@@ -309,6 +334,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GInstagib
         {
             get
@@ -317,6 +343,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GBlueScore
         {
             get
@@ -330,6 +357,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string GGameState
         {
             get
@@ -343,6 +371,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string HostAddress
         {
             get
@@ -356,6 +385,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int FragLimit
         {
             get
@@ -369,6 +399,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int NumClients
         {
             get
@@ -382,6 +413,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int CaptureLimit
         {
             get
@@ -395,6 +427,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GameType
         {
             get
@@ -409,6 +442,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int TimeLimit
         {
             get
@@ -422,6 +456,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int RoundLimit
         {
             get
@@ -435,6 +470,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string HostName
         {
             get
@@ -448,6 +484,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int GRedScore
         {
             get
@@ -461,6 +498,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Owner
         {
             get
@@ -475,7 +513,8 @@ namespace UQLT.ViewModels
         }
 
         // specially formatted properties for view:
-        //private string _shortGameTypeName;
+        
+        //-----------------------------------------------------------------------------------------------------
         public string ShortGameTypeName
         {
             get
@@ -483,13 +522,9 @@ namespace UQLT.ViewModels
                 //return _shortGameTypeName;
                 return FormatHelper.Gametypes[GameType].ShortGametypeName;
             }
-            /*set
-            {
-                _shortGameTypeName = value;
-                NotifyOfPropertyChange(() => ShortGameTypeName);
-            }*/
         }
-        
+
+        //-----------------------------------------------------------------------------------------------------
         public long Ping
         {
             get
@@ -499,6 +534,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsQLRanksSupported
         {
             get
@@ -507,6 +543,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource FlagImage
         {
             get
@@ -523,6 +560,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource GameTypeImage
         {
             get
@@ -539,13 +577,14 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource MapImage
         {
             get
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/"+Map+".jpg", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/" + Map + ".jpg", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -555,6 +594,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string TotalPlayers
         {
             get
@@ -563,6 +603,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Modded
         {
             get
@@ -571,6 +612,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Instagib
         {
             get
@@ -580,6 +622,7 @@ namespace UQLT.ViewModels
         }
 
         // QL does not include the physical location in the server details API (this is used for the info pane and for sorting the listview header by location)
+        //-----------------------------------------------------------------------------------------------------
         public string FullLocationName
         {
             get
@@ -597,6 +640,7 @@ namespace UQLT.ViewModels
         }
 
         // QL does not include the physical location in the server details API. ShortLocationName only displays the server's city, not country information.
+        //-----------------------------------------------------------------------------------------------------
         public string ShortLocationName
         {
             get
@@ -613,6 +657,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsTeamGame
         {
             get
@@ -623,11 +668,12 @@ namespace UQLT.ViewModels
 
         private string _formattedGameState;
 
+        //-----------------------------------------------------------------------------------------------------
         public string FormattedGameState
         {
             get
             {
-               return _formattedGameState;
+                return _formattedGameState;
             }
             set
             {
@@ -645,6 +691,7 @@ namespace UQLT.ViewModels
 
         private string _timeRemaining;
 
+        //-----------------------------------------------------------------------------------------------------
         public string TimeRemaining
         {
             get
@@ -681,6 +728,7 @@ namespace UQLT.ViewModels
 
         // This is a weird situation that occurs on some team servers, where the players are on the server,
         // yet they are not reported as being on red (team: 1) or blue (team: 2) but instead team 0
+        //-----------------------------------------------------------------------------------------------------
         public bool IsTeam0Condition
         {
             get
@@ -713,6 +761,7 @@ namespace UQLT.ViewModels
 
         private long _redTeamElo;
 
+        //-----------------------------------------------------------------------------------------------------
         public long RedTeamElo
         {
             get
@@ -803,13 +852,14 @@ namespace UQLT.ViewModels
 
         private long _blueTeamElo;
 
+        //-----------------------------------------------------------------------------------------------------
         public long BlueTeamElo
         {
             get
             {
                 long bluetotalplayers = 0, totaleloblueteam = 0, blueplayerelo = 0;
                 EloData val = null;
-                
+
                 if (NumPlayers == 0 || IsTeam0Condition)
                 {
                     return 0;
@@ -891,31 +941,7 @@ namespace UQLT.ViewModels
             }
         }
 
-        /*private bool AllTeamMembersHaveElo(List<Player> players) {
-            
-            players = Players;
-            EloData val;
-            List<string> PlayersNeedingUpdate = new List<string>();
-            foreach (var player in players)
-            {
-                if (!UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
-                {
-                    PlayersNeedingUpdate.Add(player.name.ToLower());
-                }
-            }
-            if (PlayersNeedingUpdate.Count == 0)
-            {
-                return true;
-            }
-            else
-            {
-                // send to update
-            }
-        }
-        */
-        
-
-        
+        //-----------------------------------------------------------------------------------------------------
         private void GroupScoresAndPlayers(string sortBy, string groupBy)
         {
             var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
@@ -925,6 +951,7 @@ namespace UQLT.ViewModels
             view.GroupDescriptions.Add(groupDescription);
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(List<Player> players)
         {
             _formattedPlayerList.Clear();

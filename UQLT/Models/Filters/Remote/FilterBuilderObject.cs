@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.Remote
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model used in actually building the filter object that will be converted to json and to be sent to the QL API
+    /// The individual, specific details of the filters are handled by FilterBuilderDetails
+    /// </summary>
     public class FilterBuilderObject
     {
         public FilterBuilderDetails filters { get; set; }

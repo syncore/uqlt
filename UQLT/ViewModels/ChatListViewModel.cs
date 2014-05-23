@@ -12,7 +12,12 @@ using System.Windows.Input;
 
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(ChatListViewModel))]
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Viewmodel for the buddy list
+    /// </summary>
     public class ChatListViewModel : PropertyChangedBase
     {
 
@@ -21,8 +26,8 @@ namespace UQLT.ViewModels
         private static string OnlineGroupTitle = "Online Friends";
         private static string OfflineGroupTitle = "Offline Friends";
 
-
         private BindableCollection<RosterGroupViewModel> _buddyList;
+        //-----------------------------------------------------------------------------------------------------
         public BindableCollection<RosterGroupViewModel> BuddyList
         {
             get
@@ -37,6 +42,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public RosterGroupViewModel OnlineGroup
         {
             get
@@ -45,6 +51,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public RosterGroupViewModel OfflineGroup
         {
             get
@@ -53,6 +60,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public ChatListViewModel()
         {
@@ -67,6 +75,7 @@ namespace UQLT.ViewModels
         }
 
         // Load saved friends from JSON file on disk on launch and add to global list
+        //-----------------------------------------------------------------------------------------------------
         private void LoadFavoriteFriends()
         {
             try
@@ -89,6 +98,7 @@ namespace UQLT.ViewModels
         }
 
         // Dump the global saved friends list to JSON file on disk
+        //-----------------------------------------------------------------------------------------------------
         private void SaveFavoriteFriends()
         {
             try
@@ -109,6 +119,7 @@ namespace UQLT.ViewModels
 
         // This user can be added as a favorite friend. Also a Caliburn.Micro action guard
         // Automatically hooks up IsEnabled in View, see: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        //-----------------------------------------------------------------------------------------------------
         public bool CanAddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
             return (!UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
@@ -116,12 +127,14 @@ namespace UQLT.ViewModels
 
         // This user can be removed from favorite friends. Also a Caliburn.Micro action guard
         // Automatically hooks up IsEnabled in View, see: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        //-----------------------------------------------------------------------------------------------------
         public bool CanRemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
             return (UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
         }
 
         // Add user to favorite friends
+        //-----------------------------------------------------------------------------------------------------
         public void AddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
             if (CanAddFavoriteFriend(kvp))
@@ -142,6 +155,7 @@ namespace UQLT.ViewModels
         }
 
         // Remove user from favorite friends
+        //-----------------------------------------------------------------------------------------------------
         public void RemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
             if (CanRemoveFavoriteFriend(kvp))
@@ -159,9 +173,9 @@ namespace UQLT.ViewModels
             }
         }
 
-
         // Refresh a player's game server information when the user highlights the player (via clicking his name or with keyboard) in the buddy list
         // but only do so if the player is currently in a server
+        //-----------------------------------------------------------------------------------------------------
         public void UpdatePlayerGameServerInfo(KeyValuePair<string, FriendViewModel> kvp)
         {
 

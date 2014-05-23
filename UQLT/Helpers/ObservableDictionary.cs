@@ -38,6 +38,11 @@ using System.Runtime.InteropServices;
 namespace UQLT.Helpers
 {
     [Serializable]
+    /// <summary>
+    /// (Observable)Dictionary that allows binding ItemsControl to a dictionary
+    /// By: Dr. WPF
+    /// http://drwpf.com/blog/2007/09/16/can-i-bind-my-itemscontrol-to-a-dictionary/
+    /// </summary>
     public class ObservableDictionary<TKey, TValue> :
         IDictionary<TKey, TValue>,
         ICollection<KeyValuePair<TKey, TValue>>,

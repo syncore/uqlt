@@ -12,18 +12,21 @@ using UQLT.Models.Filters.User;
 
 namespace UQLT.Helpers
 {
-    // Simple singleton for storing a few QL server details that would otherwise be expensive and inefficient to look up and/or that the QL API unfortunately does not define.
-    // i.e.: QL API does not define the location name for location_id's, and while it does define full game type titles (i.e. "Capture the Flag") for game_type id's, it does not define
-    // a short game type type title (i.e. "CTF"). This type of information is useful in multiple parts of the application and is stored here for ease of use.
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Simple singleton (!!!) for storing a few QL server details that would otherwise be expensive and inefficient to look up and/or that the QL API unfortunately does not provide by default,
+    /// i.e.: QL API does not define the location name for location_id's, and while it does define full game type titles (i.e. "Capture the Flag") for game_type id's, it does not define
+    /// a short game type type title (i.e. "CTF"). This type of information is useful in multiple parts of the application and is stored here for ease of use.
+    /// </summary>
     public sealed class QLFormatHelper
     {
         private static readonly QLFormatHelper _instance = new QLFormatHelper();
-
 
         // Static constructor so C# compiler will not mark type as 'beforefieldinit', see http://csharpindepth.com/articles/general/singleton.aspx
         static QLFormatHelper()
         {
         }
+        //-----------------------------------------------------------------------------------------------------
         private QLFormatHelper()
         {
             _locations = new Dictionary<object, LocationData>();
@@ -31,6 +34,7 @@ namespace UQLT.Helpers
             Populate();
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public static QLFormatHelper Instance
         {
             get
@@ -59,6 +63,7 @@ namespace UQLT.Helpers
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private BitmapImage GetFlag(object location_id)
         {
             try
@@ -72,6 +77,7 @@ namespace UQLT.Helpers
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private BitmapImage GetGameIcon(int game_type)
         {
             try
@@ -85,8 +91,7 @@ namespace UQLT.Helpers
             }
         }
 
-
-
+        //-----------------------------------------------------------------------------------------------------
         public void Populate()
         {
 
@@ -112,7 +117,6 @@ namespace UQLT.Helpers
                             Locations[loc.location_id] = new LocationData() { City = loc.city, FullLocationName = loc.display_name, Flag = GetFlag(loc.location_id) };
                         }
 
-
                     }
                     // gametype data
                     foreach (var gtype in json.basic_gametypes)
@@ -130,6 +134,10 @@ namespace UQLT.Helpers
 
     }
 
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// The relevant location data that we need but the QL API does not provide by default
+    /// </summary>
     public class LocationData
     {
         public string FullLocationName { get; set; }
@@ -138,6 +146,10 @@ namespace UQLT.Helpers
 
     }
 
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// The relevant gametype data that we need
+    /// </summary>
     public class GametypeData
     {
         public string FullGametypeName { get; set; }

@@ -11,24 +11,33 @@ using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(RosterGroupViewModel))]
+    //-----------------------------------------------------------------------------------------------------
+    
+        /// <summary>
+    /// Individual roster group viewmodel. Wraps RosterGroup class and exposes additional properties specific to the View (in this case, ChatlistView)
+    /// </summary>
 
-    // Individual rostergroup viewmodel, no associated View
+    //-----------------------------------------------------------------------------------------------------
     public class RosterGroupViewModel : PropertyChangedBase
     {
 
+        //-----------------------------------------------------------------------------------------------------
         public RosterGroup RostGroup
         {
             get;
             private set;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsAutoExpanded
         {
             get;
             private set;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string GroupName
         {
             get
@@ -45,7 +54,7 @@ namespace UQLT.ViewModels
             {
                 return _friends;
             }
-            
+
             set
             {
                 _friends = value;
@@ -54,6 +63,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public RosterGroupViewModel(RosterGroup rostergroup, bool isautoexpanded)
         {

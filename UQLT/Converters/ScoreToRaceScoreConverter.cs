@@ -8,17 +8,22 @@ using System.Windows.Data;
 
 namespace UQLT.Converters
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Converter that converts the race score returned by the server into the appropriate time format for the race gametype
+    /// </summary>
     public class ScoreToRaceScoreConverter : IMultiValueConverter
     {
         // values[0] = game type
         // values[1] = score
+        //-----------------------------------------------------------------------------------------------------
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             string score = null;
 
             if (System.Convert.ToInt32(values[0]) == 2)
             {
-                if (System.Convert.ToInt32(values[1]) <= 0 || System.Convert.ToInt32(values[1]) == 2147483647) 
+                if (System.Convert.ToInt32(values[1]) <= 0 || System.Convert.ToInt32(values[1]) == 2147483647)
                 {
                     return "DNF";
                 }
@@ -37,7 +42,7 @@ namespace UQLT.Converters
                 if ((t.Hours == 0) && (t.Minutes <= 0))
                 {
                     score = t.ToString(@"ss\s\:ff\m\s");
-                }  
+                }
             }
             else
             {
@@ -47,6 +52,7 @@ namespace UQLT.Converters
             return score;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

@@ -11,9 +11,13 @@ using System.Windows.Media.Imaging;
 
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(FriendViewModel))]
-
-    // Individual friend viewmodel, no associated view
+    //-----------------------------------------------------------------------------------------------------
+    
+    /// <summary>
+    /// Individual friend viewmodel. Wraps Friend class and exposes additional properties specific to the View (in this case, ChatlistView)
+    /// </summary>
     public class FriendViewModel : PropertyChangedBase
     {
 
@@ -22,7 +26,7 @@ namespace UQLT.ViewModels
         private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
         private BitmapImage image_ingame = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
 
-
+        //-----------------------------------------------------------------------------------------------------
         public Friend RosterFriend
         {
             get;
@@ -30,6 +34,7 @@ namespace UQLT.ViewModels
         }
 
         private ServerDetailsViewModel _server;
+        //-----------------------------------------------------------------------------------------------------
         public ServerDetailsViewModel Server
         {
             get
@@ -43,6 +48,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string FriendName
         {
             get
@@ -51,6 +57,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool HasXMPPStatus
         {
             get
@@ -66,6 +73,7 @@ namespace UQLT.ViewModels
 
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int StatusType
         {
             get
@@ -82,6 +90,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsFavorite
         {
             get
@@ -95,6 +104,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsInGame
         {
             get
@@ -108,6 +118,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public bool IsPracticeOrDemo
         {
             get
@@ -127,13 +138,14 @@ namespace UQLT.ViewModels
             }
         }
 
-
+        //-----------------------------------------------------------------------------------------------------
         public bool IsAutoExpanded
         {
             get;
             private set;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource FriendImage
         {
             get
@@ -143,6 +155,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource FavoriteImage
         {
             get
@@ -151,6 +164,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource StatusImage
         {
             get
@@ -171,6 +185,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string PracticeDemoMessage
         {
             get
@@ -189,8 +204,7 @@ namespace UQLT.ViewModels
             }
         }
 
-
-
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public FriendViewModel(Friend friend)
         {

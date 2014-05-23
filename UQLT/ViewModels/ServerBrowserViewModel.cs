@@ -26,18 +26,22 @@ using UQLT.Core.ServerBrowser;
 using System.Net;
 using System.Windows;
 
-
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(ServerBrowserViewModel))]
 
-    // ViewModel for Server Browser view
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Viewmodel for the Server Browser view
+    /// </summary>
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>
     {
         private ServerBrowser SB;
 
         private ObservableCollection<ServerDetailsViewModel> _servers;
 
+        //-----------------------------------------------------------------------------------------------------
         public ObservableCollection<ServerDetailsViewModel> Servers
         {
             get
@@ -54,6 +58,7 @@ namespace UQLT.ViewModels
 
         private ServerDetailsViewModel _selectedServer;
 
+        //-----------------------------------------------------------------------------------------------------
         public ServerDetailsViewModel SelectedServer
         {
             get
@@ -68,10 +73,9 @@ namespace UQLT.ViewModels
             }
         }
 
-
-
         private string _filterURL;
 
+        //-----------------------------------------------------------------------------------------------------
         public string FilterURL
         {
             get
@@ -86,8 +90,8 @@ namespace UQLT.ViewModels
             }
         }
 
-
         private bool _isUpdatingServers;
+        //-----------------------------------------------------------------------------------------------------
         public bool IsUpdatingServers
         {
             get
@@ -102,6 +106,7 @@ namespace UQLT.ViewModels
         }
 
         private int _numberOfServersToUpdate;
+        //-----------------------------------------------------------------------------------------------------
         public int NumberOfServersToUpdate
         {
             get
@@ -116,6 +121,7 @@ namespace UQLT.ViewModels
         }
 
         private int _numberOfPlayersToUpdate;
+        //-----------------------------------------------------------------------------------------------------
         public int NumberOfPlayersToUpdate
         {
             get
@@ -130,6 +136,7 @@ namespace UQLT.ViewModels
         }
 
         private string _serverUpdatingProgressText;
+        //-----------------------------------------------------------------------------------------------------
         public string ServerUpdatingProgressText
         {
             get
@@ -142,8 +149,8 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => ServerUpdatingProgressText);
             }
         }
-        
 
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public ServerBrowserViewModel(IEventAggregator events)
         {
@@ -156,6 +163,7 @@ namespace UQLT.ViewModels
         }
 
         // This is fired whenever we receive a new default filter, either through the "make new default" button or "reset filters" button.
+        //-----------------------------------------------------------------------------------------------------
         public void Handle(ServerRequestEvent message)
         {
             FilterURL = message.ServerRequestURL;
@@ -164,13 +172,13 @@ namespace UQLT.ViewModels
         }
 
         // Sort the server browser based on specified criteria
+        //-----------------------------------------------------------------------------------------------------
         private void DoServerBrowserAutoSort(string property)
         {
             var view = CollectionViewSource.GetDefaultView(Servers);
             var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
             view.SortDescriptions.Add(sortDescription);
         }
-
 
     }
 }

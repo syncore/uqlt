@@ -10,8 +10,13 @@ using Newtonsoft.Json;
 
 namespace UQLT.Converters
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Converter that displays the correct score type heading based on the gametype being played.
+    /// </summary>
     public class GametypeToRoundtypeConverter : IValueConverter
     {
+        //-----------------------------------------------------------------------------------------------------
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string roundtype = null;
@@ -42,6 +47,7 @@ namespace UQLT.Converters
             return roundtype;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

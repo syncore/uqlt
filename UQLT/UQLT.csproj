@@ -110,7 +110,6 @@
     <Compile Include="Models\Filters\User\GameType.cs" />
     <Compile Include="Models\Filters\User\ImportedFilters.cs" />
     <Compile Include="Models\Filters\User\BasicGametypes.cs" />
-    <Compile Include="Models\Filters\User\ServerBrowserLocations.cs" />
     <Compile Include="Models\QLRanks\EloData.cs" />
     <Compile Include="Models\QuakeLiveAPI\Player.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterObject.cs" />

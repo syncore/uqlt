@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.User
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model representing the user's saved filters stored as a json file on the user's hard disk
+    /// </summary>
     public class SavedFilters
     {
         public int type_in { get; set; }
@@ -15,6 +19,6 @@ namespace UQLT.Models.Filters.User
         public int visibility_in { get; set; }
         public int premium_in { get; set; }
         public string fltr_enc { get; set; }
-    
+
     }
 }

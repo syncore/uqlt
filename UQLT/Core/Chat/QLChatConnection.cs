@@ -25,14 +25,18 @@ using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
 {
-    // Helper class that handles XMPP connection and related XMPP events for the ChatListViewModel
 
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Helper class that handles XMPP connection and related XMPP events for the ChatListViewModel
+    /// </summary>
     public class QLChatConnection
     {
         private XmppClientConnection XmppCon;
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
         private Timer GameServerUpdateTimer;
 
+        //-----------------------------------------------------------------------------------------------------
         public ChatListViewModel CLVM
         {
             get;
@@ -41,6 +45,7 @@ namespace UQLT.Core.Chat
 
         public Dictionary<string, string> Roster { get; set; }
 
+        //-----------------------------------------------------------------------------------------------------
         public QLChatConnection(ChatListViewModel clvm)
         {
             CLVM = clvm;
@@ -59,6 +64,7 @@ namespace UQLT.Core.Chat
             ConnectToXMPP();
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void ConnectToXMPP()
         {
             XmppCon.Username = ***REMOVED***;
@@ -71,6 +77,7 @@ namespace UQLT.Core.Chat
             XmppCon.Open();
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void XmppCon_OnRosterItem(object sender, RosterItem item)
         {
             // TODO: if (item.Subscription != SubscriptionType.remove) stuff
@@ -93,6 +100,7 @@ namespace UQLT.Core.Chat
         }
 
         // Roster has been fully loaded
+        //-----------------------------------------------------------------------------------------------------
         private void XmppCon_OnRosterEnd(object sender)
         {
             // Start timer to refresh in-game friends' server information
@@ -100,6 +108,7 @@ namespace UQLT.Core.Chat
         }
 
         // We've received a message.
+        //-----------------------------------------------------------------------------------------------------
         private void XmppCon_OnMessage(object sender, agsXMPP.protocol.client.Message msg, object data)
         {
             if (msg.Body != null)
@@ -109,10 +118,12 @@ namespace UQLT.Core.Chat
         }
 
         // We have successfully authenticated to the server.
+        //-----------------------------------------------------------------------------------------------------
         private void XmppCon_OnLogin(object sender)
         {
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void StartServerUpdateTimer()
         {
             GameServerUpdateTimer.Elapsed += new ElapsedEventHandler(OnTimedServerInfoUpdate);
@@ -121,12 +132,14 @@ namespace UQLT.Core.Chat
             GameServerUpdateTimer.AutoReset = true;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void StopServerUpdateTimer()
         {
             // TODO: stop timer if we have launched a game, to prevent lag during game
             GameServerUpdateTimer.Enabled = false;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void OnTimedServerInfoUpdate(object source, ElapsedEventArgs e)
         {
             List<string> ingamefriends = new List<string>();
@@ -152,6 +165,7 @@ namespace UQLT.Core.Chat
         }
 
         // We've received a presence from a contact. Subscriptions are also handled in this event.
+        //-----------------------------------------------------------------------------------------------------
         private void XmppCon_OnPresence(object sender, Presence pres)
         {
             switch (pres.Type)
@@ -184,6 +198,7 @@ namespace UQLT.Core.Chat
 
         // Check a user's status to determine what the user is doing in QL
         // Only fired when availability changes (user: offline -> online OR leave game server <-> join game server)
+        //-----------------------------------------------------------------------------------------------------
         private void CheckPlayerStatus(Presence pres)
         {
             if (string.IsNullOrEmpty(pres.Status))
@@ -203,6 +218,7 @@ namespace UQLT.Core.Chat
 
         // User has an XMPP status, meaning that the user is either doing one of three things: watching a demo, playing a practice match, or actually in a game server
         // This method will determine which of these three things the user is doing.
+        //-----------------------------------------------------------------------------------------------------
         private void UpdatePlayerStatus(string friend, string status)
         {
             try
@@ -242,12 +258,14 @@ namespace UQLT.Core.Chat
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void ClearPlayerStatus(Presence pres)
         {
             CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasXMPPStatus = false;
             CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
             CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
         }
+        //-----------------------------------------------------------------------------------------------------
         private void FriendBecameAvailable(Presence pres)
         {
             if (!IsMe(pres))
@@ -260,9 +278,9 @@ namespace UQLT.Core.Chat
 
                     // Must be done on the UI thread
                     Execute.OnUIThread(() =>
-                {
-                    CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
-                });
+                    {
+                        CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
+                    });
                     Debug.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
                 }
 
@@ -271,9 +289,9 @@ namespace UQLT.Core.Chat
                 {
                     // Additions and removals to ObservableDictionary must be done on the UI thread
                     Execute.OnUIThread(() =>
-                {
-                    CLVM.OfflineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
-                });
+                    {
+                        CLVM.OfflineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
+                    });
                     Debug.WriteLine("Friends list before adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
                 }
 
@@ -283,6 +301,7 @@ namespace UQLT.Core.Chat
             CheckPlayerStatus(pres);
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private void FriendBecameUnavailble(Presence pres)
         {
             if (!IsMe(pres))
@@ -300,13 +319,14 @@ namespace UQLT.Core.Chat
         }
 
         // This is used for an initial one-time creation of a Server (ServerDetailsViewModel) object for an in-game friend on the friend list
+        //-----------------------------------------------------------------------------------------------------
         public async void CreateServerInfoForStatus(string friend, string server_id)
         {
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
+
             try
             {
-                HttpClientHandler gzipHandler = new HttpClientHandler();
-                HttpClient client = new HttpClient(gzipHandler);
-
                 // QL site sends gzip compressed responses
                 if (gzipHandler.SupportsAutomaticDecompression)
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -336,12 +356,14 @@ namespace UQLT.Core.Chat
         }
 
         // This is used for subsequent updates of a single in-game friend's game server information (i.e. when a user clicks a friend on his friend list)
+        //-----------------------------------------------------------------------------------------------------
         public async void UpdateServerInfoForStatus(string friend)
         {
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
+
             try
             {
-                HttpClientHandler gzipHandler = new HttpClientHandler();
-                HttpClient client = new HttpClient(gzipHandler);
                 // server_id (i.e. PublicId) should have already been set on the initial creation of the Server (ServerDetailsViewModel) object
                 string server_id = CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId.ToString();
 
@@ -380,14 +402,17 @@ namespace UQLT.Core.Chat
             }
         }
 
-
         // This method performs batch updates when called by the timer.
         // This will receive a list of all of the players on friends list who are currently on a game server.
         // It will then extract the public_id for each and send a concatenated list of ids to QL API in one pass.
         // Then it individually update the friends' game server information from whatever is received from QL API
         // This was created to avoid having multiple HTTP GET requests for every single in-game friend on the list.
+        //-----------------------------------------------------------------------------------------------------
         public async void UpdateServerInfoForStatus(List<string> ingamefriends)
         {
+
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
 
             // Get the server ids (public_id)s of all in-game players to send to QL API
             List<string> server_ids = new List<string>();
@@ -398,9 +423,6 @@ namespace UQLT.Core.Chat
 
             try
             {
-                HttpClientHandler gzipHandler = new HttpClientHandler();
-                HttpClient client = new HttpClient(gzipHandler);
-
                 // QL site sends gzip compressed responses
                 if (gzipHandler.SupportsAutomaticDecompression)
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -417,8 +439,8 @@ namespace UQLT.Core.Chat
 
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
-                {                 
-                 
+                {
+
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = qlservers[i].public_id;
                     //CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlservers[i].game_type].ShortGametypeName;
                     CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = qlservers[i].map;
@@ -437,22 +459,26 @@ namespace UQLT.Core.Chat
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private bool IsMe(Presence pres)
         {
             return (pres.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant())) ? true : false;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private bool IsFavoriteFriend(string friend)
         {
             return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.ToLowerInvariant())) ? true : false;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private bool IsFriendAlreadyOnline(string friend)
         {
             return (CLVM.OnlineGroup.Friends.ContainsKey(friend.ToLowerInvariant())) ? true : false;
 
         }
 
+        //-----------------------------------------------------------------------------------------------------
         private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;

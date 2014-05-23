@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.QLRanks
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model representing an individual player within the players array that is returned from the QLRanks API
+    /// </summary>
     public class QLRanksPlayer
     {
         public string nick { get; set; }

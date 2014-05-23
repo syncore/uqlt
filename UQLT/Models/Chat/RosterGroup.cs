@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Chat
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model for roster groups on the friend list (i.e.: "Online Friends" and "Offline Friends")
+    /// </summary>
     public class RosterGroup
     {
 
+        //-----------------------------------------------------------------------------------------------------
         public RosterGroup(string name)
         {
             GroupName = name;

@@ -9,6 +9,10 @@ using UQLT.Models.QLRanks;
 
 namespace UQLT
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Static class (!!!) that contains key settings that must be available application-wide.
+    /// </summary>
     public static class UQLTGlobals
     {
         public static string SavedUserFilterPath { get; private set; }
@@ -22,7 +26,7 @@ namespace UQLT
 
         // player elos
         public static ConcurrentDictionary<string, EloData> PlayerEloInfo { get; private set; }
-        
+
         // favorite friends (because we don't have access to XMPP roster until authenticated)
         public static List<string> SavedFavoriteFriends { get; private set; }
 
@@ -39,17 +43,16 @@ namespace UQLT
 
         public static string QLXMPPDomain { get; private set; }
 
-
         static UQLTGlobals()
         {
-            // Apparently Visual Studio Designer's ShadowCache cannot create directories, so in debug mode, do not include the data directory in the file path          
+            // Apparently Visual Studio Designer's ShadowCache cannot create directories, so in debug mode, do not include the data directory in the file path
 #if (DEBUG)
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "currentfilters.json");
             SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rosterfav.json");
 #elif (!DEBUG)
-            SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
-            CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
+SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
+CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
 #endif
             IPAddressDict = new ConcurrentDictionary<string, long>();
             PlayerEloInfo = new ConcurrentDictionary<string, EloData>();

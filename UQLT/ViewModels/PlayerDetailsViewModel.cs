@@ -13,26 +13,34 @@ using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
+    //-----------------------------------------------------------------------------------------------------
     [Export(typeof(PlayerDetailsViewModel))]
 
-    // Individual player information, no associated View
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Viewmodel wrapper for the Player class. Wraps the Player class and exposes additional view-related properties for the View (in this case, ServerBrowserView)
+    /// </summary>
 
+    //-----------------------------------------------------------------------------------------------------
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
         private static Regex namecolors = new Regex(@"[\^]\d");
 
+        //-----------------------------------------------------------------------------------------------------
         [ImportingConstructor]
         public PlayerDetailsViewModel(Player player)
         {
             Player = player;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public Player Player
         {
             get;
             private set;
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Clan
         {
             get
@@ -41,6 +49,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int SubLevel
         {
             get
@@ -49,6 +58,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Name
         {
             get
@@ -57,6 +67,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int Bot
         {
             get
@@ -65,6 +76,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int Rank
         {
             get
@@ -73,6 +85,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int Score
         {
             get
@@ -81,6 +94,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int Team
         {
             get
@@ -89,6 +103,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public string Model
         {
             get
@@ -100,6 +115,7 @@ namespace UQLT.ViewModels
         // Custom UI properties
         private string _teamName;
 
+        //-----------------------------------------------------------------------------------------------------
         public string TeamName
         {
             get
@@ -132,6 +148,7 @@ namespace UQLT.ViewModels
 
         private string _cleanedClan;
 
+        //-----------------------------------------------------------------------------------------------------
         public string CleanedClan
         {
             get
@@ -147,6 +164,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public ImageSource AccountImage
         {
             get
@@ -155,6 +173,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public int PlayerGameType
         {
             get
@@ -163,6 +182,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerTdmElo
         {
             get
@@ -176,6 +196,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerCaElo
         {
             get
@@ -190,6 +211,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerFfaElo
         {
             get
@@ -203,6 +225,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerDuelElo
         {
             get
@@ -216,6 +239,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerCtfElo
         {
             get
@@ -229,6 +253,7 @@ namespace UQLT.ViewModels
             }
         }
 
+        //-----------------------------------------------------------------------------------------------------
         public long PlayerElo
         {
             get

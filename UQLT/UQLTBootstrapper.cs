@@ -10,11 +10,15 @@ using UQLT.ViewModels;
 
 namespace UQLT
 {
-
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Necessary Caliburn Micro boilerplate
+    /// </summary>
     public class UQLTBootstrapper : Bootstrapper<LoginViewModel>
     {
         private CompositionContainer container;
 
+        //-----------------------------------------------------------------------------------------------------
         protected override void Configure()
         {
             container = new CompositionContainer(new AggregateCatalog(AssemblySource.Instance.Select(x => new AssemblyCatalog(x)).OfType<ComposablePartCatalog>()));
@@ -31,6 +35,7 @@ namespace UQLT
             container.Compose(batch);
         }
 
+        //-----------------------------------------------------------------------------------------------------
         protected override object GetInstance(Type serviceType, string key)
         {
             string contract = string.IsNullOrEmpty(key) ? AttributedModelServices.GetContractName(serviceType) : key;

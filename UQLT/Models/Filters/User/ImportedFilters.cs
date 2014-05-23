@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Filters.User
 {
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model representing the make up of the json file that is stored on the disk and contains the current updated filter information.
+    /// </summary>
     public class ImportedFilters
     {
         public List<Location> locations { get; set; }
-        
+
         public List<BasicGametypes> basic_gametypes { get; set; }
 
         public List<Arena> arenas { get; set; }

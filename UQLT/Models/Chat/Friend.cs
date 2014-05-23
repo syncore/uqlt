@@ -7,10 +7,14 @@ using System.Windows.Media.Imaging;
 
 namespace UQLT.Models.Chat
 {
-    // Individual friend
 
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model for an individual friend on the buddy list
+    /// </summary>
     public class Friend
     {
+        //-----------------------------------------------------------------------------------------------------
         public Friend(string name, bool isfavorite)
         {
             FriendName = name;
@@ -21,7 +25,7 @@ namespace UQLT.Models.Chat
 
         public bool IsFavorite { get; set; }
 
-        // 1: demo, 2: practice, 3: in-game
+        // StatusType can be 1: demo, 2: practice, 3: in-game
         public int StatusType { get; set; }
 
         public bool HasXMPPStatus { get; set; }

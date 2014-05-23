@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.Chat
 {
-    // XMPP status information that specifies game server information for a player
-    
+    //-----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Model for XMPP status information that is returned by QL that specifies game server information for a player on friend list
+    /// </summary>
     public class StatusInfo
     {
         public string address { get; set; }
