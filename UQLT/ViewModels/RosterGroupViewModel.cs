@@ -11,66 +11,60 @@ using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
-    //-----------------------------------------------------------------------------------------------------
-    [Export(typeof(RosterGroupViewModel))]
-    //-----------------------------------------------------------------------------------------------------
-    
-        /// <summary>
-    /// Individual roster group viewmodel. Wraps RosterGroup class and exposes additional properties specific to the View (in this case, ChatlistView)
-    /// </summary>
 
-    //-----------------------------------------------------------------------------------------------------
-    public class RosterGroupViewModel : PropertyChangedBase
-    {
+	[Export(typeof(RosterGroupViewModel))]
 
-        //-----------------------------------------------------------------------------------------------------
-        public RosterGroup RostGroup
-        {
-            get;
-            private set;
-        }
+	/// <summary>
+	/// Individual roster group viewmodel. Wraps RosterGroup class and exposes additional properties specific to the View (in this case, ChatlistView)
+	/// </summary>
 
-        //-----------------------------------------------------------------------------------------------------
-        public bool IsAutoExpanded
-        {
-            get;
-            private set;
-        }
+	public class RosterGroupViewModel : PropertyChangedBase
+	{
 
-        //-----------------------------------------------------------------------------------------------------
-        public string GroupName
-        {
-            get
-            {
-                return RostGroup.GroupName;
-            }
-        }
+		public RosterGroup RostGroup
+		{
+			get;
+			private set;
+		}
 
-        private ObservableDictionary<string, FriendViewModel> _friends;
+		public bool IsAutoExpanded
+		{
+			get;
+			private set;
+		}
 
-        public ObservableDictionary<string, FriendViewModel> Friends
-        {
-            get
-            {
-                return _friends;
-            }
+		public string GroupName
+		{
+			get
+			{
+				return RostGroup.GroupName;
+			}
+		}
 
-            set
-            {
-                _friends = value;
-                // Not really needed, ObservableDictionary class handles INPC
-                NotifyOfPropertyChange(() => Friends);
-            }
-        }
+		private ObservableDictionary<string, FriendViewModel> _friends;
 
-        //-----------------------------------------------------------------------------------------------------
-        [ImportingConstructor]
-        public RosterGroupViewModel(RosterGroup rostergroup, bool isautoexpanded)
-        {
-            RostGroup = rostergroup;
-            IsAutoExpanded = isautoexpanded;
-            _friends = new ObservableDictionary<string, FriendViewModel>();
-        }
+		public ObservableDictionary<string, FriendViewModel> Friends
+		{
+			get
+			{
+				return _friends;
+			}
 
-    }
+			set
+			{
+				_friends = value;
+				// Not really needed, ObservableDictionary class handles INPC
+				NotifyOfPropertyChange(() => Friends);
+			}
+		}
+
+		[ImportingConstructor]
+		public RosterGroupViewModel(RosterGroup rostergroup, bool isautoexpanded)
+		{
+			RostGroup = rostergroup;
+			IsAutoExpanded = isautoexpanded;
+			_friends = new ObservableDictionary<string, FriendViewModel>();
+		}
+
+	}
 }

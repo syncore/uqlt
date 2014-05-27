@@ -13,267 +13,245 @@ using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
-    //-----------------------------------------------------------------------------------------------------
-    [Export(typeof(PlayerDetailsViewModel))]
 
-    //-----------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Viewmodel wrapper for the Player class. Wraps the Player class and exposes additional view-related properties for the View (in this case, ServerBrowserView)
-    /// </summary>
+	[Export(typeof(PlayerDetailsViewModel))]
 
-    //-----------------------------------------------------------------------------------------------------
-    public class PlayerDetailsViewModel : PropertyChangedBase
-    {
-        private static Regex namecolors = new Regex(@"[\^]\d");
+	/// <summary>
+	/// Viewmodel wrapper for the Player class. Wraps the Player class and exposes additional view-related properties for the View (in this case, ServerBrowserView)
+	/// </summary>
 
-        //-----------------------------------------------------------------------------------------------------
-        [ImportingConstructor]
-        public PlayerDetailsViewModel(Player player)
-        {
-            Player = player;
-        }
+	public class PlayerDetailsViewModel : PropertyChangedBase
+	{
+		private static Regex namecolors = new Regex(@"[\^]\d");
 
-        //-----------------------------------------------------------------------------------------------------
-        public Player Player
-        {
-            get;
-            private set;
-        }
+		[ImportingConstructor]
+		public PlayerDetailsViewModel(Player player)
+		{
+			Player = player;
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public string Clan
-        {
-            get
-            {
-                return Player.clan;
-            }
-        }
+		public Player Player
+		{
+			get;
+			private set;
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int SubLevel
-        {
-            get
-            {
-                return Player.sub_level;
-            }
-        }
+		public string Clan
+		{
+			get
+			{
+				return Player.clan;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public string Name
-        {
-            get
-            {
-                return Player.name;
-            }
-        }
+		public int SubLevel
+		{
+			get
+			{
+				return Player.sub_level;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int Bot
-        {
-            get
-            {
-                return Player.bot;
-            }
-        }
+		public string Name
+		{
+			get
+			{
+				return Player.name;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int Rank
-        {
-            get
-            {
-                return Player.rank;
-            }
-        }
+		public int Bot
+		{
+			get
+			{
+				return Player.bot;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int Score
-        {
-            get
-            {
-                return Player.score;
-            }
-        }
+		public int Rank
+		{
+			get
+			{
+				return Player.rank;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int Team
-        {
-            get
-            {
-                return Player.team;
-            }
-        }
+		public int Score
+		{
+			get
+			{
+				return Player.score;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public string Model
-        {
-            get
-            {
-                return Player.model;
-            }
-        }
+		public int Team
+		{
+			get
+			{
+				return Player.team;
+			}
+		}
 
-        // Custom UI properties
-        private string _teamName;
+		public string Model
+		{
+			get
+			{
+				return Player.model;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public string TeamName
-        {
-            get
-            {
-                switch (Team)
-                {
-                    case 0:
-                        _teamName = "None";
-                        break;
-                    case 1:
-                        _teamName = "Red";
-                        break;
-                    case 2:
-                        _teamName = "Blue";
-                        break;
-                    case 3:
-                        _teamName = "Spec";
-                        break;
-                }
+		// Custom UI properties
+		private string _teamName;
 
-                return _teamName;
-            }
+		public string TeamName
+		{
+			get
+			{
+				switch (Team)
+				{
+					case 0:
+						_teamName = "None";
+						break;
+					case 1:
+						_teamName = "Red";
+						break;
+					case 2:
+						_teamName = "Blue";
+						break;
+					case 3:
+						_teamName = "Spec";
+						break;
+				}
 
-            set
-            {
-                _teamName = value;
-                NotifyOfPropertyChange(() => TeamName);
-            }
-        }
+				return _teamName;
+			}
 
-        private string _cleanedClan;
+			set
+			{
+				_teamName = value;
+				NotifyOfPropertyChange(() => TeamName);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public string CleanedClan
-        {
-            get
-            {
-                _cleanedClan = namecolors.Replace(Clan, string.Empty);
-                return _cleanedClan;
-            }
+		private string _cleanedClan;
 
-            set
-            {
-                _cleanedClan = value;
-                NotifyOfPropertyChange(() => CleanedClan);
-            }
-        }
+		public string CleanedClan
+		{
+			get
+			{
+				_cleanedClan = namecolors.Replace(Clan, string.Empty);
+				return _cleanedClan;
+			}
 
-        //-----------------------------------------------------------------------------------------------------
-        public ImageSource AccountImage
-        {
-            get
-            {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + SubLevel.ToString() + ".gif", UriKind.RelativeOrAbsolute));
-            }
-        }
+			set
+			{
+				_cleanedClan = value;
+				NotifyOfPropertyChange(() => CleanedClan);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public int PlayerGameType
-        {
-            get
-            {
-                return Player.player_game_type;
-            }
-        }
+		public ImageSource AccountImage
+		{
+			get
+			{
+				return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + SubLevel.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerTdmElo
-        {
-            get
-            {
-                return Player.tdmelo;
-            }
-            set
-            {
-                Player.tdmelo = value;
-                NotifyOfPropertyChange(() => PlayerTdmElo);
-            }
-        }
+		public int PlayerGameType
+		{
+			get
+			{
+				return Player.player_game_type;
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerCaElo
-        {
-            get
-            {
-                return Player.caelo;
-            }
-            set
-            {
-                Player.caelo = value;
-                NotifyOfPropertyChange(() => PlayerCaElo);
-                //NotifyOfPropertyChange(() => PlayerElo);
-            }
-        }
+		public long PlayerTdmElo
+		{
+			get
+			{
+				return Player.tdmelo;
+			}
+			set
+			{
+				Player.tdmelo = value;
+				NotifyOfPropertyChange(() => PlayerTdmElo);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerFfaElo
-        {
-            get
-            {
-                return Player.ffaelo;
-            }
-            set
-            {
-                Player.ffaelo = value;
-                NotifyOfPropertyChange(() => PlayerFfaElo);
-            }
-        }
+		public long PlayerCaElo
+		{
+			get
+			{
+				return Player.caelo;
+			}
+			set
+			{
+				Player.caelo = value;
+				NotifyOfPropertyChange(() => PlayerCaElo);
+				//NotifyOfPropertyChange(() => PlayerElo);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerDuelElo
-        {
-            get
-            {
-                return Player.duelelo;
-            }
-            set
-            {
-                Player.duelelo = value;
-                NotifyOfPropertyChange(() => PlayerDuelElo);
-            }
-        }
+		public long PlayerFfaElo
+		{
+			get
+			{
+				return Player.ffaelo;
+			}
+			set
+			{
+				Player.ffaelo = value;
+				NotifyOfPropertyChange(() => PlayerFfaElo);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerCtfElo
-        {
-            get
-            {
-                return Player.ctfelo;
-            }
-            set
-            {
-                Player.ctfelo = value;
-                NotifyOfPropertyChange(() => PlayerCtfElo);
-            }
-        }
+		public long PlayerDuelElo
+		{
+			get
+			{
+				return Player.duelelo;
+			}
+			set
+			{
+				Player.duelelo = value;
+				NotifyOfPropertyChange(() => PlayerDuelElo);
+			}
+		}
 
-        //-----------------------------------------------------------------------------------------------------
-        public long PlayerElo
-        {
-            get
-            {
-                switch (PlayerGameType)
-                {
-                    case 0:
-                        return PlayerFfaElo;
-                    case 4:
-                        return PlayerCaElo;
-                    case 1:
-                        return PlayerDuelElo;
-                    case 3:
-                        return PlayerTdmElo;
-                    case 5:
-                        return PlayerCtfElo;
-                    default:
-                        return 0;
-                }
-            }
-        }
-    }
+		public long PlayerCtfElo
+		{
+			get
+			{
+				return Player.ctfelo;
+			}
+			set
+			{
+				Player.ctfelo = value;
+				NotifyOfPropertyChange(() => PlayerCtfElo);
+			}
+		}
+
+		public long PlayerElo
+		{
+			get
+			{
+				switch (PlayerGameType)
+				{
+					case 0:
+						return PlayerFfaElo;
+					case 4:
+						return PlayerCaElo;
+					case 1:
+						return PlayerDuelElo;
+					case 3:
+						return PlayerTdmElo;
+					case 5:
+						return PlayerCtfElo;
+					default:
+						return 0;
+				}
+			}
+		}
+	}
 }

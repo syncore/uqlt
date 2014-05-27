@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 
 namespace UQLT.Models.QLRanks
 {
-    //-----------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Model representing the outer container object returned from the QLRanks API
-    /// </summary>
-    public class QLRanks
-    {
-        public List<QLRanksPlayer> players { get; set; }
-    }
+
+	/// <summary>
+	/// Model representing the outer container object returned from the QLRanks API
+	/// </summary>
+	public class QLRanks
+	{
+		public List<QLRanksPlayer> players
+		{
+			get;
+			set;
+		}
+	}
 }

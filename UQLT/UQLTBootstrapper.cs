@@ -10,43 +10,41 @@ using UQLT.ViewModels;
 
 namespace UQLT
 {
-    //-----------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Necessary Caliburn Micro boilerplate
-    /// </summary>
-    public class UQLTBootstrapper : Bootstrapper<LoginViewModel>
-    {
-        private CompositionContainer container;
 
-        //-----------------------------------------------------------------------------------------------------
-        protected override void Configure()
-        {
-            container = new CompositionContainer(new AggregateCatalog(AssemblySource.Instance.Select(x => new AssemblyCatalog(x)).OfType<ComposablePartCatalog>()));
+	/// <summary>
+	/// Necessary Caliburn Micro boilerplate
+	/// </summary>
+	public class UQLTBootstrapper : Bootstrapper<LoginViewModel>
+	{
+		private CompositionContainer container;
 
-            CompositionBatch batch = new CompositionBatch();
+		protected override void Configure()
+		{
+			container = new CompositionContainer(new AggregateCatalog(AssemblySource.Instance.Select(x => new AssemblyCatalog(x)).OfType<ComposablePartCatalog>()));
 
-            // standard caliburn window manager
-            //batch.AddExportedValue<IWindowManager>(new WindowManager());
-            // custom window manager implementation
-            batch.AddExportedValue<IWindowManager>(new UQLTWindowManager());
-            batch.AddExportedValue<IEventAggregator>(new EventAggregator());
-            batch.AddExportedValue(container);
+			CompositionBatch batch = new CompositionBatch();
 
-            container.Compose(batch);
-        }
+			// standard caliburn window manager
+			//batch.AddExportedValue<IWindowManager>(new WindowManager());
+			// custom window manager implementation
+			batch.AddExportedValue<IWindowManager>(new UQLTWindowManager());
+			batch.AddExportedValue<IEventAggregator>(new EventAggregator());
+			batch.AddExportedValue(container);
 
-        //-----------------------------------------------------------------------------------------------------
-        protected override object GetInstance(Type serviceType, string key)
-        {
-            string contract = string.IsNullOrEmpty(key) ? AttributedModelServices.GetContractName(serviceType) : key;
-            var exports = container.GetExportedValues<object>(contract);
+			container.Compose(batch);
+		}
 
-            if (exports.Count() > 0)
-            {
-                return exports.First();
-            }
+		protected override object GetInstance(Type serviceType, string key)
+		{
+			string contract = string.IsNullOrEmpty(key) ? AttributedModelServices.GetContractName(serviceType) : key;
+			var exports = container.GetExportedValues<object>(contract);
 
-            throw new Exception(string.Format("Could not locate any instances of contract {0}.", contract));
-        }
-    }
+			if (exports.Count() > 0)
+			{
+				return exports.First();
+			}
+
+			throw new Exception(string.Format("Could not locate any instances of contract {0}.", contract));
+		}
+	}
 }

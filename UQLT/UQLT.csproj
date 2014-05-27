@@ -98,9 +98,13 @@
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
     <Compile Include="Interfaces\IQLRanksUpdater.cs" />
+    <Compile Include="Interfaces\IUQLTConfiguration.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />
     <Compile Include="Models\Chat\StatusInfo.cs" />
+    <Compile Include="Models\Configuration\Configuration.cs" />
+    <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
+    <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
     <Compile Include="Models\Filters\User\Location.cs" />
     <Compile Include="Models\Filters\User\Arena.cs" />

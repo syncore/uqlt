@@ -4,25 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UQLT.Models.Filters.User
+namespace UQLT.Models.Configuration
 {
-
 	/// <summary>
-	/// Model representing the arena settings in the user's filters
+	/// Model representing an item in the server browser auto-refresh combobox
 	/// </summary>
-	public class Arena
+	public class ServerBrowserRefreshItem
 	{
-		public string display_name
+
+		public string Name
 		{
 			get;
 			set;
 		}
-		public string arena_type
-		{
-			get;
-			set;
-		}
-		public string arena
+		public int Seconds
 		{
 			get;
 			set;
@@ -30,7 +25,8 @@ namespace UQLT.Models.Filters.User
 
 		public override string ToString()
 		{
-			return display_name;
+			return Name;
 		}
+
 	}
 }

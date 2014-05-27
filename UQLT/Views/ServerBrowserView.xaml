@@ -3,9 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:cal="http://www.caliburnproject.org"
              xmlns:helpers="clr-namespace:UQLT.Helpers"
              mc:Ignorable="d" 
-             d:DesignHeight="423" d:DesignWidth="1040">
+             d:DesignHeight="523" d:DesignWidth="1040">
 
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
@@ -77,14 +79,14 @@
                         </TextBlock>
 
                         <StackPanel x:Name="RedScore" Orientation="Horizontal">
-                            <TextBlock Text="Red " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="Red: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}"/>
                             <TextBlock Text="{Binding GRedScore}"/>
                         </StackPanel>
 
                         <StackPanel x:Name="BlueScore" Orientation="Horizontal">
-                            <TextBlock Text="Blue " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}"/>
+                            <TextBlock Text="Blue: " FontWeight="Bold"/>
+                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}"/>
                             <TextBlock Text="{Binding GBlueScore}"/>
                         </StackPanel>
                     </StackPanel>
@@ -102,6 +104,7 @@
 
     <Grid Width="1040">
         <Grid.RowDefinitions>
+            <RowDefinition Height="25*"/>
             <RowDefinition Height="210*"/>
             <RowDefinition Height="210*"/>
         </Grid.RowDefinitions>
@@ -110,10 +113,37 @@
             <ColumnDefinition Width="270*"/>
         </Grid.ColumnDefinitions>
 
-               
+
+        <!--Server refresh options-->
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <CheckBox x:Name="RefreshCheckBox" Content="Auto-refresh servers" IsChecked="{Binding IsAutoRefreshEnabled}" Margin="0,6,0,8" Padding="2,0,10,0">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <cal:ActionMessage MethodName="SaveConfig"/>
+                        <cal:ActionMessage MethodName="StartServerRefreshTimer"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="Unchecked">
+                        <cal:ActionMessage MethodName="SaveConfig"/>
+                        <cal:ActionMessage MethodName="StopServerRefreshTimer"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+            </CheckBox>
+            <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,4,0,6" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <cal:ActionMessage MethodName="SetRefreshSeconds">
+                        <cal:Parameter Value="{Binding ElementName=RefreshComboBox, Path=SelectedValue}"/>
+                        </cal:ActionMessage>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+
+        </StackPanel>
+
 
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}" Grid.Row="1">
 
             <ListView.View>
                 <GridView>
@@ -161,7 +191,7 @@
         </ListView>
         <!--Player Details-->
         <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
-                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="1">
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="3">
 
             <ListView.View>
                 <GridView>
@@ -186,15 +216,16 @@
             </ListView.View>
         </ListView>
         <!--Extended server details-->
-        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2"/>
-        
-        <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6">
-            
-            <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="75" HorizontalAlignment="Center"/>
-           <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2" Grid.Row="1"/>
+
+        <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6" Grid.Row="1">
+
+            <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="76" HorizontalAlignment="Center" Margin="295,150,295,268">
+                <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
+            		Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0" Margin="8,28,-12,28"/>
+            </Border>
+            <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
                    Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}"/>-->
-            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0"/>
         </Grid>
 
     </Grid>
