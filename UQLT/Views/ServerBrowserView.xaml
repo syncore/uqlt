@@ -132,7 +132,7 @@
             <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,4,0,6" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
-                        <cal:ActionMessage MethodName="SetRefreshSeconds">
+                        <cal:ActionMessage MethodName="SetRefreshTime">
                         <cal:Parameter Value="{Binding ElementName=RefreshComboBox, Path=SelectedValue}"/>
                         </cal:ActionMessage>
                     </i:EventTrigger>

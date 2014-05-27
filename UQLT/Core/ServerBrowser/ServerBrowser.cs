@@ -36,7 +36,6 @@ namespace UQLT.Core.ServerBrowser
 	{
 		private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 		private Timer ServerRefreshTimer;
-		private int timesqlrankscompleted = 0;
 
 		public ServerBrowserViewModel SBVM
 		{
@@ -74,17 +73,8 @@ namespace UQLT.Core.ServerBrowser
 		// This method is called every X seconds by the ServerRefreshTimer
 		private void OnServerRefresh(object source, ElapsedEventArgs e)
 		{
-			// Don't want to hit QLRanks API for every single server refresh since that API is frequently slow
-			bool doqlranksupdate = true;
-
-			if (timesqlrankscompleted >= 3)
-			{
-				doqlranksupdate = false;
-			}
-
 			Debug.WriteLine("Performing automatic server refresh...");
-			var l = LoadServerListAsync(SBVM.FilterURL, doqlranksupdate);
-
+			var l = LoadServerListAsync(SBVM.FilterURL, true);
 		}
 
 		private string GetFilterUrlOnLoad()
@@ -202,6 +192,7 @@ namespace UQLT.Core.ServerBrowser
 		{
 			HttpClientHandler gzipHandler = new HttpClientHandler();
 			HttpClient client = new HttpClient(gzipHandler);
+			EloData val;
 
 			try
 			{
@@ -234,16 +225,20 @@ namespace UQLT.Core.ServerBrowser
 					s.setPlayerGameTypeFromServer(s.game_type);
 
 					// create EloData for each player in the given server
-					s.createEloData();
-
-					// Elo "caching" - otherwise elo will be 0. TODO: come up with something better than this ugly hack
-					if (timesqlrankscompleted >= 3)
+					foreach (var player in s.players)
 					{
-						foreach (var player in s.players)
+						if (!UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
 						{
-							s.setPlayerElos();
+							s.createEloData();
 						}
 					}
+
+					// Set the server's players' elo directly on the Player model
+					foreach (var player in s.players)
+					{
+						s.setPlayerElos();
+					}
+
 
 				}
 
@@ -274,34 +269,34 @@ namespace UQLT.Core.ServerBrowser
 			}
 		}
 
-		//timer
-
-		public void SetQLranksDefaultElo(string player)
-		{
-			UQLTGlobals.PlayerEloInfo[player] = new EloData()
-			{
-				DuelElo = 0,
-				CaElo = 0,
-				TdmElo = 0,
-				FfaElo = 0,
-				CtfElo = 0
-			};
-		}
-
 		// Extract the players from the server list in order to send to QLRanks API
 
 		public async Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
 		{
 			List<string> playerstoupdate = new List<string>();
 			List<List<string>> qlrapicalls = new List<List<string>>();
+			EloData val;
 
 			// extract players, add to a list to update, split the list, then update
 			foreach (var server in servers)
 			{
 				foreach (var player in server.players)
 				{
-					// add to a list of players to be updated
-					playerstoupdate.Add(player.name.ToLower());
+					// Elo "caching"
+					if (UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
+					{
+						// If the player has our pre-defined default elo value (qlranks elo will never be 0) then add player to a list of players to be updated
+						if (val.DuelElo == 0)
+						{
+							playerstoupdate.Add(player.name.ToLower());
+							Debug.WriteLine("Player: " + player.name.ToLower() + " was not previously indexed. Adding to list of players whose elo we need...");
+						}
+					}
+					else
+					{
+						playerstoupdate.Add(player.name.ToLower());
+						Debug.WriteLine("Player: " + player.name.ToLower() + " was not previously indexed. Adding to list of players whose elo we need...");
+					}
 				}
 
 			}
@@ -352,8 +347,6 @@ namespace UQLT.Core.ServerBrowser
 					}
 				}
 
-				// Important counter for elo "caching"
-				timesqlrankscompleted++;
 			}
 			catch (Exception e)
 			{
@@ -386,7 +379,6 @@ namespace UQLT.Core.ServerBrowser
 			}
 			catch (Newtonsoft.Json.JsonException jEx)
 			{
-				// This exception indicates a problem deserializing the request body.
 				Debug.WriteLine(jEx.Message);
 				return null;
 

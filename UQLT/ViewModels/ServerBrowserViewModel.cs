@@ -231,6 +231,7 @@ namespace UQLT.ViewModels
 		// This method is called from the view itself.
 		public void SetRefreshTime(int seconds)
 		{
+			Debug.WriteLine("Setting auto-server refresh time to " + seconds + " seconds.");
 			seconds = AutoRefreshSeconds;
 			SaveConfig();
 		}
