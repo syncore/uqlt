@@ -38,6 +38,8 @@ namespace UQLT.ViewModels
 	/// </summary>
 	public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>, IUQLTConfiguration
 	{
+		private readonly IEventAggregator _events;
+
 		private ServerBrowser SB;
 
 		private ObservableCollection<ServerDetailsViewModel> _servers;
@@ -103,36 +105,6 @@ namespace UQLT.ViewModels
 			}
 		}
 
-		private int _numberOfServersToUpdate;
-
-		public int NumberOfServersToUpdate
-		{
-			get
-			{
-				return _numberOfServersToUpdate;
-			}
-			set
-			{
-				_numberOfServersToUpdate = value;
-				NotifyOfPropertyChange(() => NumberOfServersToUpdate);
-			}
-		}
-
-		private int _numberOfPlayersToUpdate;
-
-		public int NumberOfPlayersToUpdate
-		{
-			get
-			{
-				return _numberOfPlayersToUpdate;
-			}
-			set
-			{
-				_numberOfPlayersToUpdate = value;
-				NotifyOfPropertyChange(() => NumberOfPlayersToUpdate);
-			}
-		}
-
 		private List<ServerBrowserRefreshItem> _autoRefreshItems;
 
 		public List<ServerBrowserRefreshItem> AutoRefreshItems
@@ -195,6 +167,7 @@ namespace UQLT.ViewModels
 		[ImportingConstructor]
 		public ServerBrowserViewModel(IEventAggregator events)
 		{
+			_events = events;
 			events.Subscribe(this);
 			_servers = new ObservableCollection<ServerDetailsViewModel>();
 			_autoRefreshItems = new List<ServerBrowserRefreshItem>()
@@ -207,7 +180,7 @@ namespace UQLT.ViewModels
 			DoServerBrowserAutoSort("FullLocationName");
 			LoadConfig();
 			// Instantiate a new server browser for this viewmodel
-			SB = new ServerBrowser(this);
+			SB = new ServerBrowser(this, events);
 
 		}
 

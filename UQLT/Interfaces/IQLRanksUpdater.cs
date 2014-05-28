@@ -14,7 +14,7 @@ namespace UQLT.Interfaces
 	interface IQLRanksUpdater
 	{
 		Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150);
-		void SetQLranksDefaultElo(string player);
+		//void SetQLranksDefaultElo(string player);
 
 	}
 }

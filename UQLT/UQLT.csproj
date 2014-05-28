@@ -91,7 +91,10 @@
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
     <Compile Include="Core\Chat\QLChatConnection.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
+    <Compile Include="Events\FilterStatusEvent.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
+    <Compile Include="Events\PlayerCountEvent.cs" />
+    <Compile Include="Events\ServerCountEvent.cs" />
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />

@@ -25,6 +25,33 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>
-        <StatusBar Grid.Row="2" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="1032" Grid.ColumnSpan="2"/>
+        
+        <!--Status bar-->
+        <StatusBar Grid.Row="2" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="1032" Grid.ColumnSpan="2">
+
+            <TextBlock>
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}Showing {0} servers and {1} players for filter: {2}, {3}, {4}, {5} in location: {6} on arena: {7}">
+                        <Binding Path="ServerCountStatusTitle"/>
+
+                        <Binding Path="PlayerCountStatusTitle"/>
+
+                        <Binding Path="PremiumStatusTitle"/>
+
+                        <Binding Path="VisibilityStatusTitle"/>
+
+                        <Binding Path="TypeStatusTitle"/>
+
+                        <Binding Path="StateStatusTitle"/>
+
+                        <Binding Path="LocationStatusTitle"/>
+
+                        <Binding Path="ArenaStatusTitle"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+
+
+        </StatusBar>
     </Grid>
 </Window>

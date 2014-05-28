@@ -25,6 +25,7 @@ using UQLT.ViewModels;
 using UQLT.Interfaces;
 using System.Timers;
 using Caliburn.Micro;
+using UQLT.Events;
 
 namespace UQLT.Core.ServerBrowser
 {
@@ -36,6 +37,7 @@ namespace UQLT.Core.ServerBrowser
 	{
 		private Regex port = new Regex(@"[\:]\d{4,}"); // port regexp: colon with at least 4 numbers
 		private Timer ServerRefreshTimer;
+		private readonly IEventAggregator _events;
 
 		public ServerBrowserViewModel SBVM
 		{
@@ -43,9 +45,10 @@ namespace UQLT.Core.ServerBrowser
 			private set;
 		}
 
-		public ServerBrowser(ServerBrowserViewModel sbvm)
+		public ServerBrowser(ServerBrowserViewModel sbvm, IEventAggregator events)
 		{
 			SBVM = sbvm;
+			_events = events;
 			SBVM.FilterURL = GetFilterUrlOnLoad();
 			ServerRefreshTimer = new Timer();
 			if (SBVM.IsAutoRefreshEnabled)
@@ -114,15 +117,12 @@ namespace UQLT.Core.ServerBrowser
 
 			IList<Server> servers = await GetServersFromDetailsUrlAsync(detailsurl);
 
-			//SBVM.NumberOfServersToUpdate = servers.Count;
-
 			// Must be done on the UI thread
 			Execute.OnUIThread(() =>
 			{
 				SBVM.Servers.Clear();
 				if (servers != null)
 				{
-					//SBVM.Servers.Clear();
 					foreach (var server in servers)
 					{
 						SBVM.Servers.Add(new ServerDetailsViewModel(server));
@@ -131,8 +131,9 @@ namespace UQLT.Core.ServerBrowser
 			});
 
 			SBVM.IsUpdatingServers = false;
-			//SBVM.NumberOfServersToUpdate = 0;
-			//SBVM.NumberOfPlayersToUpdate = 0;
+
+			// Send a message (event) to the MainViewModel to update the server count in the statusbar
+			_events.Publish(new ServerCountEvent(SBVM.Servers.Count));
 
 			if (doqlranksupdate)
 			{
@@ -192,6 +193,7 @@ namespace UQLT.Core.ServerBrowser
 		{
 			HttpClientHandler gzipHandler = new HttpClientHandler();
 			HttpClient client = new HttpClient(gzipHandler);
+			int totalplayercount = 0;
 			EloData val;
 
 			try
@@ -231,6 +233,9 @@ namespace UQLT.Core.ServerBrowser
 						{
 							s.createEloData();
 						}
+
+						// track the player count
+						totalplayercount++;
 					}
 
 					// Set the server's players' elo directly on the Player model
@@ -258,6 +263,10 @@ namespace UQLT.Core.ServerBrowser
 					UQLTGlobals.IPAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
 					// Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
 				}
+
+				// Send a message (event) to the MainViewModel to update the player count in the statusbar
+				_events.Publish(new PlayerCountEvent(totalplayercount));
+
 
 				return serverlist;
 			}

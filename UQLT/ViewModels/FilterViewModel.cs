@@ -275,12 +275,18 @@ namespace UQLT.ViewModels
 			_events = events;
 			events.Subscribe(this);
 
+			// Loading filters:
+			// game visibility types don't depend on saved filter file
+			_gameVisibility.Add("Public games");
+			_gameVisibility.Add("Private games");
+
+			//TODO: fix the interaction between downloading & dumping failsafe when downloading of filter list functionality is implemented
 			// load hard-coded fail-safe filters if downloaded list doesn't exist
 			if (!DownloadedFilterListExists())
 			{
 				FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
 				failsafe.DumpBackupFilters();
-				PopulateFilters();
+				var p = PopulateFilters();
 
 				if (SavedUserFiltersExist())
 				{
@@ -293,7 +299,7 @@ namespace UQLT.ViewModels
 			}
 			else
 			{
-				PopulateFilters();
+				var p = PopulateFilters();
 
 				if (SavedUserFiltersExist())
 				{
@@ -305,9 +311,9 @@ namespace UQLT.ViewModels
 				}
 			}
 
-			// game visibility types don't depend on saved filter file
-			_gameVisibility.Add("Public games");
-			_gameVisibility.Add("Private games");
+			// Send the message (event) to the MainViewModel to set the text in the statusbar
+			//SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
+
 		}
 
 		public void Handle(FilterVisibilityEvent message)
@@ -331,6 +337,7 @@ namespace UQLT.ViewModels
 			Debug.WriteLine("Saved filters cleared!");
 		}
 
+		// This is called directly from the Filter view itself
 		public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
 		{
 
@@ -370,7 +377,6 @@ namespace UQLT.ViewModels
 		}
 
 		// take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
-
 		public string MakeEncodedFilter(string gametype, string arena, string state, object location, object priv, bool ispremium)
 		{
 			string encodedFilter = null;
@@ -475,6 +481,38 @@ namespace UQLT.ViewModels
 			return encodedFilter;
 		}
 
+		// This event will be fired to the Main ViewModel so that the status bar can display the correct filter text. It is called from the view itself.
+		// Unfortunately, indexes must be used since the ValuePath in the view is already set
+		public void SetFilterStatusText(int gametype_index, int gamearena_index, int gamelocation_index, int gamestate_index, int gamevisibility_index, bool gamepremium)
+		{
+			string gametype;
+			string gamearena;
+			string gamelocation;
+			string gamestate;
+			string gamevisibility;
+			string premium;
+
+			gametype = GameTypes[gametype_index].display_name;
+			gamearena = Arenas[gamearena_index].display_name;
+			gamelocation = Locations[gamelocation_index].display_name;
+			gamestate = GameState[gamestate_index].display_name;
+			gamevisibility = GameVisibility[gamevisibility_index];
+
+			if (gamepremium)
+			{
+				premium = "Premium";
+			}
+			else
+			{
+				premium = "Non-premium";
+			}
+
+			Debug.WriteLine("Sending filter status text information to Main VM: {0} {1} {2} {3} {4} {5}", gametype, gamearena, gamelocation, gamestate, gamevisibility, premium);
+			_events.Publish(new FilterStatusEvent(gametype, gamearena, gamelocation, gamestate, gamevisibility, premium));
+		}
+
+
+		// This event will be fired to the Server Browser ViewModel notifying it that a new filter URL has been set.
 		public void SetServerBrowserUrl(string url)
 		{
 			// Debug.WriteLine("Attempting to publish event");
@@ -493,7 +531,7 @@ namespace UQLT.ViewModels
 
 		// load the most current filter list (downloaded from application's web server)
 
-		private async void PopulateFilters()
+		private async Task PopulateFilters()
 		{
 			try
 			{

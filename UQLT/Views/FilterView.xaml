@@ -28,12 +28,34 @@
                         <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
                     </cal:ActionMessage>
                 </i:EventTrigger>
-                </i:Interaction.Triggers>
+                <!--Send filter information to Main VM for status bar text when new filters are made default-->
+                <i:EventTrigger EventName="Click">
+                    <cal:ActionMessage MethodName="SetFilterStatusText">
+                        <cal:Parameter Value="{Binding ElementName=cboGameType, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameArena, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameLocation, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameState, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameVisibility, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
+                    </cal:ActionMessage>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
         </Button>
         <Button x:Name="btnResetFilters" Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="559,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="ClearSavedUserFilters"/>
+                </i:EventTrigger>
+                <!--Send filter information to Main VM for status bar text when filters are reset-->
+                <i:EventTrigger EventName="Click">
+                    <cal:ActionMessage MethodName="SetFilterStatusText">
+                        <cal:Parameter Value="{Binding ElementName=cboGameType, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameArena, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameLocation, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameState, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=cboGameVisibility, Path=SelectedIndex}"/>
+                        <cal:Parameter Value="{Binding ElementName=chkPremium, Path=IsChecked}"/>
+                    </cal:ActionMessage>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>
