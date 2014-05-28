@@ -294,7 +294,7 @@ namespace UQLT.Core.ServerBrowser
 					// Elo "caching"
 					if (UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
 					{
-						// If the player has our pre-defined default elo value (qlranks elo will never be 0) then add player to a list of players to be updated
+						// If the player has our pre-defined default elo value of 0 (qlranks elo will never be 0) then add player to a list of players to be updated
 						if (val.DuelElo == 0)
 						{
 							playerstoupdate.Add(player.name.ToLower());

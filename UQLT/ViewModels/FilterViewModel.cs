@@ -275,56 +275,28 @@ namespace UQLT.ViewModels
 			_events = events;
 			events.Subscribe(this);
 
+			//_gameTypes = new List<GameType>();
+			//_arenas = new List<Arena>();
+			//_locations = new List<Location>();
+			//_gamestate = new List<GameState>();
+
 			// Loading filters:
 			// game visibility types don't depend on saved filter file
 			_gameVisibility.Add("Public games");
 			_gameVisibility.Add("Private games");
 
-			//TODO: fix the interaction between downloading & dumping failsafe when downloading of filter list functionality is implemented
-			// load hard-coded fail-safe filters if downloaded list doesn't exist
-			if (!DownloadedFilterListExists())
-			{
-				FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
-				failsafe.DumpBackupFilters();
-				var p = PopulateFilters();
-
-				if (SavedUserFiltersExist())
-				{
-					ApplySavedUserFilters();
-				}
-				else
-				{
-					SetStandardDefaultFilters();
-				}
-			}
-			else
-			{
-				var p = PopulateFilters();
-
-				if (SavedUserFiltersExist())
-				{
-					ApplySavedUserFilters();
-				}
-				else
-				{
-					SetStandardDefaultFilters();
-				}
-			}
-
-			// Send the message (event) to the MainViewModel to set the text in the statusbar
-			//SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
+			//TODO: implement downloading of filter list functionality
+			var p = PopulateAndApplyFiltersAsync();
 
 		}
 
 		public void Handle(FilterVisibilityEvent message)
 		{
 			IsVisible = message.FilterViewVisibility;
-
 			// Debug.WriteLine("Visibility: " + message.FilterViewVisibility);
 		}
 
-		// clear the user's saved default filters when "Clear Filters" button is clicked
-
+		// Clear the user's saved default filters when "Clear Filters" button is clicked.
 		public void ClearSavedUserFilters()
 		{
 			if (SavedUserFiltersExist())
@@ -337,11 +309,9 @@ namespace UQLT.ViewModels
 			Debug.WriteLine("Saved filters cleared!");
 		}
 
-		// This is called directly from the Filter view itself
+		// Make the current selections in the view's comboboxes (or from the filter file, depending on the caller) the new default filters.
 		public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
 		{
-
-
 			int selGamePremiumIndex = 0;
 			if (selGamePremiumBool == true)
 			{
@@ -352,7 +322,7 @@ namespace UQLT.ViewModels
 				selGamePremiumIndex = 0;
 			}
 
-			// Save this filter information as the new default
+			// Filter to object for json file
 			var sf = new SavedFilters()
 			{
 				type_in = selGameTypeIndex,
@@ -364,7 +334,7 @@ namespace UQLT.ViewModels
 				fltr_enc = MakeEncFilterFromIndexes(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool)
 			};
 
-			// write to disk
+			// Write json file to disk
 			string savedfilterjson = JsonConvert.SerializeObject(sf);
 			using(FileStream fs = File.Create(UQLTGlobals.SavedUserFilterPath))
 			using(TextWriter writer = new StreamWriter(fs))
@@ -372,16 +342,15 @@ namespace UQLT.ViewModels
 				writer.WriteLine(savedfilterjson);
 			}
 
-			// make filter url based on user selections
-			// makeFilterJson(selectedgametype, selectedgamearena, selectedgamestate, selectedgamelocation, selectedgamevisibility, selectedgamepremium);
 		}
 
-		// take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
+		// Take the output from the filter menu, process it, and return a quakelive.com url that includes base64 encoded filter json
 		public string MakeEncodedFilter(string gametype, string arena, string state, object location, object priv, bool ispremium)
 		{
 			string encodedFilter = null;
 			string jsonFilterString = null;
-			List<string> players = new List<string>(); // always empty for purposes of filter encoding
+			// players is always empty for purposes of filter encoding
+			List<string> players = new List<string>();
 
 			// arena_type is determined from arena. ig, GameTypes array, and ranked are determined from gametype
 			string arena_type = null;
@@ -461,7 +430,7 @@ namespace UQLT.ViewModels
 					ig = ig
 				};
 
-				// convert to json
+				// Convert to json
 				jsonFilterString = JsonConvert.SerializeObject(fbo);
 
 				// base64 encode the json
@@ -476,7 +445,7 @@ namespace UQLT.ViewModels
 				MessageBox.Show("Unable to read filter data. Error: " + ex);
 			}
 
-			// fire event to server browser
+			// Fire event to server browser
 			SetServerBrowserUrl(UQLTGlobals.QLDomainListFilter + encodedFilter);
 			return encodedFilter;
 		}
@@ -485,12 +454,7 @@ namespace UQLT.ViewModels
 		// Unfortunately, indexes must be used since the ValuePath in the view is already set
 		public void SetFilterStatusText(int gametype_index, int gamearena_index, int gamelocation_index, int gamestate_index, int gamevisibility_index, bool gamepremium)
 		{
-			string gametype;
-			string gamearena;
-			string gamelocation;
-			string gamestate;
-			string gamevisibility;
-			string premium;
+			string gametype, gamearena, gamelocation, gamestate, gamevisibility, premium;
 
 			gametype = GameTypes[gametype_index].display_name;
 			gamearena = Arenas[gamearena_index].display_name;
@@ -511,7 +475,6 @@ namespace UQLT.ViewModels
 			_events.Publish(new FilterStatusEvent(gametype, gamearena, gamelocation, gamestate, gamevisibility, premium));
 		}
 
-
 		// This event will be fired to the Server Browser ViewModel notifying it that a new filter URL has been set.
 		public void SetServerBrowserUrl(string url)
 		{
@@ -529,51 +492,69 @@ namespace UQLT.ViewModels
 			return File.Exists(UQLTGlobals.CurrentFilterPath) ? true : false;
 		}
 
-		// load the most current filter list (downloaded from application's web server)
+		// This method populates the collections on the viewmodel using the current filter file.
+		// These collections are then used as the ItemsSource of the comboboxes in the view.
+		// It then applies the filters so the view can set the correct selections.
 
-		private async Task PopulateFilters()
+		private async Task PopulateAndApplyFiltersAsync()
 		{
-			try
+			// Make sure there is a current filter file on the hard disk.
+			if (DownloadedFilterListExists())
 			{
-				// read filter json from filedir\data\currentfilters.json
-				using(StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+				try
 				{
-					var x = await sr.ReadToEndAsync();
-					var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
-
-					// set our viewmodel's properties to those in the model
-					GameTypes = filters.game_types;
-					Arenas = filters.arenas;
-					Locations = filters.locations.Where(location => location.active).ToList();
-					GameState = filters.gamestate;
-
-					// add to appropriate list in order to set proper arena tag when building filter
-					foreach (var arena in filters.arenas)
+					// Read filter json from filedir\data\currentfilters.json
+					using(StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
 					{
-						if (arena.arena_type.Equals("map") && (!arenaMap.Contains(arena.arena)))
+						var x = await sr.ReadToEndAsync();
+						var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
+
+						// set our viewmodel's properties to those in the model
+						GameTypes = filters.game_types;
+						Arenas = filters.arenas;
+						Locations = filters.locations.Where(location => location.active).ToList();
+						GameState = filters.gamestate;
+
+						// add to appropriate list in order to set proper arena tag when building filter
+						foreach (var arena in filters.arenas)
 						{
-							arenaMap.Add(arena.arena);
-						}
-						else if (arena.arena_type.Equals("tag") && (!arenaTag.Contains(arena.arena)))
-						{
-							arenaTag.Add(arena.arena);
+							if (arena.arena_type.Equals("map") && (!arenaMap.Contains(arena.arena)))
+							{
+								arenaMap.Add(arena.arena);
+							}
+							else if (arena.arena_type.Equals("tag") && (!arenaTag.Contains(arena.arena)))
+							{
+								arenaTag.Add(arena.arena);
+							}
 						}
 					}
+
+					// Apply
+					ApplySavedUserFilters();
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("Unable to read filter data.");
+					Debug.WriteLine(ex);
+
+					// TODO: make this download filter from net, if that fails THEN load hard-coded filter
+					FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
+					failsafe.DumpBackupFilters();
+					SetStandardDefaultFilters();
 				}
 			}
-			catch (Exception ex)
+			// Current filter list does not exist. Dump it to disk from failsafe then set some default filters.
+			// TODO: implement functionality that will download or mark the client to download filter list from webserver on next run.
+			else
 			{
-				MessageBox.Show("Unable to read filter data.");
-				Debug.WriteLine(ex);
-
-				// TODO: make this download filter from net, if that fails THEN load hard-coded filter
 				FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
 				failsafe.DumpBackupFilters();
+				SetStandardDefaultFilters();
 			}
+
 		}
 
-		// set default filters (i.e.: "Any Location", "Any Game State", etc.)
-
+		// Set standard filters (i.e.: "Any Location", "Any Game State", etc.) and save them as the new default.
 		private void SetStandardDefaultFilters()
 		{
 			GameTypeIndex = 0;
@@ -582,47 +563,67 @@ namespace UQLT.ViewModels
 			GameStateIndex = 0;
 			GameVisibilityIndex = 0;
 			GamePremiumBool = false;
+
+			// Save these as the new defaults.
+			SaveNewUserFilters(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
+
+			// Send the message (event) to the MainViewModel to set the text in the statusbar.
+			SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
 		}
 
 		private void ApplySavedUserFilters()
 		{
-			try
+			// Make sure there are actually saved user filters on the disk.
+			if (SavedUserFiltersExist())
 			{
-				using(StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+				try
 				{
-					string savedblob = sr.ReadToEnd();
-					SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
+					using(StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+					{
+						string savedblob = sr.ReadToEnd();
+						SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
 
-					// set our viewmodel's index properties to appropriate properties from saved filter file
-					GameTypeIndex = savedFilterJson.type_in;
-					GameArenaIndex = savedFilterJson.arena_in;
-					GameLocationIndex = savedFilterJson.location_in;
-					GameStateIndex = savedFilterJson.state_in;
+						// set our viewmodel's index properties to appropriate properties from saved filter file
+						GameTypeIndex = savedFilterJson.type_in;
+						GameArenaIndex = savedFilterJson.arena_in;
+						GameLocationIndex = savedFilterJson.location_in;
+						GameStateIndex = savedFilterJson.state_in;
 
-					if (savedFilterJson.visibility_in == 0)
-					{
-						GameVisibilityIndex = 0;
-					}
-					else
-					{
-						GameVisibilityIndex = 1;
-					}
+						if (savedFilterJson.visibility_in == 0)
+						{
+							GameVisibilityIndex = 0;
+						}
+						else
+						{
+							GameVisibilityIndex = 1;
+						}
 
-					if (savedFilterJson.premium_in == 0)
-					{
-						GamePremiumBool = false;
-					}
-					else
-					{
-						GamePremiumBool = true;
+						if (savedFilterJson.premium_in == 0)
+						{
+							GamePremiumBool = false;
+						}
+						else
+						{
+							GamePremiumBool = true;
+						}
+
+						// Send the message (event) to the MainViewModel to set the text in the statusbar
+						SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
 					}
 				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine("Error applying saved filters: " + ex);
+					// Error. clear filters, set defaults
+					ClearSavedUserFilters();
+				}
 			}
-			catch (Exception ex)
+			// Saved user filters do not exist on disk, set the standard defaults
+			else
 			{
-				Debug.WriteLine("Error applying saved filters: " + ex);
-				ClearSavedUserFilters();
+				SetStandardDefaultFilters();
 			}
+
 		}
 
 		private string MakeEncFilterFromIndexes(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)

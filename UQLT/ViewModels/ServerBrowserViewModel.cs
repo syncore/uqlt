@@ -262,8 +262,8 @@ namespace UQLT.ViewModels
 		{
 			// Set the default VM properties (auto-refresh enabled, refresh every 60 seconds)
 			IsAutoRefreshEnabled = true;
-			AutoRefreshIndex = 0;
-			AutoRefreshSeconds = 30;
+			AutoRefreshIndex = 1;
+			AutoRefreshSeconds = 60;
 			SaveConfig();
 		}
 
