@@ -292,5 +292,6 @@ namespace UQLT.ViewModels
 			Debug.WriteLine("**New server browser auto-refresh configuration saved");
 		}
 
+
 	}
 }

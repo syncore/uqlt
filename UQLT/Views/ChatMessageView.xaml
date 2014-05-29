@@ -1,0 +1,33 @@
+﻿<Window x:Class="UQLT.Views.ChatMessageView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:helpers="clr-namespace:UQLT.Helpers"
+        xmlns:cal="http://www.caliburnproject.org"
+        Title="Chatting with" Height="400" Width="520">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="520*"/>
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="353*"/>
+            <RowDefinition Height="150*"/>
+
+        </Grid.RowDefinitions>
+        <!-- Message contents textbox -->
+        <TextBox x:Name="ReceivedTextBox" Grid.Row="0" HorizontalAlignment="Left" Height="260" TextWrapping="Wrap" Text="{Binding FromMessage}" VerticalAlignment="Top" Width="512" IsUndoEnabled="False" UndoLimit="0" IsReadOnly="True"/>
+        <!--Outgoing message textbox-->
+        <TextBox x:Name="OutgoingTextBox" Grid.Row="1" HorizontalAlignment="Left" Height="110" TextWrapping="Wrap" Text="{Binding ToMessage}" VerticalAlignment="Top" Width="512" UndoLimit="3">
+            <!--Enter key has been pressed. Send the message-->
+            <i:Interaction.Triggers>
+                <helpers:KeyPressTrigger KeyAction="KeyDown" Gesture="enter">
+                    <cal:ActionMessage MethodName="SendMessage">
+                        <cal:Parameter Value="{Binding ElementName=OutgoingTextBox, Path=Text}" />
+                    </cal:ActionMessage>
+                </helpers:KeyPressTrigger>
+            </i:Interaction.Triggers>
+
+        </TextBox>
+    </Grid>
+</Window>

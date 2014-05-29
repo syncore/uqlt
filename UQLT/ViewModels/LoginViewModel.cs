@@ -73,5 +73,10 @@ namespace UQLT.ViewModels
 			_windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
 			CloseWin();
 		}
+
+		public void OpenChatWindow()
+		{
+			_windowManager.ShowWindow(new ChatMessageViewModel());
+		}
 	}
 }

@@ -8,6 +8,6 @@
              
     <Grid Background="#FF761111" Height="500" Width="700">
         <Button x:Name="DoLogin" Content="Login" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="332,444,0,0"/>
-
+        <Button x:Name="OpenChatWindow" Content="Test Chat" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="426,444,0,0" RenderTransformOrigin="0.453,0.5"/>
     </Grid>
 </UserControl>
