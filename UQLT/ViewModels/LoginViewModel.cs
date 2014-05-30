@@ -74,9 +74,5 @@ namespace UQLT.ViewModels
 			CloseWin();
 		}
 
-		public void OpenChatWindow()
-		{
-			_windowManager.ShowWindow(new ChatMessageViewModel());
-		}
 	}
 }

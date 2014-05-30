@@ -30,4 +30,10 @@
 
         </TextBox>
     </Grid>
+    <!-- Remove this chat from the active chat when the window closses-->
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <cal:ActionMessage MethodName="RemoveActiveChat"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 </Window>

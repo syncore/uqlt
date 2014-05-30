@@ -89,7 +89,8 @@
     <Compile Include="Converters\LocIdToNameConverter.cs" />
     <Compile Include="Converters\QLRanksTypeToVisiblityConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
-    <Compile Include="Core\Chat\QLChatConnection.cs" />
+    <Compile Include="Core\Chat\QLChatGameInfo.cs" />
+    <Compile Include="Core\Chat\QLChatHandler.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
     <Compile Include="Events\FilterStatusEvent.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />

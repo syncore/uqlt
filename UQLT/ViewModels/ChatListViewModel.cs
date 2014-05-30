@@ -21,7 +21,14 @@ namespace UQLT.ViewModels
 	public class ChatListViewModel : PropertyChangedBase
 	{
 
-		private QLChatConnection QLChat;
+		private QLChatHandler Handler;
+		private agsXMPP.Jid Jid;
+
+		public IWindowManager windowManager
+		{
+			get;
+			private set;
+		}
 
 		private static string OnlineGroupTitle = "Online Friends";
 		private static string OfflineGroupTitle = "Offline Friends";
@@ -59,15 +66,16 @@ namespace UQLT.ViewModels
 		}
 
 		[ImportingConstructor]
-		public ChatListViewModel()
+		public ChatListViewModel(IWindowManager WindowManager)
 		{
+			windowManager = WindowManager;
 			_buddyList = new BindableCollection<RosterGroupViewModel>();
 			BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
 			BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
 			LoadFavoriteFriends();
 
 			// Instantiate a XMPP connection and hook up related events for this viewmodel
-			QLChat = new QLChatConnection(this);
+			Handler = new QLChatHandler(this, windowManager);
 
 		}
 
@@ -130,8 +138,7 @@ namespace UQLT.ViewModels
 			return (UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
 		}
 
-		// Add user to favorite friends
-
+		// Add user to favorite friends. Called from the view itself.
 		public void AddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
 		{
 			if (CanAddFavoriteFriend(kvp))
@@ -151,7 +158,7 @@ namespace UQLT.ViewModels
 
 		}
 
-		// Remove user from favorite friends
+		// Remove user from favorite friends. Called from the view itself.
 
 		public void RemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
 		{
@@ -171,7 +178,7 @@ namespace UQLT.ViewModels
 		}
 
 		// Refresh a player's game server information when the user highlights the player (via clicking his name or with keyboard) in the buddy list
-		// but only do so if the player is currently in a server
+		// but only do so if the player is currently in a server. Called from the view itself.
 
 		public void UpdatePlayerGameServerInfo(KeyValuePair<string, FriendViewModel> kvp)
 		{
@@ -179,13 +186,20 @@ namespace UQLT.ViewModels
 			if (kvp.Value.IsInGame)
 			{
 				Debug.WriteLine("Requesting server information for friend: " + kvp.Key + " server id: " + kvp.Value.Server.PublicId);
-				QLChat.UpdateServerInfoForStatus(kvp.Key);
+				Handler.ChatGameInfo.UpdateServerInfoForStatus(kvp.Key);
 			}
 			else
 			{
 				Debug.WriteLine("Not refreshing server info for player: " + kvp.Key + " because player isn't currently in a game server.");
 			}
 
+		}
+		// This is called from the view itself
+		public void OpenChatWindow(KeyValuePair<string, FriendViewModel> kvp)
+		{
+			// manual jid (missing resource, but shouldn't matter)
+			Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QLXMPPDomain);
+			windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler));
 		}
 
 	}

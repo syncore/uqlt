@@ -35,7 +35,7 @@ namespace UQLT.ViewModels
 			events.Subscribe(this);
 			_filterViewModel = new FilterViewModel(_events);
 			_serverBrowserViewModel = new ServerBrowserViewModel(_events);
-			_chatListViewModel = new ChatListViewModel(); // TODO: _events for any events, i.e.: hiding buddy list
+			_chatListViewModel = new ChatListViewModel(windowManager); // TODO: _events for any events, i.e.: hiding buddy list
 		}
 
 		public string DisplayName

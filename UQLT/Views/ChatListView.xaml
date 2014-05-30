@@ -135,6 +135,7 @@
                                 <!--Friend context menu actions-->
                                 <StackPanel.ContextMenu>
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Open chat" cal:Message.Attach="OpenChatWindow($dataContext)"/>
                                         <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)"/>
                                         <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)"/>
                                     </ContextMenu>
