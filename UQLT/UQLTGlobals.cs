@@ -99,18 +99,12 @@ namespace UQLT
 
 		static UQLTGlobals()
 		{
-			// Apparently Visual Studio Designer's ShadowCache cannot create directories, so in debug mode, do not include the data directory in the file path
-#if (DEBUG)
-			SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "savedfilters.json");
-			CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "currentfilters.json");
-			SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rosterfav.json");
-			ConfigPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "configuration.json");
-#elif (!DEBUG)
+
 			SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
 			CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
 			SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\rosterfav.json");
 			ConfigPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\configuration.json");
-#endif
+
 			IPAddressDict = new ConcurrentDictionary<string, long>();
 			PlayerEloInfo = new ConcurrentDictionary<string, EloData>();
 			SavedFavoriteFriends = new List<string>();

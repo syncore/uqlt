@@ -22,6 +22,9 @@ namespace UQLT.Views
 		public ChatMessageView()
 		{
 			InitializeComponent();
+			//UQLT.Helpers.WindowExtensions.FlashWindow(this, 6);
 		}
+
+
 	}
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using System.Windows.Media;
 using agsXMPP;
 using agsXMPP.Collections;
 using agsXMPP.protocol.client;
@@ -37,6 +39,7 @@ namespace UQLT.Core.Chat
 		private readonly IWindowManager windowManager;
 		private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 		public static Hashtable ActiveChats = new Hashtable();
+		private SoundPlayer sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
 
 		public QLChatGameInfo ChatGameInfo
 		{
@@ -122,9 +125,8 @@ namespace UQLT.Core.Chat
 			try
 			{
 				Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
-				//XmppCon.MessageGrabber.Add(new Jid(item.Jid.Bare.ToLowerInvariant()), new BareJidComparer(), new MessageCB(XmppCon_OnMessage), null);
 
-				// Additions and removals to ObservableDictionary must be done on the UI thread
+				// Additions and removals to ObservableDictionary must be done on the UI thread since ObservableDictionary is databound
 				Execute.OnUIThread(() =>
 				{
 					CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
@@ -133,15 +135,26 @@ namespace UQLT.Core.Chat
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
-				//MessageBox.Show(ex.ToString());
 			}
 		}
 
 		// Roster has been fully loaded
 
-		private void Test(object sender, agsXMPP.protocol.client.Message msg, object data)
+		public void PlayNotificationSound()
 		{
-			Debug.WriteLine("testing custom message callback");
+
+			Execute.OnUIThread(() =>
+			{
+				try
+				{
+					sp.Play();
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex);
+				}
+
+			});
 		}
 
 		private void XmppCon_OnRosterEnd(object sender)
@@ -165,6 +178,9 @@ namespace UQLT.Core.Chat
 						windowManager.ShowWindow(cm);
 						cm.IncomingMessage(msg);
 					});
+
+					PlayNotificationSound();
+
 				}
 				else
 				{
@@ -221,8 +237,6 @@ namespace UQLT.Core.Chat
 			if (string.IsNullOrEmpty(pres.Status))
 			{
 				ClearPlayerStatus(pres);
-				//TODO
-				// if player is in list of in game players to be updated every X (90? 120?) seconds, then remove him
 				Debug.WriteLine("**Status for " + pres.From.User.ToLowerInvariant() + " is empty.");
 			}
 			else
@@ -257,9 +271,6 @@ namespace UQLT.Core.Chat
 						CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
 						// query API to get type, map, location, player count info for status message
 						ChatGameInfo.CreateServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
-
-						// TODO
-						// Add to a list of players to be updated every X (90? 120?) seconds
 					}
 				}
 
@@ -277,9 +288,15 @@ namespace UQLT.Core.Chat
 
 		private void ClearPlayerStatus(Presence pres)
 		{
-			CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasXMPPStatus = false;
-			CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
-			CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
+			FriendViewModel val;
+			// On program start there is a timing issue where the key won't exist, so need to check first
+			if (CLVM.OnlineGroup.Friends.TryGetValue(pres.From.User.ToLowerInvariant(), out val))
+			{
+				CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].HasXMPPStatus = false;
+				CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsInGame = false;
+				CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].StatusType = 0;
+			}
+
 		}
 
 		private void FriendBecameAvailable(Presence pres)

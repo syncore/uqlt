@@ -98,10 +98,12 @@
     <Compile Include="Events\ServerCountEvent.cs" />
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
+    <Compile Include="Helpers\FlashWindowHelper.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
+    <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IQLRanksUpdater.cs" />
     <Compile Include="Interfaces\IUQLTConfiguration.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
@@ -133,6 +135,11 @@
     <Compile Include="Models\QLRanks\QLRanksPlayer.cs" />
     <Compile Include="Models\QLRanks\Tdm.cs" />
     <Compile Include="Models\QuakeLiveAPI\Server.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UQLTBootstrapper.cs" />
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
@@ -169,11 +176,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -181,6 +183,7 @@
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="currentfilters.json">
@@ -224,6 +227,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\sounds\notice.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

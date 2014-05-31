@@ -111,14 +111,11 @@ namespace UQLT.ViewModels
 				Debug.WriteLine("Incoming message body is: " + msg.Body);
 				IncomingMessage(msg);
 			}
-			else
-			{
-				Debug.WriteLine("Null message body...");
-			}
 		}
 
 		public void IncomingMessage(agsXMPP.protocol.client.Message msg)
 		{
+			_handler.PlayNotificationSound();
 			FromMessage += "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body + "\n";
 		}
 

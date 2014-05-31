@@ -117,7 +117,7 @@ namespace UQLT.Core.ServerBrowser
 
 			IList<Server> servers = await GetServersFromDetailsUrlAsync(detailsurl);
 
-			// Must be done on the UI thread
+			// Must be done on the UI thread since we're updating UI elements
 			Execute.OnUIThread(() =>
 			{
 				SBVM.Servers.Clear();
