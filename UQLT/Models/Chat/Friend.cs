@@ -50,5 +50,11 @@ namespace UQLT.Models.Chat
 			get;
 			set;
 		}
+
+		public bool IsOnline
+		{
+			get;
+			set;
+		}
 	}
 }

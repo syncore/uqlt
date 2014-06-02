@@ -99,6 +99,7 @@
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\FlashWindowHelper.cs" />
+    <Compile Include="Helpers\FocusBehavior.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />

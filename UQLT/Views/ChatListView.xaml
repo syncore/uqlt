@@ -45,13 +45,13 @@
                     <HierarchicalDataTemplate.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">
                             <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=Value.IsAutoExpanded}" />
+                            <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdatePlayerGameServerInfo($dataContext)]"/>
                         </Style>
                     </HierarchicalDataTemplate.ItemContainerStyle>
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}"
-                                        cal:Message.Attach="[Event MouseLeftButtonUp] = [Action UpdatePlayerGameServerInfo($dataContext)]">
+                            <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
                                 <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left"/>
                                 <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
                                 <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXMPPStatus, Converter={StaticResource BoolToVis}}"/>

@@ -5,7 +5,7 @@
         xmlns:helpers="clr-namespace:UQLT.Helpers"
         xmlns:cal="http://www.caliburnproject.org"
         Title="Chatting with" Height="400" Width="520">
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=OutgoingTextBox}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="520*"/>
 
@@ -27,10 +27,12 @@
                     </cal:ActionMessage>
                 </helpers:KeyPressTrigger>
             </i:Interaction.Triggers>
-
+            <!--<i:Interaction.Behaviors>
+                <helpers:FocusBehavior HasInitialFocus="True" IsFocused="{Binding IsOutgoingBoxFocused, Mode=TwoWay}"/>
+            </i:Interaction.Behaviors>-->
         </TextBox>
     </Grid>
-    <!-- Remove this chat from the active chat when the window closses-->
+    <!-- Remove this chat from active chats when the window closses-->
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <cal:ActionMessage MethodName="RemoveActiveChat"/>

@@ -20,6 +20,8 @@ namespace UQLT
 		{
 			Window window = base.EnsureWindow(model, view, isDialog);
 			window.SizeToContent = SizeToContent.WidthAndHeight;
+			window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+			window.Activate();
 			// Set an icon using code
 			Uri iconUri = new Uri("pack://application:,,,/icon.ico", UriKind.RelativeOrAbsolute);
 			window.Icon = BitmapFrame.Create(iconUri);

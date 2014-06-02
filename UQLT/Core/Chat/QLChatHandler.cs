@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Media;
@@ -100,10 +101,8 @@ namespace UQLT.Core.Chat
 			XmppCon.OnMessage += new MessageHandler(XmppCon_OnMessage);
 			XmppCon.ClientSocket.OnValidateCertificate += new RemoteCertificateValidationCallback(ClientSocket_OnValidateCertificate);
 
-
 			ConnectToXMPP();
 			_qlChatGameInfo = new QLChatGameInfo(this);
-
 
 		}
 
@@ -143,18 +142,14 @@ namespace UQLT.Core.Chat
 		public void PlayNotificationSound()
 		{
 
-			Execute.OnUIThread(() =>
+			try
 			{
-				try
-				{
-					sp.Play();
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex);
-				}
-
-			});
+				sp.Play();
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex);
+			}
 		}
 
 		private void XmppCon_OnRosterEnd(object sender)
@@ -172,14 +167,15 @@ namespace UQLT.Core.Chat
 				if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
 				{
 					var cm = new ChatMessageViewModel(msg.From, XmppCon, this);
+					dynamic settings = new ExpandoObject();
+					settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
 					Execute.OnUIThread(() =>
 					{
-						windowManager.ShowWindow(cm);
+						windowManager.ShowWindow(cm, null, settings);
 						cm.IncomingMessage(msg);
+						PlayNotificationSound();
 					});
-
-					PlayNotificationSound();
 
 				}
 				else
@@ -247,6 +243,7 @@ namespace UQLT.Core.Chat
 			}
 		}
 
+
 		// User has an XMPP status, meaning that the user is either doing one of three things: watching a demo, playing a practice match, or actually in a game server
 		// This method will determine which of these three things the user is doing.
 
@@ -313,6 +310,7 @@ namespace UQLT.Core.Chat
 					Execute.OnUIThread(() =>
 					{
 						CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
+						CLVM.OnlineGroup.Friends[pres.From.User.ToLowerInvariant()].IsOnline = true;
 					});
 					Debug.WriteLine("Friends list after adding " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
 				}
@@ -345,6 +343,9 @@ namespace UQLT.Core.Chat
 				{
 					CLVM.OnlineGroup.Friends.Remove(pres.From.User.ToLowerInvariant());
 					CLVM.OfflineGroup.Friends[pres.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(pres.From.User.ToLowerInvariant(), IsFavoriteFriend(pres.From.User)));
+					CLVM.OfflineGroup.Friends[pres.From.User.ToLowerInvariant()].IsOnline = false;
+
+
 				});
 				Debug.WriteLine("Friends list after removing " + pres.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
 			}
@@ -352,13 +353,21 @@ namespace UQLT.Core.Chat
 
 
 
-		public void SendMessage(Jid recipient, string message)
+		public bool SendMessage(Jid recipient, string message)
 		{
-			agsXMPP.protocol.client.Message msg = new agsXMPP.protocol.client.Message();
-			msg.Type = MessageType.chat;
-			msg.To = recipient;
-			msg.Body = message;
-			XmppCon.Send(msg);
+			if (IsFriendAlreadyOnline(recipient.User.ToLowerInvariant()))
+			{
+				agsXMPP.protocol.client.Message msg = new agsXMPP.protocol.client.Message();
+				msg.Type = MessageType.chat;
+				msg.To = recipient;
+				msg.Body = message;
+				XmppCon.Send(msg);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 
 		}
 

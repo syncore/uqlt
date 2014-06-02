@@ -111,6 +111,19 @@ namespace UQLT.ViewModels
 			}
 		}
 
+		public bool IsOnline
+		{
+			get
+			{
+				return RosterFriend.IsOnline;
+			}
+			set
+			{
+				RosterFriend.IsOnline = value;
+				NotifyOfPropertyChange(() => IsOnline);
+			}
+		}
+
 		public bool IsPracticeOrDemo
 		{
 			get

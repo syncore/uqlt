@@ -9,6 +9,8 @@ using UQLT.Models.Chat;
 using UQLT.Core.Chat;
 using UQLT.Helpers;
 using System.Windows.Input;
+using System.Dynamic;
+using System.Windows;
 
 namespace UQLT.ViewModels
 {
@@ -64,6 +66,7 @@ namespace UQLT.ViewModels
 				return BuddyList[1];
 			}
 		}
+
 
 		[ImportingConstructor]
 		public ChatListViewModel(IWindowManager WindowManager)
@@ -138,6 +141,7 @@ namespace UQLT.ViewModels
 			return (UQLTGlobals.SavedFavoriteFriends.Contains(kvp.Key)) ? true : false;
 		}
 
+
 		// Add user to favorite friends. Called from the view itself.
 		public void AddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
 		{
@@ -199,7 +203,12 @@ namespace UQLT.ViewModels
 		{
 			// manual jid (missing resource, but shouldn't matter)
 			Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QLXMPPDomain);
-			windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler));
+			dynamic settings = new ExpandoObject();
+			settings.Topmost = true;
+			settings.WindowStartupLocation = WindowStartupLocation.Manual;
+
+			windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler), null, settings);
+
 		}
 
 	}

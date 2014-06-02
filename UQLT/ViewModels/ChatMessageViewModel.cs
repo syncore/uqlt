@@ -75,11 +75,16 @@ namespace UQLT.ViewModels
 			_xmppcon = xmppcon;
 			_handler = handler;
 
-			QLChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
+			if (!QLChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
+			{
+				QLChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
+			}
 			Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid.ToString());
 			xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), new MessageCB(MessageCallback), null);
 		}
 
+
+		// This is called from the view itself.
 		public void RemoveActiveChat()
 		{
 			QLChatHandler.ActiveChats.Remove(_jid.Bare.ToLowerInvariant());
@@ -97,10 +102,17 @@ namespace UQLT.ViewModels
 			{
 
 				ToMessage = "[" + DateTime.Now.ToShortTimeString() + "] Me: " + message + "\n";
-				_handler.SendMessage(_jid, message);
-				Debug.WriteLine("Sending recipient: " + _jid.ToString() + " message: " + message);
-				FromMessage += ToMessage;
-				ToMessage = string.Empty;
+				if (_handler.SendMessage(_jid, message))
+				{
+					Debug.WriteLine("Sending recipient: " + _jid.ToString() + " message: " + message);
+					FromMessage += ToMessage;
+					ToMessage = string.Empty;
+				}
+				else
+				{
+					FromMessage = "" + _jid.User + " is offline. Message was not sent.\n";
+					ToMessage = string.Empty;
+				}
 			}
 		}
 
