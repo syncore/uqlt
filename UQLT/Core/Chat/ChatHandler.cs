@@ -173,7 +173,7 @@ namespace UQLT.Core.Chat
 					Execute.OnUIThread(() =>
 					{
 						windowManager.ShowWindow(cm, null, settings);
-						cm.IncomingMessage(msg);
+						cm.MessageIncoming(msg);
 						PlayNotificationSound();
 					});
 
@@ -369,6 +369,11 @@ namespace UQLT.Core.Chat
 				return false;
 			}
 
+		}
+
+		public string MyJidUser()
+		{
+			return XmppCon.MyJID.User.ToLowerInvariant();
 		}
 
 		private bool IsMe(Presence pres)

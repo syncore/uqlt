@@ -116,6 +116,7 @@
     <Compile Include="Core\Chat\ChatGameInfo.cs" />
     <Compile Include="Core\Chat\ChatHandler.cs" />
     <Compile Include="Core\Chat\ChatHistory.cs" />
+    <Compile Include="Core\Chat\TypeOfMessage.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
     <Compile Include="Events\FilterStatusEvent.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
