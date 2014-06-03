@@ -22,8 +22,9 @@ namespace UQLT.ViewModels
 	public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
 	{
 		private XmppClientConnection _xmppcon;
-		private QLChatHandler _handler;
+		private ChatHandler _handler;
 		private Jid _jid;
+		private ChatHistory _chathistory;
 
 		private string _displayName;
 
@@ -68,31 +69,33 @@ namespace UQLT.ViewModels
 		}
 
 		[ImportingConstructor]
-		public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, QLChatHandler handler)
+		public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler)
 		{
 			_jid = jid;
 			_displayName = "Chatting with " + _jid.User;
 			_xmppcon = xmppcon;
 			_handler = handler;
 
-			if (!QLChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
+			if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
 			{
-				QLChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
+				ChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
 			}
 			Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid.ToString());
 			xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), new MessageCB(MessageCallback), null);
+			_chathistory = new ChatHistory(this);
+
 		}
 
 
 		// This is called from the view itself.
 		public void RemoveActiveChat()
 		{
-			QLChatHandler.ActiveChats.Remove(_jid.Bare.ToLowerInvariant());
+			ChatHandler.ActiveChats.Remove(_jid.Bare.ToLowerInvariant());
 			_xmppcon.MessageGrabber.Remove(_jid);
 
 			// in the case where the manual string jid was added from the ChatListViewModel:
 			_xmppcon.MessageGrabber.Remove(_jid.Bare);
-			Debug.WriteLine("Window closed. Removed active chat from user: " + _jid.Bare.ToLowerInvariant() + " Current active chat count: " + QLChatHandler.ActiveChats.Count);
+			Debug.WriteLine("Window closed. Removed active chat from user: " + _jid.Bare.ToLowerInvariant() + " Current active chat count: " + ChatHandler.ActiveChats.Count);
 		}
 
 		// This is called from the view itself.
@@ -101,11 +104,13 @@ namespace UQLT.ViewModels
 			if (message.Length != 0)
 			{
 
-				ToMessage = "[" + DateTime.Now.ToShortTimeString() + "] Me: " + message + "\n";
+
 				if (_handler.SendMessage(_jid, message))
 				{
-					Debug.WriteLine("Sending recipient: " + _jid.ToString() + " message: " + message);
+					ToMessage = "[" + DateTime.Now.ToShortTimeString() + "] Me: " + message + "\n";
+					Debug.WriteLine("Attempting to send recipient: " + _jid.ToString() + " message: " + message);
 					FromMessage += ToMessage;
+					// log here
 					ToMessage = string.Empty;
 				}
 				else
@@ -129,6 +134,7 @@ namespace UQLT.ViewModels
 		{
 			_handler.PlayNotificationSound();
 			FromMessage += "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body + "\n";
+			// log here
 		}
 
 	}

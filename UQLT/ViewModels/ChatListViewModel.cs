@@ -23,7 +23,7 @@ namespace UQLT.ViewModels
 	public class ChatListViewModel : PropertyChangedBase
 	{
 
-		private QLChatHandler Handler;
+		private ChatHandler Handler;
 		private agsXMPP.Jid Jid;
 
 		public IWindowManager windowManager
@@ -78,7 +78,7 @@ namespace UQLT.ViewModels
 			LoadFavoriteFriends();
 
 			// Instantiate a XMPP connection and hook up related events for this viewmodel
-			Handler = new QLChatHandler(this, windowManager);
+			Handler = new ChatHandler(this, windowManager);
 
 		}
 

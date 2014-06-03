@@ -33,16 +33,16 @@ namespace UQLT.Core.Chat
 	/// <summary>
 	/// Helper class that handles backend XMPP connection and related XMPP events for the buddy list (ChatListViewModel) and Messages (ChatListMessageViewModel)
 	/// </summary>
-	public class QLChatHandler
+	public class ChatHandler
 	{
 		private XmppClientConnection _xmppCon;
-		private QLChatGameInfo _qlChatGameInfo;
+		private ChatGameInfo _qlChatGameInfo;
 		private readonly IWindowManager windowManager;
 		private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 		public static Hashtable ActiveChats = new Hashtable();
 		private SoundPlayer sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
 
-		public QLChatGameInfo ChatGameInfo
+		public ChatGameInfo ChatGameInfo
 		{
 			get
 			{
@@ -84,7 +84,7 @@ namespace UQLT.Core.Chat
 		}
 
 		// Buddylist
-		public QLChatHandler(ChatListViewModel clvm, IWindowManager wm)
+		public ChatHandler(ChatListViewModel clvm, IWindowManager wm)
 		{
 			CLVM = clvm;
 			windowManager = wm;
@@ -102,7 +102,7 @@ namespace UQLT.Core.Chat
 			XmppCon.ClientSocket.OnValidateCertificate += new RemoteCertificateValidationCallback(ClientSocket_OnValidateCertificate);
 
 			ConnectToXMPP();
-			_qlChatGameInfo = new QLChatGameInfo(this);
+			_qlChatGameInfo = new ChatGameInfo(this);
 
 		}
 

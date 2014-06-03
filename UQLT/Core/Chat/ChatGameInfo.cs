@@ -13,16 +13,16 @@ using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
 {
-	public class QLChatGameInfo
+	public class ChatGameInfo
 	{
 		private Timer GameServerUpdateTimer;
-		public QLChatHandler Handler
+		public ChatHandler Handler
 		{
 			get;
 			private set;
 		}
 
-		public QLChatGameInfo(QLChatHandler handler)
+		public ChatGameInfo(ChatHandler handler)
 		{
 			Handler = handler;
 			GameServerUpdateTimer = new Timer();
