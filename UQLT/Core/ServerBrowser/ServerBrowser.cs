@@ -28,26 +28,15 @@ namespace UQLT.Core.ServerBrowser
     /// </summary>
     public class ServerBrowser : IQLRanksUpdater
     {
+        private readonly IEventAggregator _events;
+
         // port regexp: colon with at least 4 numbers
         private Regex port = new Regex(@"[\:]\d{4,}");
 
         private Timer ServerRefreshTimer;
-        private readonly IEventAggregator _events;
 
         /// <summary>
-        /// Gets the ServerBrowserViewModel associated with this ServerBrowser.
-        /// </summary>
-        /// <value>
-        /// The ServerBrowserViewModel.
-        /// </value>
-        public ServerBrowserViewModel SBVM
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerBrowser"/> class.
+        /// Initializes a new instance of the <see cref="ServerBrowser" /> class.
         /// </summary>
         /// <param name="sbvm">The ServerBrowserViewModel associated with this ServerBrowser.</param>
         /// <param name="events">The events that this class publishes and/or receives.</param>
@@ -66,260 +55,60 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary>
-        /// Starts the server refresh timer.
+        /// Gets the ServerBrowserViewModel associated with this ServerBrowser.
         /// </summary>
-        public void StartServerRefreshTimer()
+        /// <value>The ServerBrowserViewModel.</value>
+        public ServerBrowserViewModel SBVM
         {
-            ServerRefreshTimer.Elapsed += new ElapsedEventHandler(OnServerRefresh);
-            ServerRefreshTimer.Interval = (SBVM.AutoRefreshSeconds * 1000);
-            ServerRefreshTimer.Enabled = true;
-            ServerRefreshTimer.AutoReset = true;
+            get;
+            private set;
         }
 
         /// <summary>
-        /// Stops the server refresh timer.
+        /// Asynchronously retrieves the player Elo information from the QLRanks API via HTTP GET request(s).
         /// </summary>
-        public void StopServerRefreshTimer()
+        /// <param name="players">The players.</param>
+        /// <returns>The elo information array.</returns>
+        public async Task<QLRanks> GetEloDataFromQLRanksAPIAsync(string players)
         {
-            //TODO: stop timer if we have launched a game, to prevent lag during game
-            ServerRefreshTimer.Enabled = false;
-        }
-
-        // This method is called every X seconds by the ServerRefreshTimer
-        /// <summary>
-        /// Called every time that the server refresh timer elapses.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="e">The <see cref="ElapsedEventArgs"/> instance containing the event data.</param>
-        private void OnServerRefresh(object source, ElapsedEventArgs e)
-        {
-            Debug.WriteLine("Performing automatic server refresh...");
-            var l = LoadServerListAsync(SBVM.FilterURL, true);
-        }
-
-        /// <summary>
-        /// Gets the filter URL on load.
-        /// </summary>
-        /// <returns>
-        /// The http://www.quakelive.com/browser/list?filter= URL with the proper filters base64 encoded & appended to it.
-        /// </returns>
-        private string GetFilterUrlOnLoad()
-        {
-            string url = null;
-            if (File.Exists(UQLTGlobals.SavedUserFilterPath))
-            {
-                try
-                {
-                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
-                    {
-                        string saved = sr.ReadToEnd();
-                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(saved);
-                        url = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Unable to retrieve filter url: " + ex);
-                    url = UQLTGlobals.QLDefaultFilter;
-                }
-            }
-            else
-            {
-                url = UQLTGlobals.QLDefaultFilter;
-            }
-            return url;
-        }
-
-        /// <summary>
-        /// Asynchrounously loads the Quake Live server list from a given /browser/list?filter= URL for display in the UI.
-        /// </summary>
-        /// <param name="filterurl">The /browser/list?filter= URL.</param>
-        /// <param name="doqlranksupdate">if set to <c>true</c> then perform a QLRanks update for all players within server list.</param>
-        /// <returns>
-        /// Nothing.
-        /// </returns>
-        public async Task LoadServerListAsync(string filterurl, bool doqlranksupdate = true)
-        {
-            filterurl = SBVM.FilterURL;
-
-            SBVM.IsUpdatingServers = true;
-
-            string detailsurl = await MakeDetailsUrlAsync(filterurl);
-
-            IList<Server> servers = await GetServersFromDetailsUrlAsync(detailsurl);
-
-            // Must be done on the UI thread since we're updating UI elements
-            Execute.OnUIThread(() =>
-            {
-                SBVM.Servers.Clear();
-                if (servers != null)
-                {
-                    foreach (var server in servers)
-                    {
-                        SBVM.Servers.Add(new ServerDetailsViewModel(server));
-                    }
-                }
-            });
-
-            SBVM.IsUpdatingServers = false;
-
-            // Send a message (event) to the MainViewModel to update the server count in the statusbar.
-            _events.Publish(new ServerCountEvent(SBVM.Servers.Count));
-
-            if (doqlranksupdate)
-            {
-                var g = GetQLRanksPlayersAsync(servers);
-            }
-        }
-
-        /// <summary>
-        /// Asynchronosly retrieves the server ids (public_id's) from a filter in order to make a /browser/details?ids= URL.
-        /// </summary>
-        /// <param name="url">The /browser/list?filter= URL.</param>
-        /// <returns>
-        /// A formatted http://www.quakelive.com/browser/details?ids=id1...id2...idn URL with all of the server ids appended to it.
-        /// </returns>
-        private async Task<string> MakeDetailsUrlAsync(string url)
-        {
-            url = SBVM.FilterURL;
-            List<string> ids = new List<string>();
             HttpClientHandler gzipHandler = new HttpClientHandler();
             HttpClient client = new HttpClient(gzipHandler);
 
             try
             {
-                // QL site sends gzip compressed responses
-                if (gzipHandler.SupportsAutomaticDecompression)
-                {
-                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                }
-
+                client.BaseAddress = new Uri("http://www.qlranks.com");
+                //client.BaseAddress = new Uri("http://10.0.0.7");
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(url);
+
+                HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
                 response.EnsureSuccessStatusCode(); // Throw on error code
+                string eloinfojson = await response.Content.ReadAsStringAsync();
 
-                // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
-                // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
-                // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                QLRanks qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
 
-                QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
-
-                foreach (QLAPIFilterServer qfs in qlfilter.servers)
-                {
-                    ids.Add(qfs.public_id.ToString());
-                }
-
-                Debug.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
-                return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
+                return qlr;
             }
-            catch (Exception ex)
+            catch (Newtonsoft.Json.JsonException jEx)
             {
-                Debug.WriteLine(ex);
-                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.WriteLine(jEx.Message);
+                return null;
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine(ex.Message);
                 return null;
             }
         }
 
         /// <summary>
-        /// Asynchronously retrieves the actual servers from the /browser/details?ids= URL created by <see cref="MakeDetailsUrlAsync"/>.
-        /// </summary>
-        /// <param name="url">The /browser/details?ids= URL.</param>
-        /// <returns>
-        /// A list of servers specified by the /browser/details?ids= URL
-        /// </returns>
-        /// <remarks>
-        /// Kind of an ugly kitchen sink method, will almost certainly need to be refactored at some point.
-        /// </remarks>
-        private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
-        {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
-            int totalplayercount = 0;
-            EloData val;
-
-            try
-            {
-                // QL site sends gzip compressed responses
-                if (gzipHandler.SupportsAutomaticDecompression)
-                {
-                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                }
-
-                UQLTGlobals.IPAddressDict.Clear();
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode(); // Throw on error code
-
-                // QL site actually doesn't send "application/json", but "text/html" even though it is actually JSON
-                // HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
-                List<string> addresses = new List<string>();
-
-                foreach (Server s in serverlist)
-                {
-                    string cleanedip = port.Replace(s.host_address, string.Empty);
-                    addresses.Add(cleanedip);
-                    UQLTGlobals.IPAddressDict[cleanedip] = 0;
-
-                    // set a custom property for game_type for each server's players
-                    s.setPlayerGameTypeFromServer(s.game_type);
-
-                    // create EloData for each player in the given server
-                    foreach (var player in s.players)
-                    {
-                        if (!UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
-                        {
-                            s.createEloData();
-                        }
-
-                        // track the player count
-                        totalplayercount++;
-                    }
-
-                    // Set the server's players' elo directly on the Player model
-                    foreach (var player in s.players)
-                    {
-                        s.setPlayerElos();
-                    }
-                }
-
-                List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
-
-                foreach (string address in addresses)
-                {
-                    pingTasks.Add(PingAsync(address));
-                }
-
-                // wait for all the tasks to complete
-                await Task.WhenAll(pingTasks.ToArray());
-
-                // iterate over list of pingTasks
-                foreach (var pingTask in pingTasks)
-                {
-                    UQLTGlobals.IPAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
-                    // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " + pingTask.Result.RoundtripTime + " ms ");
-                }
-
-                // Send a message (event) to the MainViewModel to update the player count in the statusbar
-                _events.Publish(new PlayerCountEvent(totalplayercount));
-
-                return serverlist;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex); // TODO: create a debug log on the disk
-                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously prepares the player information, given a list of QL servers, to be sent to the QLRanks API in the <see cref="GetEloDataFromQLRanksAPIAsync"/> method.
+        /// Asynchronously prepares the player information, given a list of QL servers, to be sent
+        /// to the QLRanks API in the <see cref="GetEloDataFromQLRanksAPIAsync" /> method.
         /// </summary>
         /// <param name="servers">The list of servers.</param>
-        /// <param name="maxPlayers">The maximum number of players to send to the limited QLRanks API per API call.</param>
+        /// <param name="maxPlayers">
+        /// The maximum number of players to send to the limited QLRanks API per API call.
+        /// </param>
         /// <returns></returns>
         public async Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
         {
@@ -335,7 +124,8 @@ namespace UQLT.Core.ServerBrowser
                     // Elo "caching"
                     if (UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                     {
-                        // If the player has our pre-defined default elo value of 0 (qlranks elo will never be 0) then add player to a list of players to be updated
+                        // If the player has our pre-defined default elo value of 0 (qlranks elo
+                        // will never be 0) then add player to a list of players to be updated
                         if (val.DuelElo == 0)
                         {
                             playerstoupdate.Add(player.name.ToLower());
@@ -384,7 +174,8 @@ namespace UQLT.Core.ServerBrowser
                     }
                 }
                 // Player elos have been set in dictionary, now set on the Player object itself
-                // TODO: this will allow using Properties and NotifyPropertyChange to update the player view in the server browser.
+                // TODO: this will allow using Properties and NotifyPropertyChange to update the
+                //       player view in the server browser.
                 foreach (var s in servers)
                 {
                     foreach (var player in s.players)
@@ -401,51 +192,259 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary>
-        /// Asynchronously retrieves the player Elo information from the QLRanks API via HTTP GET request(s).
+        /// Asynchrounously loads the Quake Live server list from a given /browser/list?filter= URL
+        /// for display in the UI.
         /// </summary>
-        /// <param name="players">The players.</param>
-        /// <returns>
-        /// The elo information array.
-        /// </returns>
-        public async Task<QLRanks> GetEloDataFromQLRanksAPIAsync(string players)
+        /// <param name="filterurl">The /browser/list?filter= URL.</param>
+        /// <param name="doqlranksupdate">
+        /// if set to <c>true</c> then perform a QLRanks update for all players within server list.
+        /// </param>
+        /// <returns>Nothing.</returns>
+        public async Task LoadServerListAsync(string filterurl, bool doqlranksupdate = true)
         {
+            filterurl = SBVM.FilterURL;
+
+            SBVM.IsUpdatingServers = true;
+
+            string detailsurl = await MakeDetailsUrlAsync(filterurl);
+
+            IList<Server> servers = await GetServersFromDetailsUrlAsync(detailsurl);
+
+            // Must be done on the UI thread since we're updating UI elements
+            Execute.OnUIThread(() =>
+            {
+                SBVM.Servers.Clear();
+                if (servers != null)
+                {
+                    foreach (var server in servers)
+                    {
+                        SBVM.Servers.Add(new ServerDetailsViewModel(server));
+                    }
+                }
+            });
+
+            SBVM.IsUpdatingServers = false;
+
+            // Send a message (event) to the MainViewModel to update the server count in the statusbar.
+            _events.Publish(new ServerCountEvent(SBVM.Servers.Count));
+
+            if (doqlranksupdate)
+            {
+                var g = GetQLRanksPlayersAsync(servers);
+            }
+        }
+
+        /// <summary>
+        /// Starts the server refresh timer.
+        /// </summary>
+        public void StartServerRefreshTimer()
+        {
+            ServerRefreshTimer.Elapsed += new ElapsedEventHandler(OnServerRefresh);
+            ServerRefreshTimer.Interval = (SBVM.AutoRefreshSeconds * 1000);
+            ServerRefreshTimer.Enabled = true;
+            ServerRefreshTimer.AutoReset = true;
+        }
+
+        /// <summary>
+        /// Stops the server refresh timer.
+        /// </summary>
+        public void StopServerRefreshTimer()
+        {
+            //TODO: stop timer if we have launched a game, to prevent lag during game
+            ServerRefreshTimer.Enabled = false;
+        }
+
+        /// <summary> Gets the filter URL on load. </summary> <returns> The
+        /// http://www.quakelive.com/browser/list?filter= URL with the proper filters base64 encoded
+        /// & appended to it. </returns>
+        private string GetFilterUrlOnLoad()
+        {
+            string url = null;
+            if (File.Exists(UQLTGlobals.SavedUserFilterPath))
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+                    {
+                        string saved = sr.ReadToEnd();
+                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(saved);
+                        url = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to retrieve filter url: " + ex);
+                    url = UQLTGlobals.QLDefaultFilter;
+                }
+            }
+            else
+            {
+                url = UQLTGlobals.QLDefaultFilter;
+            }
+            return url;
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the actual servers from the /browser/details?ids= URL created
+        /// by <see cref="MakeDetailsUrlAsync" />.
+        /// </summary>
+        /// <param name="url">The /browser/details?ids= URL.</param>
+        /// <returns>A list of servers specified by the /browser/details?ids= URL</returns>
+        /// <remarks>
+        /// Kind of an ugly kitchen sink method, will almost certainly need to be refactored at some point.
+        /// </remarks>
+        private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
+        {
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
+            int totalplayercount = 0;
+            EloData val;
+
+            try
+            {
+                // QL site sends gzip compressed responses
+                if (gzipHandler.SupportsAutomaticDecompression)
+                {
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                }
+
+                UQLTGlobals.IPAddressDict.Clear();
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Throw on error code
+
+                // QL site actually doesn't send "application/json", but "text/html" even though it
+                // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+                string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
+                List<string> addresses = new List<string>();
+
+                foreach (Server s in serverlist)
+                {
+                    string cleanedip = port.Replace(s.host_address, string.Empty);
+                    addresses.Add(cleanedip);
+                    UQLTGlobals.IPAddressDict[cleanedip] = 0;
+
+                    // set a custom property for game_type for each server's players
+                    s.setPlayerGameTypeFromServer(s.game_type);
+
+                    // create EloData for each player in the given server
+                    foreach (var player in s.players)
+                    {
+                        if (!UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
+                        {
+                            s.createEloData();
+                        }
+
+                        // track the player count
+                        totalplayercount++;
+                    }
+
+                    // Set the server's players' elo directly on the Player model
+                    foreach (var player in s.players)
+                    {
+                        s.setPlayerElos();
+                    }
+                }
+
+                List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
+
+                foreach (string address in addresses)
+                {
+                    pingTasks.Add(PingAsync(address));
+                }
+
+                // wait for all the tasks to complete
+                await Task.WhenAll(pingTasks.ToArray());
+
+                // iterate over list of pingTasks
+                foreach (var pingTask in pingTasks)
+                {
+                    UQLTGlobals.IPAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
+                    // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
+                    // pingTask.Result.RoundtripTime + " ms ");
+                }
+
+                // Send a message (event) to the MainViewModel to update the player count in the statusbar
+                _events.Publish(new PlayerCountEvent(totalplayercount));
+
+                return serverlist;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex); // TODO: create a debug log on the disk
+                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronosly retrieves the server ids (public_id's) from a filter in order to make a
+        /// /browser/details?ids= URL.
+        /// </summary>
+        /// <param name="url">The /browser/list?filter= URL.</param>
+        /// <returns>
+        /// A formatted http://www.quakelive.com/browser/details?ids=id1...id2...idn URL with all of
+        /// the server ids appended to it.
+        /// </returns>
+        private async Task<string> MakeDetailsUrlAsync(string url)
+        {
+            url = SBVM.FilterURL;
+            List<string> ids = new List<string>();
             HttpClientHandler gzipHandler = new HttpClientHandler();
             HttpClient client = new HttpClient(gzipHandler);
 
             try
             {
-                client.BaseAddress = new Uri("http://www.qlranks.com");
-                //client.BaseAddress = new Uri("http://10.0.0.7");
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                // QL site sends gzip compressed responses
+                if (gzipHandler.SupportsAutomaticDecompression)
+                {
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                }
+
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-
-                HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
+                HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
-                string eloinfojson = await response.Content.ReadAsStringAsync();
 
-                QLRanks qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
+                // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
+                // QL site actually doesn't send "application/json", but "text/html" even though it
+                // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
+                string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
 
-                return qlr;
+                QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
+
+                foreach (QLAPIFilterServer qfs in qlfilter.servers)
+                {
+                    ids.Add(qfs.public_id.ToString());
+                }
+
+                Debug.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
+                return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
             }
-            catch (Newtonsoft.Json.JsonException jEx)
+            catch (Exception ex)
             {
-                Debug.WriteLine(jEx.Message);
+                Debug.WriteLine(ex);
+                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
-            catch (HttpRequestException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return null;
-            }
+        }
+
+        /// <summary>
+        /// Called every time that the server refresh timer elapses.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="e">The <see cref="ElapsedEventArgs" /> instance containing the event data.</param>
+        private void OnServerRefresh(object source, ElapsedEventArgs e)
+        {
+            Debug.WriteLine("Performing automatic server refresh...");
+            var l = LoadServerListAsync(SBVM.FilterURL, true);
         }
 
         /// <summary>
         /// Asynchronously pings a given address.
         /// </summary>
         /// <param name="address">The address.</param>
-        /// <returns>
-        /// The round-trip time.
-        /// </returns>
+        /// <returns>The round-trip time.</returns>
         private Task<PingReply> PingAsync(string address)
         {
             var tcs = new TaskCompletionSource<PingReply>();

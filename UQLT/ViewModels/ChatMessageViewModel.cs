@@ -16,93 +16,17 @@ namespace UQLT.ViewModels
     [Export(typeof(ChatMessageViewModel))]
     public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
     {
-        private XmppClientConnection _xmppcon;
-        private ChatHandler _handler;
-        private Jid _jid;
         private ChatHistory _chathistory;
-
         private string _displayName;
-
-        /// <summary>
-        /// Gets or Sets the display name of the window (ChatMessageView) associated with this view model.
-        /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                return _displayName;
-            }
-            set
-            {
-                _displayName = value;
-            }
-        }
-
-        private StringBuilder _receivedMessages = new StringBuilder();
-
-        /// <summary>
-        /// Gets or sets the received messages.
-        /// </summary>
-        /// <value>
-        /// The received messages.
-        /// </value>
-        public string ReceivedMessages
-        {
-            get
-            {
-                return _receivedMessages.ToString();
-            }
-            set
-            {
-                _receivedMessages.Append(value);
-                NotifyOfPropertyChange(() => ReceivedMessages);
-            }
-        }
-
+        private ChatHandler _handler;
         private string _incomingMessage;
-
-        /// <summary>
-        /// Gets or sets the incoming message.
-        /// </summary>
-        /// <value>
-        /// The incoming message.
-        /// </value>
-        public string IncomingMessage
-        {
-            get
-            {
-                return _incomingMessage;
-            }
-            set
-            {
-                _incomingMessage = value;
-                NotifyOfPropertyChange(() => IncomingMessage);
-            }
-        }
-
+        private Jid _jid;
         private string _outgoingMessage;
+        private StringBuilder _receivedMessages = new StringBuilder();
+        private XmppClientConnection _xmppcon;
 
         /// <summary>
-        /// Gets or sets the outgoing message.
-        /// </summary>
-        /// <value>
-        /// The outgoing message.
-        /// </value>
-        public string OutgoingMessage
-        {
-            get
-            {
-                return _outgoingMessage;
-            }
-            set
-            {
-                _outgoingMessage = value;
-                NotifyOfPropertyChange(() => OutgoingMessage);
-            }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChatMessageViewModel"/> class.
+        /// Initializes a new instance of the <see cref="ChatMessageViewModel" /> class.
         /// </summary>
         /// <param name="jid">The jid of the user we are chatting with.</param>
         /// <param name="xmppcon">The XmppClientConnection to use for this viewmodel.</param>
@@ -127,7 +51,74 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Appends the chat history between the currently-logged in user and the remote user to the chat window.
+        /// Gets or Sets the display name of the window (ChatMessageView) associated with this view model.
+        /// </summary>
+        public string DisplayName
+        {
+            get
+            {
+                return _displayName;
+            }
+            set
+            {
+                _displayName = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the incoming message.
+        /// </summary>
+        /// <value>The incoming message.</value>
+        public string IncomingMessage
+        {
+            get
+            {
+                return _incomingMessage;
+            }
+            set
+            {
+                _incomingMessage = value;
+                NotifyOfPropertyChange(() => IncomingMessage);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the outgoing message.
+        /// </summary>
+        /// <value>The outgoing message.</value>
+        public string OutgoingMessage
+        {
+            get
+            {
+                return _outgoingMessage;
+            }
+            set
+            {
+                _outgoingMessage = value;
+                NotifyOfPropertyChange(() => OutgoingMessage);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the received messages.
+        /// </summary>
+        /// <value>The received messages.</value>
+        public string ReceivedMessages
+        {
+            get
+            {
+                return _receivedMessages.ToString();
+            }
+            set
+            {
+                _receivedMessages.Append(value);
+                NotifyOfPropertyChange(() => ReceivedMessages);
+            }
+        }
+
+        /// <summary>
+        /// Appends the chat history between the currently-logged in user and the remote user to the
+        /// chat window.
         /// </summary>
         public void AppendChatHistory()
         {
@@ -135,11 +126,23 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Displays the incoming message.
+        /// </summary>
+        /// <param name="msg">The MSG.</param>
+        public void MessageIncoming(agsXMPP.protocol.client.Message msg)
+        {
+            _handler.PlayNotificationSound();
+            IncomingMessage = msg.Body + "\n";
+            ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + IncomingMessage;
+            // Log the message
+            _chathistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            IncomingMessage = string.Empty;
+        }
+
+        /// <summary>
         /// Removes this chat the active chats.
         /// </summary>
-        /// <remarks>
-        /// This is called from the view itself (when the view closes).
-        /// </remarks>
+        /// <remarks>This is called from the view itself (when the view closes).</remarks>
         public void RemoveActiveChat()
         {
             ChatHandler.ActiveChats.Remove(_jid.Bare.ToLowerInvariant());
@@ -154,9 +157,7 @@ namespace UQLT.ViewModels
         /// Sends the message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <remarks>
-        /// This is called from the view itself.
-        /// </remarks>
+        /// <remarks>This is called from the view itself.</remarks>
         public void SendMessage(string message)
         {
             if (message.Length != 0)
@@ -191,20 +192,6 @@ namespace UQLT.ViewModels
                 Debug.WriteLine("Incoming message body is: " + msg.Body);
                 MessageIncoming(msg);
             }
-        }
-
-        /// <summary>
-        /// Displays the incoming message.
-        /// </summary>
-        /// <param name="msg">The MSG.</param>
-        public void MessageIncoming(agsXMPP.protocol.client.Message msg)
-        {
-            _handler.PlayNotificationSound();
-            IncomingMessage = msg.Body + "\n";
-            ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + IncomingMessage;
-            // Log the message
-            _chathistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            IncomingMessage = string.Empty;
         }
     }
 }

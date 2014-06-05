@@ -8,9 +8,7 @@
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
+        /// <value>The name.</value>
         public string Name
         {
             get;
@@ -20,9 +18,7 @@
         /// <summary>
         /// Gets or sets the seconds.
         /// </summary>
-        /// <value>
-        /// The seconds.
-        /// </value>
+        /// <value>The seconds.</value>
         public int Seconds
         {
             get;
@@ -32,9 +28,7 @@
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
             return Name;

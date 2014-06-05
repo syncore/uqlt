@@ -10,85 +10,15 @@ namespace UQLT.Helpers
     /// <summary>
     /// Helper class that automatically sorts a grid view column
     /// By: Thomas Levesque
-    /// http://www.thomaslevesque.com/2009/08/04/wpf-automatically-sort-a-gridview-continued/
+    /// http: //www.thomaslevesque.com/2009/08/04/wpf-automatically-sort-a-gridview-continued/
     /// </summary>
     public class GridViewSort
     {
         #region Public attached properties
 
         /// <summary>
-        /// Gets the command.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static ICommand GetCommand(DependencyObject obj)
-        {
-            return (ICommand)obj.GetValue(CommandProperty);
-        }
-
-        /// <summary>
-        /// Sets the command.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="value">The value.</param>
-        public static void SetCommand(DependencyObject obj, ICommand value)
-        {
-            obj.SetValue(CommandProperty, value);
-        }
-
-        /// <summary>
-        /// Using a DependencyProperty as the backing store for Command.  This enables animation, styling, binding, etc...
-        /// </summary>
-        public static readonly DependencyProperty CommandProperty =
-            DependencyProperty.RegisterAttached(
-                "Command",
-                typeof(ICommand),
-                typeof(GridViewSort),
-                new UIPropertyMetadata(
-                    null,
-                    (o, e) =>
-                    {
-                        ItemsControl listView = o as ItemsControl;
-                        if (listView != null)
-                        {
-                            if (!GetAutoSort(listView)) // Don't change click handler if AutoSort enabled
-                            {
-                                if (e.OldValue != null && e.NewValue == null)
-                                {
-                                    listView.RemoveHandler(GridViewColumnHeader.ClickEvent, new RoutedEventHandler(ColumnHeader_Click));
-                                }
-                                if (e.OldValue == null && e.NewValue != null)
-                                {
-                                    listView.AddHandler(GridViewColumnHeader.ClickEvent, new RoutedEventHandler(ColumnHeader_Click));
-                                }
-                            }
-                        }
-                    }
-                )
-            );
-
-        /// <summary>
-        /// Determines whether automatic sorting is enabled or disabled.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static bool GetAutoSort(DependencyObject obj)
-        {
-            return (bool)obj.GetValue(AutoSortProperty);
-        }
-
-        /// <summary>
-        /// Sets the automatic sort.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="value">if set to <c>true</c> [value].</param>
-        public static void SetAutoSort(DependencyObject obj, bool value)
-        {
-            obj.SetValue(AutoSortProperty, value);
-        }
-
-        /// <summary>
-        /// Using a DependencyProperty as the backing store for AutoSort.  This enables animation, styling, binding, etc...
+        /// Using a DependencyProperty as the backing store for AutoSort. This enables animation,
+        /// styling, binding, etc...
         /// </summary>
         public static readonly DependencyProperty AutoSortProperty =
             DependencyProperty.RegisterAttached(
@@ -121,6 +51,91 @@ namespace UQLT.Helpers
             );
 
         /// <summary>
+        /// Using a DependencyProperty as the backing store for Command. This enables animation,
+        /// styling, binding, etc...
+        /// </summary>
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.RegisterAttached(
+                "Command",
+                typeof(ICommand),
+                typeof(GridViewSort),
+                new UIPropertyMetadata(
+                    null,
+                    (o, e) =>
+                    {
+                        ItemsControl listView = o as ItemsControl;
+                        if (listView != null)
+                        {
+                            if (!GetAutoSort(listView)) // Don't change click handler if AutoSort enabled
+                            {
+                                if (e.OldValue != null && e.NewValue == null)
+                                {
+                                    listView.RemoveHandler(GridViewColumnHeader.ClickEvent, new RoutedEventHandler(ColumnHeader_Click));
+                                }
+                                if (e.OldValue == null && e.NewValue != null)
+                                {
+                                    listView.AddHandler(GridViewColumnHeader.ClickEvent, new RoutedEventHandler(ColumnHeader_Click));
+                                }
+                            }
+                        }
+                    }
+                )
+            );
+
+        /// <summary>
+        /// Using a DependencyProperty as the backing store for PropertyName. This enables
+        /// animation, styling, binding, etc...
+        /// </summary>
+        public static readonly DependencyProperty PropertyNameProperty =
+            DependencyProperty.RegisterAttached(
+                "PropertyName",
+                typeof(string),
+                typeof(GridViewSort),
+                new UIPropertyMetadata(null)
+            );
+
+        /// <summary>
+        /// Using a DependencyProperty as the backing store for ShowSortGlyph. This enables
+        /// animation, styling, binding, etc...
+        /// </summary>
+        public static readonly DependencyProperty ShowSortGlyphProperty =
+            DependencyProperty.RegisterAttached("ShowSortGlyph", typeof(bool), typeof(GridViewSort), new UIPropertyMetadata(true));
+
+        /// <summary>
+        /// Using a DependencyProperty as the backing store for SortGlyphAscending. This enables
+        /// animation, styling, binding, etc...
+        /// </summary>
+        public static readonly DependencyProperty SortGlyphAscendingProperty =
+            DependencyProperty.RegisterAttached("SortGlyphAscending", typeof(ImageSource), typeof(GridViewSort), new UIPropertyMetadata(null));
+
+        /// <summary>
+        /// Using a DependencyProperty as the backing store for SortGlyphDescending. This enables
+        /// animation, styling, binding, etc...
+        /// </summary>
+        public static readonly DependencyProperty SortGlyphDescendingProperty =
+            DependencyProperty.RegisterAttached("SortGlyphDescending", typeof(ImageSource), typeof(GridViewSort), new UIPropertyMetadata(null));
+
+        /// <summary>
+        /// Determines whether automatic sorting is enabled or disabled.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static bool GetAutoSort(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(AutoSortProperty);
+        }
+
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static ICommand GetCommand(DependencyObject obj)
+        {
+            return (ICommand)obj.GetValue(CommandProperty);
+        }
+
+        /// <summary>
         /// Gets the name of the property.
         /// </summary>
         /// <param name="obj">The object.</param>
@@ -128,6 +143,56 @@ namespace UQLT.Helpers
         public static string GetPropertyName(DependencyObject obj)
         {
             return (string)obj.GetValue(PropertyNameProperty);
+        }
+
+        /// <summary>
+        /// Determines whether to show the sort glyph or not.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static bool GetShowSortGlyph(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ShowSortGlyphProperty);
+        }
+
+        /// <summary>
+        /// Gets the sort glyph ascending property.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static ImageSource GetSortGlyphAscending(DependencyObject obj)
+        {
+            return (ImageSource)obj.GetValue(SortGlyphAscendingProperty);
+        }
+
+        /// <summary>
+        /// Gets the sort glyph descending property.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static ImageSource GetSortGlyphDescending(DependencyObject obj)
+        {
+            return (ImageSource)obj.GetValue(SortGlyphDescendingProperty);
+        }
+
+        /// <summary>
+        /// Sets the automatic sort.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">if set to <c>true</c> [value].</param>
+        public static void SetAutoSort(DependencyObject obj, bool value)
+        {
+            obj.SetValue(AutoSortProperty, value);
+        }
+
+        /// <summary>
+        /// Sets the command.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">The value.</param>
+        public static void SetCommand(DependencyObject obj, ICommand value)
+        {
+            obj.SetValue(CommandProperty, value);
         }
 
         /// <summary>
@@ -141,27 +206,6 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Using a DependencyProperty as the backing store for PropertyName.  This enables animation, styling, binding, etc...
-        /// </summary>
-        public static readonly DependencyProperty PropertyNameProperty =
-            DependencyProperty.RegisterAttached(
-                "PropertyName",
-                typeof(string),
-                typeof(GridViewSort),
-                new UIPropertyMetadata(null)
-            );
-
-        /// <summary>
-        /// Determines whether to show the sort glyph or not.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static bool GetShowSortGlyph(DependencyObject obj)
-        {
-            return (bool)obj.GetValue(ShowSortGlyphProperty);
-        }
-
-        /// <summary>
         /// Sets the show sort glyph property.
         /// </summary>
         /// <param name="obj">The object.</param>
@@ -169,22 +213,6 @@ namespace UQLT.Helpers
         public static void SetShowSortGlyph(DependencyObject obj, bool value)
         {
             obj.SetValue(ShowSortGlyphProperty, value);
-        }
-
-        /// <summary>
-        /// Using a DependencyProperty as the backing store for ShowSortGlyph.  This enables animation, styling, binding, etc...
-        /// </summary>
-        public static readonly DependencyProperty ShowSortGlyphProperty =
-            DependencyProperty.RegisterAttached("ShowSortGlyph", typeof(bool), typeof(GridViewSort), new UIPropertyMetadata(true));
-
-        /// <summary>
-        /// Gets the sort glyph ascending property.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static ImageSource GetSortGlyphAscending(DependencyObject obj)
-        {
-            return (ImageSource)obj.GetValue(SortGlyphAscendingProperty);
         }
 
         /// <summary>
@@ -198,22 +226,6 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Using a DependencyProperty as the backing store for SortGlyphAscending.  This enables animation, styling, binding, etc...
-        /// </summary>
-        public static readonly DependencyProperty SortGlyphAscendingProperty =
-            DependencyProperty.RegisterAttached("SortGlyphAscending", typeof(ImageSource), typeof(GridViewSort), new UIPropertyMetadata(null));
-
-        /// <summary>
-        /// Gets the sort glyph descending property.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static ImageSource GetSortGlyphDescending(DependencyObject obj)
-        {
-            return (ImageSource)obj.GetValue(SortGlyphDescendingProperty);
-        }
-
-        /// <summary>
         /// Sets the sort glyph descending property.
         /// </summary>
         /// <param name="obj">The object.</param>
@@ -223,15 +235,16 @@ namespace UQLT.Helpers
             obj.SetValue(SortGlyphDescendingProperty, value);
         }
 
-        /// <summary>
-        /// Using a DependencyProperty as the backing store for SortGlyphDescending.  This enables animation, styling, binding, etc...
-        /// </summary>
-        public static readonly DependencyProperty SortGlyphDescendingProperty =
-            DependencyProperty.RegisterAttached("SortGlyphDescending", typeof(ImageSource), typeof(GridViewSort), new UIPropertyMetadata(null));
-
         #endregion Public attached properties
 
         #region Private attached properties
+
+        /// <summary>
+        /// Using a DependencyProperty as the backing store for SortedColumn. This enables
+        /// animation, styling, binding, etc...
+        /// </summary>
+        private static readonly DependencyProperty SortedColumnHeaderProperty =
+            DependencyProperty.RegisterAttached("SortedColumnHeader", typeof(GridViewColumnHeader), typeof(GridViewSort), new UIPropertyMetadata(null));
 
         /// <summary>
         /// Gets the sorted column header property.
@@ -253,12 +266,6 @@ namespace UQLT.Helpers
             obj.SetValue(SortedColumnHeaderProperty, value);
         }
 
-        /// <summary>
-        /// Using a DependencyProperty as the backing store for SortedColumn.  This enables animation, styling, binding, etc...
-        /// </summary>
-        private static readonly DependencyProperty SortedColumnHeaderProperty =
-            DependencyProperty.RegisterAttached("SortedColumnHeader", typeof(GridViewColumnHeader), typeof(GridViewSort), new UIPropertyMetadata(null));
-
         #endregion Private attached properties
 
         #region Column header click event handler
@@ -267,7 +274,7 @@ namespace UQLT.Helpers
         /// Handles the Click event of the ColumnHeader control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs" /> instance containing the event data.</param>
         private static void ColumnHeader_Click(object sender, RoutedEventArgs e)
         {
             GridViewColumnHeader headerClicked = e.OriginalSource as GridViewColumnHeader;
@@ -299,29 +306,6 @@ namespace UQLT.Helpers
         #endregion Column header click event handler
 
         #region Helper methods
-
-        /// <summary>
-        /// Gets the ancestor.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reference">The reference.</param>
-        /// <returns></returns>
-        public static T GetAncestor<T>(DependencyObject reference) where T : DependencyObject
-        {
-            DependencyObject parent = VisualTreeHelper.GetParent(reference);
-            while (!(parent is T))
-            {
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-            if (parent != null)
-            {
-                return (T)parent;
-            }
-            else
-            {
-                return null;
-            }
-        }
 
         /// <summary>
         /// Applies the sort.
@@ -364,6 +348,29 @@ namespace UQLT.Helpers
                         direction,
                         direction == ListSortDirection.Ascending ? GetSortGlyphAscending(listView) : GetSortGlyphDescending(listView));
                 SetSortedColumnHeader(listView, sortedColumnHeader);
+            }
+        }
+
+        /// <summary>
+        /// Gets the ancestor.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reference">The reference.</param>
+        /// <returns></returns>
+        public static T GetAncestor<T>(DependencyObject reference) where T : DependencyObject
+        {
+            DependencyObject parent = VisualTreeHelper.GetParent(reference);
+            while (!(parent is T))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            if (parent != null)
+            {
+                return (T)parent;
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -415,7 +422,7 @@ namespace UQLT.Helpers
             private ImageSource _sortGlyph;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="SortGlyphAdorner"/> class.
+            /// Initializes a new instance of the <see cref="SortGlyphAdorner" /> class.
             /// </summary>
             /// <param name="columnHeader">The column header.</param>
             /// <param name="direction">The direction.</param>
@@ -426,6 +433,33 @@ namespace UQLT.Helpers
                 _columnHeader = columnHeader;
                 _direction = direction;
                 _sortGlyph = sortGlyph;
+            }
+
+            /// <summary>
+            /// When overridden in a derived class, participates in rendering operations that are
+            /// directed by the layout system. The rendering instructions for this element are not
+            /// used directly when this method is invoked, and are instead preserved for later
+            /// asynchronous use by layout and drawing.
+            /// </summary>
+            /// <param name="drawingContext">
+            /// The drawing instructions for a specific element. This context is provided to the
+            /// layout system.
+            /// </param>
+            protected override void OnRender(DrawingContext drawingContext)
+            {
+                base.OnRender(drawingContext);
+
+                if (_sortGlyph != null)
+                {
+                    double x = _columnHeader.ActualWidth - 13;
+                    double y = _columnHeader.ActualHeight / 2 - 5;
+                    Rect rect = new Rect(x, y, 10, 10);
+                    drawingContext.DrawImage(_sortGlyph, rect);
+                }
+                else
+                {
+                    drawingContext.DrawGeometry(Brushes.LightGray, new Pen(Brushes.Gray, 1.0), GetDefaultGlyph());
+                }
             }
 
             /// <summary>
@@ -461,27 +495,6 @@ namespace UQLT.Helpers
 
                 PathGeometry pathGeometry = new PathGeometry(pathFigureCollection);
                 return pathGeometry;
-            }
-
-            /// <summary>
-            /// When overridden in a derived class, participates in rendering operations that are directed by the layout system. The rendering instructions for this element are not used directly when this method is invoked, and are instead preserved for later asynchronous use by layout and drawing.
-            /// </summary>
-            /// <param name="drawingContext">The drawing instructions for a specific element. This context is provided to the layout system.</param>
-            protected override void OnRender(DrawingContext drawingContext)
-            {
-                base.OnRender(drawingContext);
-
-                if (_sortGlyph != null)
-                {
-                    double x = _columnHeader.ActualWidth - 13;
-                    double y = _columnHeader.ActualHeight / 2 - 5;
-                    Rect rect = new Rect(x, y, 10, 10);
-                    drawingContext.DrawImage(_sortGlyph, rect);
-                }
-                else
-                {
-                    drawingContext.DrawGeometry(Brushes.LightGray, new Pen(Brushes.Gray, 1.0), GetDefaultGlyph());
-                }
             }
         }
 

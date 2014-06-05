@@ -6,7 +6,7 @@
     public class PlayerCountEvent
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlayerCountEvent"/> class.
+        /// Initializes a new instance of the <see cref="PlayerCountEvent" /> class.
         /// </summary>
         /// <param name="playercount">The player count.</param>
         public PlayerCountEvent(int playercount)
@@ -17,9 +17,7 @@
         /// <summary>
         /// Gets or sets the player count.
         /// </summary>
-        /// <value>
-        /// The player count.
-        /// </value>
+        /// <value>The player count.</value>
         public int PlayerCount
         {
             get;

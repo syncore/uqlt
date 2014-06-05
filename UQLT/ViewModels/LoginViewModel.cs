@@ -8,17 +8,18 @@ namespace UQLT.ViewModels
     [Export(typeof(LoginViewModel))]
 
     /// <summary>
-    /// The viewmodel for the LoginView, which serves as the starting point that the user sees when launching the application.
+    /// The viewmodel for the LoginView, which serves as the starting point that the user sees when
+    /// launching the application.
     /// </summary>
     public class LoginViewModel : PropertyChangedBase, IHaveDisplayName, IViewAware
     {
-        private readonly IWindowManager _windowManager;
         private readonly IEventAggregator _events;
+        private readonly IWindowManager _windowManager;
         private string _displayName = "Login to Quake Live";
         private Window dialogWindow;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoginViewModel"/> class.
+        /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
         /// </summary>
         /// <param name="windowManager">The window manager.</param>
         /// <param name="events">The events that this viewmodel publishes and/or subscribes to.</param>
@@ -50,17 +51,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Closes the window.
-        /// </summary>
-        /// <remarks>
-        /// For different ways to implement window closing, see: http://stackoverflow.com/questions/10090584/how-to-close-dialog-window-from-viewmodel-caliburnwpf
-        /// </remarks>
-        public void CloseWin()
-        {
-            dialogWindow.Close();
-        }
-
-        /// <summary>
         /// Attaches a view to this instance.
         /// </summary>
         /// <param name="view">The view.</param>
@@ -79,15 +69,12 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets a view previously attached to this instance.
+        /// Closes the window.
         /// </summary>
-        /// <param name="context">The context denoting which view to retrieve.</param>
-        /// <returns>
-        /// The view.
-        /// </returns>
-        public object GetView(object context = null)
+        /// <remarks>For different ways to implement window closing, see: http://stackoverflow.com/questions/10090584/how-to-close-dialog-window-from-viewmodel-caliburnwpf</remarks>
+        public void CloseWin()
         {
-            return dialogWindow;
+            dialogWindow.Close();
         }
 
         /// <summary>
@@ -95,9 +82,20 @@ namespace UQLT.ViewModels
         /// </summary>
         public void DoLogin()
         {
-            // TODO: have some login logic here.. if successful then show main window and close this current window
+            // TODO: have some login logic here.. if successful then show main window and close this
+            //       current window
             _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
             CloseWin();
+        }
+
+        /// <summary>
+        /// Gets a view previously attached to this instance.
+        /// </summary>
+        /// <param name="context">The context denoting which view to retrieve.</param>
+        /// <returns>The view.</returns>
+        public object GetView(object context = null)
+        {
+            return dialogWindow;
         }
     }
 }

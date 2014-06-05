@@ -7,16 +7,14 @@
         Title="Chatting with" Height="400" Width="520">
     <Grid FocusManager.FocusedElement="{Binding ElementName=OutgoingTextBox}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="520*"/>
-
+            <ColumnDefinition Width="520*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="353*"/>
-            <RowDefinition Height="150*"/>
-
+            <RowDefinition Height="353*" />
+            <RowDefinition Height="150*" />
         </Grid.RowDefinitions>
         <!-- Message contents textbox -->
-        <TextBox x:Name="ReceivedTextBox" Grid.Row="0" HorizontalAlignment="Left" Height="260" TextWrapping="Wrap" Text="{Binding ReceivedMessages}" VerticalAlignment="Top" Width="512" IsUndoEnabled="False" UndoLimit="0" IsReadOnly="True"/>
+        <TextBox x:Name="ReceivedTextBox" Grid.Row="0" HorizontalAlignment="Left" Height="260" TextWrapping="Wrap" Text="{Binding ReceivedMessages}" VerticalAlignment="Top" Width="512" IsUndoEnabled="False" UndoLimit="0" IsReadOnly="True" />
         <!--Outgoing message textbox-->
         <TextBox x:Name="OutgoingTextBox" Grid.Row="1" HorizontalAlignment="Left" Height="110" TextWrapping="Wrap" Text="{Binding OutgoingMessage}" VerticalAlignment="Top" Width="512" UndoLimit="3">
             <!--Enter key has been pressed. Send the message-->
@@ -32,7 +30,7 @@
     <!-- Remove this chat from active chats when the window closses-->
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
-            <cal:ActionMessage MethodName="RemoveActiveChat"/>
+            <cal:ActionMessage MethodName="RemoveActiveChat" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 </Window>

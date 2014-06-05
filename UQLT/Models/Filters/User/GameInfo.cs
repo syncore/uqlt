@@ -9,12 +9,10 @@ namespace UQLT.Models.Filters.User
     public class GameInfo
     {
         /// <summary>
-        /// Gets or sets the type.
+        /// Gets or sets the gtarr.
         /// </summary>
-        /// <value>
-        /// The type.
-        /// </value>
-        public string type
+        /// <value>The gtarr.</value>
+        public List<int> gtarr
         {
             get;
             set;
@@ -23,22 +21,8 @@ namespace UQLT.Models.Filters.User
         /// <summary>
         /// Gets or sets the ig.
         /// </summary>
-        /// <value>
-        /// The ig.
-        /// </value>
+        /// <value>The ig.</value>
         public object ig
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the gtarr.
-        /// </summary>
-        /// <value>
-        /// The gtarr.
-        /// </value>
-        public List<int> gtarr
         {
             get;
             set;
@@ -47,10 +31,18 @@ namespace UQLT.Models.Filters.User
         /// <summary>
         /// Gets or sets the ranked.
         /// </summary>
-        /// <value>
-        /// The ranked.
-        /// </value>
+        /// <value>The ranked.</value>
         public object ranked
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the type.
+        /// </summary>
+        /// <value>The type.</value>
+        public string type
         {
             get;
             set;

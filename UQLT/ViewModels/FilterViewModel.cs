@@ -22,66 +22,53 @@ namespace UQLT.ViewModels
     /// </summary>
     public class FilterViewModel : PropertyChangedBase, IHandle<FilterVisibilityEvent>
     {
-        // list of maps that receive "tag" description for arena_type when building filter string
-        private static List<string> arenaTag = new List<string>();
-
         // list of maps that receive "map" description for arena_type when building filter string
         private static List<string> arenaMap = new List<string>();
 
+        // list of maps that receive "tag" description for arena_type when building filter string
+        private static List<string> arenaTag = new List<string>();
+
         private readonly IEventAggregator _events;
 
+        private List<Arena> _arenas;
+        private List<Difficulty> _difficulty;
+        private int _gameArenaIndex;
+        private List<GameInfo> _gameInfo;
+        private int _gameLocationIndex;
+        private bool _gamePremiumBool;
+        private int _gamePremiumIndex;
+        private List<GameState> _gamestate;
+        private int _gameStateIndex;
+        private int _gameTypeIndex;
+        private List<GameType> _gameTypes;
+        private List<string> _gameVisibility = new List<string>();
+        private int _gameVisibilityIndex;
         private bool _isVisible = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is visible.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is visible; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsVisible
-        {
-            get
-            {
-                return _isVisible;
-            }
-
-            set
-            {
-                _isVisible = value;
-                NotifyOfPropertyChange(() => IsVisible);
-            }
-        }
 
         private List<Location> _locations;
 
         /// <summary>
-        /// Gets or sets the locations to be used in the view.
+        /// Initializes a new instance of the <see cref="FilterViewModel" /> class.
         /// </summary>
-        /// <value>
-        /// The locations.
-        /// </value>
-        public List<Location> Locations
+        /// <param name="events">The events that this viewmodel publishes/subscribes to.</param>
+        [ImportingConstructor]
+        public FilterViewModel(IEventAggregator events)
         {
-            get
-            {
-                return _locations;
-            }
+            _events = events;
+            events.Subscribe(this);
 
-            set
-            {
-                _locations = value;
-                NotifyOfPropertyChange(() => Locations);
-            }
+            // Loading filters: game visibility types don't depend on saved filter file
+            _gameVisibility.Add("Public games");
+            _gameVisibility.Add("Private games");
+
+            //TODO: implement downloading of filter list functionality
+            var p = PopulateAndApplyFiltersAsync();
         }
-
-        private List<Arena> _arenas;
 
         /// <summary>
         /// Gets or sets the arenas to be used in the view.
         /// </summary>
-        /// <value>
-        /// The arenas.
-        /// </value>
+        /// <value>The arenas.</value>
         public List<Arena> Arenas
         {
             get
@@ -96,14 +83,10 @@ namespace UQLT.ViewModels
             }
         }
 
-        private List<Difficulty> _difficulty;
-
         /// <summary>
         /// Gets or sets the difficulties to be displayed in the view.
         /// </summary>
-        /// <value>
-        /// The difficulties.
-        /// </value>
+        /// <value>The difficulties.</value>
         public List<Difficulty> Difficulty
         {
             get
@@ -118,118 +101,10 @@ namespace UQLT.ViewModels
             }
         }
 
-        private List<GameState> _gamestate;
-
-        /// <summary>
-        /// Gets or sets the gamestates to be displayed in the view.
-        /// </summary>
-        /// <value>
-        /// The gamestates.
-        /// </value>
-        public List<GameState> GameState
-        {
-            get
-            {
-                return _gamestate;
-            }
-
-            set
-            {
-                _gamestate = value;
-                NotifyOfPropertyChange(() => GameState);
-            }
-        }
-
-        private List<GameType> _gameTypes;
-
-        /// <summary>
-        /// Gets or sets the game types to be displayed in the view.
-        /// </summary>
-        /// <value>
-        /// The game types.
-        /// </value>
-        public List<GameType> GameTypes
-        {
-            get
-            {
-                return _gameTypes;
-            }
-
-            set
-            {
-                _gameTypes = value;
-                NotifyOfPropertyChange(() => GameTypes);
-            }
-        }
-
-        private List<GameInfo> _gameInfo;
-
-        /// <summary>
-        /// Gets or sets the game information.
-        /// </summary>
-        /// <value>
-        /// The game information.
-        /// </value>
-        public List<GameInfo> GameInfo
-        {
-            get
-            {
-                return _gameInfo;
-            }
-
-            set
-            {
-                _gameInfo = value;
-                NotifyOfPropertyChange(() => GameInfo);
-            }
-        }
-
-        private List<string> _gameVisibility = new List<string>();
-
-        /// <summary>
-        /// Gets the game visibilities to be displayed in the view.
-        /// </summary>
-        /// <value>
-        /// The game visibility.
-        /// </value>
-        public List<string> GameVisibility
-        {
-            get
-            {
-                return _gameVisibility;
-            }
-        }
-
-        private int _gameTypeIndex;
-
-        /// <summary>
-        /// Gets or sets the index of the game type.
-        /// </summary>
-        /// <value>
-        /// The index of the game type.
-        /// </value>
-        public int GameTypeIndex
-        {
-            get
-            {
-                return _gameTypeIndex;
-            }
-
-            set
-            {
-                _gameTypeIndex = value;
-                NotifyOfPropertyChange(() => GameTypeIndex);
-            }
-        }
-
-        private int _gameArenaIndex;
-
         /// <summary>
         /// Gets or sets the index of the game arena.
         /// </summary>
-        /// <value>
-        /// The index of the game arena.
-        /// </value>
+        /// <value>The index of the game arena.</value>
         public int GameArenaIndex
         {
             get
@@ -244,14 +119,28 @@ namespace UQLT.ViewModels
             }
         }
 
-        private int _gameLocationIndex;
+        /// <summary>
+        /// Gets or sets the game information.
+        /// </summary>
+        /// <value>The game information.</value>
+        public List<GameInfo> GameInfo
+        {
+            get
+            {
+                return _gameInfo;
+            }
+
+            set
+            {
+                _gameInfo = value;
+                NotifyOfPropertyChange(() => GameInfo);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the index of the game location.
         /// </summary>
-        /// <value>
-        /// The index of the game location.
-        /// </value>
+        /// <value>The index of the game location.</value>
         public int GameLocationIndex
         {
             get
@@ -266,80 +155,10 @@ namespace UQLT.ViewModels
             }
         }
 
-        private int _gameStateIndex;
-
-        /// <summary>
-        /// Gets or sets the index of the game state.
-        /// </summary>
-        /// <value>
-        /// The index of the game state.
-        /// </value>
-        public int GameStateIndex
-        {
-            get
-            {
-                return _gameStateIndex;
-            }
-
-            set
-            {
-                _gameStateIndex = value;
-                NotifyOfPropertyChange(() => GameStateIndex);
-            }
-        }
-
-        private int _gameVisibilityIndex;
-
-        /// <summary>
-        /// Gets or sets the index of the game visibility.
-        /// </summary>
-        /// <value>
-        /// The index of the game visibility.
-        /// </value>
-        public int GameVisibilityIndex
-        {
-            get
-            {
-                return _gameVisibilityIndex;
-            }
-
-            set
-            {
-                _gameVisibilityIndex = value;
-                NotifyOfPropertyChange(() => GameVisibilityIndex);
-            }
-        }
-
-        private int _gamePremiumIndex;
-
-        /// <summary>
-        /// Gets or sets the index of the game premium.
-        /// </summary>
-        /// <value>
-        /// The index of the game premium.
-        /// </value>
-        public int GamePremiumIndex
-        {
-            get
-            {
-                return _gamePremiumIndex;
-            }
-
-            set
-            {
-                _gamePremiumIndex = value;
-                NotifyOfPropertyChange(() => GamePremiumIndex);
-            }
-        }
-
-        private bool _gamePremiumBool;
-
         /// <summary>
         /// Gets or sets a value indicating whether the game is a premium game or not.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if game is premium; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if game is premium; otherwise, <c>false</c>.</value>
         public bool GamePremiumBool
         {
             get
@@ -355,32 +174,159 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilterViewModel"/> class.
+        /// Gets or sets the index of the game premium.
         /// </summary>
-        /// <param name="events">The events that this viewmodel publishes/subscribes to.</param>
-        [ImportingConstructor]
-        public FilterViewModel(IEventAggregator events)
+        /// <value>The index of the game premium.</value>
+        public int GamePremiumIndex
         {
-            _events = events;
-            events.Subscribe(this);
+            get
+            {
+                return _gamePremiumIndex;
+            }
 
-            // Loading filters:
-            // game visibility types don't depend on saved filter file
-            _gameVisibility.Add("Public games");
-            _gameVisibility.Add("Private games");
-
-            //TODO: implement downloading of filter list functionality
-            var p = PopulateAndApplyFiltersAsync();
+            set
+            {
+                _gamePremiumIndex = value;
+                NotifyOfPropertyChange(() => GamePremiumIndex);
+            }
         }
 
         /// <summary>
-        /// Handles the specified message (event).
+        /// Gets or sets the gamestates to be displayed in the view.
         /// </summary>
-        /// <param name="message">The message (event)</param>
-        public void Handle(FilterVisibilityEvent message)
+        /// <value>The gamestates.</value>
+        public List<GameState> GameState
         {
-            IsVisible = message.FilterViewVisibility;
-            // Debug.WriteLine("Visibility: " + message.FilterViewVisibility);
+            get
+            {
+                return _gamestate;
+            }
+
+            set
+            {
+                _gamestate = value;
+                NotifyOfPropertyChange(() => GameState);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the index of the game state.
+        /// </summary>
+        /// <value>The index of the game state.</value>
+        public int GameStateIndex
+        {
+            get
+            {
+                return _gameStateIndex;
+            }
+
+            set
+            {
+                _gameStateIndex = value;
+                NotifyOfPropertyChange(() => GameStateIndex);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the index of the game type.
+        /// </summary>
+        /// <value>The index of the game type.</value>
+        public int GameTypeIndex
+        {
+            get
+            {
+                return _gameTypeIndex;
+            }
+
+            set
+            {
+                _gameTypeIndex = value;
+                NotifyOfPropertyChange(() => GameTypeIndex);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the game types to be displayed in the view.
+        /// </summary>
+        /// <value>The game types.</value>
+        public List<GameType> GameTypes
+        {
+            get
+            {
+                return _gameTypes;
+            }
+
+            set
+            {
+                _gameTypes = value;
+                NotifyOfPropertyChange(() => GameTypes);
+            }
+        }
+
+        /// <summary>
+        /// Gets the game visibilities to be displayed in the view.
+        /// </summary>
+        /// <value>The game visibility.</value>
+        public List<string> GameVisibility
+        {
+            get
+            {
+                return _gameVisibility;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the index of the game visibility.
+        /// </summary>
+        /// <value>The index of the game visibility.</value>
+        public int GameVisibilityIndex
+        {
+            get
+            {
+                return _gameVisibilityIndex;
+            }
+
+            set
+            {
+                _gameVisibilityIndex = value;
+                NotifyOfPropertyChange(() => GameVisibilityIndex);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is visible.
+        /// </summary>
+        /// <value><c>true</c> if this instance is visible; otherwise, <c>false</c>.</value>
+        public bool IsVisible
+        {
+            get
+            {
+                return _isVisible;
+            }
+
+            set
+            {
+                _isVisible = value;
+                NotifyOfPropertyChange(() => IsVisible);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the locations to be used in the view.
+        /// </summary>
+        /// <value>The locations.</value>
+        public List<Location> Locations
+        {
+            get
+            {
+                return _locations;
+            }
+
+            set
+            {
+                _locations = value;
+                NotifyOfPropertyChange(() => Locations);
+            }
         }
 
         /// <summary>
@@ -399,56 +345,27 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Saves the new user filters. This makes the current selections in the view's comboboxes (or from the filter file, depending on the caller) the new default filters.
+        /// Handles the specified message (event).
         /// </summary>
-        /// <param name="selGameTypeIndex">Index of the selected game type.</param>
-        /// <param name="selGameArenaIndex">Index of the selected game arena.</param>
-        /// <param name="selGameLocationIndex">Index of the selected game location.</param>
-        /// <param name="selGameStateIndex">Index of the selected game state.</param>
-        /// <param name="selGameVisibilityIndex">Index of the selected game visibility.</param>
-        /// <param name="selGamePremiumBool">if set to <c>true</c> [selected game premium bool].</param>
-        public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
+        /// <param name="message">The message (event)</param>
+        public void Handle(FilterVisibilityEvent message)
         {
-            int selGamePremiumIndex = 0;
-            if (selGamePremiumBool == true)
-            {
-                selGamePremiumIndex = 1;
-            }
-            else if (selGamePremiumBool == false)
-            {
-                selGamePremiumIndex = 0;
-            }
-
-            // Filter to object for json file
-            var sf = new SavedFilters()
-            {
-                type_in = selGameTypeIndex,
-                arena_in = selGameArenaIndex,
-                location_in = selGameLocationIndex,
-                state_in = selGameStateIndex,
-                visibility_in = selGameVisibilityIndex,
-                premium_in = selGamePremiumIndex,
-                fltr_enc = ReceiveIndexesForEncoding(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool)
-            };
-
-            // Write json file to disk
-            string savedfilterjson = JsonConvert.SerializeObject(sf);
-            using (FileStream fs = File.Create(UQLTGlobals.SavedUserFilterPath))
-            using (TextWriter writer = new StreamWriter(fs))
-            {
-                writer.WriteLine(savedfilterjson);
-            }
+            IsVisible = message.FilterViewVisibility;
+            // Debug.WriteLine("Visibility: " + message.FilterViewVisibility);
         }
 
         /// <summary>
-        /// Makes the encoded filter. This takes the output from the filter menu, processes it, and returns base64 encoded filter json.
+        /// Makes the encoded filter. This takes the output from the filter menu, processes it, and
+        /// returns base64 encoded filter json.
         /// </summary>
         /// <param name="gametype">The gametype.</param>
         /// <param name="arena">The arena.</param>
         /// <param name="state">The state.</param>
         /// <param name="location">The location.</param>
         /// <param name="priv">Whether the game is private</param>
-        /// <param name="ispremium">if set to <c>true</c> then the game is premium, if <c>false</c> then it is not premium.</param>
+        /// <param name="ispremium">
+        /// if set to <c>true</c> then the game is premium, if <c>false</c> then it is not premium.
+        /// </param>
         /// <returns>Base64 encoded json filter data.</returns>
         public string MakeEncodedFilter(string gametype, string arena, string state, object location, object priv, bool ispremium)
         {
@@ -457,7 +374,8 @@ namespace UQLT.ViewModels
             // players is always empty for purposes of filter encoding
             List<string> players = new List<string>();
 
-            // arena_type is determined from arena. ig, GameTypes array, and ranked are determined from gametype
+            // arena_type is determined from arena. ig, GameTypes array, and ranked are determined
+            // from gametype
             string arena_type = null;
             object ig = null;
             List<int> gtarr = null;
@@ -556,17 +474,63 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sets the filter status text. This will fire a message (event) to the MainViewModel so that the status bar can display the correct filter text.
+        /// Saves the new user filters. This makes the current selections in the view's comboboxes
+        /// (or from the filter file, depending on the caller) the new default filters.
+        /// </summary>
+        /// <param name="selGameTypeIndex">Index of the selected game type.</param>
+        /// <param name="selGameArenaIndex">Index of the selected game arena.</param>
+        /// <param name="selGameLocationIndex">Index of the selected game location.</param>
+        /// <param name="selGameStateIndex">Index of the selected game state.</param>
+        /// <param name="selGameVisibilityIndex">Index of the selected game visibility.</param>
+        /// <param name="selGamePremiumBool">if set to <c>true</c> [selected game premium bool].</param>
+        public void SaveNewUserFilters(int selGameTypeIndex, int selGameArenaIndex, int selGameLocationIndex, int selGameStateIndex, int selGameVisibilityIndex, bool selGamePremiumBool)
+        {
+            int selGamePremiumIndex = 0;
+            if (selGamePremiumBool == true)
+            {
+                selGamePremiumIndex = 1;
+            }
+            else if (selGamePremiumBool == false)
+            {
+                selGamePremiumIndex = 0;
+            }
+
+            // Filter to object for json file
+            var sf = new SavedFilters()
+            {
+                type_in = selGameTypeIndex,
+                arena_in = selGameArenaIndex,
+                location_in = selGameLocationIndex,
+                state_in = selGameStateIndex,
+                visibility_in = selGameVisibilityIndex,
+                premium_in = selGamePremiumIndex,
+                fltr_enc = ReceiveIndexesForEncoding(selGameTypeIndex, selGameArenaIndex, selGameLocationIndex, selGameStateIndex, selGameVisibilityIndex, selGamePremiumBool)
+            };
+
+            // Write json file to disk
+            string savedfilterjson = JsonConvert.SerializeObject(sf);
+            using (FileStream fs = File.Create(UQLTGlobals.SavedUserFilterPath))
+            using (TextWriter writer = new StreamWriter(fs))
+            {
+                writer.WriteLine(savedfilterjson);
+            }
+        }
+
+        /// <summary>
+        /// Sets the filter status text. This will fire a message (event) to the MainViewModel so
+        /// that the status bar can display the correct filter text.
         /// </summary>
         /// <param name="gametype_index">The currently selected gametype index.</param>
         /// <param name="gamearena_index">The currently selected game arena index.</param>
         /// <param name="gamelocation_index">The currently selected game location index.</param>
         /// <param name="gamestate_index">The currently selected game state index.</param>
         /// <param name="gamevisibility_index">The currently selected game visibility index.</param>
-        /// <param name="gamepremium">if set to <c>true</c> then it's a premium game, if not then <c>false</c>.</param>
+        /// <param name="gamepremium">
+        /// if set to <c>true</c> then it's a premium game, if not then <c>false</c>.
+        /// </param>
         /// <remarks>
-        /// It is called from the view itself.
-        /// Unfortunately, indexes must be used since the ValuePath in the view is already set.
+        /// It is called from the view itself. Unfortunately, indexes must be used since the
+        /// ValuePath in the view is already set.
         /// </remarks>
         public void SetFilterStatusText(int gametype_index, int gamearena_index, int gamelocation_index, int gamestate_index, int gamevisibility_index, bool gamepremium)
         {
@@ -592,7 +556,8 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sets the server browser URL. This fires a message (event) to the Server Browser ViewModel notifying it that a new filter URL has been set.
+        /// Sets the server browser URL. This fires a message (event) to the Server Browser
+        /// ViewModel notifying it that a new filter URL has been set.
         /// </summary>
         /// <param name="url">The URL.</param>
         public void SetServerBrowserUrl(string url)
@@ -601,17 +566,66 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Checks whether or not there are saved filter settings for the user on the disk.
+        /// Applies the saved user filters, if they exist. Otherwise sets standard default filters.
         /// </summary>
-        /// <returns><c>true</c> if saved filter settings exist, otherwise <c>false</c></returns>
-        private bool SavedUserFiltersExist()
+        private void ApplySavedUserFilters()
         {
-            // TODO: Implement multiple user account support.
-            return File.Exists(UQLTGlobals.SavedUserFilterPath) ? true : false;
+            // Make sure there are actually saved user filters on the disk.
+            if (SavedUserFiltersExist())
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+                    {
+                        string savedblob = sr.ReadToEnd();
+                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
+
+                        // set our viewmodel's index properties to appropriate properties from saved
+                        // filter file
+                        GameTypeIndex = savedFilterJson.type_in;
+                        GameArenaIndex = savedFilterJson.arena_in;
+                        GameLocationIndex = savedFilterJson.location_in;
+                        GameStateIndex = savedFilterJson.state_in;
+
+                        if (savedFilterJson.visibility_in == 0)
+                        {
+                            GameVisibilityIndex = 0;
+                        }
+                        else
+                        {
+                            GameVisibilityIndex = 1;
+                        }
+
+                        if (savedFilterJson.premium_in == 0)
+                        {
+                            GamePremiumBool = false;
+                        }
+                        else
+                        {
+                            GamePremiumBool = true;
+                        }
+
+                        // Send the message (event) to the MainViewModel to set the text in the statusbar
+                        SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Error applying saved filters: " + ex);
+                    // Error. clear filters, set defaults
+                    ClearSavedUserFilters();
+                }
+            }
+            // Saved user filters do not exist on disk, set the standard defaults
+            else
+            {
+                SetStandardDefaultFilters();
+            }
         }
 
         /// <summary>
-        /// Checks whether or not the most up to date filter list downloaded from the UQLT webserver exists on the disk.
+        /// Checks whether or not the most up to date filter list downloaded from the UQLT webserver
+        /// exists on the disk.
         /// </summary>
         /// <returns><c>true</c> if the downloaded filter list exist, otherwise <c>false</c></returns>
         private bool DownloadedFilterListExists()
@@ -620,11 +634,10 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Asynchronously populates the filter collections on this viewmodel using the current downloaded filter file and applies the filters.
+        /// Asynchronously populates the filter collections on this viewmodel using the current
+        /// downloaded filter file and applies the filters.
         /// </summary>
-        /// <returns>
-        /// Nothing.
-        /// </returns>
+        /// <returns>Nothing.</returns>
         private async Task PopulateAndApplyFiltersAsync()
         {
             // Make sure there is a current filter file on the hard disk.
@@ -672,8 +685,10 @@ namespace UQLT.ViewModels
                     SetStandardDefaultFilters();
                 }
             }
-            // Current filter list does not exist. Dump it to disk from failsafe then set some default filters.
-            // TODO: implement functionality that will download or mark the client to download filter list from webserver on next run.
+            // Current filter list does not exist. Dump it to disk from failsafe then set some
+            // default filters.
+            // TODO: implement functionality that will download or mark the client to download
+            //       filter list from webserver on next run.
             else
             {
                 FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
@@ -682,92 +697,13 @@ namespace UQLT.ViewModels
             }
         }
 
-        /// <summary>
-        /// Sets the standard filters (i.e.: "Any Location", "Any Game State", etc.) and save them as the new default.
-        /// </summary>
-        private void SetStandardDefaultFilters()
-        {
-            GameTypeIndex = 0;
-            GameArenaIndex = 0;
-            GameLocationIndex = 1;
-            GameStateIndex = 0;
-            GameVisibilityIndex = 0;
-            GamePremiumBool = false;
-
-            // Save these as the new defaults.
-            SaveNewUserFilters(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
-
-            // Send the message (event) to the MainViewModel to set the text in the statusbar.
-            SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
-        }
-
-        /// <summary>
-        /// Applies the saved user filters, if they exist. Otherwise sets standard default filters.
-        /// </summary>
-        private void ApplySavedUserFilters()
-        {
-            // Make sure there are actually saved user filters on the disk.
-            if (SavedUserFiltersExist())
-            {
-                try
-                {
-                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
-                    {
-                        string savedblob = sr.ReadToEnd();
-                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
-
-                        // set our viewmodel's index properties to appropriate properties from saved filter file
-                        GameTypeIndex = savedFilterJson.type_in;
-                        GameArenaIndex = savedFilterJson.arena_in;
-                        GameLocationIndex = savedFilterJson.location_in;
-                        GameStateIndex = savedFilterJson.state_in;
-
-                        if (savedFilterJson.visibility_in == 0)
-                        {
-                            GameVisibilityIndex = 0;
-                        }
-                        else
-                        {
-                            GameVisibilityIndex = 1;
-                        }
-
-                        if (savedFilterJson.premium_in == 0)
-                        {
-                            GamePremiumBool = false;
-                        }
-                        else
-                        {
-                            GamePremiumBool = true;
-                        }
-
-                        // Send the message (event) to the MainViewModel to set the text in the statusbar
-                        SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error applying saved filters: " + ex);
-                    // Error. clear filters, set defaults
-                    ClearSavedUserFilters();
-                }
-            }
-            // Saved user filters do not exist on disk, set the standard defaults
-            else
-            {
-                SetStandardDefaultFilters();
-            }
-        }
-
-        /// <summary>
-        /// Receives indexes, compares them to downloaded filter list then passes the information to <see cref="MakeEncodedFilter"> to actually make the encoded filter.
-        /// </summary>
-        /// <param name="gtIndex">The gametype index.</param>
-        /// <param name="arIndex">The game arena index.</param>
-        /// <param name="locIndex">The game location index.</param>
-        /// <param name="statIndex">The game state index.</param>
-        /// <param name="visIndex">The game visibility index.</param>
-        /// <param name="premBool">if set to <c>true</c> then the game is premium, otherwise <c>false</c>.</param>
-        /// <returns></returns>
+        /// <summary> Receives indexes, compares them to downloaded filter list then passes the
+        /// information to <see cref="MakeEncodedFilter"> to actually make the encoded filter.
+        /// </summary> <param name="gtIndex">The gametype index.</param> <param name="arIndex">The
+        /// game arena index.</param> <param name="locIndex">The game location index.</param> <param
+        /// name="statIndex">The game state index.</param> <param name="visIndex">The game
+        /// visibility index.</param> <param name="premBool">if set to <c>true</c> then the game is
+        /// premium, otherwise <c>false</c>.</param> <returns></returns>
         private string ReceiveIndexesForEncoding(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)
         {
             string gt = null;
@@ -826,6 +762,36 @@ namespace UQLT.ViewModels
             }
 
             return MakeEncodedFilter(gt, ar, stat, loc, visIndex, premBool);
+        }
+
+        /// <summary>
+        /// Checks whether or not there are saved filter settings for the user on the disk.
+        /// </summary>
+        /// <returns><c>true</c> if saved filter settings exist, otherwise <c>false</c></returns>
+        private bool SavedUserFiltersExist()
+        {
+            // TODO: Implement multiple user account support.
+            return File.Exists(UQLTGlobals.SavedUserFilterPath) ? true : false;
+        }
+
+        /// <summary>
+        /// Sets the standard filters (i.e.: "Any Location", "Any Game State", etc.) and save them
+        /// as the new default.
+        /// </summary>
+        private void SetStandardDefaultFilters()
+        {
+            GameTypeIndex = 0;
+            GameArenaIndex = 0;
+            GameLocationIndex = 1;
+            GameStateIndex = 0;
+            GameVisibilityIndex = 0;
+            GamePremiumBool = false;
+
+            // Save these as the new defaults.
+            SaveNewUserFilters(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
+
+            // Send the message (event) to the MainViewModel to set the text in the statusbar.
+            SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
         }
     }
 }

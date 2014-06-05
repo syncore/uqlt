@@ -12,11 +12,6 @@
         bool ConfigExists();
 
         /// <summary>
-        /// Saves the configuration.
-        /// </summary>
-        void SaveConfig();
-
-        /// <summary>
         /// Loads the configuration.
         /// </summary>
         void LoadConfig();
@@ -25,5 +20,10 @@
         /// Loads the default configuration.
         /// </summary>
         void LoadDefaultConfig();
+
+        /// <summary>
+        /// Saves the configuration.
+        /// </summary>
+        void SaveConfig();
     }
 }

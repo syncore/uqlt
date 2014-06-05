@@ -10,9 +10,7 @@ namespace UQLT.Models.QLRanks
         /// <summary>
         /// Gets or sets the players.
         /// </summary>
-        /// <value>
-        /// The players.
-        /// </value>
+        /// <value>The players.</value>
         public List<QLRanksPlayer> players
         {
             get;

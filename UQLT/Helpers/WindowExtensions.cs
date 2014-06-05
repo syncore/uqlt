@@ -12,23 +12,27 @@ namespace UQLT.Helpers
     {
         #region Window Flashing API Stuff
 
-        // Stop flashing. The system restores the window to its original state.
-        private const UInt32 FLASHW_STOP = 0;
+        // Flash both the window caption and taskbar button.
+        private const UInt32 FLASHW_ALL = 3;
 
         // Flash the window caption.
         private const UInt32 FLASHW_CAPTION = 1;
 
-        // Flash the taskbar button.
-        private const UInt32 FLASHW_TRAY = 2;
-
-        // Flash both the window caption and taskbar button.
-        private const UInt32 FLASHW_ALL = 3;
+        // Stop flashing. The system restores the window to its original state.
+        private const UInt32 FLASHW_STOP = 0;
 
         // Flash continuously, until the FLASHW_STOP flag is set.
         private const UInt32 FLASHW_TIMER = 4;
 
         // Flash continuously until the window comes to the foreground.
         private const UInt32 FLASHW_TIMERNOFG = 12;
+
+        // Flash the taskbar button.
+        private const UInt32 FLASHW_TRAY = 2;
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct FLASHWINFO
@@ -45,13 +49,10 @@ namespace UQLT.Helpers
             // Number of times to flash the window
             public UInt32 uCount;
 
-            // The rate at which the Window is to be flashed, in milliseconds. If Zero, the function uses the default cursor blink rate.
+            // The rate at which the Window is to be flashed, in milliseconds. If Zero, the function
+            // uses the default cursor blink rate.
             public UInt32 dwTimeout;
         }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
 
         #endregion Window Flashing API Stuff
 

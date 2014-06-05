@@ -10,55 +10,59 @@ namespace UQLT.ViewModels
     [Export(typeof(FriendViewModel))]
 
     /// <summary>
-    /// Individual friend viewmodel. This class wraps the Friend class and exposes additional properties specific to the View (in this case, ChatListView)
+    /// Individual friend viewmodel. This class wraps the Friend class and exposes additional
+    /// properties specific to the View (in this case, ChatListView)
     /// </summary>
     public class FriendViewModel : PropertyChangedBase
     {
+        private ServerDetailsViewModel _server;
+
         // Image types for player status.
         private BitmapImage image_demo = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/demo.gif", UriKind.RelativeOrAbsolute));
 
-        private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
         private BitmapImage image_ingame = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
+        private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
 
         /// <summary>
-        /// Gets the friend that this viewmodel wraps.
+        /// Initializes a new instance of the <see cref="FriendViewModel" /> class.
         /// </summary>
-        /// <value>
-        /// The friend that this viewmodel wraps.
-        /// </value>
-        public Friend RosterFriend
+        /// <param name="friend">The friend.</param>
+        [ImportingConstructor]
+        public FriendViewModel(Friend friend)
         {
-            get;
-            private set;
+            RosterFriend = friend;
+            // required for treeview
+            IsAutoExpanded = true;
         }
 
-        private ServerDetailsViewModel _server;
-
         /// <summary>
-        /// Gets or sets the friend's server.
+        /// Gets the favorite image.
         /// </summary>
-        /// <value>
-        /// The friend's Quake Live server object.
-        /// </value>
-        public ServerDetailsViewModel Server
+        /// <value>The favorite image.</value>
+        public ImageSource FavoriteImage
         {
             get
             {
-                return _server;
+                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
             }
-            set
+        }
+
+        /// <summary>
+        /// Gets the friend image.
+        /// </summary>
+        /// <value>The friend image.</value>
+        public ImageSource FriendImage
+        {
+            get
             {
-                _server = value;
-                NotifyOfPropertyChange(() => Server);
+                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
         /// <summary>
         /// Gets the name of the friend.
         /// </summary>
-        /// <value>
-        /// The name of the friend.
-        /// </value>
+        /// <value>The name of the friend.</value>
         public string FriendName
         {
             get
@@ -70,9 +74,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether the friend has a XMPP status.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance has XMPP status; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this instance has XMPP status; otherwise, <c>false</c>.</value>
         public bool HasXMPPStatus
         {
             get
@@ -87,33 +89,21 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the type of the status.
+        /// Gets a value indicating whether this friend is automatically expanded on the chatlist.
         /// </summary>
         /// <value>
-        /// The type of the status.
+        /// <c>true</c> if this friend is automatically expanded on the chatlist; otherwise, <c>false</c>.
         /// </value>
-        public int StatusType
+        public bool IsAutoExpanded
         {
-            get
-            {
-                return RosterFriend.StatusType;
-            }
-            set
-            {
-                RosterFriend.StatusType = value;
-                NotifyOfPropertyChange(() => StatusType);
-                NotifyOfPropertyChange(() => StatusImage);
-                NotifyOfPropertyChange(() => PracticeDemoMessage);
-                NotifyOfPropertyChange(() => IsPracticeOrDemo);
-            }
+            get;
+            private set;
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether this friend is a favorite.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this friend is a favorite; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this friend is a favorite; otherwise, <c>false</c>.</value>
         public bool IsFavorite
         {
             get
@@ -130,9 +120,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether this friend is in game.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this friend is in game; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this friend is in game; otherwise, <c>false</c>.</value>
         public bool IsInGame
         {
             get
@@ -149,9 +137,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether this friend is online.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this friend is online; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this friend is online; otherwise, <c>false</c>.</value>
         public bool IsOnline
         {
             get
@@ -194,51 +180,60 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this friend is automatically expanded on the chatlist.
+        /// Gets the message to display if friend is in practice match or viewing a demo.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this friend is automatically expanded on the chatlist; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsAutoExpanded
+        /// <value>The message.</value>
+        public string PracticeDemoMessage
+        {
+            get
+            {
+                switch (StatusType)
+                {
+                    case 1:
+                        return "Watching a demo";
+
+                    case 2:
+                        return "Playing a practice match";
+
+                    case 0:
+                    case 3:
+                    default:
+                        return "";
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the friend that this viewmodel wraps.
+        /// </summary>
+        /// <value>The friend that this viewmodel wraps.</value>
+        public Friend RosterFriend
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Gets the friend image.
+        /// Gets or sets the friend's server.
         /// </summary>
-        /// <value>
-        /// The friend image.
-        /// </value>
-        public ImageSource FriendImage
+        /// <value>The friend's Quake Live server object.</value>
+        public ServerDetailsViewModel Server
         {
             get
             {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
+                return _server;
             }
-        }
-
-        /// <summary>
-        /// Gets the favorite image.
-        /// </summary>
-        /// <value>
-        /// The favorite image.
-        /// </value>
-        public ImageSource FavoriteImage
-        {
-            get
+            set
             {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
+                _server = value;
+                NotifyOfPropertyChange(() => Server);
             }
         }
 
         /// <summary>
         /// Gets the status image.
         /// </summary>
-        /// <value>
-        /// The status image.
-        /// </value>
+        /// <value>The status image.</value>
         public ImageSource StatusImage
         {
             get
@@ -262,41 +257,23 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets the message to display if friend is in practice match or viewing a demo.
+        /// Gets or sets the type of the status.
         /// </summary>
-        /// <value>
-        /// The message.
-        /// </value>
-        public string PracticeDemoMessage
+        /// <value>The type of the status.</value>
+        public int StatusType
         {
             get
             {
-                switch (StatusType)
-                {
-                    case 1:
-                        return "Watching a demo";
-
-                    case 2:
-                        return "Playing a practice match";
-
-                    case 0:
-                    case 3:
-                    default:
-                        return "";
-                }
+                return RosterFriend.StatusType;
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FriendViewModel"/> class.
-        /// </summary>
-        /// <param name="friend">The friend.</param>
-        [ImportingConstructor]
-        public FriendViewModel(Friend friend)
-        {
-            RosterFriend = friend;
-            // required for treeview
-            IsAutoExpanded = true;
+            set
+            {
+                RosterFriend.StatusType = value;
+                NotifyOfPropertyChange(() => StatusType);
+                NotifyOfPropertyChange(() => StatusImage);
+                NotifyOfPropertyChange(() => PracticeDemoMessage);
+                NotifyOfPropertyChange(() => IsPracticeOrDemo);
+            }
         }
     }
 }

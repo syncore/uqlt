@@ -13,10 +13,10 @@ namespace UQLT.Interfaces
         /// Asynchronously retrieves the QLRanks players.
         /// </summary>
         /// <param name="servers">The servers.</param>
-        /// <param name="maxPlayers">The maximum number of players sent to QLRanks API per API call.</param>
-        /// <returns>
-        /// Nothing
-        /// </returns>
+        /// <param name="maxPlayers">
+        /// The maximum number of players sent to QLRanks API per API call.
+        /// </param>
+        /// <returns>Nothing</returns>
         Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150);
 
         //void SetQLranksDefaultElo(string player);

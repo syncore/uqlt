@@ -7,25 +7,13 @@ using System.Windows.Interactivity;
 namespace UQLT.Helpers
 {
     /// <summary>
-    /// Helper class that allows for easy binding of KeyUp and KeyDown actions with specific key specifiers within the View.
+    /// Helper class that allows for easy binding of KeyUp and KeyDown actions with specific key
+    /// specifiers within the View.
     /// See: http://caliburnmicro.codeplex.com/discussions/222164
     /// </summary>
 
     public class KeyPressTrigger : TriggerBase<FrameworkElement>
     {
-        public enum KeyEventAction
-        {
-            KeyUp,
-            KeyDown
-        }
-
-        /// <summary>
-        /// The key action property
-        /// </summary>
-        public static readonly DependencyProperty KeyActionProperty =
-            DependencyProperty.Register("KeyAction", typeof(KeyEventAction), typeof(KeyPressTrigger),
-                                        new PropertyMetadata(null));
-
         /// <summary>
         /// The gesture property
         /// </summary>
@@ -34,11 +22,22 @@ namespace UQLT.Helpers
                                         new PropertyMetadata(null));
 
         /// <summary>
+        /// The key action property
+        /// </summary>
+        public static readonly DependencyProperty KeyActionProperty =
+            DependencyProperty.Register("KeyAction", typeof(KeyEventAction), typeof(KeyPressTrigger),
+                                        new PropertyMetadata(null));
+
+        public enum KeyEventAction
+        {
+            KeyUp,
+            KeyDown
+        }
+
+        /// <summary>
         /// Gets or sets the gesture.
         /// </summary>
-        /// <value>
-        /// The gesture.
-        /// </value>
+        /// <value>The gesture.</value>
         [TypeConverterAttribute(typeof(KeyGestureConverter)), Category("KeyPress Properties")]
         public InputGesture Gesture
         {
@@ -55,9 +54,7 @@ namespace UQLT.Helpers
         /// <summary>
         /// Gets or sets the key action.
         /// </summary>
-        /// <value>
-        /// The key action.
-        /// </value>
+        /// <value>The key action.</value>
         [Category("KeyPress Properties")]
         public KeyEventAction KeyAction
         {
@@ -94,7 +91,8 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Called when the trigger is being detached from its AssociatedObject, but before it has actually occurred.
+        /// Called when the trigger is being detached from its AssociatedObject, but before it has
+        /// actually occurred.
         /// </summary>
         /// <exception cref="System.ArgumentOutOfRangeException">KeyAction</exception>
         protected override void OnDetaching()
@@ -119,7 +117,7 @@ namespace UQLT.Helpers
         /// Called when a given key is pressed.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+        /// <param name="args">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
         private void OnKeyPress(object sender, KeyEventArgs args)
         {
             KeyGesture kGesture = Gesture as KeyGesture;

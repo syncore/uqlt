@@ -15,54 +15,13 @@ namespace UQLT.Core.Chat
         private SQLiteConnection sqlcon;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatHistory"/> class.
+        /// Initializes a new instance of the <see cref="ChatHistory" /> class.
         /// </summary>
         /// <param name="cmvm">The ChatMessageViewModel associated with this class.</param>
         public ChatHistory(ChatMessageViewModel cmvm)
         {
             CMVM = cmvm;
             CreateHistoryDb();
-        }
-
-        /// <summary>
-        /// Gets the name of the history database.
-        /// </summary>
-        /// <returns>
-        /// The filename and path of the chat history database on the disk.
-        /// </returns>
-        private string GetHistoryDbName()
-        {
-            return System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
-        }
-
-        /// <summary>
-        /// Creates the history database file on the disk if it doesn't already exist.
-        /// </summary>
-        private void CreateHistoryDb()
-        {
-            if (!File.Exists(GetHistoryDbName()))
-            {
-                SQLiteConnection.CreateFile(GetHistoryDbName());
-
-                try
-                {
-                    ConnectToDb();
-
-                    string s = "CREATE TABLE chathistory (id INTEGER PRIMARY KEY AUTOINCREMENT, profile TEXT NOT NULL, otheruser TEXT NOT NULL, msgtype INTEGER, message TEXT, date DATETIME)";
-                    SQLiteCommand cmd = new SQLiteCommand(s, sqlcon);
-                    cmd.ExecuteNonQuery();
-                    cmd.Dispose();
-
-                    DisconnectDb();
-
-                    Debug.WriteLine("Chat history database created.");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                    File.Delete(GetHistoryDbName());
-                }
-            }
         }
 
         /// <summary>
@@ -152,11 +111,50 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
+        /// Creates the history database file on the disk if it doesn't already exist.
+        /// </summary>
+        private void CreateHistoryDb()
+        {
+            if (!File.Exists(GetHistoryDbName()))
+            {
+                SQLiteConnection.CreateFile(GetHistoryDbName());
+
+                try
+                {
+                    ConnectToDb();
+
+                    string s = "CREATE TABLE chathistory (id INTEGER PRIMARY KEY AUTOINCREMENT, profile TEXT NOT NULL, otheruser TEXT NOT NULL, msgtype INTEGER, message TEXT, date DATETIME)";
+                    SQLiteCommand cmd = new SQLiteCommand(s, sqlcon);
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+
+                    DisconnectDb();
+
+                    Debug.WriteLine("Chat history database created.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                    File.Delete(GetHistoryDbName());
+                }
+            }
+        }
+
+        /// <summary>
         /// Disconnects from the database and disposes of all associated resources.
         /// </summary>
         private void DisconnectDb()
         {
             sqlcon.Dispose();
+        }
+
+        /// <summary>
+        /// Gets the name of the history database.
+        /// </summary>
+        /// <returns>The filename and path of the chat history database on the disk.</returns>
+        private string GetHistoryDbName()
+        {
+            return System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
         }
     }
 }

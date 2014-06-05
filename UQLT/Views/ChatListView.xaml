@@ -1,19 +1,17 @@
 ﻿<UserControl x:Class="UQLT.Views.ChatListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:vm="clr-namespace:UQLT.ViewModels"
              xmlns:chat="clr-namespace:UQLT.Models.Chat"
              xmlns:cal="http://www.caliburnproject.org"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="782" d:DesignWidth="280" Width="340">
 
     <Grid x:Name="ChatListRoot">
         <TreeView x:Name="treBuddyList" HorizontalAlignment="Left" Height="782" VerticalAlignment="Top" ItemsSource="{Binding BuddyList}">
-
-
 
             <!-- Auto expand groups -->
             <TreeView.ItemContainerStyle>
@@ -29,7 +27,7 @@
                         <TextBlock x:Name="GroupName" Text="{Binding GroupName}" />
                         <TextBlock Text=" [" />
                         <TextBlock x:Name="FriendCount" Text="{Binding Friends.Count}" Foreground="Green" />
-                        <TextBlock Text="]"/>
+                        <TextBlock Text="]" />
                         <!--This is a menu strictly for the group headers-->
                         <!--<StackPanel.ContextMenu>
                             <ContextMenu cal:Action.TargetWithoutContext="{Binding DataContext, RelativeSource={RelativeSource Self}}">
@@ -45,33 +43,32 @@
                     <HierarchicalDataTemplate.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">
                             <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=Value.IsAutoExpanded}" />
-                            <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdateFriendGameServerInfo($dataContext)]"/>
+                            <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdateFriendGameServerInfo($dataContext)]" />
                         </Style>
                     </HierarchicalDataTemplate.ItemContainerStyle>
                     <!-- Individual friend template -->
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
-                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left"/>
-                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left"/>
-                                <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXMPPStatus, Converter={StaticResource BoolToVis}}"/>
+                                <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left" />
+                                <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left" />
+                                <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXMPPStatus, Converter={StaticResource BoolToVis}}" />
 
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0"/>
+                                    <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0" />
 
                                     <!-- Player's demo or practice game message (only shown if player is watching demo or in practice match) -->
-                                    <TextBlock x:Name="FriendStatus" Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0"/>
+                                    <TextBlock x:Name="FriendStatus" Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0" />
 
                                     <!-- Player's game server information (only shown if player is in game) -->
                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
 
-                                        <TextBlock Name="StatusGameType" Text="{Binding Value.Server.ShortGameTypeName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.MapTitle, StringFormat='on {0}'}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                                        <TextBlock Name="StatusGameType" Text="{Binding Value.Server.ShortGameTypeName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                                        <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.MapTitle, StringFormat='on {0}'}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
 
-                                        <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left"/>
-                                        <TextBlock Name="StatusGameLocation" Text="{Binding Value.Server.ShortLocationName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                                        <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.Server.TotalPlayers}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-
+                                        <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left" />
+                                        <TextBlock Name="StatusGameLocation" Text="{Binding Value.Server.ShortLocationName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                                        <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.Server.TotalPlayers}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
                                     </StackPanel>
 
                                     <!-- Tooltip displaying server info on hover -->
@@ -80,25 +77,25 @@
                                             <!--<TextBlock TextWrapping="Wrap">
                                                 <TextBlock.Text>
                                                     <MultiBinding StringFormat="{}{0} playing {1} {2} at {3} {4}">
-                                                        <Binding Path="Value.FriendName"/>
-                                                        <Binding Path="Value.StatusGameType"/>
-                                                        <Binding Path="Value.StatusGameMap"/>
-                                                        <Binding Path="Value.StatusGameLocation"/>
-                                                        <Binding Path="Value.StatusGamePlayerCount"/>
+                                                        <Binding Path="Value.FriendName" />
+                                                        <Binding Path="Value.StatusGameType" />
+                                                        <Binding Path="Value.StatusGameMap" />
+                                                        <Binding Path="Value.StatusGameLocation" />
+                                                        <Binding Path="Value.StatusGamePlayerCount" />
                                                     </MultiBinding>
                                                 </TextBlock.Text>
                                             </TextBlock>-->
-                                            
+
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Value.Server.MapTitle}"/>
-                                                <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}"/>
-                                            
-                                            <!--Scoreboard for team games-->
+                                                <TextBlock Text="{Binding Value.Server.MapTitle}" />
+                                                <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}" />
+
+                                                <!--Scoreboard for team games-->
                                                 <TextBlock TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}Red ({0} Elo): {1}">
-                                                            <Binding Path="Value.Server.RedTeamElo" FallbackValue="0"/>
-                                                            <Binding Path="Value.Server.GRedScore"/>
+                                                            <Binding Path="Value.Server.RedTeamElo" FallbackValue="0" />
+                                                            <Binding Path="Value.Server.GRedScore" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
@@ -106,47 +103,38 @@
                                                 <TextBlock TextWrapping="Wrap">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}Blue ({0} Elo): {1}">
-                                                            <Binding Path="Value.Server.BlueTeamElo" FallbackValue="0"/>
-                                                            <Binding Path="Value.Server.GBlueScore"/>
+                                                            <Binding Path="Value.Server.BlueTeamElo" FallbackValue="0" />
+                                                            <Binding Path="Value.Server.GBlueScore" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-
-
                                             </StackPanel>
-                                            
-                                            
+
                                             <TextBlock TextWrapping="Wrap">
                                                 <TextBlock.Text>
                                                     <MultiBinding StringFormat="{}Red Score: {0} Blue Score: {1}">
-                                                        <Binding Path="Value.Server.GRedScore"/>
-                                                        <Binding Path="Value.Server.GBlueScore"/>
+                                                        <Binding Path="Value.Server.GRedScore" />
+                                                        <Binding Path="Value.Server.GBlueScore" />
                                                     </MultiBinding>
                                                 </TextBlock.Text>
                                             </TextBlock>
-
-
-
                                         </StackPanel>
                                     </StackPanel.ToolTip>
-
                                 </StackPanel>
 
                                 <!--Friend context menu actions-->
                                 <StackPanel.ContextMenu>
                                     <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open chat" cal:Message.Attach="OpenChatWindow($dataContext)"/>
-                                        <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)"/>
-                                        <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)"/>
+                                        <MenuItem Header="Open chat" cal:Message.Attach="OpenChatWindow($dataContext)" />
+                                        <MenuItem Header="Add Friend to Favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)" />
+                                        <MenuItem Header="Remove Friend from Favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)" />
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
-
                             </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
-
     </Grid>
 </UserControl>

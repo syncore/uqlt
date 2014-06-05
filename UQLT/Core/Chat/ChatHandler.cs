@@ -24,75 +24,15 @@ namespace UQLT.Core.Chat
     /// </summary>
     public class ChatHandler
     {
-        private XmppClientConnection _xmppCon;
-        private ChatGameInfo _qlChatGameInfo;
-        private readonly IWindowManager windowManager;
-        private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
         public static Hashtable ActiveChats = new Hashtable();
+        private readonly IWindowManager windowManager;
+        private ChatGameInfo _qlChatGameInfo;
+        private XmppClientConnection _xmppCon;
+        private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
         private SoundPlayer sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
 
         /// <summary>
-        /// Gets or sets the chat game information.
-        /// </summary>
-        /// <value>
-        /// The chat game information.
-        /// </value>
-        public ChatGameInfo ChatGameInfo
-        {
-            get
-            {
-                return _qlChatGameInfo;
-            }
-            set
-            {
-                _qlChatGameInfo = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the ChatListViewModel
-        /// </summary>
-        /// <value>
-        /// The ChatListViewModel
-        /// </value>
-        public ChatListViewModel CLVM
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets or sets the roster.
-        /// </summary>
-        /// <value>
-        /// The roster.
-        /// </value>
-        public Dictionary<string, string> Roster
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the XMPP connection
-        /// </summary>
-        /// <value>
-        /// The XMPP connection
-        /// </value>
-        public XmppClientConnection XmppCon
-        {
-            get
-            {
-                return _xmppCon;
-            }
-            set
-            {
-                _xmppCon = value;
-            }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChatHandler"/> class.
+        /// Initializes a new instance of the <see cref="ChatHandler" /> class.
         /// </summary>
         /// <param name="clvm">The ChatListViewModel.</param>
         /// <param name="wm">The Window Manager.</param>
@@ -117,42 +57,66 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Connects to XMPP
+        /// Gets or sets the chat game information.
         /// </summary>
-        private void ConnectToXMPP()
+        /// <value>The chat game information.</value>
+        public ChatGameInfo ChatGameInfo
         {
-            XmppCon.Username = ***REMOVED***;
-            XmppCon.Password = ***REMOVED***;
-            XmppCon.Server = UQLTGlobals.QLXMPPDomain;
-            XmppCon.Port = 5222;
-            XmppCon.Resource = "quakelive";
-            XmppCon.AutoRoster = true;
-            XmppCon.AutoPresence = true;
-            XmppCon.Open();
+            get
+            {
+                return _qlChatGameInfo;
+            }
+            set
+            {
+                _qlChatGameInfo = value;
+            }
         }
 
         /// <summary>
-        /// Called whenever a roster item is received via XMPP
+        /// Gets the ChatListViewModel
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="item">The roster item.</param>
-        private void XmppCon_OnRosterItem(object sender, RosterItem item)
+        /// <value>The ChatListViewModel</value>
+        public ChatListViewModel CLVM
         {
-            // TODO: if (item.Subscription != SubscriptionType.remove) stuff
-            try
-            {
-                Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
+            get;
+            private set;
+        }
 
-                // Additions and removals to ObservableDictionary must be done on the UI thread since ObservableDictionary is databound
-                Execute.OnUIThread(() =>
-                {
-                    CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
-                });
-            }
-            catch (Exception ex)
+        /// <summary>
+        /// Gets or sets the roster.
+        /// </summary>
+        /// <value>The roster.</value>
+        public Dictionary<string, string> Roster
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the XMPP connection
+        /// </summary>
+        /// <value>The XMPP connection</value>
+        public XmppClientConnection XmppCon
+        {
+            get
             {
-                Debug.WriteLine(ex);
+                return _xmppCon;
             }
+            set
+            {
+                _xmppCon = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the currently logged in user's user name.
+        /// </summary>
+        /// <returns>
+        /// Current logged in user's user name (just the "user" user@server part of the Jid)
+        /// </returns>
+        public string MyJidUser()
+        {
+            return XmppCon.MyJID.User.ToLowerInvariant();
         }
 
         /// <summary>
@@ -171,85 +135,25 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Called when the full XMPP roster has been received.
+        /// Sends an XMPP message to another user.
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        private void XmppCon_OnRosterEnd(object sender)
+        /// <param name="recipient">The recipient.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public bool SendMessage(Jid recipient, string message)
         {
-            // Start timer to refresh in-game friends' server information
-            ChatGameInfo.StartServerUpdateTimer();
-        }
-
-        /// <summary>
-        /// Called when the user receives an XMPP message.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="msg">The message.</param>
-        private void XmppCon_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
-        {
-            if (msg.Body != null)
+            if (IsFriendAlreadyOnline(recipient.User.ToLowerInvariant()))
             {
-                if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
-                {
-                    var cm = new ChatMessageViewModel(msg.From, XmppCon, this);
-                    dynamic settings = new ExpandoObject();
-                    settings.WindowStartupLocation = WindowStartupLocation.Manual;
-
-                    Execute.OnUIThread(() =>
-                    {
-                        windowManager.ShowWindow(cm, null, settings);
-                        cm.MessageIncoming(msg);
-                        PlayNotificationSound();
-                    });
-                }
-                else
-                {
-                    Debug.WriteLine("A chat window already exists for: " + msg.From.Bare.ToLowerInvariant() + " not opening another.");
-                }
+                agsXMPP.protocol.client.Message msg = new agsXMPP.protocol.client.Message();
+                msg.Type = MessageType.chat;
+                msg.To = recipient;
+                msg.Body = message;
+                XmppCon.Send(msg);
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Called upon successful authentication to XMPP server.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        private void XmppCon_OnLogin(object sender)
-        {
-        }
-
-        /// <summary>
-        /// Called when a presence has been received from a contact.
-        /// This also handles contact subscriptions.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="presence">The presence.</param>
-        private void XmppCon_OnPresence(object sender, Presence presence)
-        {
-            switch (presence.Type)
+            else
             {
-                case PresenceType.available:
-                    FriendBecameAvailable(presence);
-                    break;
-
-                case PresenceType.unavailable:
-                    FriendBecameUnavailble(presence);
-                    break;
-
-                case PresenceType.subscribe:
-                    // Show a message indicating that friend request was sent to another user
-                    break;
-
-                case PresenceType.subscribed:
-                    // Show a dialog that allows the user to accept or reject the incoming friend request
-                    break;
-
-                case PresenceType.unsubscribe:
-                    // Show a message indicating that user successfully un-friended another user
-                    break;
-
-                case PresenceType.unsubscribed:
-                    // Show a message indicating that the user chose to reject the incoming friend request
-                    break;
+                return false;
             }
         }
 
@@ -258,7 +162,8 @@ namespace UQLT.Core.Chat
         /// </summary>
         /// <param name="presence">The presence.</param>
         /// <remarks>
-        /// This is only fired when availability changes (user: offline -> online OR user leaves game server AND/OR joins game server).
+        /// This is only fired when availability changes (user: offline -&gt; online OR user leaves
+        /// game server AND/OR joins game server).
         /// </remarks>
         private void CheckFriendStatus(Presence presence)
         {
@@ -276,52 +181,6 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Updates a friend's status based on the activity the friend is performing.
-        /// Meaning that the friend has an XMPP status, which further means one of three things:
-        /// The user is watching a demo, playing a practice match, or is actually in a game server.
-        /// </summary>
-        /// <param name="friend">The friend.</param>
-        /// <param name="status">The status.</param>
-        /// <remarks>
-        /// This method will determine which of the three possible activities the friend is doing in Quake Live and update his status accordingly.
-        /// </remarks>
-        private void UpdateFriendStatus(string friend, string status)
-        {
-            try
-            {
-                StatusInfo si = JsonConvert.DeserializeObject<StatusInfo>(status);
-
-                // BOT_GAME = 0: friend could either be watching a demo (ADDRESS = "bot") or actually in a real server (ADDRESS = "ip:port")
-                if (si.bot_game == 0)
-                {
-                    // friend is watching a demo
-                    if (si.address.Equals("bot"))
-                    {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 1;
-                    }
-                    // friend is actually in game
-                    else
-                    {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
-                        // query API to get type, map, location, player count info for status message
-                        ChatGameInfo.CreateServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
-                    }
-                }
-
-                // BOT_GAME = 1: friend is in a practice game or training match (we don't care about ADDRESS, but it will be = "loopback")
-                if (si.bot_game == 1)
-                {
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 2;
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-        }
-
-        /// <summary>
         /// Clears a friend's status.
         /// </summary>
         /// <param name="presence">The presence.</param>
@@ -335,6 +194,34 @@ namespace UQLT.Core.Chat
                 CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
                 CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = 0;
             }
+        }
+
+        /// <summary>
+        /// Called when a valid certificate is received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="certificate">The certificate.</param>
+        /// <param name="chain">The chain.</param>
+        /// <param name="sslPolicyErrors">The SSL policy errors.</param>
+        /// <returns>true</returns>
+        private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Connects to XMPP
+        /// </summary>
+        private void ConnectToXMPP()
+        {
+            XmppCon.Username = ***REMOVED***;
+            XmppCon.Password = ***REMOVED***;
+            XmppCon.Server = UQLTGlobals.QLXMPPDomain;
+            XmppCon.Port = 5222;
+            XmppCon.Resource = "quakelive";
+            XmppCon.AutoRoster = true;
+            XmppCon.AutoPresence = true;
+            XmppCon.Open();
         }
 
         /// <summary>
@@ -398,59 +285,11 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Sends an XMPP message to another user.
-        /// </summary>
-        /// <param name="recipient">The recipient.</param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public bool SendMessage(Jid recipient, string message)
-        {
-            if (IsFriendAlreadyOnline(recipient.User.ToLowerInvariant()))
-            {
-                agsXMPP.protocol.client.Message msg = new agsXMPP.protocol.client.Message();
-                msg.Type = MessageType.chat;
-                msg.To = recipient;
-                msg.Body = message;
-                XmppCon.Send(msg);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Returns the currently logged in user's user name.
-        /// </summary>
-        /// <returns>
-        /// Current logged in user's user name (just the "user" user@server part of the Jid)
-        /// </returns>
-        public string MyJidUser()
-        {
-            return XmppCon.MyJID.User.ToLowerInvariant();
-        }
-
-        /// <summary>
-        /// Determines whether the specified presence is from me, the currently logged in user.
-        /// </summary>
-        /// <param name="presence">The presence.</param>
-        /// <returns>
-        /// true if the presence is from the currently logged in user.
-        /// false if the presence is not from the currently logged in user.
-        /// </returns>
-        private bool IsMe(Presence presence)
-        {
-            return (presence.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant())) ? true : false;
-        }
-
-        /// <summary>
         /// Determines whether the specified friend is a favorite friend].
         /// </summary>
         /// <param name="friend">The friend.</param>
         /// <returns>
-        /// true if the friend is a favorite friend.
-        /// false if the friend is not a favorite friend.
+        /// true if the friend is a favorite friend. false if the friend is not a favorite friend.
         /// </returns>
         private bool IsFavoriteFriend(string friend)
         {
@@ -458,12 +297,11 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Determines whether the specified friend is already online]
+        /// Determines whether the specified friend is already online.
         /// </summary>
         /// <param name="friend">The friend.</param>
         /// <returns>
-        /// true if the friend is already online.
-        /// false if the friend is not already online.
+        /// true if the friend is already online. false if the friend is not already online.
         /// </returns>
         private bool IsFriendAlreadyOnline(string friend)
         {
@@ -471,16 +309,172 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Called when a valid certificate is received.
+        /// Determines whether the specified presence is from me, the currently logged in user.
+        /// </summary>
+        /// <param name="presence">The presence.</param>
+        /// <returns>
+        /// true if the presence is from the currently logged in user. false if the presence is not
+        /// from the currently logged in user.
+        /// </returns>
+        private bool IsMe(Presence presence)
+        {
+            return (presence.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant())) ? true : false;
+        }
+
+        /// <summary>
+        /// Updates a friend's status based on the activity the friend is performing. Meaning that
+        /// the friend has an XMPP status, which further means one of three things: The user is
+        /// watching a demo, playing a practice match, or is actually in a game server.
+        /// </summary>
+        /// <param name="friend">The friend.</param>
+        /// <param name="status">The status.</param>
+        /// <remarks>
+        /// This method will determine which of the three possible activities the friend is doing in
+        /// Quake Live and update his status accordingly.
+        /// </remarks>
+        private void UpdateFriendStatus(string friend, string status)
+        {
+            try
+            {
+                StatusInfo si = JsonConvert.DeserializeObject<StatusInfo>(status);
+
+                // BOT_GAME = 0: friend could either be watching a demo (ADDRESS = "bot") or
+                // actually in a real server (ADDRESS = "ip:port")
+                if (si.bot_game == 0)
+                {
+                    // friend is watching a demo
+                    if (si.address.Equals("bot"))
+                    {
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 1;
+                    }
+                    // friend is actually in game
+                    else
+                    {
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
+                        // query API to get type, map, location, player count info for status message
+                        ChatGameInfo.CreateServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
+                    }
+                }
+
+                // BOT_GAME = 1: friend is in a practice game or training match (we don't care about
+                // ADDRESS, but it will be = "loopback")
+                if (si.bot_game == 1)
+                {
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 2;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
+        /// <summary>
+        /// Called upon successful authentication to XMPP server.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="certificate">The certificate.</param>
-        /// <param name="chain">The chain.</param>
-        /// <param name="sslPolicyErrors">The SSL policy errors.</param>
-        /// <returns>true</returns>
-        private bool ClientSocket_OnValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private void XmppCon_OnLogin(object sender)
         {
-            return true;
+        }
+
+        /// <summary>
+        /// Called when the user receives an XMPP message.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="msg">The message.</param>
+        private void XmppCon_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
+        {
+            if (msg.Body != null)
+            {
+                if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
+                {
+                    var cm = new ChatMessageViewModel(msg.From, XmppCon, this);
+                    dynamic settings = new ExpandoObject();
+                    settings.WindowStartupLocation = WindowStartupLocation.Manual;
+
+                    Execute.OnUIThread(() =>
+                    {
+                        windowManager.ShowWindow(cm, null, settings);
+                        cm.MessageIncoming(msg);
+                        PlayNotificationSound();
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("A chat window already exists for: " + msg.From.Bare.ToLowerInvariant() + " not opening another.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when a presence has been received from a contact. This also handles contact subscriptions.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="presence">The presence.</param>
+        private void XmppCon_OnPresence(object sender, Presence presence)
+        {
+            switch (presence.Type)
+            {
+                case PresenceType.available:
+                    FriendBecameAvailable(presence);
+                    break;
+
+                case PresenceType.unavailable:
+                    FriendBecameUnavailble(presence);
+                    break;
+
+                case PresenceType.subscribe:
+                    // Show a message indicating that friend request was sent to another user
+                    break;
+
+                case PresenceType.subscribed:
+                    // Show a dialog that allows the user to accept or reject the incoming friend request
+                    break;
+
+                case PresenceType.unsubscribe:
+                    // Show a message indicating that user successfully un-friended another user
+                    break;
+
+                case PresenceType.unsubscribed:
+                    // Show a message indicating that the user chose to reject the incoming friend request
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Called when the full XMPP roster has been received.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        private void XmppCon_OnRosterEnd(object sender)
+        {
+            // Start timer to refresh in-game friends' server information
+            ChatGameInfo.StartServerUpdateTimer();
+        }
+
+        /// <summary>
+        /// Called whenever a roster item is received via XMPP
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="item">The roster item.</param>
+        private void XmppCon_OnRosterItem(object sender, RosterItem item)
+        {
+            // TODO: if (item.Subscription != SubscriptionType.remove) stuff
+            try
+            {
+                Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
+
+                // Additions and removals to ObservableDictionary must be done on the UI thread
+                // since ObservableDictionary is databound
+                Execute.OnUIThread(() =>
+                {
+                    CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
     }
 }

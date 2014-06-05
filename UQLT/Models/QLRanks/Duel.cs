@@ -6,24 +6,20 @@
     public class Duel
     {
         /// <summary>
-        /// Gets or sets the rank.
+        /// Gets or sets the elo.
         /// </summary>
-        /// <value>
-        /// The rank.
-        /// </value>
-        public int rank
+        /// <value>The elo.</value>
+        public int elo
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the elo.
+        /// Gets or sets the rank.
         /// </summary>
-        /// <value>
-        /// The elo.
-        /// </value>
-        public int elo
+        /// <value>The rank.</value>
+        public int rank
         {
             get;
             set;

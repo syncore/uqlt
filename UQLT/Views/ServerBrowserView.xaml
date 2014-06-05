@@ -1,24 +1,24 @@
 ﻿<UserControl x:Class="UQLT.Views.ServerBrowserView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:helpers="clr-namespace:UQLT.Helpers"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="523" d:DesignWidth="1040">
 
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
-            <TextBlock Text="{Binding TeamName}"/>
+            <TextBlock Text="{Binding TeamName}" />
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Team}" Value="1">
-                    <Setter Property="TextBlock.Foreground" Value="Red"/>
+                    <Setter Property="TextBlock.Foreground" Value="Red" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Team}" Value="2">
-                    <Setter Property="TextBlock.Foreground" Value="Blue"/>
+                    <Setter Property="TextBlock.Foreground" Value="Blue" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -27,8 +27,8 @@
             <TextBlock>
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource ScoreToRace}">
-                        <Binding Path="PlayerGameType"/>
-                        <Binding Path="Score"/>
+                        <Binding Path="PlayerGameType" />
+                        <Binding Path="Score" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
@@ -38,109 +38,103 @@
 
             <StackPanel Margin="12,0,0,0">
                 <StackPanel Orientation="Vertical">
-                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding MapImage}" Margin="0,0,0,0"/>
+                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding MapImage}" Margin="0,0,0,0" />
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Map: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Path=MapTitle}"/>
+                        <TextBlock Text="Map: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding Path=MapTitle}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Location: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding FullLocationName}"/>
+                        <TextBlock Text="Location: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding FullLocationName}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Ping: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Ping}"/>
+                        <TextBlock Text="Ping: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding Ping}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Mode: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding GameTypeTitle}"/>
+                        <TextBlock Text="Mode: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding GameTypeTitle}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding GameType, Converter={StaticResource GameTypeToRound}}" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding RoundLimit}"/>
+                        <TextBlock Text="{Binding GameType, Converter={StaticResource GameTypeToRound}}" FontWeight="Bold" />
+                        <TextBlock Text="{Binding RoundLimit}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Game Status: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding FormattedGameState}"/>
+                        <TextBlock Text="Game Status: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding FormattedGameState}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Time Left: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TimeRemaining}"/>
+                        <TextBlock Text="Time Left: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding TimeRemaining}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Players: " FontWeight="Bold"/>
-                        <TextBlock Text="{Binding TotalPlayers}"/>
+                        <TextBlock Text="Players: " FontWeight="Bold" />
+                        <TextBlock Text="{Binding TotalPlayers}" />
                     </StackPanel>
                     <StackPanel x:Name="TeamScoreboard" Orientation="Vertical" Margin="0,10,5,5">
 
                         <TextBlock FontWeight="Bold" HorizontalAlignment="Center">
                                 Team Scoreboard
-                                <LineBreak/>
+                                <LineBreak />
                         </TextBlock>
 
                         <StackPanel x:Name="RedScore" Orientation="Horizontal">
-                            <TextBlock Text="Red: " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}"/>
-                            <TextBlock Text="{Binding GRedScore}"/>
+                            <TextBlock Text="Red: " FontWeight="Bold" />
+                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock Text="{Binding GRedScore}" />
                         </StackPanel>
 
                         <StackPanel x:Name="BlueScore" Orientation="Horizontal">
-                            <TextBlock Text="Blue: " FontWeight="Bold"/>
-                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}"/>
-                            <TextBlock Text="{Binding GBlueScore}"/>
+                            <TextBlock Text="Blue: " FontWeight="Bold" />
+                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock Text="{Binding GBlueScore}" />
                         </StackPanel>
                     </StackPanel>
-
                 </StackPanel>
             </StackPanel>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding IsTeamGame}" Value="False">
-                    <Setter TargetName="TeamScoreboard" Property="Visibility" Value="Hidden"/>
+                    <Setter TargetName="TeamScoreboard" Property="Visibility" Value="Hidden" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
     </UserControl.Resources>
 
-
     <Grid Width="1040">
         <Grid.RowDefinitions>
-            <RowDefinition Height="25*"/>
-            <RowDefinition Height="210*"/>
-            <RowDefinition Height="210*"/>
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="210*" />
+            <RowDefinition Height="210*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="770*"/>
-            <ColumnDefinition Width="270*"/>
+            <ColumnDefinition Width="770*" />
+            <ColumnDefinition Width="270*" />
         </Grid.ColumnDefinitions>
-
 
         <!--Server refresh options-->
         <StackPanel Orientation="Horizontal" Grid.Row="0">
             <CheckBox x:Name="RefreshCheckBox" Content="Auto-refresh servers" IsChecked="{Binding IsAutoRefreshEnabled}" Margin="0,6,0,8" Padding="2,0,10,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Checked">
-                        <cal:ActionMessage MethodName="SaveConfig"/>
-                        <cal:ActionMessage MethodName="StartServerRefreshTimer"/>
+                        <cal:ActionMessage MethodName="SaveConfig" />
+                        <cal:ActionMessage MethodName="StartServerRefreshTimer" />
                     </i:EventTrigger>
                     <i:EventTrigger EventName="Unchecked">
-                        <cal:ActionMessage MethodName="SaveConfig"/>
-                        <cal:ActionMessage MethodName="StopServerRefreshTimer"/>
+                        <cal:ActionMessage MethodName="SaveConfig" />
+                        <cal:ActionMessage MethodName="StopServerRefreshTimer" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                
             </CheckBox>
             <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,4,0,6" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <cal:ActionMessage MethodName="SetRefreshTime">
-                        <cal:Parameter Value="{Binding ElementName=RefreshComboBox, Path=SelectedValue}"/>
+                            <cal:Parameter Value="{Binding ElementName=RefreshComboBox, Path=SelectedValue}" />
                         </cal:ActionMessage>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </ComboBox>
-
         </StackPanel>
-
 
         <!--Server Details-->
         <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}" Grid.Row="1">
@@ -151,41 +145,41 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0"/>
-                                    <!--<TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}"/>-->
-                                    <TextBlock Name="CountryName" Text="{Binding FullLocationName}"/>
+                                    <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0" />
+                                    <!--<TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}" />-->
+                                    <TextBlock Name="CountryName" Text="{Binding FullLocationName}" />
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="Ping" DisplayMemberBinding="{Binding Ping}"/>
+                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="Ping" DisplayMemberBinding="{Binding Ping}" />
 
                     <GridViewColumn Header="Game Type" helpers:GridViewSort.PropertyName="GameTypeTitle">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}"/>
-                                    <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}"/>
+                                    <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}" />
+                                    <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}" />
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="Map" DisplayMemberBinding="{Binding Map}"/>
+                    <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="Map" DisplayMemberBinding="{Binding Map}" />
                     <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="TotalPlayers">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding TotalPlayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand"/>
+                                <TextBlock Text="{Binding TotalPlayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Server Name" helpers:GridViewSort.PropertyName="HostName" DisplayMemberBinding="{Binding HostName}"/>
+                    <GridViewColumn Header="Server Name" helpers:GridViewSort.PropertyName="HostName" DisplayMemberBinding="{Binding HostName}" />
 
-                    <GridViewColumn Header="Modded" helpers:GridViewSort.PropertyName="Modded" DisplayMemberBinding="{Binding Modded}"/>
-                    <GridViewColumn Header="Instagib" helpers:GridViewSort.PropertyName="Instagib" DisplayMemberBinding="{Binding Instagib}"/>
-                    <GridViewColumn Header="Id" helpers:GridViewSort.PropertyName="PublicId" DisplayMemberBinding="{Binding PublicId}"/>
-                    <GridViewColumn Header="Address" helpers:GridViewSort.PropertyName="HostAddress" DisplayMemberBinding="{Binding HostAddress}"/>
+                    <GridViewColumn Header="Modded" helpers:GridViewSort.PropertyName="Modded" DisplayMemberBinding="{Binding Modded}" />
+                    <GridViewColumn Header="Instagib" helpers:GridViewSort.PropertyName="Instagib" DisplayMemberBinding="{Binding Instagib}" />
+                    <GridViewColumn Header="Id" helpers:GridViewSort.PropertyName="PublicId" DisplayMemberBinding="{Binding PublicId}" />
+                    <GridViewColumn Header="Address" helpers:GridViewSort.PropertyName="HostAddress" DisplayMemberBinding="{Binding HostAddress}" />
                 </GridView>
             </ListView.View>
         </ListView>
@@ -195,38 +189,35 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}"/>
-                    <GridViewColumn Header="Clan" helpers:GridViewSort.PropertyName="Clan" DisplayMemberBinding="{Binding CleanedClan}"/>
+                    <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />
+                    <GridViewColumn Header="Clan" helpers:GridViewSort.PropertyName="Clan" DisplayMemberBinding="{Binding CleanedClan}" />
                     <GridViewColumn Header="Name" helpers:GridViewSort.PropertyName="Name">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0"/>
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0" />
+                                    <TextBlock Text="{Binding Name}" />
                                 </StackPanel>
                             </DataTemplate>
-
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}"/>
+                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" />
 
-                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQLRanksSupported, Converter={StaticResource QLRanksTypeToVis}, ConverterParameter=85}"/>
-
+                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQLRanksSupported, Converter={StaticResource QLRanksTypeToVis}, ConverterParameter=85}" />
                 </GridView>
             </ListView.View>
         </ListView>
         <!--Extended server details-->
-        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2" Grid.Row="1"/>
+        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2" Grid.Row="1" />
 
         <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6" Grid.Row="1">
 
             <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="76" HorizontalAlignment="Center" Margin="295,150,295,268">
                 <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
-            		Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0" Margin="8,28,-12,28"/>
+            		Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0" Margin="8,28,-12,28" />
             </Border>
             <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}"/>-->
+                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}" />-->
         </Grid>
-
     </Grid>
 </UserControl>

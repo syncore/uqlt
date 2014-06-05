@@ -16,9 +16,7 @@ namespace UQLT
         /// <param name="model">The view model.</param>
         /// <param name="view">The view.</param>
         /// <param name="isDialog">Whethor or not the window is being shown as a dialog.</param>
-        /// <returns>
-        /// The window.
-        /// </returns>
+        /// <returns>The window.</returns>
         protected override System.Windows.Window EnsureWindow(object model, object view, bool isDialog)
         {
             Window window = base.EnsureWindow(model, view, isDialog);

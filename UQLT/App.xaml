@@ -4,23 +4,23 @@
              xmlns:models="clr-namespace:UQLT.Models"
              xmlns:converters="clr-namespace:UQLT.Converters"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-             
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <!--The application bootstrapper-->
-                    <local:UQLTBootstrapper x:Key="bootstrapper"/>
+                    <local:UQLTBootstrapper x:Key="bootstrapper" />
                     <!--::::::::::::::::::::-->
                     <!--Converters-->
                     <!--::::::::::::::::::::-->
                     <BooleanToVisibilityConverter x:Key="BoolToVis" />
-                    <converters:LocIdToNameConverter x:Key="LocIdToName"/>
-                    <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace"/>
-                    <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound"/>
-                    <converters:QLRanksTypeToVisiblityConverter x:Key="QLRanksTypeToVis"/>
+                    <converters:LocIdToNameConverter x:Key="LocIdToName" />
+                    <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace" />
+                    <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound" />
+                    <converters:QLRanksTypeToVisiblityConverter x:Key="QLRanksTypeToVis" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        </Application.Resources>
+    </Application.Resources>
 </Application>

@@ -4,7 +4,9 @@ using System.IO;
 namespace UQLT.Helpers
 {
     /// <summary>
-    /// Provides a fail-safe hard-coded filter list in case (1) the UQLT website cannot be reached to download the current filter updates or: (2) the saved filter list doesn't exist on the user's hard drive
+    /// Provides a fail-safe hard-coded filter list in case (1) the UQLT website cannot be reached
+    /// to download the current filter updates or: (2) the saved filter list doesn't exist on the
+    /// user's hard drive
     /// </summary>
     public class FailsafeFilterHelper
     {

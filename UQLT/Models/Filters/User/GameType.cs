@@ -8,9 +8,7 @@
         /// <summary>
         /// Gets or sets the display_name.
         /// </summary>
-        /// <value>
-        /// The display_name.
-        /// </value>
+        /// <value>The display_name.</value>
         public string display_name
         {
             get;
@@ -20,9 +18,7 @@
         /// <summary>
         /// Gets or sets the game_type.
         /// </summary>
-        /// <value>
-        /// The game_type.
-        /// </value>
+        /// <value>The game_type.</value>
         public string game_type
         {
             get;
@@ -32,9 +28,7 @@
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
             return display_name;

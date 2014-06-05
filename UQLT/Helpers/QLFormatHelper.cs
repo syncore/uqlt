@@ -9,13 +9,92 @@ using UQLT.Models.Filters.User;
 namespace UQLT.Helpers
 {
     /// <summary>
-    /// Simple singleton (!!!) for storing a few QL server details that would otherwise be expensive and inefficient to look up and/or that the QL API unfortunately does not provide by default,
-    /// i.e.: QL API does not define the location name for location_id's, and while it does define full game type titles (i.e. "Capture the Flag") for game_type id's, it does not define
-    /// a short game type type title (i.e. "CTF"). This type of information is useful in multiple parts of the application and is stored here for ease of use.
+    /// The relevant gametype data that we need
+    /// </summary>
+    public class GametypeData
+    {
+        /// <summary>
+        /// Gets or sets the full name of the gametype.
+        /// </summary>
+        /// <value>The full name of the gametype.</value>
+        public string FullGametypeName
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the game icon.
+        /// </summary>
+        /// <value>The game icon.</value>
+        public BitmapImage GameIcon
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the short name of the gametype.
+        /// </summary>
+        /// <value>The short name of the gametype.</value>
+        public string ShortGametypeName
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// The relevant location data that we need but the QL API does not provide by default
+    /// </summary>
+    public class LocationData
+    {
+        /// <summary>
+        /// Gets or sets the city.
+        /// </summary>
+        /// <value>The city.</value>
+        public string City
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the flag.
+        /// </summary>
+        /// <value>The flag.</value>
+        public BitmapImage Flag
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the full name of the location.
+        /// </summary>
+        /// <value>The full name of the location.</value>
+        public string FullLocationName
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Simple singleton (!!!) for storing a few QL server details that would otherwise be expensive
+    /// and inefficient to look up and/or that the QL API unfortunately does not provide by default,
+    /// i.e.: QL API does not define the location name for location_id's, and while it does define
+    /// full game type titles (i.e. "Capture the Flag") for game_type id's, it does not define a
+    /// short game type type title (i.e. "CTF"). This type of information is useful in multiple
+    /// parts of the application and is stored here for ease of use.
     /// </summary>
     public sealed class QLFormatHelper
     {
         private static readonly QLFormatHelper _instance = new QLFormatHelper();
+
+        private readonly Dictionary<int, GametypeData> _gametypes;
+
+        private readonly Dictionary<object, LocationData> _locations;
 
         // Static constructor so C# compiler will not mark type as 'beforefieldinit', see http://csharpindepth.com/articles/general/singleton.aspx
         static QLFormatHelper()
@@ -23,7 +102,7 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="QLFormatHelper"/> class from being created.
+        /// Prevents a default instance of the <see cref="QLFormatHelper" /> class from being created.
         /// </summary>
         private QLFormatHelper()
         {
@@ -35,9 +114,7 @@ namespace UQLT.Helpers
         /// <summary>
         /// Gets the instance.
         /// </summary>
-        /// <value>
-        /// The instance.
-        /// </value>
+        /// <value>The instance.</value>
         public static QLFormatHelper Instance
         {
             get
@@ -46,14 +123,22 @@ namespace UQLT.Helpers
             }
         }
 
-        private readonly Dictionary<object, LocationData> _locations;
+        /// <summary>
+        /// Gets the gametypes.
+        /// </summary>
+        /// <value>The gametypes.</value>
+        public Dictionary<int, GametypeData> Gametypes
+        {
+            get
+            {
+                return _gametypes;
+            }
+        }
 
         /// <summary>
         /// Gets the locations.
         /// </summary>
-        /// <value>
-        /// The locations.
-        /// </value>
+        /// <value>The locations.</value>
         public Dictionary<object, LocationData> Locations
         {
             get
@@ -62,19 +147,57 @@ namespace UQLT.Helpers
             }
         }
 
-        private readonly Dictionary<int, GametypeData> _gametypes;
-
         /// <summary>
-        /// Gets the gametypes.
+        /// Populates the dictionaries that will hold the gametype and location data using values
+        /// specified from the filter file on the disk.
         /// </summary>
-        /// <value>
-        /// The gametypes.
-        /// </value>
-        public Dictionary<int, GametypeData> Gametypes
+        public void Populate()
         {
-            get
+            if (!File.Exists(UQLTGlobals.CurrentFilterPath))
             {
-                return _gametypes;
+                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
+                failsafe.DumpBackupFilters();
+            }
+
+            try
+            {
+                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+                {
+                    string s = sr.ReadToEnd();
+                    ImportedFilters json = JsonConvert.DeserializeObject<ImportedFilters>(s);
+                    // location data
+                    foreach (var loc in json.locations)
+                    {
+                        // QL API is weird. Some location_ids for filters are not ints but strings
+                        // (i.e. "location_id": "North America"). Only add the numeric location ids
+                        // to dictionary
+                        if (!(loc.location_id is string))
+                        {
+                            //Debug.WriteLine("Adding location --> Location ID: {0} - Fullname: {1} - City: {2}", loc.location_id, loc.display_name, loc.city);
+                            Locations[loc.location_id] = new LocationData()
+                            {
+                                City = loc.city,
+                                FullLocationName = loc.display_name,
+                                Flag = GetFlag(loc.location_id)
+                            };
+                        }
+                    }
+                    // gametype data
+                    foreach (var gtype in json.basic_gametypes)
+                    {
+                        //Debug.WriteLine("Adding gametype --> Full Gametype name: {0} - Short Gametype name: {1}", gtype.display_name, gtype.short_name);
+                        Gametypes[(gtype.game_type)] = new GametypeData()
+                        {
+                            FullGametypeName = gtype.display_name,
+                            ShortGametypeName = gtype.short_name,
+                            GameIcon = GetGameIcon(gtype.game_type)
+                        };
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
             }
         }
 
@@ -112,141 +235,6 @@ namespace UQLT.Helpers
                 Debug.WriteLine(ex);
                 return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/unknown_gametype.gif", UriKind.RelativeOrAbsolute));
             }
-        }
-
-        /// <summary>
-        /// Populates the dictionaries that will hold the gametype and location data using values specified from the filter file on the disk.
-        /// </summary>
-        public void Populate()
-        {
-            if (!File.Exists(UQLTGlobals.CurrentFilterPath))
-            {
-                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
-                failsafe.DumpBackupFilters();
-            }
-
-            try
-            {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
-                {
-                    string s = sr.ReadToEnd();
-                    ImportedFilters json = JsonConvert.DeserializeObject<ImportedFilters>(s);
-                    // location data
-                    foreach (var loc in json.locations)
-                    {
-                        // QL API is weird. Some location_ids for filters are not ints but strings (i.e. "location_id": "North America"). Only add the numeric location ids to dictionary
-                        if (!(loc.location_id is string))
-                        {
-                            //Debug.WriteLine("Adding location --> Location ID: {0} - Fullname: {1} - City: {2}", loc.location_id, loc.display_name, loc.city);
-                            Locations[loc.location_id] = new LocationData()
-                            {
-                                City = loc.city,
-                                FullLocationName = loc.display_name,
-                                Flag = GetFlag(loc.location_id)
-                            };
-                        }
-                    }
-                    // gametype data
-                    foreach (var gtype in json.basic_gametypes)
-                    {
-                        //Debug.WriteLine("Adding gametype --> Full Gametype name: {0} - Short Gametype name: {1}", gtype.display_name, gtype.short_name);
-                        Gametypes[(gtype.game_type)] = new GametypeData()
-                        {
-                            FullGametypeName = gtype.display_name,
-                            ShortGametypeName = gtype.short_name,
-                            GameIcon = GetGameIcon(gtype.game_type)
-                        };
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-        }
-    }
-
-    /// <summary>
-    /// The relevant location data that we need but the QL API does not provide by default
-    /// </summary>
-    public class LocationData
-    {
-        /// <summary>
-        /// Gets or sets the full name of the location.
-        /// </summary>
-        /// <value>
-        /// The full name of the location.
-        /// </value>
-        public string FullLocationName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the city.
-        /// </summary>
-        /// <value>
-        /// The city.
-        /// </value>
-        public string City
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the flag.
-        /// </summary>
-        /// <value>
-        /// The flag.
-        /// </value>
-        public BitmapImage Flag
-        {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
-    /// The relevant gametype data that we need
-    /// </summary>
-    public class GametypeData
-    {
-        /// <summary>
-        /// Gets or sets the full name of the gametype.
-        /// </summary>
-        /// <value>
-        /// The full name of the gametype.
-        /// </value>
-        public string FullGametypeName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the short name of the gametype.
-        /// </summary>
-        /// <value>
-        /// The short name of the gametype.
-        /// </value>
-        public string ShortGametypeName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the game icon.
-        /// </summary>
-        /// <value>
-        /// The game icon.
-        /// </value>
-        public BitmapImage GameIcon
-        {
-            get;
-            set;
         }
     }
 }

@@ -6,7 +6,7 @@
     public class ServerCountEvent
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServerCountEvent"/> class.
+        /// Initializes a new instance of the <see cref="ServerCountEvent" /> class.
         /// </summary>
         /// <param name="servercount">The server count.</param>
         public ServerCountEvent(int servercount)
@@ -17,9 +17,7 @@
         /// <summary>
         /// Gets or sets the server count.
         /// </summary>
-        /// <value>
-        /// The server count.
-        /// </value>
+        /// <value>The server count.</value>
         public int ServerCount
         {
             get;

@@ -8,7 +8,7 @@ namespace UQLT.Models.Chat
     public class RosterGroup
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RosterGroup"/> class.
+        /// Initializes a new instance of the <see cref="RosterGroup" /> class.
         /// </summary>
         /// <param name="name">The name of the roster group.</param>
         public RosterGroup(string name)
@@ -18,24 +18,20 @@ namespace UQLT.Models.Chat
         }
 
         /// <summary>
-        /// Gets or sets the name of the group.
+        /// Gets or sets the friends.
         /// </summary>
-        /// <value>
-        /// The name of the group.
-        /// </value>
-        public string GroupName
+        /// <value>The friends.</value>
+        public List<Friend> Friends
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the friends.
+        /// Gets or sets the name of the group.
         /// </summary>
-        /// <value>
-        /// The friends.
-        /// </value>
-        public List<Friend> Friends
+        /// <value>The name of the group.</value>
+        public string GroupName
         {
             get;
             set;

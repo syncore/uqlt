@@ -6,24 +6,20 @@
     public class Difficulty
     {
         /// <summary>
-        /// Gets or sets the display_name.
+        /// Gets or sets the difficulty.
         /// </summary>
-        /// <value>
-        /// The display_name.
-        /// </value>
-        public string display_name
+        /// <value>The difficulty.</value>
+        public string difficulty
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the difficulty.
+        /// Gets or sets the display_name.
         /// </summary>
-        /// <value>
-        /// The difficulty.
-        /// </value>
-        public string difficulty
+        /// <value>The display_name.</value>
+        public string display_name
         {
             get;
             set;
@@ -32,9 +28,7 @@
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
             return display_name;

@@ -10,11 +10,42 @@ namespace UQLT.Helpers
     /// </summary>
     public class FlashWindowHelper
     {
+        /// <summary>
+        /// Flash both the window caption and taskbar button. This is equivalent to setting the
+        /// FLASHW_CAPTION | FLASHW_TRAY flags.
+        /// </summary>
+        public const uint FLASHW_ALL = 3;
+
+        /// <summary>
+        /// Flash the window caption.
+        /// </summary>
+        public const uint FLASHW_CAPTION = 1;
+
+        /// <summary>
+        /// Stop flashing. The system restores the window to its original stae.
+        /// </summary>
+        public const uint FLASHW_STOP = 0;
+
+        /// <summary>
+        /// Flash continuously, until the FLASHW_STOP flag is set.
+        /// </summary>
+        public const uint FLASHW_TIMER = 4;
+
+        /// <summary>
+        /// Flash continuously until the window comes to the foreground.
+        /// </summary>
+        public const uint FLASHW_TIMERNOFG = 12;
+
+        /// <summary>
+        /// Flash the taskbar button.
+        /// </summary>
+        public const uint FLASHW_TRAY = 2;
+
         private IntPtr mainWindowHWnd;
         private Application theApp;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FlashWindowHelper"/> class.
+        /// Initializes a new instance of the <see cref="FlashWindowHelper" /> class.
         /// </summary>
         /// <param name="app">The application.</param>
         public FlashWindowHelper(Application app)
@@ -25,6 +56,52 @@ namespace UQLT.Helpers
             {
                 Console.WriteLine((Window)wind);
             }
+        }
+
+        /// <summary>
+        /// A boolean value indicating whether the application is running on Windows 2000 or later.
+        /// </summary>
+        private static bool Win2000OrLater
+        {
+            get
+            {
+                return Environment.OSVersion.Version.Major >= 5;
+            }
+        }
+
+        /// <summary>
+        /// Flash the spacified Window (Form) until it recieves focus.
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <returns></returns>
+        public static bool Flash(IntPtr hwnd)
+        {
+            // Make sure we're running under Windows 2000 or later
+            if (Win2000OrLater)
+            {
+                FLASHWINFO fi = CreateFlashInfoStruct(hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, uint.MaxValue, 0);
+
+                return FlashWindowEx(ref fi);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Flash the specified Window (form) for the specified number of times
+        /// </summary>
+        /// <param name="hwnd">The handle of the Window to Flash.</param>
+        /// <param name="count">The number of times to Flash.</param>
+        /// <returns></returns>
+        public static bool Flash(IntPtr hwnd, uint count)
+        {
+            if (Win2000OrLater)
+            {
+                FLASHWINFO fi = CreateFlashInfoStruct(hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, count, 0);
+
+                return FlashWindowEx(ref fi);
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -50,6 +127,21 @@ namespace UQLT.Helpers
             }
         }
 
+        private static FLASHWINFO CreateFlashInfoStruct(IntPtr handle, uint flags, uint count, uint timeout)
+        {
+            FLASHWINFO fi = new FLASHWINFO();
+            fi.cbSize = Convert.ToUInt32(Marshal.SizeOf(fi));
+            fi.hwnd = handle;
+            fi.dwFlags = flags;
+            fi.uCount = count;
+            fi.dwTimeout = timeout;
+            return fi;
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
+
         /// <summary>
         /// Initializes the handle.
         /// </summary>
@@ -57,15 +149,12 @@ namespace UQLT.Helpers
         {
             if (this.mainWindowHWnd == IntPtr.Zero)
             {
-                // Delayed creation of Main Window IntPtr as Application.Current passed in to ctor does not have the MainWindow set at that time
+                // Delayed creation of Main Window IntPtr as Application.Current passed in to ctor
+                // does not have the MainWindow set at that time
                 var mainWindow = this.theApp.MainWindow;
                 this.mainWindowHWnd = new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle;
             }
         }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct FLASHWINFO
@@ -91,97 +180,10 @@ namespace UQLT.Helpers
             public uint uCount;
 
             /// <summary>
-            /// The rate at which the Window is to be flashed, in milliseconds. If Zero, the function uses the default cursor blink rate.
+            /// The rate at which the Window is to be flashed, in milliseconds. If Zero, the
+            /// function uses the default cursor blink rate.
             /// </summary>
             public uint dwTimeout;
-        }
-
-        /// <summary>
-        /// Stop flashing. The system restores the window to its original stae.
-        /// </summary>
-        public const uint FLASHW_STOP = 0;
-
-        /// <summary>
-        /// Flash the window caption.
-        /// </summary>
-        public const uint FLASHW_CAPTION = 1;
-
-        /// <summary>
-        /// Flash the taskbar button.
-        /// </summary>
-        public const uint FLASHW_TRAY = 2;
-
-        /// <summary>
-        /// Flash both the window caption and taskbar button.
-        /// This is equivalent to setting the FLASHW_CAPTION | FLASHW_TRAY flags.
-        /// </summary>
-        public const uint FLASHW_ALL = 3;
-
-        /// <summary>
-        /// Flash continuously, until the FLASHW_STOP flag is set.
-        /// </summary>
-        public const uint FLASHW_TIMER = 4;
-
-        /// <summary>
-        /// Flash continuously until the window comes to the foreground.
-        /// </summary>
-        public const uint FLASHW_TIMERNOFG = 12;
-
-        /// <summary>
-        /// Flash the spacified Window (Form) until it recieves focus.
-        /// </summary>
-        /// <param name="hwnd"></param>
-        /// <returns></returns>
-        public static bool Flash(IntPtr hwnd)
-        {
-            // Make sure we're running under Windows 2000 or later
-            if (Win2000OrLater)
-            {
-                FLASHWINFO fi = CreateFlashInfoStruct(hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, uint.MaxValue, 0);
-
-                return FlashWindowEx(ref fi);
-            }
-            return false;
-        }
-
-        private static FLASHWINFO CreateFlashInfoStruct(IntPtr handle, uint flags, uint count, uint timeout)
-        {
-            FLASHWINFO fi = new FLASHWINFO();
-            fi.cbSize = Convert.ToUInt32(Marshal.SizeOf(fi));
-            fi.hwnd = handle;
-            fi.dwFlags = flags;
-            fi.uCount = count;
-            fi.dwTimeout = timeout;
-            return fi;
-        }
-
-        /// <summary>
-        /// Flash the specified Window (form) for the specified number of times
-        /// </summary>
-        /// <param name="hwnd">The handle of the Window to Flash.</param>
-        /// <param name="count">The number of times to Flash.</param>
-        /// <returns></returns>
-        public static bool Flash(IntPtr hwnd, uint count)
-        {
-            if (Win2000OrLater)
-            {
-                FLASHWINFO fi = CreateFlashInfoStruct(hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, count, 0);
-
-                return FlashWindowEx(ref fi);
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// A boolean value indicating whether the application is running on Windows 2000 or later.
-        /// </summary>
-        private static bool Win2000OrLater
-        {
-            get
-            {
-                return Environment.OSVersion.Version.Major >= 5;
-            }
         }
     }
 }
