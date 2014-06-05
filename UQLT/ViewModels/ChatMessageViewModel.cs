@@ -16,14 +16,14 @@ namespace UQLT.ViewModels
     [Export(typeof(ChatMessageViewModel))]
     public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
     {
-        private ChatHistory _chathistory;
+        private ChatHistory _chatHistory;
         private string _displayName;
         private ChatHandler _handler;
         private string _incomingMessage;
         private Jid _jid;
         private string _outgoingMessage;
         private StringBuilder _receivedMessages = new StringBuilder();
-        private XmppClientConnection _xmppcon;
+        private XmppClientConnection _xmppCon;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessageViewModel" /> class.
@@ -36,7 +36,7 @@ namespace UQLT.ViewModels
         {
             _jid = jid;
             _displayName = "Chatting with " + _jid.User;
-            _xmppcon = xmppcon;
+            _xmppCon = xmppcon;
             _handler = handler;
 
             if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
@@ -46,7 +46,7 @@ namespace UQLT.ViewModels
 
             Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid.ToString());
             xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), new MessageCB(MessageCallback), null);
-            _chathistory = new ChatHistory(this);
+            _chatHistory = new ChatHistory(this);
             AppendChatHistory();
         }
 
@@ -122,7 +122,7 @@ namespace UQLT.ViewModels
         /// </summary>
         public void AppendChatHistory()
         {
-            _chathistory.RetrieveMessageHistory(_handler.MyJidUser(), _jid.User);
+            _chatHistory.RetrieveMessageHistory(_handler.MyJidUser(), _jid.User);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace UQLT.ViewModels
             IncomingMessage = msg.Body + "\n";
             ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + IncomingMessage;
             // Log the message
-            _chathistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             IncomingMessage = string.Empty;
         }
 
@@ -146,10 +146,10 @@ namespace UQLT.ViewModels
         public void RemoveActiveChat()
         {
             ChatHandler.ActiveChats.Remove(_jid.Bare.ToLowerInvariant());
-            _xmppcon.MessageGrabber.Remove(_jid);
+            _xmppCon.MessageGrabber.Remove(_jid);
 
             // in the case where the manual string jid was added from the ChatListViewModel:
-            _xmppcon.MessageGrabber.Remove(_jid.Bare);
+            _xmppCon.MessageGrabber.Remove(_jid.Bare);
             Debug.WriteLine("Window closed. Removed active chat from user: " + _jid.Bare.ToLowerInvariant() + " Current active chat count: " + ChatHandler.ActiveChats.Count);
         }
 
@@ -168,7 +168,7 @@ namespace UQLT.ViewModels
                     Debug.WriteLine("Attempting to send recipient: " + _jid.ToString() + " message: " + message);
                     ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + OutgoingMessage;
                     // Log the message
-                    _chathistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     OutgoingMessage = string.Empty;
                 }
                 else

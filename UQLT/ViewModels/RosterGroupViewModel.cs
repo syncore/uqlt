@@ -14,7 +14,7 @@ namespace UQLT.ViewModels
 
     public class RosterGroupViewModel : PropertyChangedBase
     {
-        private ObservableDictionary<string, FriendViewModel> _friends;
+        private ObservableDictionary<string, FriendViewModel> _friends = new ObservableDictionary<string, FriendViewModel>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RosterGroupViewModel" /> class.
@@ -29,7 +29,6 @@ namespace UQLT.ViewModels
         {
             RostGroup = rostergroup;
             IsAutoExpanded = isautoexpanded;
-            _friends = new ObservableDictionary<string, FriendViewModel>();
         }
 
         /// <summary>

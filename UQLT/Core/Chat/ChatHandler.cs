@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
@@ -25,11 +24,11 @@ namespace UQLT.Core.Chat
     public class ChatHandler
     {
         public static Hashtable ActiveChats = new Hashtable();
-        private readonly IWindowManager windowManager;
+        private readonly IWindowManager _windowManager;
         private ChatGameInfo _qlChatGameInfo;
+        private SoundPlayer _sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private XmppClientConnection _xmppCon;
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
-        private SoundPlayer sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHandler" /> class.
@@ -39,8 +38,7 @@ namespace UQLT.Core.Chat
         public ChatHandler(ChatListViewModel clvm, IWindowManager wm)
         {
             CLVM = clvm;
-            windowManager = wm;
-            Roster = new Dictionary<string, string>();
+            _windowManager = wm;
             _xmppCon = new XmppClientConnection();
 
             // XmppClientConnection event handlers
@@ -83,16 +81,6 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Gets or sets the roster.
-        /// </summary>
-        /// <value>The roster.</value>
-        public Dictionary<string, string> Roster
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the XMPP connection
         /// </summary>
         /// <value>The XMPP connection</value>
@@ -126,7 +114,7 @@ namespace UQLT.Core.Chat
         {
             try
             {
-                sp.Play();
+                _sp.Play();
             }
             catch (Exception ex)
             {
@@ -192,7 +180,7 @@ namespace UQLT.Core.Chat
             {
                 CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXMPPStatus = false;
                 CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
-                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = 0;
+                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
             }
         }
 
@@ -345,12 +333,12 @@ namespace UQLT.Core.Chat
                     // friend is watching a demo
                     if (si.address.Equals("bot"))
                     {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 1;
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.WatchingDemo;
                     }
                     // friend is actually in game
                     else
                     {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 3;
+                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.PlayingRealGame;
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
                         ChatGameInfo.CreateServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
@@ -361,7 +349,7 @@ namespace UQLT.Core.Chat
                 // ADDRESS, but it will be = "loopback")
                 if (si.bot_game == 1)
                 {
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = 2;
+                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.PlayingPracticeGame;
                 }
             }
             catch (Exception e)
@@ -395,7 +383,7 @@ namespace UQLT.Core.Chat
 
                     Execute.OnUIThread(() =>
                     {
-                        windowManager.ShowWindow(cm, null, settings);
+                        _windowManager.ShowWindow(cm, null, settings);
                         cm.MessageIncoming(msg);
                         PlayNotificationSound();
                     });
@@ -462,8 +450,6 @@ namespace UQLT.Core.Chat
             // TODO: if (item.Subscription != SubscriptionType.remove) stuff
             try
             {
-                Roster.Add(item.Jid.Bare.ToLowerInvariant(), item.Jid.User.ToLowerInvariant());
-
                 // Additions and removals to ObservableDictionary must be done on the UI thread
                 // since ObservableDictionary is databound
                 Execute.OnUIThread(() =>

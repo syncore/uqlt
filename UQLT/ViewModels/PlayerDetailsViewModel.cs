@@ -17,7 +17,7 @@ namespace UQLT.ViewModels
 
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
-        private static Regex namecolors = new Regex(@"[\^]\d");
+        private static Regex nameColors = new Regex(@"[\^]\d");
 
         private string _cleanedClan;
 
@@ -76,7 +76,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                _cleanedClan = namecolors.Replace(Clan, string.Empty);
+                _cleanedClan = nameColors.Replace(Clan, string.Empty);
                 return _cleanedClan;
             }
 

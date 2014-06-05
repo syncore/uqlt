@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
+using UQLT.Core.Chat;
 using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
@@ -11,7 +12,7 @@ namespace UQLT.ViewModels
 
     /// <summary>
     /// Individual friend viewmodel. This class wraps the Friend class and exposes additional
-    /// properties specific to the View (in this case, ChatListView)
+    /// properties specific to the View (in this case, ChatListView).
     /// </summary>
     public class FriendViewModel : PropertyChangedBase
     {
@@ -31,7 +32,7 @@ namespace UQLT.ViewModels
         public FriendViewModel(Friend friend)
         {
             RosterFriend = friend;
-            // required for treeview
+            // Auto expansion is required for treeview
             IsAutoExpanded = true;
         }
 
@@ -163,16 +164,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case 1:
+                    case TypeOfStatus.WatchingDemo:
                         return true;
 
-                    case 2:
+                    case TypeOfStatus.PlayingPracticeGame:
                         return true;
 
-                    case 3:
+                    case TypeOfStatus.PlayingRealGame:
                         return false;
 
-                    case 0:
+                    case TypeOfStatus.Nothing:
                     default:
                         return false;
                 }
@@ -189,14 +190,14 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case 1:
+                    case TypeOfStatus.WatchingDemo:
                         return "Watching a demo";
 
-                    case 2:
+                    case TypeOfStatus.PlayingPracticeGame:
                         return "Playing a practice match";
 
-                    case 0:
-                    case 3:
+                    case TypeOfStatus.Nothing:
+                    case TypeOfStatus.PlayingRealGame:
                     default:
                         return "";
                 }
@@ -240,16 +241,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case 1:
+                    case TypeOfStatus.WatchingDemo:
                         return image_demo;
 
-                    case 2:
+                    case TypeOfStatus.PlayingPracticeGame:
                         return image_practice;
 
-                    case 3:
+                    case TypeOfStatus.PlayingRealGame:
                         return image_ingame;
 
-                    case 0:
+                    case TypeOfStatus.Nothing:
                     default:
                         return default(BitmapImage);
                 }
@@ -260,7 +261,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the type of the status.
         /// </summary>
         /// <value>The type of the status.</value>
-        public int StatusType
+        public TypeOfStatus StatusType
         {
             get
             {

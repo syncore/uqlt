@@ -19,11 +19,11 @@ namespace UQLT.ViewModels
     /// </summary>
     public class ChatListViewModel : PropertyChangedBase
     {
-        private static string OfflineGroupTitle = "Offline Friends";
-        private static string OnlineGroupTitle = "Online Friends";
         private BindableCollection<RosterGroupViewModel> _buddyList;
         private ChatHandler Handler;
         private agsXMPP.Jid Jid;
+        private string offlineGroupTitle = "Offline Friends";
+        private string onlineGroupTitle = "Online Friends";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatListViewModel" /> class.
@@ -34,8 +34,8 @@ namespace UQLT.ViewModels
         {
             windowManager = WindowManager;
             _buddyList = new BindableCollection<RosterGroupViewModel>();
-            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
-            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(onlineGroupTitle), true));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(offlineGroupTitle), false));
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel

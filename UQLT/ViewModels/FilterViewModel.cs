@@ -22,26 +22,39 @@ namespace UQLT.ViewModels
     /// </summary>
     public class FilterViewModel : PropertyChangedBase, IHandle<FilterVisibilityEvent>
     {
-        // list of maps that receive "map" description for arena_type when building filter string
-        private static List<string> arenaMap = new List<string>();
+        // A List of maps that receive "map" description for arena_type when building filter string.
+        private static List<string> ArenaMap = new List<string>();
 
-        // list of maps that receive "tag" description for arena_type when building filter string
-        private static List<string> arenaTag = new List<string>();
+        // A list of maps that receive "tag" description for arena_type when building filter string.
+        private static List<string> ArenaTag = new List<string>();
 
         private readonly IEventAggregator _events;
 
         private List<Arena> _arenas;
+
         private List<Difficulty> _difficulty;
+
         private int _gameArenaIndex;
+
         private List<GameInfo> _gameInfo;
+
         private int _gameLocationIndex;
+
         private bool _gamePremiumBool;
+
         private int _gamePremiumIndex;
-        private List<GameState> _gamestate;
+
+        private List<GameState> _gameState;
+
         private int _gameStateIndex;
+
         private int _gameTypeIndex;
+
         private List<GameType> _gameTypes;
-        private List<string> _gameVisibility = new List<string>();
+
+        // Loading filters: game visibility types don't depend on saved filter file
+        private List<string> _gameVisibility = new List<string> { "Public games", "Private games" };
+
         private int _gameVisibilityIndex;
         private bool _isVisible = true;
 
@@ -55,11 +68,7 @@ namespace UQLT.ViewModels
         public FilterViewModel(IEventAggregator events)
         {
             _events = events;
-            events.Subscribe(this);
-
-            // Loading filters: game visibility types don't depend on saved filter file
-            _gameVisibility.Add("Public games");
-            _gameVisibility.Add("Private games");
+            _events.Subscribe(this);
 
             //TODO: implement downloading of filter list functionality
             var p = PopulateAndApplyFiltersAsync();
@@ -199,12 +208,12 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return _gamestate;
+                return _gameState;
             }
 
             set
             {
-                _gamestate = value;
+                _gameState = value;
                 NotifyOfPropertyChange(() => GameState);
             }
         }
@@ -397,11 +406,11 @@ namespace UQLT.ViewModels
                 arena_type = string.Empty;
             }
 
-            if (arenaMap.Contains(arena))
+            if (ArenaMap.Contains(arena))
             {
                 arena_type = "map";
             }
-            else if (arenaTag.Contains(arena))
+            else if (ArenaTag.Contains(arena))
             {
                 arena_type = "tag";
             }
@@ -660,13 +669,13 @@ namespace UQLT.ViewModels
                         // add to appropriate list in order to set proper arena tag when building filter
                         foreach (var arena in filters.arenas)
                         {
-                            if (arena.arena_type.Equals("map") && (!arenaMap.Contains(arena.arena)))
+                            if (arena.arena_type.Equals("map") && (!ArenaMap.Contains(arena.arena)))
                             {
-                                arenaMap.Add(arena.arena);
+                                ArenaMap.Add(arena.arena);
                             }
-                            else if (arena.arena_type.Equals("tag") && (!arenaTag.Contains(arena.arena)))
+                            else if (arena.arena_type.Equals("tag") && (!ArenaTag.Contains(arena.arena)))
                             {
-                                arenaTag.Add(arena.arena);
+                                ArenaTag.Add(arena.arena);
                             }
                         }
                     }

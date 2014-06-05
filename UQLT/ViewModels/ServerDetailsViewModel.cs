@@ -27,7 +27,7 @@ namespace UQLT.ViewModels
 
         private string _formattedGameState;
 
-        private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList;
+        private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
 
         private long _redTeamElo;
 
@@ -46,8 +46,7 @@ namespace UQLT.ViewModels
         public ServerDetailsViewModel(Server server)
         {
             Server = server;
-            _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
-            _formattedPlayerList = AddFormattedPlayers(server.players);
+            FormattedPlayerList = AddFormattedPlayers(server.players);
             GroupScoresAndPlayers("Score", "Team");
         }
 

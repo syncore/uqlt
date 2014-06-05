@@ -1,4 +1,6 @@
-﻿namespace UQLT.Models.Chat
+﻿using UQLT.Core.Chat;
+
+namespace UQLT.Models.Chat
 {
     /// <summary>
     /// Model for an individual friend on the buddy list
@@ -73,8 +75,8 @@
         /// Gets or sets the type of the status.
         /// </summary>
         /// <value>The type of the status.</value>
-        /// <remarks>StatusType can be: 1: demo, 2: practice, or 3: in-game</remarks>
-        public int StatusType
+        /// <remarks>StatusType can be: 0: nothing, 1: demo, 2: practice, or 3: in-game</remarks>
+        public TypeOfStatus StatusType
         {
             get;
             set;
