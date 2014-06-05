@@ -1,28 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Events
+﻿namespace UQLT.Events
 {
+    /// <summary>
+    /// Event that is fired whenever we receive a new player count from the Server Browser
+    /// </summary>
+    public class PlayerCountEvent
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerCountEvent"/> class.
+        /// </summary>
+        /// <param name="playercount">The player count.</param>
+        public PlayerCountEvent(int playercount)
+        {
+            PlayerCount = playercount;
+        }
 
-	/// <summary>
-	/// Event that is fired whenever we receive a new player count from the Server Browser
-	/// </summary>
-	public class PlayerCountEvent
-	{
-
-		public PlayerCountEvent(int playercount)
-		{
-			PlayerCount = playercount;
-		}
-
-		public int PlayerCount
-		{
-			get;
-			set;
-		}
-
-	}
+        /// <summary>
+        /// Gets or sets the player count.
+        /// </summary>
+        /// <value>
+        /// The player count.
+        /// </value>
+        public int PlayerCount
+        {
+            get;
+            set;
+        }
+    }
 }

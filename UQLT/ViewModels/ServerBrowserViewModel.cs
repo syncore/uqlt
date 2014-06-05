@@ -5,32 +5,16 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using Caliburn.Micro;
 using Newtonsoft.Json;
-using UQLT;
+using UQLT.Core.ServerBrowser;
 using UQLT.Events;
 using UQLT.Interfaces;
-using UQLT.Models;
-using UQLT.Models.Filters.Remote;
-using UQLT.Models.QLRanks;
-using UQLT.Models.QuakeLiveAPI;
-using UQLT.Models.Filters.User;
-using UQLT.Core.ServerBrowser;
-using System.Net;
-using System.Windows;
 using UQLT.Models.Configuration;
 
 namespace UQLT.ViewModels
 {
-
 	[Export(typeof(ServerBrowserViewModel))]
 
 	/// <summary>
@@ -44,6 +28,12 @@ namespace UQLT.ViewModels
 
 		private ObservableCollection<ServerDetailsViewModel> _servers;
 
+		/// <summary>
+		/// Gets or sets the servers that this viewmodel will display in the view.
+		/// </summary>
+		/// <value>
+		/// The servers that this viewmodel will display in the view.
+		/// </value>
 		public ObservableCollection<ServerDetailsViewModel> Servers
 		{
 			get
@@ -60,6 +50,12 @@ namespace UQLT.ViewModels
 
 		private ServerDetailsViewModel _selectedServer;
 
+		/// <summary>
+		/// Gets or sets the selected server.
+		/// </summary>
+		/// <value>
+		/// The selected server.
+		/// </value>
 		public ServerDetailsViewModel SelectedServer
 		{
 			get
@@ -76,6 +72,12 @@ namespace UQLT.ViewModels
 
 		private string _filterURL;
 
+		/// <summary>
+		/// Gets or sets the Quake Live filter URL.
+		/// </summary>
+		/// <value>
+		/// The Quake Live filter URL.
+		/// </value>
 		public string FilterURL
 		{
 			get
@@ -92,6 +94,12 @@ namespace UQLT.ViewModels
 
 		private bool _isUpdatingServers;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this viewmodel is currently updating the server list.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if this instance is updating servers; otherwise, <c>false</c>.
+		/// </value>
 		public bool IsUpdatingServers
 		{
 			get
@@ -107,6 +115,12 @@ namespace UQLT.ViewModels
 
 		private List<ServerBrowserRefreshItem> _autoRefreshItems;
 
+		/// <summary>
+		/// Gets or sets the list of time intervals that the user can select for automatic server refreshing.
+		/// </summary>
+		/// <value>
+		/// The list of time intervals.
+		/// </value>
 		public List<ServerBrowserRefreshItem> AutoRefreshItems
 		{
 			get
@@ -121,6 +135,12 @@ namespace UQLT.ViewModels
 
 		private int _autoRefreshIndex;
 
+		/// <summary>
+		/// Gets or sets the index of the automatic refresh value.
+		/// </summary>
+		/// <value>
+		/// The index of the automatic refresh value.
+		/// </value>
 		public int AutoRefreshIndex
 		{
 			get
@@ -136,6 +156,12 @@ namespace UQLT.ViewModels
 
 		private int _autoRefreshSeconds;
 
+		/// <summary>
+		/// Gets or sets the time, in seconds, for automatic server refreshing
+		/// </summary>
+		/// <value>
+		/// The time in seconds, for automatic server refreshing.
+		/// </value>
 		public int AutoRefreshSeconds
 		{
 			get
@@ -151,6 +177,12 @@ namespace UQLT.ViewModels
 
 		private bool _isAutoRefreshEnabled;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this automatic server refreshing is enabled.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if this automatic refresh is enabled; otherwise, <c>false</c>.
+		/// </value>
 		public bool IsAutoRefreshEnabled
 		{
 			get
@@ -164,6 +196,10 @@ namespace UQLT.ViewModels
 			}
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ServerBrowserViewModel"/> class.
+		/// </summary>
+		/// <param name="events">The events that this viewmodel publishes and/or subscribes to.</param>
 		[ImportingConstructor]
 		public ServerBrowserViewModel(IEventAggregator events)
 		{
@@ -181,10 +217,12 @@ namespace UQLT.ViewModels
 			LoadConfig();
 			// Instantiate a new server browser for this viewmodel
 			SB = new ServerBrowser(this, events);
-
 		}
 
-		// Sort the server browser based on specified criteria
+		/// <summary>
+		/// Does the server browser automatic sort based on specified criteria.
+		/// </summary>
+		/// <param name="property">The property criteria.</param>
 		private void DoServerBrowserAutoSort(string property)
 		{
 			var view = CollectionViewSource.GetDefaultView(Servers);
@@ -192,8 +230,11 @@ namespace UQLT.ViewModels
 			view.SortDescriptions.Add(sortDescription);
 		}
 
-		// This is fired whenever we receive a new default filter, either through the "make new default" button or "reset filters" button from the FilterViewModel
-
+		/// <summary>
+		/// Handles the specified message (event) that is received whenever this viewmodel receive notice of a new default filter,
+		/// either through the "make new default" button or "reset filters" button from the FilterViewModel.
+		/// </summary>
+		/// <param name="message">The message (event).</param>
 		public void Handle(ServerRequestEvent message)
 		{
 			FilterURL = message.ServerRequestURL;
@@ -201,7 +242,11 @@ namespace UQLT.ViewModels
 			Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
 		}
 
-		// This method is called from the view itself.
+		/// <summary>
+		/// Sets the refresh time.
+		/// </summary>
+		/// <param name="seconds">The time, in seconds.</param>
+		/// <remarks>This is called from the view itself.</remarks>
 		public void SetRefreshTime(int seconds)
 		{
 			Debug.WriteLine("Setting auto-server refresh time to " + seconds + " seconds.");
@@ -209,28 +254,40 @@ namespace UQLT.ViewModels
 			SaveConfig();
 		}
 
-		// This method is called from the view itself.
+		/// <summary>
+		/// Starts the server refresh timer.
+		/// </summary>
+		/// <remarks>This is called from the view itself.</remarks>
 		public void StartServerRefreshTimer()
 		{
 			SB.StartServerRefreshTimer();
 		}
 
-		// This method is called from the view itself.
+		/// <summary>
+		/// Stops the server refresh timer.
+		/// </summary>
+		/// <remarks>This is called from the view itself.</remarks>
 		public void StopServerRefreshTimer()
 		{
 			SB.StopServerRefreshTimer();
 		}
 
-		// Does the configuration file exist?
+		/// <summary>
+		/// Checks whether the configuration already exists
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if configuration exists, otherwise <c>false</c>
+		/// </returns>
 		public bool ConfigExists()
 		{
 			return File.Exists(UQLTGlobals.ConfigPath) ? true : false;
 		}
 
-		// Load any user configuration settings related to the Server Browser
+		/// <summary>
+		/// Loads the configuration.
+		/// </summary>
 		public void LoadConfig()
 		{
-
 			if (!ConfigExists())
 			{
 				LoadDefaultConfig();
@@ -238,7 +295,7 @@ namespace UQLT.ViewModels
 
 			try
 			{
-				using(StreamReader sr = new StreamReader(UQLTGlobals.ConfigPath))
+				using (StreamReader sr = new StreamReader(UQLTGlobals.ConfigPath))
 				{
 					string saved = sr.ReadToEnd();
 					Configuration savedConfigJson = JsonConvert.DeserializeObject<Configuration>(saved);
@@ -247,7 +304,6 @@ namespace UQLT.ViewModels
 					IsAutoRefreshEnabled = savedConfigJson.serverbrowser_options.auto_refresh;
 					AutoRefreshIndex = savedConfigJson.serverbrowser_options.auto_refresh_index;
 					AutoRefreshSeconds = savedConfigJson.serverbrowser_options.auto_refresh_seconds;
-
 				}
 			}
 			catch (Exception ex)
@@ -257,7 +313,9 @@ namespace UQLT.ViewModels
 			}
 		}
 
-		// Load the default configuration options in the event that the config file is not found
+		/// <summary>
+		/// Loads the default configuration.
+		/// </summary>
 		public void LoadDefaultConfig()
 		{
 			// Set the default VM properties (auto-refresh enabled, refresh every 60 seconds)
@@ -267,7 +325,9 @@ namespace UQLT.ViewModels
 			SaveConfig();
 		}
 
-		// Save the configuration settings related to the Server Browser. This method is called from the view itself.
+		/// <summary>
+		/// Saves the configuration.
+		/// </summary>
 		public void SaveConfig()
 		{
 			// Save this configuration as the new default
@@ -284,14 +344,12 @@ namespace UQLT.ViewModels
 
 			// write to disk
 			string savedConfigJson = JsonConvert.SerializeObject(config);
-			using(FileStream fs = File.Create(UQLTGlobals.ConfigPath))
-			using(TextWriter writer = new StreamWriter(fs))
+			using (FileStream fs = File.Create(UQLTGlobals.ConfigPath))
+			using (TextWriter writer = new StreamWriter(fs))
 			{
 				writer.WriteLine(savedConfigJson);
 			}
 			Debug.WriteLine("**New server browser auto-refresh configuration saved");
 		}
-
-
 	}
 }

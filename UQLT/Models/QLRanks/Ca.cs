@@ -1,27 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Models.QLRanks
+﻿namespace UQLT.Models.QLRanks
 {
+    /// <summary>
+    /// Model representing the clan arena rank and elo information returned from the QLRanks API
+    /// </summary>
+    public class Ca
+    {
+        /// <summary>
+        /// Gets or sets the rank.
+        /// </summary>
+        /// <value>
+        /// The rank.
+        /// </value>
+        public int rank
+        {
+            get;
+            set;
+        }
 
-	/// <summary>
-	/// Model representing the clan arena rank and elo information returned from the QLRanks API
-	/// </summary>
-	public class Ca
-	{
-		public int rank
-		{
-			get;
-			set;
-		}
-
-		public int elo
-		{
-			get;
-			set;
-		}
-	}
+        /// <summary>
+        /// Gets or sets the elo.
+        /// </summary>
+        /// <value>
+        /// The elo.
+        /// </value>
+        public int elo
+        {
+            get;
+            set;
+        }
+    }
 }

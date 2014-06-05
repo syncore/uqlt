@@ -1,32 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Models.Configuration
+﻿namespace UQLT.Models.Configuration
 {
-	/// <summary>
-	/// Model representing an item in the server browser auto-refresh combobox
-	/// </summary>
-	public class ServerBrowserRefreshItem
-	{
+    /// <summary>
+    /// Model representing an item in the server browser auto-refresh combobox
+    /// </summary>
+    public class ServerBrowserRefreshItem
+    {
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name
+        {
+            get;
+            set;
+        }
 
-		public string Name
-		{
-			get;
-			set;
-		}
-		public int Seconds
-		{
-			get;
-			set;
-		}
+        /// <summary>
+        /// Gets or sets the seconds.
+        /// </summary>
+        /// <value>
+        /// The seconds.
+        /// </value>
+        public int Seconds
+        {
+            get;
+            set;
+        }
 
-		public override string ToString()
-		{
-			return Name;
-		}
-
-	}
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
 }

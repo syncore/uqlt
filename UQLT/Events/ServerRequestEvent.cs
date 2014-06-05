@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Events
+﻿namespace UQLT.Events
 {
+    /// <summary>
+    /// Event that is fired whenever we receive a new default filter, either through the "make new default" button or "reset filters" button in the filterviewmodel
+    /// </summary>
+    public class ServerRequestEvent
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerRequestEvent"/> class.
+        /// </summary>
+        /// <param name="filterURL">The filter URL.</param>
+        public ServerRequestEvent(string filterURL)
+        {
+            ServerRequestURL = filterURL;
+        }
 
-	/// <summary>
-	/// Event that is fired whenever we receive a new default filter, either through the "make new default" button or "reset filters" button in the filterviewmodel
-	/// </summary>
-	public class ServerRequestEvent
-	{
-
-		public ServerRequestEvent(string filterURL)
-		{
-			ServerRequestURL = filterURL;
-		}
-
-		public string ServerRequestURL
-		{
-			get;
-			set;
-		}
-	}
+        /// <summary>
+        /// Gets or sets the server request URL.
+        /// </summary>
+        /// <value>
+        /// The server request URL.
+        /// </value>
+        public string ServerRequestURL
+        {
+            get;
+            set;
+        }
+    }
 }

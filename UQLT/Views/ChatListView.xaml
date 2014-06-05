@@ -45,7 +45,7 @@
                     <HierarchicalDataTemplate.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">
                             <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=Value.IsAutoExpanded}" />
-                            <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdatePlayerGameServerInfo($dataContext)]"/>
+                            <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdateFriendGameServerInfo($dataContext)]"/>
                         </Style>
                     </HierarchicalDataTemplate.ItemContainerStyle>
                     <!-- Individual friend template -->

@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace UQLT.Models.QLRanks
 {
-
-	/// <summary>
-	/// Model representing the outer container object returned from the QLRanks API
-	/// </summary>
-	public class QLRanks
-	{
-		public List<QLRanksPlayer> players
-		{
-			get;
-			set;
-		}
-	}
+    /// <summary>
+    /// Model representing the outer container object returned from the QLRanks API
+    /// </summary>
+    public class QLRanks
+    {
+        /// <summary>
+        /// Gets or sets the players.
+        /// </summary>
+        /// <value>
+        /// The players.
+        /// </value>
+        public List<QLRanksPlayer> players
+        {
+            get;
+            set;
+        }
+    }
 }

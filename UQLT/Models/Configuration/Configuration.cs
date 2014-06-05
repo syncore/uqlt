@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Models.Configuration
+﻿namespace UQLT.Models.Configuration
 {
-	/// <summary>
-	/// Model representing the user's various application configuration settings saved as json on user's hard disk.
-	/// </summary>
-	public class Configuration
-	{
-		public ServerBrowserOptions serverbrowser_options
-		{
-			get;
-			set;
-		}
-
-	}
+    /// <summary>
+    /// Model representing the user's various application configuration settings saved as json on user's hard disk.
+    /// </summary>
+    public class Configuration
+    {
+        /// <summary>
+        /// Gets or sets the serverbrowser_options.
+        /// </summary>
+        /// <value>
+        /// The serverbrowser_options.
+        /// </value>
+        public ServerBrowserOptions serverbrowser_options
+        {
+            get;
+            set;
+        }
+    }
 }
-

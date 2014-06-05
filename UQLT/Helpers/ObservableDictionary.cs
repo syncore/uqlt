@@ -59,11 +59,18 @@ namespace UQLT.Helpers
 
 		#region public
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ObservableDictionary{TKey, TValue}"/> class.
+		/// </summary>
 		public ObservableDictionary()
 		{
 			_keyedEntryCollection = new KeyedDictionaryEntryCollection<TKey>();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ObservableDictionary{TKey, TValue}"/> class.
+		/// </summary>
+		/// <param name="dictionary">The dictionary.</param>
 		public ObservableDictionary(IDictionary<TKey, TValue> dictionary)
 		{
 			_keyedEntryCollection = new KeyedDictionaryEntryCollection<TKey>();
@@ -74,11 +81,20 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ObservableDictionary{TKey, TValue}"/> class.
+		/// </summary>
+		/// <param name="comparer">The comparer.</param>
 		public ObservableDictionary(IEqualityComparer<TKey> comparer)
 		{
 			_keyedEntryCollection = new KeyedDictionaryEntryCollection<TKey>(comparer);
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ObservableDictionary{TKey, TValue}"/> class.
+		/// </summary>
+		/// <param name="dictionary">The dictionary.</param>
+		/// <param name="comparer">The comparer.</param>
 		public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 		{
 			_keyedEntryCollection = new KeyedDictionaryEntryCollection<TKey>(comparer);
@@ -93,6 +109,11 @@ namespace UQLT.Helpers
 
 		#region protected
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ObservableDictionary{TKey, TValue}"/> class.
+		/// </summary>
+		/// <param name="info">The information.</param>
+		/// <param name="context">The context.</param>
 		protected ObservableDictionary(SerializationInfo info, StreamingContext context)
 		{
 			_siInfo = info;
@@ -106,6 +127,12 @@ namespace UQLT.Helpers
 
 		#region public
 
+		/// <summary>
+		/// Gets the comparer.
+		/// </summary>
+		/// <value>
+		/// The comparer.
+		/// </value>
 		public IEqualityComparer<TKey> Comparer
 		{
 			get
@@ -114,6 +141,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		public int Count
 		{
 			get
@@ -122,6 +152,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
 		public Dictionary<TKey, TValue>.KeyCollection Keys
 		{
 			get
@@ -130,6 +163,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the element with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		public TValue this[TKey key]
 		{
 			get
@@ -142,6 +180,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
 		public Dictionary<TKey, TValue>.ValueCollection Values
 		{
 			get
@@ -154,6 +195,12 @@ namespace UQLT.Helpers
 
 		#region private
 
+		/// <summary>
+		/// Gets the true dictionary.
+		/// </summary>
+		/// <value>
+		/// The true dictionary.
+		/// </value>
 		private Dictionary<TKey, TValue> TrueDictionary
 		{
 			get
@@ -179,36 +226,77 @@ namespace UQLT.Helpers
 
 		#region public
 
+		/// <summary>
+		/// Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
+		/// <param name="key">The object to use as the key of the element to add.</param>
+		/// <param name="value">The object to use as the value of the element to add.</param>
 		public void Add(TKey key, TValue value)
 		{
 			DoAddEntry(key, value);
 		}
 
+		/// <summary>
+		/// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		public void Clear()
 		{
 			DoClearEntries();
 		}
 
+		/// <summary>
+		/// Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key.
+		/// </summary>
+		/// <param name="key">The key to locate in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</param>
+		/// <returns>
+		/// true if the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the key; otherwise, false.
+		/// </returns>
 		public bool ContainsKey(TKey key)
 		{
 			return _keyedEntryCollection.Contains(key);
 		}
 
+		/// <summary>
+		/// Determines whether the specified value contains value.
+		/// </summary>
+		/// <param name="value">The value.</param>
+		/// <returns></returns>
 		public bool ContainsValue(TValue value)
 		{
 			return TrueDictionary.ContainsValue(value);
 		}
 
+		/// <summary>
+		/// Returns an enumerator that iterates through a collection.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+		/// </returns>
 		public IEnumerator GetEnumerator()
 		{
 			return new Enumerator<TKey, TValue>(this, false);
 		}
 
+		/// <summary>
+		/// Removes the element with the specified key from the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
+		/// <returns>
+		/// true if the element is successfully removed; otherwise, false.  This method also returns false if <paramref name="key" /> was not found in the original <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </returns>
 		public bool Remove(TKey key)
 		{
 			return DoRemoveEntry(key);
 		}
 
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key whose value to get.</param>
+		/// <param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is passed uninitialized.</param>
+		/// <returns>
+		/// true if the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key; otherwise, false.
+		/// </returns>
 		public bool TryGetValue(TKey key, out TValue value)
 		{
 			bool result = _keyedEntryCollection.Contains(key);
@@ -220,12 +308,22 @@ namespace UQLT.Helpers
 
 		#region protected
 
+		/// <summary>
+		/// Adds the entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
+		/// <returns></returns>
 		protected virtual bool AddEntry(TKey key, TValue value)
 		{
 			_keyedEntryCollection.Add(new DictionaryEntry(key, value));
 			return true;
 		}
 
+		/// <summary>
+		/// Clears the entries.
+		/// </summary>
+		/// <returns></returns>
 		protected virtual bool ClearEntries()
 		{
 			// check whether there are entries to clear
@@ -238,6 +336,12 @@ namespace UQLT.Helpers
 			return result;
 		}
 
+		/// <summary>
+		/// Gets the index and entry for key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="entry">The entry.</param>
+		/// <returns></returns>
 		protected int GetIndexAndEntryForKey(TKey key, out DictionaryEntry entry)
 		{
 			entry = new DictionaryEntry();
@@ -250,6 +354,10 @@ namespace UQLT.Helpers
 			return index;
 		}
 
+		/// <summary>
+		/// Raises the <see cref="E:CollectionChanged" /> event.
+		/// </summary>
+		/// <param name="args">The <see cref="NotifyCollectionChangedEventArgs"/> instance containing the event data.</param>
 		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
 		{
 			if (CollectionChanged != null)
@@ -258,6 +366,10 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Called when the property is changed.
+		/// </summary>
+		/// <param name="name">The name.</param>
 		protected virtual void OnPropertyChanged(string name)
 		{
 			if (PropertyChanged != null)
@@ -266,12 +378,23 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Removes the entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		protected virtual bool RemoveEntry(TKey key)
 		{
 			// remove the entry
 			return _keyedEntryCollection.Remove(key);
 		}
 
+		/// <summary>
+		/// Sets the entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
+		/// <returns></returns>
 		protected virtual bool SetEntry(TKey key, TValue value)
 		{
 			bool keyExists = _keyedEntryCollection.Contains(key);
@@ -298,6 +421,11 @@ namespace UQLT.Helpers
 
 		#region private
 
+		/// <summary>
+		/// Does the add entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		private void DoAddEntry(TKey key, TValue value)
 		{
 			if (AddEntry(key, value))
@@ -310,6 +438,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Does the clear entries.
+		/// </summary>
 		private void DoClearEntries()
 		{
 			if (ClearEntries())
@@ -319,6 +450,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Does the remove entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		private bool DoRemoveEntry(TKey key)
 		{
 			DictionaryEntry entry;
@@ -337,6 +473,11 @@ namespace UQLT.Helpers
 			return result;
 		}
 
+		/// <summary>
+		/// Does the set entry.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
 		private void DoSetEntry(TKey key, TValue value)
 		{
 			DictionaryEntry entry;
@@ -361,6 +502,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Fires the entry added notifications.
+		/// </summary>
+		/// <param name="entry">The entry.</param>
+		/// <param name="index">The index.</param>
 		private void FireEntryAddedNotifications(DictionaryEntry entry, int index)
 		{
 			// fire the relevant PropertyChanged notifications
@@ -377,6 +523,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Fires the entry removed notifications.
+		/// </summary>
+		/// <param name="entry">The entry.</param>
+		/// <param name="index">The index.</param>
 		private void FireEntryRemovedNotifications(DictionaryEntry entry, int index)
 		{
 			// fire the relevant PropertyChanged notifications
@@ -393,6 +544,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Fires the property changed notifications.
+		/// </summary>
 		private void FirePropertyChangedNotifications()
 		{
 			if (Count != _countCache)
@@ -405,6 +559,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Fires the reset notifications.
+		/// </summary>
 		private void FireResetNotifications()
 		{
 			// fire the relevant PropertyChanged notifications
@@ -422,26 +579,56 @@ namespace UQLT.Helpers
 
 		#region IDictionary<TKey, TValue>
 
+		/// <summary>
+		/// Adds an element with the provided key and value to the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
+		/// <param name="key">The object to use as the key of the element to add.</param>
+		/// <param name="value">The object to use as the value of the element to add.</param>
 		void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
 		{
 			DoAddEntry(key, value);
 		}
 
+		/// <summary>
+		/// Removes the element with the specified key from the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
+		/// <returns>
+		/// true if the element is successfully removed; otherwise, false.  This method also returns false if <paramref name="key" /> was not found in the original <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </returns>
 		bool IDictionary<TKey, TValue>.Remove(TKey key)
 		{
 			return DoRemoveEntry(key);
 		}
 
+		/// <summary>
+		/// Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key.
+		/// </summary>
+		/// <param name="key">The key to locate in the <see cref="T:System.Collections.Generic.IDictionary`2" />.</param>
+		/// <returns>
+		/// true if the <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the key; otherwise, false.
+		/// </returns>
 		bool IDictionary<TKey, TValue>.ContainsKey(TKey key)
 		{
 			return _keyedEntryCollection.Contains(key);
 		}
 
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key whose value to get.</param>
+		/// <param name="value">When this method returns, the value associated with the specified key, if the key is found; otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is passed uninitialized.</param>
+		/// <returns>
+		/// true if the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key; otherwise, false.
+		/// </returns>
 		bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value)
 		{
 			return TryGetValue(key, out value);
 		}
 
+		/// <summary>
+		/// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
 		ICollection<TKey> IDictionary<TKey, TValue>.Keys
 		{
 			get
@@ -450,6 +637,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the values in the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
 		ICollection<TValue> IDictionary<TKey, TValue>.Values
 		{
 			get
@@ -458,6 +648,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the element with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		TValue IDictionary<TKey, TValue>.this[TKey key]
 		{
 			get
@@ -474,26 +669,50 @@ namespace UQLT.Helpers
 
 		#region IDictionary
 
+		/// <summary>
+		/// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary" /> object.
+		/// </summary>
+		/// <param name="key">The <see cref="T:System.Object" /> to use as the key of the element to add.</param>
+		/// <param name="value">The <see cref="T:System.Object" /> to use as the value of the element to add.</param>
 		void IDictionary.Add(object key, object value)
 		{
 			DoAddEntry((TKey)key, (TValue)value);
 		}
 
+		/// <summary>
+		/// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		void IDictionary.Clear()
 		{
 			DoClearEntries();
 		}
 
+		/// <summary>
+		/// Determines whether the <see cref="T:System.Collections.IDictionary" /> object contains an element with the specified key.
+		/// </summary>
+		/// <param name="key">The key to locate in the <see cref="T:System.Collections.IDictionary" /> object.</param>
+		/// <returns>
+		/// true if the <see cref="T:System.Collections.IDictionary" /> contains an element with the key; otherwise, false.
+		/// </returns>
 		bool IDictionary.Contains(object key)
 		{
 			return _keyedEntryCollection.Contains((TKey)key);
 		}
 
+		/// <summary>
+		/// Returns an <see cref="T:System.Collections.IDictionaryEnumerator" /> object for the <see cref="T:System.Collections.IDictionary" /> object.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="T:System.Collections.IDictionaryEnumerator" /> object for the <see cref="T:System.Collections.IDictionary" /> object.
+		/// </returns>
 		IDictionaryEnumerator IDictionary.GetEnumerator()
 		{
 			return new Enumerator<TKey, TValue>(this, true);
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary" /> object has a fixed size.
+		/// </summary>
 		bool IDictionary.IsFixedSize
 		{
 			get
@@ -502,6 +721,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
+		/// </summary>
 		bool IDictionary.IsReadOnly
 		{
 			get
@@ -510,6 +732,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the element with the specified key.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <returns></returns>
 		object IDictionary.this[object key]
 		{
 			get
@@ -522,6 +749,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets an <see cref="T:System.Collections.Generic.ICollection`1" /> containing the keys of the <see cref="T:System.Collections.Generic.IDictionary`2" />.
+		/// </summary>
 		ICollection IDictionary.Keys
 		{
 			get
@@ -530,6 +760,10 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Removes the element with the specified key from the <see cref="T:System.Collections.IDictionary" /> object.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
 		void IDictionary.Remove(object key)
 		{
 			DoRemoveEntry((TKey)key);
@@ -547,21 +781,41 @@ namespace UQLT.Helpers
 
 		#region ICollection<KeyValuePair<TKey, TValue>>
 
+		/// <summary>
+		/// Adds the specified KVP.
+		/// </summary>
+		/// <param name="kvp">The KVP.</param>
 		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> kvp)
 		{
 			DoAddEntry(kvp.Key, kvp.Value);
 		}
 
+		/// <summary>
+		/// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		void ICollection<KeyValuePair<TKey, TValue>>.Clear()
 		{
 			DoClearEntries();
 		}
 
+		/// <summary>
+		/// Determines whether [contains] [the specified KVP].
+		/// </summary>
+		/// <param name="kvp">The KVP.</param>
+		/// <returns></returns>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> kvp)
 		{
 			return _keyedEntryCollection.Contains(kvp.Key);
 		}
 
+		/// <summary>
+		/// Copies to.
+		/// </summary>
+		/// <param name="array">The array.</param>
+		/// <param name="index">The index.</param>
+		/// <exception cref="System.ArgumentNullException">CopyTo() failed:  array parameter was null</exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">CopyTo() failed:  index parameter was outside the bounds of the supplied array</exception>
+		/// <exception cref="System.ArgumentException">CopyTo() failed:  supplied array was too small</exception>
 		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
 		{
 			if (array == null)
@@ -583,6 +837,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		int ICollection<KeyValuePair<TKey, TValue>>.Count
 		{
 			get
@@ -591,6 +848,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
+		/// </summary>
 		bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
 		{
 			get
@@ -599,6 +859,11 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Removes the specified KVP.
+		/// </summary>
+		/// <param name="kvp">The KVP.</param>
+		/// <returns></returns>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> kvp)
 		{
 			return DoRemoveEntry(kvp.Key);
@@ -608,11 +873,19 @@ namespace UQLT.Helpers
 
 		#region ICollection
 
+		/// <summary>
+		/// Copies the elements of the <see cref="T:System.Collections.ICollection" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.
+		/// </summary>
+		/// <param name="array">The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied from <see cref="T:System.Collections.ICollection" />. The <see cref="T:System.Array" /> must have zero-based indexing.</param>
+		/// <param name="index">The zero-based index in <paramref name="array" /> at which copying begins.</param>
 		void ICollection.CopyTo(Array array, int index)
 		{
 			((ICollection)_keyedEntryCollection).CopyTo(array, index);
 		}
 
+		/// <summary>
+		/// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
+		/// </summary>
 		int ICollection.Count
 		{
 			get
@@ -621,6 +894,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection" /> is synchronized (thread safe).
+		/// </summary>
 		bool ICollection.IsSynchronized
 		{
 			get
@@ -629,6 +905,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
+		/// </summary>
 		object ICollection.SyncRoot
 		{
 			get
@@ -641,6 +920,12 @@ namespace UQLT.Helpers
 
 		#region IEnumerable<KeyValuePair<TKey, TValue>>
 
+		/// <summary>
+		/// Returns an enumerator that iterates through the collection.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+		/// </returns>
 		IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
 		{
 			return new Enumerator<TKey, TValue>(this, false);
@@ -650,6 +935,12 @@ namespace UQLT.Helpers
 
 		#region IEnumerable
 
+		/// <summary>
+		/// Returns an enumerator that iterates through a collection.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+		/// </returns>
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
@@ -659,6 +950,12 @@ namespace UQLT.Helpers
 
 		#region ISerializable
 
+		/// <summary>
+		/// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+		/// </summary>
+		/// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+		/// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext" />) for this serialization.</param>
+		/// <exception cref="System.ArgumentNullException">info</exception>
 		public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			if (info == null)
@@ -678,12 +975,16 @@ namespace UQLT.Helpers
 
 		#region IDeserializationCallback
 
+		/// <summary>
+		/// Runs when the entire object graph has been deserialized.
+		/// </summary>
+		/// <param name="sender">The object that initiated the callback. The functionality for this parameter is not currently implemented.</param>
 		public virtual void OnDeserialization(object sender)
 		{
 			if (_siInfo != null)
 			{
 				Collection<DictionaryEntry> entries = (Collection<DictionaryEntry>)
-				                                      _siInfo.GetValue("entries", typeof(Collection<DictionaryEntry>));
+													  _siInfo.GetValue("entries", typeof(Collection<DictionaryEntry>));
 				foreach (DictionaryEntry entry in entries)
 				{
 					AddEntry((TKey)entry.Key, (TValue)entry.Value);
@@ -695,6 +996,9 @@ namespace UQLT.Helpers
 
 		#region INotifyCollectionChanged
 
+		/// <summary>
+		/// Occurs when the collection changes.
+		/// </summary>
 		event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
 		{
 			add
@@ -707,12 +1011,18 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Occurs when the collection changes.
+		/// </summary>
 		protected virtual event NotifyCollectionChangedEventHandler CollectionChanged;
 
 		#endregion INotifyCollectionChanged
 
 		#region INotifyPropertyChanged
 
+		/// <summary>
+		/// Occurs when a property value changes.
+		/// </summary>
 		event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
 		{
 			add
@@ -725,6 +1035,9 @@ namespace UQLT.Helpers
 			}
 		}
 
+		/// <summary>
+		/// Occurs when a property value changes.
+		/// </summary>
 		protected virtual event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion INotifyPropertyChanged
@@ -741,8 +1054,15 @@ namespace UQLT.Helpers
 
 			#region public
 
+			/// <summary>
+			/// Initializes a new instance of the <see cref="KeyedDictionaryEntryCollection`1"/> class.
+			/// </summary>
 			public KeyedDictionaryEntryCollection() : base() { }
 
+			/// <summary>
+			/// Initializes a new instance of the <see cref="KeyedDictionaryEntryCollection`1"/> class.
+			/// </summary>
+			/// <param name="comparer">The comparer.</param>
 			public KeyedDictionaryEntryCollection(IEqualityComparer<TKey> comparer) : base(comparer) { }
 
 			#endregion public
@@ -753,6 +1073,11 @@ namespace UQLT.Helpers
 
 			#region protected
 
+			/// <summary>
+			/// Gets the key for item.
+			/// </summary>
+			/// <param name="entry">The entry.</param>
+			/// <returns></returns>
 			protected override TKey GetKeyForItem(DictionaryEntry entry)
 			{
 				return (TKey)entry.Key;
@@ -776,6 +1101,11 @@ namespace UQLT.Helpers
 		{
 			#region constructors
 
+			/// <summary>
+			/// Initializes a new instance of the <see cref="Enumerator`2"/> struct.
+			/// </summary>
+			/// <param name="dictionary">The dictionary.</param>
+			/// <param name="isDictionaryEntryEnumerator">if set to <c>true</c> [is dictionary entry enumerator].</param>
 			internal Enumerator(ObservableDictionary<TKey, TValue> dictionary, bool isDictionaryEntryEnumerator)
 			{
 				_dictionary = dictionary;
@@ -791,6 +1121,12 @@ namespace UQLT.Helpers
 
 			#region public
 
+			/// <summary>
+			/// Gets the current.
+			/// </summary>
+			/// <value>
+			/// The current.
+			/// </value>
 			public KeyValuePair<TKey, TValue> Current
 			{
 				get
@@ -808,10 +1144,19 @@ namespace UQLT.Helpers
 
 			#region public
 
+			/// <summary>
+			/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+			/// </summary>
 			public void Dispose()
 			{
 			}
 
+			/// <summary>
+			/// Advances the enumerator to the next element of the collection.
+			/// </summary>
+			/// <returns>
+			/// true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.
+			/// </returns>
 			public bool MoveNext()
 			{
 				ValidateVersion();
@@ -830,6 +1175,14 @@ namespace UQLT.Helpers
 
 			#region private
 
+			/// <summary>
+			/// Validates the current.
+			/// </summary>
+			/// <exception cref="System.InvalidOperationException">
+			/// The enumerator has not been started.
+			/// or
+			/// The enumerator has reached the end of the collection.
+			/// </exception>
 			private void ValidateCurrent()
 			{
 				if (_index == -1)
@@ -842,6 +1195,10 @@ namespace UQLT.Helpers
 				}
 			}
 
+			/// <summary>
+			/// Validates the version.
+			/// </summary>
+			/// <exception cref="System.InvalidOperationException">The enumerator is not valid because the dictionary changed.</exception>
 			private void ValidateVersion()
 			{
 				if (_version != _dictionary._version)
@@ -856,6 +1213,12 @@ namespace UQLT.Helpers
 
 			#region IEnumerator implementation
 
+			/// <summary>
+			/// Gets the current.
+			/// </summary>
+			/// <value>
+			/// The current.
+			/// </value>
 			object IEnumerator.Current
 			{
 				get
@@ -869,6 +1232,9 @@ namespace UQLT.Helpers
 				}
 			}
 
+			/// <summary>
+			/// Sets the enumerator to its initial position, which is before the first element in the collection.
+			/// </summary>
 			void IEnumerator.Reset()
 			{
 				ValidateVersion();
@@ -880,6 +1246,12 @@ namespace UQLT.Helpers
 
 			#region IDictionaryEnumerator implemenation
 
+			/// <summary>
+			/// Gets the entry.
+			/// </summary>
+			/// <value>
+			/// The entry.
+			/// </value>
 			DictionaryEntry IDictionaryEnumerator.Entry
 			{
 				get
@@ -888,6 +1260,12 @@ namespace UQLT.Helpers
 					return new DictionaryEntry(_current.Key, _current.Value);
 				}
 			}
+			/// <summary>
+			/// Gets the key.
+			/// </summary>
+			/// <value>
+			/// The key.
+			/// </value>
 			object IDictionaryEnumerator.Key
 			{
 				get
@@ -896,6 +1274,12 @@ namespace UQLT.Helpers
 					return _current.Key;
 				}
 			}
+			/// <summary>
+			/// Gets the value.
+			/// </summary>
+			/// <value>
+			/// The value.
+			/// </value>
 			object IDictionaryEnumerator.Value
 			{
 				get

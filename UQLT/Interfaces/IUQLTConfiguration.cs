@@ -1,19 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UQLT.Interfaces
+﻿namespace UQLT.Interfaces
 {
-	/// <summary>
-	/// Necessary methods for saving various configuration options.
-	/// </summary>
-	interface IUQLTConfiguration
-	{
-		bool ConfigExists();
-		void SaveConfig();
-		void LoadConfig();
-		void LoadDefaultConfig();
-	}
+    /// <summary>
+    /// Necessary methods for saving various configuration options.
+    /// </summary>
+    internal interface IUQLTConfiguration
+    {
+        /// <summary>
+        /// Checks whether the configuration already exists
+        /// </summary>
+        /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
+        bool ConfigExists();
+
+        /// <summary>
+        /// Saves the configuration.
+        /// </summary>
+        void SaveConfig();
+
+        /// <summary>
+        /// Loads the configuration.
+        /// </summary>
+        void LoadConfig();
+
+        /// <summary>
+        /// Loads the default configuration.
+        /// </summary>
+        void LoadDefaultConfig();
+    }
 }
