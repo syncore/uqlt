@@ -38,6 +38,7 @@ namespace UQLT.ViewModels
             _displayName = "Chatting with " + _jid.User;
             _xmppCon = xmppcon;
             _handler = handler;
+            _chatHistory = new ChatHistory(this);
 
             if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
             {
@@ -46,7 +47,7 @@ namespace UQLT.ViewModels
 
             Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid.ToString());
             xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), new MessageCB(MessageCallback), null);
-            _chatHistory = new ChatHistory(this);
+
             AppendChatHistory();
         }
 
@@ -112,7 +113,20 @@ namespace UQLT.ViewModels
             set
             {
                 _receivedMessages.Append(value);
+                //_receivedMessages.AppendLine(value);
                 NotifyOfPropertyChange(() => ReceivedMessages);
+            }
+        }
+
+        /// <summary>
+        /// Gets the user we're currently chatting with for data-binding purposes in UI.
+        /// </summary>
+        /// <value>The user we're currently chatting with in the view.</value>
+        public string UserChattingWith
+        {
+            get
+            {
+                return _jid.User;
             }
         }
 
@@ -126,14 +140,27 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Deletes the chat history for this user.
+        /// </summary>
+        public void DeleteChatHistory()
+        {
+            _receivedMessages.Clear();
+            NotifyOfPropertyChange(() => ReceivedMessages);
+            _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), _jid.User);
+        }
+
+        /// <summary>
         /// Displays the incoming message.
         /// </summary>
-        /// <param name="msg">The MSG.</param>
+        /// <param name="msg">The message.</param>
         public void MessageIncoming(agsXMPP.protocol.client.Message msg)
         {
             _handler.PlayNotificationSound();
             IncomingMessage = msg.Body + "\n";
+
             ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + IncomingMessage;
+            //ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
+
             // Log the message
             _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             IncomingMessage = string.Empty;
@@ -164,7 +191,7 @@ namespace UQLT.ViewModels
             {
                 if (_handler.SendMessage(_jid, message))
                 {
-                    OutgoingMessage = message + "\n";
+                    OutgoingMessage = message;
                     Debug.WriteLine("Attempting to send recipient: " + _jid.ToString() + " message: " + message);
                     ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + OutgoingMessage;
                     // Log the message
@@ -185,6 +212,7 @@ namespace UQLT.ViewModels
         /// <param name="sender">The sender.</param>
         /// <param name="msg">The message.</param>
         /// <param name="data">The data.</param>
+        /// <remarks>This is only called when the window is actually open.</remarks>
         private void MessageCallback(object sender, agsXMPP.protocol.client.Message msg, object data)
         {
             if (msg.Body != null)
