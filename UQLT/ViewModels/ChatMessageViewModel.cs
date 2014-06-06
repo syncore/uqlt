@@ -112,8 +112,7 @@ namespace UQLT.ViewModels
             }
             set
             {
-                _receivedMessages.Append(value);
-                //_receivedMessages.AppendLine(value);
+                _receivedMessages.AppendLine(value);
                 NotifyOfPropertyChange(() => ReceivedMessages);
             }
         }
@@ -158,8 +157,7 @@ namespace UQLT.ViewModels
             _handler.PlayNotificationSound();
             IncomingMessage = msg.Body + "\n";
 
-            ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + IncomingMessage;
-            //ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
+            ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
 
             // Log the message
             _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -191,9 +189,11 @@ namespace UQLT.ViewModels
             {
                 if (_handler.SendMessage(_jid, message))
                 {
-                    OutgoingMessage = message;
+                    OutgoingMessage = message + "\n";
+
                     Debug.WriteLine("Attempting to send recipient: " + _jid.ToString() + " message: " + message);
-                    ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + OutgoingMessage;
+                    ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + message;
+
                     // Log the message
                     _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     OutgoingMessage = string.Empty;

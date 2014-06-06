@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using UQLT.ViewModels;
@@ -27,20 +28,6 @@ namespace UQLT.Core.Chat
             CMVM = cmvm;
             VerifyHistoryDb();
         }
-
-        /// <summary>
-        /// Gets the SQL connection string.
-        /// </summary>
-        /// <value>
-        /// The SQL connection string.
-        /// </value>
-        //private string SqlConnString
-        //{
-        //    get
-        //    {
-        //        return "Data Source=" + sqlDbPath;
-        //    }
-        //}
 
         /// <summary>
         /// Start a new thread to add the chat message to the chat database.
@@ -237,17 +224,21 @@ namespace UQLT.Core.Chat
                             {
                                 if (reader.HasRows)
                                 {
+                                    var messages = new StringBuilder();
+
                                     while (reader.Read())
                                     {
                                         if ((long)reader["msgtype"] == (long)TypeOfMessage.Incoming)
                                         {
-                                            CMVM.ReceivedMessages = "[" + reader["date"] + "] " + reader["otheruser"] + ": " + reader["message"];
+                                            messages.Append("[" + reader["date"] + "] " + reader["otheruser"] + ": " + reader["message"]);
                                         }
                                         else if ((long)reader["msgtype"] == (long)TypeOfMessage.Outgoing)
                                         {
-                                            CMVM.ReceivedMessages = "[" + reader["date"] + "] " + reader["profile"] + ": " + reader["message"];
+                                            messages.Append("[" + reader["date"] + "] " + reader["profile"] + ": " + reader["message"]);
                                         }
                                     }
+
+                                    CMVM.ReceivedMessages = messages.ToString();
                                 }
                                 else
                                 {

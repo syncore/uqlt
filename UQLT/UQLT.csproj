@@ -131,6 +131,7 @@
     <Compile Include="Helpers\KeyPressTrigger.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
+    <Compile Include="Helpers\ScrollToEndBehavior.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IQLRanksUpdater.cs" />
     <Compile Include="Interfaces\IUQLTConfiguration.cs" />
