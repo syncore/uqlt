@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Text;
+using System.Windows;
 using agsXMPP;
 using agsXMPP.Collections;
 using Caliburn.Micro;
@@ -16,6 +18,7 @@ namespace UQLT.ViewModels
     [Export(typeof(ChatMessageViewModel))]
     public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
     {
+        private readonly IWindowManager _windowManager;
         private ChatHistory _chatHistory;
         private string _displayName;
         private ChatHandler _handler;
@@ -32,12 +35,13 @@ namespace UQLT.ViewModels
         /// <param name="xmppcon">The XmppClientConnection to use for this viewmodel.</param>
         /// <param name="handler">The ChatHandler to use for this viewmodel.</param>
         [ImportingConstructor]
-        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler)
+        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager WindowManager)
         {
             _jid = jid;
             _displayName = "Chatting with " + _jid.User;
             _xmppCon = xmppcon;
             _handler = handler;
+            _windowManager = WindowManager;
             _chatHistory = new ChatHistory(this);
 
             if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
@@ -154,11 +158,24 @@ namespace UQLT.ViewModels
         /// <param name="msg">The message.</param>
         public void MessageIncoming(agsXMPP.protocol.client.Message msg)
         {
-            _handler.PlayNotificationSound();
-            IncomingMessage = msg.Body + "\n";
+            if (IsMessageInvite(msg.Body))
+            {
+                _handler.PlayMessageSound(2);
+                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!";
+                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
+                // Show invitation popup
 
-            ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
+                dynamic settings = new ExpandoObject();
+                settings.Topmost = true;
+                settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
+                _windowManager.ShowWindow(new GameInvitationViewModel(), null, settings);
+            }
+            else
+            {
+                IncomingMessage = msg.Body + "\n";
+                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
+            }
             // Log the message
             _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             IncomingMessage = string.Empty;
@@ -204,6 +221,16 @@ namespace UQLT.ViewModels
                     OutgoingMessage = string.Empty;
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines whether the incoming message is an invitation to a game
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns><c>true</c> if the message is an invite, otherwise <c>false</c></returns>
+        private bool IsMessageInvite(string message)
+        {
+            return (message.StartsWith("Join me in this QUAKE LIVE match:")) ? true : false;
         }
 
         /// <summary>

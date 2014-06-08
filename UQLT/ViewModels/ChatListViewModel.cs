@@ -19,6 +19,7 @@ namespace UQLT.ViewModels
     /// </summary>
     public class ChatListViewModel : PropertyChangedBase
     {
+        private readonly IWindowManager _windowManager;
         private BindableCollection<RosterGroupViewModel> _buddyList;
         private ChatHandler Handler;
         private agsXMPP.Jid Jid;
@@ -32,14 +33,14 @@ namespace UQLT.ViewModels
         [ImportingConstructor]
         public ChatListViewModel(IWindowManager WindowManager)
         {
-            windowManager = WindowManager;
+            _windowManager = WindowManager;
             _buddyList = new BindableCollection<RosterGroupViewModel>();
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(onlineGroupTitle), true));
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(offlineGroupTitle), false));
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
-            Handler = new ChatHandler(this, windowManager);
+            Handler = new ChatHandler(this, _windowManager);
         }
 
         /// <summary>
@@ -82,16 +83,6 @@ namespace UQLT.ViewModels
             {
                 return BuddyList[0];
             }
-        }
-
-        /// <summary>
-        /// Gets the window manager.
-        /// </summary>
-        /// <value>The window manager.</value>
-        public IWindowManager windowManager
-        {
-            get;
-            private set;
         }
 
         /// <summary>
@@ -166,7 +157,7 @@ namespace UQLT.ViewModels
             settings.Topmost = true;
             settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
-            windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler), null, settings);
+            _windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler, _windowManager), null, settings);
         }
 
         /// <summary>

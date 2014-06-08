@@ -26,8 +26,9 @@ namespace UQLT.Core.Chat
         public static Hashtable ActiveChats = new Hashtable();
         private readonly IWindowManager _windowManager;
         private ChatGameInfo _qlChatGameInfo;
-        private SoundPlayer _sp = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private XmppClientConnection _xmppCon;
+        private SoundPlayer inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
+        private SoundPlayer msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 
         /// <summary>
@@ -110,11 +111,21 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Plays the chat notification sound.
         /// </summary>
-        public void PlayNotificationSound()
+        /// <remarks>
+        /// if <c>type == 1</c> play normal message sound if <c>type == 2</c> play game invitation sound
+        /// </remarks>
+        public void PlayMessageSound(int type)
         {
             try
             {
-                _sp.Play();
+                if (type == 2)
+                {
+                    inviteSound.Play();
+                }
+                else
+                {
+                    msgSound.Play();
+                }
             }
             catch (Exception ex)
             {
@@ -377,7 +388,7 @@ namespace UQLT.Core.Chat
             {
                 if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
                 {
-                    var cm = new ChatMessageViewModel(msg.From, XmppCon, this);
+                    var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager);
                     dynamic settings = new ExpandoObject();
                     settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
@@ -385,7 +396,14 @@ namespace UQLT.Core.Chat
                     {
                         _windowManager.ShowWindow(cm, null, settings);
                         cm.MessageIncoming(msg);
-                        PlayNotificationSound();
+                        if (msg.Body.StartsWith("Join me in this QUAKE LIVE match:"))
+                        {
+                            PlayMessageSound(2);
+                        }
+                        else
+                        {
+                            PlayMessageSound(1);
+                        }
                     });
                 }
                 else
