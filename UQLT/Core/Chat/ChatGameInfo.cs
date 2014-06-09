@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Timers;
 using Newtonsoft.Json;
 using UQLT.Models.QuakeLiveAPI;
@@ -38,7 +39,7 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Creates the server information for status.
+        /// Asynchronously creates the server information for status.
         /// </summary>
         /// <param name="friend">The friend.</param>
         /// <param name="server_id">The server_id.</param>
@@ -46,7 +47,7 @@ namespace UQLT.Core.Chat
         /// This is used for an initial one-time creation of a Server (ServerDetailsViewModel)
         /// object for an in-game friend on the friend list
         /// </remarks>
-        public async void CreateServerInfoForStatus(string friend, string server_id)
+        public async Task CreateServerInfoForStatusAsync(string friend, string server_id)
         {
             HttpClientHandler gzipHandler = new HttpClientHandler();
             HttpClient client = new HttpClient(gzipHandler);
@@ -95,14 +96,14 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Manually updates the server information for status.
+        /// Asynchronously manually updates the server information for status.
         /// </summary>
         /// <param name="friend">The friend.</param>
         /// <remarks>
         /// This is used for subsequent updates of a single in-game friend's game server information
         /// (i.e. when a user clicks a friend on his friend list)
         /// </remarks>
-        public async void UpdateServerInfoForStatus(string friend)
+        public async Task UpdateServerInfoForStatusAsync(string friend)
         {
             HttpClientHandler gzipHandler = new HttpClientHandler();
             HttpClient client = new HttpClient(gzipHandler);
@@ -176,7 +177,7 @@ namespace UQLT.Core.Chat
             // Batch process these in game friends
             if (ingamefriends.Count != 0)
             {
-                UpdateServerInfoForStatus(ingamefriends);
+                var u = UpdateServerInfoForStatusAsync(ingamefriends);
             }
         }
 
@@ -190,8 +191,8 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Performs batch updates of in-game buddies' server information when called by the game
-        /// server timer.
+        /// Asynchronously performs batch updates of in-game buddies' server information when called
+        /// by the game server timer.
         /// </summary>
         /// <param name="ingamefriends">The list of in-game friends on the buddy list.</param>
         /// <remarks>
@@ -201,7 +202,7 @@ namespace UQLT.Core.Chat
         /// information from whatever is received from QL API This was created to avoid having
         /// multiple HTTP GET requests for every single in-game friend on the list.
         /// </remarks>
-        private async void UpdateServerInfoForStatus(List<string> ingamefriends)
+        private async Task UpdateServerInfoForStatusAsync(List<string> ingamefriends)
         {
             HttpClientHandler gzipHandler = new HttpClientHandler();
             HttpClient client = new HttpClient(gzipHandler);

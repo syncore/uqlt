@@ -217,7 +217,8 @@ namespace UQLT.Core.Chat
             XmppCon.Password = ***REMOVED***;
             XmppCon.Server = UQLTGlobals.QLXMPPDomain;
             XmppCon.Port = 5222;
-            XmppCon.Resource = "quakelive";
+            XmppCon.Resource = "uqlt";
+            XmppCon.Priority = 12;
             XmppCon.AutoRoster = true;
             XmppCon.AutoPresence = true;
             XmppCon.Open();
@@ -352,7 +353,7 @@ namespace UQLT.Core.Chat
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.PlayingRealGame;
                         CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
-                        ChatGameInfo.CreateServerInfoForStatus(friend.ToLowerInvariant(), si.server_id);
+                        var c = ChatGameInfo.CreateServerInfoForStatusAsync(friend.ToLowerInvariant(), si.server_id);
                     }
                 }
 

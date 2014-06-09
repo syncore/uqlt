@@ -53,7 +53,7 @@ namespace UQLT.ViewModels
         private List<GameType> _gameTypes;
 
         // Loading filters: game visibility types don't depend on saved filter file
-        private List<string> _gameVisibility = new List<string> { "Public games", "Private games" };
+        private List<string> _gameVisibility = new List<string> { "Public games", "Private games", "Invite-only games" };
 
         private int _gameVisibilityIndex;
         private bool _isVisible = true;
@@ -68,7 +68,7 @@ namespace UQLT.ViewModels
         public FilterViewModel(IEventAggregator events)
         {
             _events = events;
-            _events.Subscribe(this);
+            events.Subscribe(this);
 
             //TODO: implement downloading of filter list functionality
             var p = PopulateAndApplyFiltersAsync();
@@ -348,7 +348,7 @@ namespace UQLT.ViewModels
                 File.Delete(UQLTGlobals.SavedUserFilterPath);
             }
 
-            SetStandardDefaultFilters();
+            ApplyDefaultFilters();
             SetServerBrowserUrl(UQLTGlobals.QLDefaultFilter);
             Debug.WriteLine("Saved filters cleared!");
         }
@@ -376,6 +376,7 @@ namespace UQLT.ViewModels
         /// if set to <c>true</c> then the game is premium, if <c>false</c> then it is not premium.
         /// </param>
         /// <returns>Base64 encoded json filter data.</returns>
+        /// <remarks><c>object priv</c> is actually the visibility index</remarks>
         public string MakeEncodedFilter(string gametype, string arena, string state, object location, object priv, bool ispremium)
         {
             string encodedFilter = null;
@@ -390,6 +391,7 @@ namespace UQLT.ViewModels
             List<int> gtarr = null;
             object ranked = null;
             int premium = 0;
+            int invitation = 0;
 
             if (ispremium == true)
             {
@@ -398,6 +400,12 @@ namespace UQLT.ViewModels
             else
             {
                 premium = 0;
+            }
+
+            // invitation-only determination from priv (visibility index)
+            if ((int)priv == 2)
+            {
+                invitation = 1;
             }
 
             // arena_type determination from arena:
@@ -450,7 +458,7 @@ namespace UQLT.ViewModels
                     @private = priv,
                     premium_only = premium,
                     ranked = ranked,
-                    invitation_only = 0, // hard-code
+                    invitation_only = invitation,
                 };
 
                 FilterBuilderObject fbo = new FilterBuilderObject
@@ -579,9 +587,6 @@ namespace UQLT.ViewModels
         /// </summary>
         private void ApplySavedUserFilters()
         {
-            // Make sure there are actually saved user filters on the disk.
-            if (SavedUserFiltersExist())
-            {
                 try
                 {
                     using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
@@ -596,13 +601,20 @@ namespace UQLT.ViewModels
                         GameLocationIndex = savedFilterJson.location_in;
                         GameStateIndex = savedFilterJson.state_in;
 
-                        if (savedFilterJson.visibility_in == 0)
+                        switch (savedFilterJson.visibility_in)
                         {
-                            GameVisibilityIndex = 0;
-                        }
-                        else
-                        {
-                            GameVisibilityIndex = 1;
+                            case 0:
+                            default:
+                                GameVisibilityIndex = 0;
+                                break;
+
+                            case 1:
+                                GameVisibilityIndex = 1;
+                                break;
+
+                            case 2:
+                                GameVisibilityIndex = 2;
+                                break;
                         }
 
                         if (savedFilterJson.premium_in == 0)
@@ -624,12 +636,7 @@ namespace UQLT.ViewModels
                     // Error. clear filters, set defaults
                     ClearSavedUserFilters();
                 }
-            }
-            // Saved user filters do not exist on disk, set the standard defaults
-            else
-            {
-                SetStandardDefaultFilters();
-            }
+            
         }
 
         /// <summary>
@@ -681,7 +688,14 @@ namespace UQLT.ViewModels
                     }
 
                     // Apply
-                    ApplySavedUserFilters();
+                    if (SavedUserFiltersExist())
+                    {
+                        ApplySavedUserFilters();
+                    }
+                    else
+                    {
+                        ApplyDefaultFilters();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -691,7 +705,7 @@ namespace UQLT.ViewModels
                     // TODO: make this download filter from net, if that fails THEN load hard-coded filter
                     FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
                     failsafe.DumpBackupFilters();
-                    SetStandardDefaultFilters();
+                    ApplyDefaultFilters();
                 }
             }
             // Current filter list does not exist. Dump it to disk from failsafe then set some
@@ -702,17 +716,22 @@ namespace UQLT.ViewModels
             {
                 FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
                 failsafe.DumpBackupFilters();
-                SetStandardDefaultFilters();
+                ApplyDefaultFilters();
             }
         }
 
-        /// <summary> Receives indexes, compares them to downloaded filter list then passes the
-        /// information to <see cref="MakeEncodedFilter"> to actually make the encoded filter.
-        /// </summary> <param name="gtIndex">The gametype index.</param> <param name="arIndex">The
-        /// game arena index.</param> <param name="locIndex">The game location index.</param> <param
-        /// name="statIndex">The game state index.</param> <param name="visIndex">The game
-        /// visibility index.</param> <param name="premBool">if set to <c>true</c> then the game is
-        /// premium, otherwise <c>false</c>.</param> <returns></returns>
+        /// <summary>
+        /// Receives indexes, compares them to downloaded filter list then passes the
+        /// information to <see cref="MakeEncodedFilter"/> to actually make the encoded filter.
+        /// </summary>
+        /// <param name="gtIndex">The gametype index.</param>
+        /// <param name="arIndex">The game arena index.</param>
+        /// <param name="locIndex">The game location index.</param>
+        /// <param name="statIndex">The game state index.</param>
+        /// <param name="visIndex">The game visibility index. </param> 
+        /// <param name="premBool">if set to <c>true</c> then the game is
+        /// premium, otherwise <c>false</c>. </param>
+
         private string ReceiveIndexesForEncoding(int gtIndex, int arIndex, int locIndex, int statIndex, int visIndex, bool premBool)
         {
             string gt = null;
@@ -787,20 +806,15 @@ namespace UQLT.ViewModels
         /// Sets the standard filters (i.e.: "Any Location", "Any Game State", etc.) and save them
         /// as the new default.
         /// </summary>
-        private void SetStandardDefaultFilters()
+        private void ApplyDefaultFilters()
         {
             GameTypeIndex = 0;
             GameArenaIndex = 0;
-            GameLocationIndex = 1;
+            GameLocationIndex = 0;
             GameStateIndex = 0;
             GameVisibilityIndex = 0;
             GamePremiumBool = false;
 
-            // Save these as the new defaults.
-            SaveNewUserFilters(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
-
-            // Send the message (event) to the MainViewModel to set the text in the statusbar.
-            SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
         }
     }
 }

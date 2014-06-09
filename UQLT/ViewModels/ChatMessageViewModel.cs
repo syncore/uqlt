@@ -1,13 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Dynamic;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using agsXMPP;
 using agsXMPP.Collections;
 using Caliburn.Micro;
+using Newtonsoft.Json;
 using UQLT.Core.Chat;
+using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
@@ -163,8 +169,10 @@ namespace UQLT.ViewModels
                 _handler.PlayMessageSound(2);
                 IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
-                // Show invitation popup
+                // Get server info for the invitation popup
+                //RetrieveGameInvitationInfoAsync
 
+                // Show invitation popup
                 dynamic settings = new ExpandoObject();
                 settings.Topmost = true;
                 settings.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -246,6 +254,45 @@ namespace UQLT.ViewModels
             {
                 Debug.WriteLine("Incoming message body is: " + msg.Body);
                 MessageIncoming(msg);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the game invitation server information.
+        /// </summary>
+        private async Task<ServerDetailsViewModel> RetrieveGameInvitationInfoAsync(string serverid)
+        {
+            HttpClientHandler gzipHandler = new HttpClientHandler();
+            HttpClient client = new HttpClient(gzipHandler);
+            ServerDetailsViewModel server = null;
+
+            try
+            {
+                if (gzipHandler.SupportsAutomaticDecompression)
+                {
+                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                }
+
+                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverid);
+                response.EnsureSuccessStatusCode();
+
+                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                List<Server> servers = JsonConvert.DeserializeObject<List<Server>>(json);
+
+                foreach (var srv in servers)
+                {
+                    // Even in this enumeration, there will only be one server. QL API returns an
+                    // array and we've only requested details for one server.
+                    server = new ServerDetailsViewModel(srv);
+                }
+
+                return server;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return null;
             }
         }
     }

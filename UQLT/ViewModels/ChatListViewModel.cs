@@ -196,7 +196,7 @@ namespace UQLT.ViewModels
             if (kvp.Value.IsInGame)
             {
                 Debug.WriteLine("Requesting server information for friend: " + kvp.Key + " server id: " + kvp.Value.Server.PublicId);
-                Handler.ChatGameInfo.UpdateServerInfoForStatus(kvp.Key);
+                var h = Handler.ChatGameInfo.UpdateServerInfoForStatusAsync(kvp.Key);
             }
             else
             {

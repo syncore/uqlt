@@ -51,7 +51,7 @@ namespace UQLT.Core.ServerBrowser
                 StartServerRefreshTimer();
             }
             // Don't hit QL servers (debugging)
-            //var l = LoadServerListAsync(SBVM.FilterURL);
+            var l = LoadServerListAsync(SBVM.FilterURL);
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary> Gets the filter URL on load. </summary> <returns> The
-        /// http://www.quakelive.com/browser/list?filter= URL with the proper filters base64 encoded
+        /// http: //www.quakelive.com/browser/list?filter= URL with the proper filters base64 encoded
         /// & appended to it. </returns>
         private string GetFilterUrlOnLoad()
         {
