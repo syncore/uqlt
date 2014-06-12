@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
@@ -141,13 +142,21 @@ namespace UQLT.Core.Chat
         /// <returns></returns>
         public bool SendMessage(Jid recipient, string message)
         {
+
             if (IsFriendAlreadyOnline(recipient.User.ToLowerInvariant()))
             {
-                agsXMPP.protocol.client.Message msg = new agsXMPP.protocol.client.Message();
+                var msg = new agsXMPP.protocol.client.Message();
                 msg.Type = MessageType.chat;
-                msg.To = recipient;
+
+                // Send to friend's multiple clients (UQLT + QL & others)
+                foreach (var resource in CLVM.OnlineGroup.Friends[recipient.User.ToLowerInvariant()].XMPPResources)
+                {
+                msg.To = new Jid(recipient.Bare + "/" + resource);
                 msg.Body = message;
                 XmppCon.Send(msg);
+                Debug.WriteLine("Sending message to " + recipient.Bare + "/" + resource);
+                }
+
                 return true;
             }
             else
@@ -166,6 +175,8 @@ namespace UQLT.Core.Chat
         /// </remarks>
         private void CheckFriendStatus(Presence presence)
         {
+            if (IsMe(presence.From)) return;
+            
             if (string.IsNullOrEmpty(presence.Status))
             {
                 ClearFriendStatus(presence);
@@ -187,12 +198,10 @@ namespace UQLT.Core.Chat
         {
             FriendViewModel val;
             // On program start there is a timing issue where the key won't exist, so need to check first
-            if (CLVM.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val))
-            {
-                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXMPPStatus = false;
-                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
-                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
-            }
+            if (!CLVM.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val)) return;
+            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXMPPStatus = false;
+            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
+            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
         }
 
         /// <summary>
@@ -214,11 +223,14 @@ namespace UQLT.Core.Chat
         private void ConnectToXMPP()
         {
             XmppCon.Username = ***REMOVED***;
+            //XmppCon.Username = ***REMOVED***;
             XmppCon.Password = ***REMOVED***;
+            //XmppCon.Password = ***REMOVED***;
             XmppCon.Server = UQLTGlobals.QLXMPPDomain;
             XmppCon.Port = 5222;
-            XmppCon.Resource = "uqlt";
-            XmppCon.Priority = 12;
+            //XmppCon.Resource = "uqlt";
+            //XmppCon.Priority = 12;
+            //XmppCon.Priority = 0;
             XmppCon.AutoRoster = true;
             XmppCon.AutoPresence = true;
             XmppCon.Open();
@@ -227,60 +239,84 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Friend has become available.
         /// </summary>
-        /// <param name="presence">The presence.</param>
-        private void FriendBecameAvailable(Presence presence)
+        /// <param name="jid">The user's jid.</param>
+        private void FriendBecameAvailable(Jid jid)
         {
-            if (!IsMe(presence))
+            if (IsMe(jid)) return;
+
+            // User was already online.
+            if (IsFriendAlreadyOnline(jid.User.ToLowerInvariant()))
             {
-                // prevent "double" online status
-                if (!IsFriendAlreadyOnline(presence.From.User))
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = true;
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = jid.Resource;
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Add(jid.Resource);
+                Debug.WriteLine("**********" + jid.User + " already had a client signed in! Setting multiple client flag and new resource...");
+            }
+            // User wasn't already online.
+            else
+            {
+                Debug.WriteLine("**********" + jid + " did NOT already have a client signed in. Updating Online Friends roster group...");
+                // Must be done on the UI thread
+                Execute.OnUIThread(() =>
                 {
-                    Debug.WriteLine("[FRIEND AVAILABLE]: " + " Bare Jid: " + presence.From.Bare + " User: " + presence.From.User);
-                    Debug.WriteLine("Friends list before adding " + presence.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
+                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = jid.Resource;
+                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Add(jid.Resource);
+                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = false;
+                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].IsOnline = true;
+                });
 
-                    // Must be done on the UI thread
-                    Execute.OnUIThread(() =>
-                    {
-                        CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(presence.From.User.ToLowerInvariant(), IsFavoriteFriend(presence.From.User)));
-                        CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsOnline = true;
-                    });
-                    Debug.WriteLine("Friends list after adding " + presence.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
-                }
-
-                // user was previously offline
-                if (CLVM.OfflineGroup.Friends.ContainsKey(presence.From.User.ToLowerInvariant()))
-                {
-                    // Additions and removals to ObservableDictionary must be done on the UI thread
-                    Execute.OnUIThread(() =>
-                    {
-                        CLVM.OfflineGroup.Friends.Remove(presence.From.User.ToLowerInvariant());
-                    });
-                    Debug.WriteLine("Friends list before adding " + presence.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
-                }
             }
 
-            // Check the user's status
-            CheckFriendStatus(presence);
+            // If user user was previously offline then remove from offline friends group.        
+            FriendViewModel val;
+            if (CLVM.OfflineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val))
+            {
+                // Additions and removals to ObservableDictionary must be done on the UI thread
+                Execute.OnUIThread(() => CLVM.OfflineGroup.Friends.Remove(jid.User.ToLowerInvariant()));
+                Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
+            }
         }
 
         /// <summary>
-        /// Friend has become unavailble.
+        /// Friend has become unavailable.
         /// </summary>
-        /// <param name="presence">The presence.</param>
-        private void FriendBecameUnavailble(Presence presence)
+        /// <param name="jid">The user's jid.</param>
+        private void FriendBecameUnavailable(Jid jid)
         {
-            if (!IsMe(presence))
+            if (IsMe(jid)) return;
+
+            FriendViewModel val;
+            if (!CLVM.OnlineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val)) return;
+
+            // Check if friend has multiple clients.
+            if (CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients)
             {
-                Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Bare Jid: " + presence.From.Bare + " User: " + presence.From.User);
-                Debug.WriteLine("Friends list before removing " + presence.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+                Debug.WriteLine(jid.User+ " had multiple clients signed in! Removing client with resource: " + jid.Resource);
+
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = false;
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Remove(jid.Resource);
+
+                // Set resource back to first client's resource.
+                if (CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Count < 1) return;
+                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.ElementAt(0);
+                Debug.WriteLine(jid.Bare + "'s new resource is: " +
+                                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources
+                                    .ElementAt(0));
+            }
+            else
+            {
+                // Completely remove from Online friends list, since user does not have multiple clients.
                 // Additions and removals to ObservableDictionary must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OnlineGroup.Friends.Remove(presence.From.User.ToLowerInvariant());
-                    CLVM.OfflineGroup.Friends[presence.From.User.ToLowerInvariant()] = new FriendViewModel(new Friend(presence.From.User.ToLowerInvariant(), IsFavoriteFriend(presence.From.User)));
-                    CLVM.OfflineGroup.Friends[presence.From.User.ToLowerInvariant()].IsOnline = false;
+                    CLVM.OnlineGroup.Friends.Remove(jid.User.ToLowerInvariant());
+                    CLVM.OfflineGroup.Friends[jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
+                    CLVM.OfflineGroup.Friends[jid.User.ToLowerInvariant()].IsOnline = false;
                 });
-                Debug.WriteLine("Friends list after removing " + presence.From.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+
+                Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + jid + " User: " + jid.User + " Resource: " + jid.Resource);
+                Debug.WriteLine("Friends list before removing " + jid.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
             }
         }
 
@@ -293,7 +329,7 @@ namespace UQLT.Core.Chat
         /// </returns>
         private bool IsFavoriteFriend(string friend)
         {
-            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.ToLowerInvariant())) ? true : false;
+            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.ToLowerInvariant()));
         }
 
         /// <summary>
@@ -305,21 +341,23 @@ namespace UQLT.Core.Chat
         /// </returns>
         private bool IsFriendAlreadyOnline(string friend)
         {
-            return (CLVM.OnlineGroup.Friends.ContainsKey(friend.ToLowerInvariant())) ? true : false;
+            FriendViewModel val;
+            return (CLVM.OnlineGroup.Friends.TryGetValue(friend.ToLowerInvariant(), out val));
         }
 
         /// <summary>
         /// Determines whether the specified presence is from me, the currently logged in user.
         /// </summary>
-        /// <param name="presence">The presence.</param>
+        /// <param name="jid">The user's jid.</param>
         /// <returns>
         /// true if the presence is from the currently logged in user. false if the presence is not
         /// from the currently logged in user.
         /// </returns>
-        private bool IsMe(Presence presence)
+        private bool IsMe(Jid jid)
         {
-            return (presence.From.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant())) ? true : false;
+            return (jid.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()));
         }
+
 
         /// <summary>
         /// Updates a friend's status based on the activity the friend is performing. Meaning that
@@ -385,32 +423,30 @@ namespace UQLT.Core.Chat
         /// <param name="msg">The message.</param>
         private void XmppCon_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
         {
-            if (msg.Body != null)
+            if (msg.Body == null) return;
+            if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
             {
-                if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
-                {
-                    var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager);
-                    dynamic settings = new ExpandoObject();
-                    settings.WindowStartupLocation = WindowStartupLocation.Manual;
+                var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager);
+                dynamic settings = new ExpandoObject();
+                settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
-                    Execute.OnUIThread(() =>
-                    {
-                        _windowManager.ShowWindow(cm, null, settings);
-                        cm.MessageIncoming(msg);
-                        if (msg.Body.StartsWith("Join me in this QUAKE LIVE match:"))
-                        {
-                            PlayMessageSound(2);
-                        }
-                        else
-                        {
-                            PlayMessageSound(1);
-                        }
-                    });
-                }
-                else
+                Execute.OnUIThread(() =>
                 {
-                    Debug.WriteLine("A chat window already exists for: " + msg.From.Bare.ToLowerInvariant() + " not opening another.");
-                }
+                    _windowManager.ShowWindow(cm, null, settings);
+                    cm.MessageIncoming(msg);
+                    if (msg.Body.StartsWith("Join me in this QUAKE LIVE match:"))
+                    {
+                        PlayMessageSound(2);
+                    }
+                    else
+                    {
+                        PlayMessageSound(1);
+                    }
+                });
+            }
+            else
+            {
+                Debug.WriteLine("A chat window already exists for: " + msg.From.Bare.ToLowerInvariant() + " not opening another.");
             }
         }
 
@@ -424,11 +460,14 @@ namespace UQLT.Core.Chat
             switch (presence.Type)
             {
                 case PresenceType.available:
-                    FriendBecameAvailable(presence);
+                    Debug.WriteLine("--> Got available presence from: " + presence.From);
+                    FriendBecameAvailable(presence.From);
+                    CheckFriendStatus(presence);
                     break;
 
                 case PresenceType.unavailable:
-                    FriendBecameUnavailble(presence);
+                    Debug.WriteLine("--> Got unavailable presence from: " + presence.From);
+                    FriendBecameUnavailable(presence.From);
                     break;
 
                 case PresenceType.subscribe:

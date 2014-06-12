@@ -152,11 +152,13 @@ namespace UQLT.ViewModels
         public void OpenChatWindow(KeyValuePair<string, FriendViewModel> kvp)
         {
             // manual jid (missing resource, but shouldn't matter)
-            Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QLXMPPDomain);
+            //Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QLXMPPDomain);
+            Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QLXMPPDomain+"/"+kvp.Value.ActiveXMPPResource);
             dynamic settings = new ExpandoObject();
             settings.Topmost = true;
             settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
+            Debug.WriteLine("--> Opening chat with: " + Jid);
             _windowManager.ShowWindow(new ChatMessageViewModel(Jid, Handler.XmppCon, Handler, _windowManager), null, settings);
         }
 

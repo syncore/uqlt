@@ -34,6 +34,10 @@ namespace UQLT
             QLUserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1";
 
             QLXMPPDomain = "xmpp.quakelive.com"; // xmpp.quakelive.com, focus.quakelive.com
+            //QLXMPPDomain = ***REMOVED***; // xmpp.quakelive.com, focus.quakelive.com
+
+            UQLTXMPPResource = "uqlt";
+            QuakeLiveXMPPResource = "quakelive";
         }
 
         /// <summary>
@@ -164,6 +168,30 @@ namespace UQLT
         /// </summary>
         /// <value>The saved user filter path.</value>
         public static string SavedUserFilterPath
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the UQLT XMPP resource name
+        /// </summary>
+        /// <value>
+        /// The UQLT XMPP resource name
+        /// </value>
+        public static string UQLTXMPPResource
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the Quake Live XMPP resource name
+        /// </summary>
+        /// <value>
+        /// The Quake Live XMPP resource name
+        /// </value>
+        public static string QuakeLiveXMPPResource
         {
             get;
             private set;

@@ -51,7 +51,7 @@ namespace UQLT.Core.ServerBrowser
                 StartServerRefreshTimer();
             }
             // Don't hit QL servers (debugging)
-            var l = LoadServerListAsync(SBVM.FilterURL);
+            //var l = LoadServerListAsync(SBVM.FilterURL);
         }
 
         /// <summary>

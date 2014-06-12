@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -274,6 +275,64 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => StatusImage);
                 NotifyOfPropertyChange(() => PracticeDemoMessage);
                 NotifyOfPropertyChange(() => IsPracticeOrDemo);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets this friend's XMPP resource.
+        /// </summary>
+        /// <value>
+        /// The XMPP resource.
+        /// </value>
+        /// <remarks>
+        /// This will either be "uqlt" or "quakelive"
+        /// </remarks>
+        public string ActiveXMPPResource
+        {
+            get
+            {
+                return RosterFriend.ActiveXMPPResource;
+            }
+            set
+            {
+                RosterFriend.ActiveXMPPResource = value;
+                NotifyOfPropertyChange(() => ActiveXMPPResource);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets or sets the set of this friend's XMPP resources.
+        /// </summary>
+        /// <value>
+        /// The set of this friend's XMPP resources.
+        /// </value>
+        public HashSet<string> XMPPResources
+        {
+            get { return RosterFriend.XMPPResources; }
+            set
+            {
+                RosterFriend.XMPPResources = value;
+                NotifyOfPropertyChange(() => XMPPResources);
+            }
+        }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether this friend has multiple XMPP clients.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this friend has multiple XMPP clients; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasMultipleXMPPClients
+        {
+            get
+            {
+                return RosterFriend.HasMultipleXMPPClients;
+            }
+            set
+            {
+                RosterFriend.HasMultipleXMPPClients = value;
+                NotifyOfPropertyChange(() => HasMultipleXMPPClients);
             }
         }
     }

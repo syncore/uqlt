@@ -1,4 +1,6 @@
-﻿using UQLT.Core.Chat;
+﻿using System.Collections.Generic;
+using System.Configuration;
+using UQLT.Core.Chat;
 
 namespace UQLT.Models.Chat
 {
@@ -7,6 +9,9 @@ namespace UQLT.Models.Chat
     /// </summary>
     public class Friend
     {
+
+        private HashSet<string> _xmppResources;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Friend" /> class.
         /// </summary>
@@ -19,6 +24,7 @@ namespace UQLT.Models.Chat
         {
             FriendName = name;
             IsFavorite = isfavorite;
+            _xmppResources = new HashSet<string>();
         }
 
         /// <summary>
@@ -81,5 +87,45 @@ namespace UQLT.Models.Chat
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets this friend's active XMPP resource.
+        /// </summary>
+        /// <value>
+        /// The friend's active XMPP resource.
+        /// </value>
+        public string ActiveXMPPResource
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the set of this friend's XMPP resources.
+        /// </summary>
+        /// <value>
+        /// The set of this friend's XMPP resources.
+        /// </value>
+        public HashSet<string> XMPPResources
+        {
+            get { return _xmppResources; }
+            set { _xmppResources = value; }
+        }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether this friend has multiple XMPP clients.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this friend has multiple XMPP clients; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// This will occur when the friend is signed into both QuakeLive and UQLT
+        /// </remarks>
+        public bool HasMultipleXMPPClients
+        {
+            get;
+            set;
+        }
+
     }
 }
