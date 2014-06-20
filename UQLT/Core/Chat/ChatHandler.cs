@@ -15,6 +15,7 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Helpers;
 using UQLT.Models.Chat;
+using UQLT.Models.Configuration;
 using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
@@ -25,10 +26,12 @@ namespace UQLT.Core.Chat
     public class ChatHandler
     {
         public static Hashtable ActiveChats = new Hashtable();
+        public readonly string strInvite = "UQLT-IncomingGameInvitation-";
         private readonly IWindowManager _windowManager;
         private readonly IEventAggregator _events;
         private readonly SoundPlayer inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
         private readonly SoundPlayer msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
+        private readonly ConfigurationHandler cfgHandler = new ConfigurationHandler();
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 
         /// <summary>
@@ -96,23 +99,26 @@ namespace UQLT.Core.Chat
         /// <remarks>
         /// if <c>type == 1</c> play normal message sound if <c>type == 2</c> play game invitation sound
         /// </remarks>
-        public void PlayMessageSound(int type)
+        public void PlayMessageSound(TypeOfSound soundtype)
         {
-            try
-            {
-                if (type == 2)
+            if (!IsChatSoundEnabled()) { return; }
+
+                try
                 {
-                    inviteSound.Play();
+                    if (soundtype == TypeOfSound.InvitationSound)
+                    {
+                        inviteSound.Play();
+                    }
+                    else
+                    {
+                        msgSound.Play();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    msgSound.Play();
+                    Debug.WriteLine(ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
+            
         }
 
         /// <summary>
@@ -419,14 +425,16 @@ namespace UQLT.Core.Chat
                 Execute.OnUIThread(() =>
                 {
                     _windowManager.ShowWindow(cm, null, settings);
-                    cm.MessageIncoming(msg);
-                    if (msg.Body.StartsWith("Join me in this QUAKE LIVE match:"))
+                    var m = cm.MessageIncoming(msg);
+                    if (msg.Body.StartsWith(strInvite))
                     {
-                        PlayMessageSound(2);
+                        const TypeOfSound sound = TypeOfSound.InvitationSound;
+                        PlayMessageSound(sound);
                     }
                     else
                     {
-                        PlayMessageSound(1);
+                        const TypeOfSound sound = TypeOfSound.ChatSound;
+                        PlayMessageSound(sound);
                     }
                 });
             }
@@ -505,6 +513,16 @@ namespace UQLT.Core.Chat
             {
                 Debug.WriteLine(ex);
             }
+        }
+
+        /// <summary>
+        /// Determines whether the chat sound is enabled?
+        /// </summary>
+        /// <returns><c>true</c> if the chat sound is enabled, otherwise <c>false</c>.</returns>
+        private bool IsChatSoundEnabled()
+        {
+            cfgHandler.ReadConfig();
+            return (cfgHandler.ChatOptSound);
         }
     }
 }

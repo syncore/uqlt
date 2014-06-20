@@ -229,7 +229,7 @@ namespace UQLT.ViewModels
         public void ClearChatHistory(KeyValuePair<string, FriendViewModel> kvp)
         {
             _chatHistory = new ChatHistory();
-            _chatHistory.DeleteChatHistoryForUser(kvp.Key, Handler.MyJidUser());
+            _chatHistory.DeleteChatHistoryForUser(Handler.MyJidUser(), kvp.Key);
             
 
         } 

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using Caliburn.Micro;
 using UQLT.Events;
+using UQLT.Models.Configuration;
 using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
@@ -20,6 +21,7 @@ namespace UQLT.Core.Chat
         private ChatMessageViewModel CMVM;
         private string sqlConString = "Data Source=" + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
         private string sqlDbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
+        private readonly ConfigurationHandler cfgHandler = new ConfigurationHandler();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHistory" /> class.
@@ -52,6 +54,8 @@ namespace UQLT.Core.Chat
         /// <param name="date">The date.</param>
         public void AddMessageToHistoryDb(string profile, string otheruser, TypeOfMessage msgtype, string message, string date)
         {
+            if (!IsChatHistoryEnabled()) { return; }
+            
             object[] param = new object[5];
             param[0] = profile;
             param[1] = otheruser;
@@ -106,6 +110,8 @@ namespace UQLT.Core.Chat
         /// <param name="otheruser">The remote user we are chatting with.</param>
         public void RetrieveMessageHistory(string profile, string otheruser)
         {
+            if (!IsChatHistoryEnabled()) { return; }
+            
             object[] param = new object[2];
             param[0] = profile;
             param[1] = otheruser;
@@ -306,6 +312,16 @@ namespace UQLT.Core.Chat
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines whether the is chat history enabled.
+        /// </summary>
+        /// <returns><c>true</c> if the chat history is enabled, otherwise <c>false</c></returns>
+        private bool IsChatHistoryEnabled()
+        {
+            cfgHandler.ReadConfig();
+            return (cfgHandler.ChatOptLogging);
         }
     }
 }

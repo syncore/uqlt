@@ -43,11 +43,13 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <param name="server">The server wrapped by this viewmodel.</param>
         [ImportingConstructor]
-        public ServerDetailsViewModel(Server server)
+        public ServerDetailsViewModel(Server server, bool isForServerBrowser = true)
         {
-            Server = server;
-            FormattedPlayerList = AddFormattedPlayers(server.players);
-            GroupScoresAndPlayers("Score", "Team");
+            QLServer = server;
+            if (isForServerBrowser)
+            {
+                SortServersAndFormatPlayers();
+            }
         }
 
         /// <summary>
@@ -149,11 +151,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.capturelimit;
+                return QLServer.capturelimit;
             }
             set
             {
-                Server.capturelimit = value;
+                QLServer.capturelimit = value;
                 NotifyOfPropertyChange(() => CaptureLimit);
             }
         }
@@ -166,11 +168,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.ECODE;
+                return QLServer.ECODE;
             }
             set
             {
-                Server.ECODE = value;
+                QLServer.ECODE = value;
                 NotifyOfPropertyChange(() => ECODE);
             }
         }
@@ -205,10 +207,6 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return _formattedGameState;
-            }
-            set
-            {
                 if (GGameState.Equals("IN_PROGRESS"))
                 {
                     _formattedGameState = "In Progress";
@@ -217,7 +215,7 @@ namespace UQLT.ViewModels
                 {
                     _formattedGameState = "Pre-Game Warmup";
                 }
-                NotifyOfPropertyChange(() => FormattedGameState);
+                return _formattedGameState;
             }
         }
 
@@ -247,11 +245,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.fraglimit;
+                return QLServer.fraglimit;
             }
             set
             {
-                Server.fraglimit = value;
+                QLServer.fraglimit = value;
                 NotifyOfPropertyChange(() => FragLimit);
             }
         }
@@ -287,11 +285,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.game_type;
+                return QLServer.game_type;
             }
             set
             {
-                Server.game_type = value;
+                QLServer.game_type = value;
                 NotifyOfPropertyChange(() => GameType);
                 NotifyOfPropertyChange(() => ShortGameTypeName);
             }
@@ -326,11 +324,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.game_type_title;
+                return QLServer.game_type_title;
             }
             set
             {
-                Server.game_type_title = value;
+                QLServer.game_type_title = value;
                 NotifyOfPropertyChange(() => GameTypeTitle);
             }
         }
@@ -343,11 +341,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_bluescore;
+                return QLServer.g_bluescore;
             }
             set
             {
-                Server.g_bluescore = value;
+                QLServer.g_bluescore = value;
                 NotifyOfPropertyChange(() => GBlueScore);
             }
         }
@@ -360,11 +358,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_customSettings;
+                return QLServer.g_customSettings;
             }
             set
             {
-                Server.g_customSettings = value;
+                QLServer.g_customSettings = value;
                 NotifyOfPropertyChange(() => GCustomSettings);
             }
         }
@@ -377,11 +375,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_gamestate;
+                return QLServer.g_gamestate;
             }
             set
             {
-                Server.g_gamestate = value;
+                QLServer.g_gamestate = value;
                 NotifyOfPropertyChange(() => GGameState);
             }
         }
@@ -394,7 +392,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_instagib;
+                return QLServer.g_instagib;
             }
         }
 
@@ -406,11 +404,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_levelstarttime;
+                return QLServer.g_levelstarttime;
             }
             set
             {
-                Server.g_levelstarttime = value;
+                QLServer.g_levelstarttime = value;
                 NotifyOfPropertyChange(() => GLevelStartTime);
             }
         }
@@ -423,11 +421,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_needpass;
+                return QLServer.g_needpass;
             }
             set
             {
-                Server.g_needpass = value;
+                QLServer.g_needpass = value;
                 NotifyOfPropertyChange(() => GNeedPass);
             }
         }
@@ -440,11 +438,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.g_redscore;
+                return QLServer.g_redscore;
             }
             set
             {
-                Server.g_redscore = value;
+                QLServer.g_redscore = value;
                 NotifyOfPropertyChange(() => GRedScore);
             }
         }
@@ -457,11 +455,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.host_address;
+                return QLServer.host_address;
             }
             set
             {
-                Server.host_address = value;
+                QLServer.host_address = value;
                 NotifyOfPropertyChange(() => HostAddress);
             }
         }
@@ -474,11 +472,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.host_name;
+                return QLServer.host_name;
             }
             set
             {
-                Server.host_name = value;
+                QLServer.host_name = value;
                 NotifyOfPropertyChange(() => HostName);
             }
         }
@@ -571,11 +569,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.location_id;
+                return QLServer.location_id;
             }
             set
             {
-                Server.location_id = value;
+                QLServer.location_id = value;
                 NotifyOfPropertyChange(() => LocationId);
                 // These are read-only so need to be notified of location id changes:
                 NotifyOfPropertyChange(() => FlagImage);
@@ -592,11 +590,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.map;
+                return QLServer.map;
             }
             set
             {
-                Server.map = value;
+                QLServer.map = value;
                 NotifyOfPropertyChange(() => Map);
             }
         }
@@ -630,11 +628,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.map_title;
+                return QLServer.map_title;
             }
             set
             {
-                Server.map_title = value;
+                QLServer.map_title = value;
                 NotifyOfPropertyChange(() => MapTitle);
             }
         }
@@ -647,11 +645,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.max_clients;
+                return QLServer.max_clients;
             }
             set
             {
-                Server.max_clients = value;
+                QLServer.max_clients = value;
                 NotifyOfPropertyChange(() => MaxClients);
                 NotifyOfPropertyChange(() => TotalPlayers);
             }
@@ -678,11 +676,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.num_clients;
+                return QLServer.num_clients;
             }
             set
             {
-                Server.num_clients = value;
+                QLServer.num_clients = value;
                 NotifyOfPropertyChange(() => NumClients);
             }
         }
@@ -695,11 +693,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.num_players;
+                return QLServer.num_players;
             }
             set
             {
-                Server.num_players = value;
+                QLServer.num_players = value;
                 NotifyOfPropertyChange(() => NumPlayers);
                 NotifyOfPropertyChange(() => TotalPlayers);
             }
@@ -713,11 +711,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.owner;
+                return QLServer.owner;
             }
             set
             {
-                Server.owner = value;
+                QLServer.owner = value;
                 NotifyOfPropertyChange(() => Owner);
             }
         }
@@ -744,7 +742,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.players;
+                return QLServer.players;
             }
         }
 
@@ -756,11 +754,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.premium;
+                return QLServer.premium;
             }
             set
             {
-                Server.premium = value;
+                QLServer.premium = value;
                 NotifyOfPropertyChange(() => Premium);
             }
         }
@@ -773,11 +771,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.public_id;
+                return QLServer.public_id;
             }
             set
             {
-                Server.public_id = value;
+                QLServer.public_id = value;
                 NotifyOfPropertyChange(() => PublicId);
             }
         }
@@ -790,11 +788,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.ranked;
+                return QLServer.ranked;
             }
             set
             {
-                Server.ranked = value;
+                QLServer.ranked = value;
                 NotifyOfPropertyChange(() => Ranked);
             }
         }
@@ -898,11 +896,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.roundlimit;
+                return QLServer.roundlimit;
             }
             set
             {
-                Server.roundlimit = value;
+                QLServer.roundlimit = value;
                 NotifyOfPropertyChange(() => RoundLimit);
             }
         }
@@ -915,11 +913,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.roundtimelimit;
+                return QLServer.roundtimelimit;
             }
             set
             {
-                Server.roundtimelimit = value;
+                QLServer.roundtimelimit = value;
                 NotifyOfPropertyChange(() => RoundLimit);
             }
         }
@@ -932,11 +930,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.ruleset;
+                return QLServer.ruleset;
             }
             set
             {
-                Server.ruleset = value;
+                QLServer.ruleset = value;
                 NotifyOfPropertyChange(() => RuleSet);
             }
         }
@@ -949,11 +947,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.scorelimit;
+                return QLServer.scorelimit;
             }
             set
             {
-                Server.scorelimit = value;
+                QLServer.scorelimit = value;
                 NotifyOfPropertyChange(() => ScoreLimit);
             }
         }
@@ -962,7 +960,7 @@ namespace UQLT.ViewModels
         /// Gets the server that this viewmodel wraps.
         /// </summary>
         /// <value>The server that this viewmodel wraps.</value>
-        public Server Server
+        public Server QLServer
         {
             get;
             private set;
@@ -1011,11 +1009,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.skillDelta;
+                return QLServer.skillDelta;
             }
             set
             {
-                Server.skillDelta = value;
+                QLServer.skillDelta = value;
                 NotifyOfPropertyChange(() => SkillDelta);
             }
         }
@@ -1028,11 +1026,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.teamsize;
+                return QLServer.teamsize;
             }
             set
             {
-                Server.teamsize = value;
+                QLServer.teamsize = value;
                 NotifyOfPropertyChange(() => TeamSize);
             }
         }
@@ -1045,11 +1043,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return Server.timelimit;
+                return QLServer.timelimit;
             }
             set
             {
-                Server.timelimit = value;
+                QLServer.timelimit = value;
                 NotifyOfPropertyChange(() => TimeLimit);
             }
         }
@@ -1106,6 +1104,15 @@ namespace UQLT.ViewModels
             }
         }
 
+        /// <summary>
+        /// Sorts the servers and formats the players for the view, if this class is being used in the server browser.
+        /// </summary>
+        private void SortServersAndFormatPlayers()
+        {
+            FormattedPlayerList = AddFormattedPlayers(QLServer.players);
+            GroupScoresAndPlayers("Score", "Team");
+        }
+        
         /// <summary>
         /// Adds the players to a list of players that will be cleanly wrapped and formatted by a PlayerDetailsViewModel.
         /// </summary>

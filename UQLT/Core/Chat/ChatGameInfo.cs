@@ -47,10 +47,10 @@ namespace UQLT.Core.Chat
         /// This is used for an initial one-time creation of a Server (ServerDetailsViewModel)
         /// object for an in-game friend on the friend list
         /// </remarks>
-        public async Task CreateServerInfoForStatusAsync(string friend, string server_id)
+        public async Task CreateServerInfoForStatusAsync(string friend, string serverId)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
 
             try
             {
@@ -61,7 +61,7 @@ namespace UQLT.Core.Chat
                 }
 
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + server_id);
+                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverId);
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
@@ -69,12 +69,12 @@ namespace UQLT.Core.Chat
 
                 string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 // QL API returns an array, even for individual servers as in this case
-                List<Server> qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
+                var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // Create the Server (ServerDetailsViewModel) object for the player
                 foreach (var qlserver in qlservers)
                 {
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(qlserver);
+                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(qlserver, false);
                 }
             }
             catch (Exception ex)
@@ -105,8 +105,8 @@ namespace UQLT.Core.Chat
         /// </remarks>
         public async Task UpdateServerInfoForStatusAsync(string friend)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
 
             try
             {
@@ -121,7 +121,7 @@ namespace UQLT.Core.Chat
                 }
 
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + server_id);
+                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + server_id);
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
@@ -129,7 +129,7 @@ namespace UQLT.Core.Chat
 
                 string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 // QL API returns an array, even for individual servers as in this case
-                List<Server> qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
+                var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // Update the individual properties within the Server (ServerDetailsViewModel) that
                 // we have chosen to expose
@@ -159,7 +159,7 @@ namespace UQLT.Core.Chat
         /// <param name="e">The <see cref="ElapsedEventArgs" /> instance containing the event data.</param>
         private void OnTimedServerInfoUpdate(object source, ElapsedEventArgs e)
         {
-            List<string> ingamefriends = new List<string>();
+            var ingamefriends = new List<string>();
 
             foreach (KeyValuePair<string, FriendViewModel> kvp in Handler.CLVM.OnlineGroup.Friends)
             {
@@ -204,8 +204,8 @@ namespace UQLT.Core.Chat
         /// </remarks>
         private async Task UpdateServerInfoForStatusAsync(List<string> ingamefriends)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
 
             // Get the server ids (public_id)s of all in-game players to send to QL API
             List<string> server_ids = new List<string>();
@@ -223,14 +223,14 @@ namespace UQLT.Core.Chat
                 }
 
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + string.Join(",", server_ids));
+                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + string.Join(",", server_ids));
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
                 string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                List<Server> qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
+                var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
@@ -248,7 +248,6 @@ namespace UQLT.Core.Chat
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                // TODO: need something here so it re-tries again in X seconds on failure
             }
         }
     }

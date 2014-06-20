@@ -71,8 +71,8 @@ namespace UQLT.Core.ServerBrowser
         /// <returns>The elo information array.</returns>
         public async Task<QLRanks> GetEloDataFromQLRanksAPIAsync(string players)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
 
             try
             {
@@ -81,7 +81,7 @@ namespace UQLT.Core.ServerBrowser
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
 
-                HttpResponseMessage response = await client.GetAsync("/api.aspx?nick=" + players);
+                var response = await client.GetAsync("/api.aspx?nick=" + players);
                 response.EnsureSuccessStatusCode(); // Throw on error code
                 string eloinfojson = await response.Content.ReadAsStringAsync();
 
@@ -112,8 +112,8 @@ namespace UQLT.Core.ServerBrowser
         /// <returns></returns>
         public async Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
         {
-            List<string> playerstoupdate = new List<string>();
-            List<List<string>> qlrapicalls = new List<List<string>>();
+            var playerstoupdate = new List<string>();
+            var qlrapicalls = new List<List<string>>();
             EloData val;
 
             // extract players, add to a list to update, split the list, then update
@@ -148,7 +148,7 @@ namespace UQLT.Core.ServerBrowser
             }
 
             // perform the tasks
-            List<Task<QLRanks>> qlranksTasks = new List<Task<QLRanks>>();
+            var qlranksTasks = new List<Task<QLRanks>>();
 
             for (int i = 0; i < qlrapicalls.Count; i++)
             {
@@ -295,8 +295,8 @@ namespace UQLT.Core.ServerBrowser
         /// </remarks>
         private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
             int totalplayercount = 0;
             EloData val;
 
@@ -310,14 +310,14 @@ namespace UQLT.Core.ServerBrowser
 
                 UQLTGlobals.IPAddressDict.Clear();
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(url);
+                var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
                 string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
-                List<string> addresses = new List<string>();
+                var addresses = new List<string>();
 
                 foreach (Server s in serverlist)
                 {
@@ -347,7 +347,7 @@ namespace UQLT.Core.ServerBrowser
                     }
                 }
 
-                List<Task<PingReply>> pingTasks = new List<Task<PingReply>>();
+                var pingTasks = new List<Task<PingReply>>();
 
                 foreach (string address in addresses)
                 {
@@ -390,9 +390,9 @@ namespace UQLT.Core.ServerBrowser
         private async Task<string> MakeDetailsUrlAsync(string url)
         {
             url = SBVM.FilterURL;
-            List<string> ids = new List<string>();
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            var ids = new List<string>();
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
 
             try
             {
@@ -403,7 +403,7 @@ namespace UQLT.Core.ServerBrowser
                 }
 
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(url);
+                var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
 
                 // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb

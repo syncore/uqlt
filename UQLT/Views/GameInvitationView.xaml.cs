@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace UQLT.Views
 {
     /// <summary>
-    /// Interaction logic for GameInvitation.xaml
+    /// Interaction logic for GameInvitationView.xaml
     /// </summary>
-    public partial class GameInvitation : Window
+    public partial class GameInvitationView : Window
     {
-        public GameInvitation()
+        public GameInvitationView()
         {
             InitializeComponent();
         }

@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using agsXMPP;
@@ -33,6 +34,8 @@ namespace UQLT.ViewModels
         private string _outgoingMessage;
         private StringBuilder _receivedMessages = new StringBuilder();
         private XmppClientConnection _xmppCon;
+        
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessageViewModel" /> class.
@@ -163,25 +166,29 @@ namespace UQLT.ViewModels
         /// Displays the incoming message.
         /// </summary>
         /// <param name="msg">The message.</param>
-        public void MessageIncoming(agsXMPP.protocol.client.Message msg)
+        public async Task MessageIncoming(agsXMPP.protocol.client.Message msg)
         {
             if (IsMessageInvite(msg.Body))
             {
-                _handler.PlayMessageSound(2);
-                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!";
+                const TypeOfSound sound = TypeOfSound.InvitationSound;
+                _handler.PlayMessageSound(sound);
+                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!"+"\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
                 // Get server info for the invitation popup
-                //RetrieveGameInvitationInfoAsync
-
-                // Show invitation popup
+                // TODO: Some kind of flood limiting thing so people can't spam this invite feature.
+                string inviteId = Regex.Match(msg.Body, @"\d{6,}").Groups[0].Value;
+                var server = await RetrieveInvitationGameServerAsync(inviteId);
+                
+                //// Show invitation popup.
                 dynamic settings = new ExpandoObject();
                 settings.Topmost = true;
                 settings.WindowStartupLocation = WindowStartupLocation.Manual;
-
-                _windowManager.ShowWindow(new GameInvitationViewModel(), null, settings);
+                Execute.OnUIThread(() => _windowManager.ShowWindow(new GameInvitationViewModel(server, msg.From.User.ToLowerInvariant()), null, settings));
             }
             else
             {
+                const TypeOfSound sound = TypeOfSound.ChatSound;
+                _handler.PlayMessageSound(sound);
                 IncomingMessage = msg.Body + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
             }
@@ -239,7 +246,7 @@ namespace UQLT.ViewModels
         /// <returns><c>true</c> if the message is an invite, otherwise <c>false</c></returns>
         private bool IsMessageInvite(string message)
         {
-            return (message.StartsWith("Join me in this QUAKE LIVE match:")) ? true : false;
+            return (message.StartsWith(_handler.strInvite));
         }
 
         /// <summary>
@@ -254,38 +261,43 @@ namespace UQLT.ViewModels
             if (msg.Body != null)
             {
                 Debug.WriteLine("Incoming message body is: " + msg.Body);
-                MessageIncoming(msg);
+                var m = MessageIncoming(msg);
             }
         }
 
         /// <summary>
         /// Retrieves the game invitation server information.
         /// </summary>
-        private async Task<ServerDetailsViewModel> RetrieveGameInvitationInfoAsync(string serverid)
+        public async Task<ServerDetailsViewModel> RetrieveInvitationGameServerAsync(string serverId)
         {
-            HttpClientHandler gzipHandler = new HttpClientHandler();
-            HttpClient client = new HttpClient(gzipHandler);
+            Debug.WriteLine("--> Got invitation. Server id is: " + serverId);
+            var gzipHandler = new HttpClientHandler();
+            var client = new HttpClient(gzipHandler);
             ServerDetailsViewModel server = null;
 
             try
             {
+                // QL site sends gzip compressed responses
                 if (gzipHandler.SupportsAutomaticDecompression)
                 {
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
                 client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                HttpResponseMessage response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverid);
+                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverId);
                 response.EnsureSuccessStatusCode();
 
-                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                List<Server> servers = JsonConvert.DeserializeObject<List<Server>>(json);
+                // QL site actually doesn't send "application/json", but "text/html" even though it
+                // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
-                foreach (var srv in servers)
+                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                // QL API returns an array, even for individual servers as in this case
+                var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
+
+                // Create the Server (ServerDetailsViewModel) object for the player
+                foreach (var qlserver in qlservers)
                 {
-                    // Even in this enumeration, there will only be one server. QL API returns an
-                    // array and we've only requested details for one server.
-                    server = new ServerDetailsViewModel(srv);
+                    server = new ServerDetailsViewModel(qlserver, false);
                 }
 
                 return server;
