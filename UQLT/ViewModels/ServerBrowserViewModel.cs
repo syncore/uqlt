@@ -203,7 +203,7 @@ namespace UQLT.ViewModels
 		/// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
 		public bool ConfigExists()
 		{
-			return File.Exists(UQLTGlobals.ConfigPath) ? true : false;
+			return File.Exists(UQLTGlobals.ConfigPath);
 		}
 
 		/// <summary>
@@ -229,24 +229,12 @@ namespace UQLT.ViewModels
 				LoadDefaultConfig();
 			}
 
-			try
-			{
-				using (StreamReader sr = new StreamReader(UQLTGlobals.ConfigPath))
-				{
-					string saved = sr.ReadToEnd();
-					Configuration savedConfigJson = JsonConvert.DeserializeObject<Configuration>(saved);
+			var cfghandler = new ConfigurationHandler();
+			cfghandler.ReadConfig();
 
-					// Set VM's index properties to appropriate properties from configuration file
-					IsAutoRefreshEnabled = savedConfigJson.serverbrowser_options.auto_refresh;
-					AutoRefreshIndex = savedConfigJson.serverbrowser_options.auto_refresh_index;
-					AutoRefreshSeconds = savedConfigJson.serverbrowser_options.auto_refresh_seconds;
-				}
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine("Error loading configuration " + ex);
-				LoadDefaultConfig();
-			}
+			IsAutoRefreshEnabled = cfghandler.SbOptAutoRefresh;
+			AutoRefreshIndex = cfghandler.SbOptAutoRefreshIndex;
+			AutoRefreshSeconds = cfghandler.SbOptAutoRefreshSeconds;
 		}
 
 		/// <summary>
@@ -254,11 +242,8 @@ namespace UQLT.ViewModels
 		/// </summary>
 		public void LoadDefaultConfig()
 		{
-			// Set the default VM properties (auto-refresh enabled, refresh every 60 seconds)
-			IsAutoRefreshEnabled = true;
-			AutoRefreshIndex = 1;
-			AutoRefreshSeconds = 60;
-			SaveConfig();
+			var cfghandler = new ConfigurationHandler();
+			cfghandler.RestoreDefaultConfig();
 		}
 
 		/// <summary>
@@ -266,26 +251,14 @@ namespace UQLT.ViewModels
 		/// </summary>
 		public void SaveConfig()
 		{
-			// Save this configuration as the new default
-			var sbo = new ServerBrowserOptions()
-			{
-				auto_refresh = IsAutoRefreshEnabled,
-				auto_refresh_index = AutoRefreshIndex,
-				auto_refresh_seconds = AutoRefreshSeconds
-			};
-			var config = new Configuration()
-			{
-				serverbrowser_options = sbo
-			};
+			var cfghandler = new ConfigurationHandler();
+			cfghandler.ReadConfig();
 
-			// write to disk
-			string savedConfigJson = JsonConvert.SerializeObject(config);
-			using (FileStream fs = File.Create(UQLTGlobals.ConfigPath))
-			using (TextWriter writer = new StreamWriter(fs))
-			{
-				writer.WriteLine(savedConfigJson);
-			}
-			Debug.WriteLine("**New server browser auto-refresh configuration saved");
+			cfghandler.SbOptAutoRefresh = IsAutoRefreshEnabled;
+			cfghandler.SbOptAutoRefreshIndex = AutoRefreshIndex;
+			cfghandler.SbOptAutoRefreshSeconds = AutoRefreshSeconds;
+
+			cfghandler.WriteConfig();
 		}
 
 		/// <summary>
@@ -296,7 +269,7 @@ namespace UQLT.ViewModels
 		public void SetRefreshTime(int seconds)
 		{
 			Debug.WriteLine("Setting auto-server refresh time to " + seconds + " seconds.");
-			seconds = AutoRefreshSeconds;
+		    AutoRefreshSeconds = seconds;
 			SaveConfig();
 		}
 

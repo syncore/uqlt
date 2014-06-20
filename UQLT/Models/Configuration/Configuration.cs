@@ -15,5 +15,17 @@
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the chat_options.
+        /// </summary>
+        /// <value>
+        /// The chat_options.
+        /// </value>
+        public ChatOptions chat_options
+        {
+            get;
+            set;
+        }
     }
 }

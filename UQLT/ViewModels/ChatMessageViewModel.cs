@@ -40,6 +40,7 @@ namespace UQLT.ViewModels
         /// <param name="jid">The jid of the user we are chatting with.</param>
         /// <param name="xmppcon">The XmppClientConnection to use for this viewmodel.</param>
         /// <param name="handler">The ChatHandler to use for this viewmodel.</param>
+        /// <param name="WindowManager">The window manager.</param>
         [ImportingConstructor]
         public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager WindowManager)
         {

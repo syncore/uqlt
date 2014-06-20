@@ -8,13 +8,12 @@ using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(PlayerDetailsViewModel))]
-
     /// <summary>
     /// Viewmodel wrapper for the Player class. This class wraps the Player class and exposes
     /// additional view-related properties for the View (in this case, ServerBrowserView).
     /// </summary>
-
+    [Export(typeof(PlayerDetailsViewModel))]
+    
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
         private static Regex nameColors = new Regex(@"[\^]\d");

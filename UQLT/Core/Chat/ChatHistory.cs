@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using Caliburn.Micro;
+using UQLT.Events;
 using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
@@ -30,6 +32,17 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ChatHistory"/> class.
+        /// </summary>
+        /// <remarks>
+        /// This constructor parameterless constructor is used solely to clear the chat history from another viewmodel such as the <see cref="ChatListViewModel"/>
+        /// </remarks>
+        public ChatHistory()
+        {
+            VerifyHistoryDb();
+        }
+
+        /// <summary>
         /// Start a new thread to add the chat message to the chat database.
         /// </summary>
         /// <param name="profile">The name of the currently-logged in user.</param>
@@ -47,7 +60,7 @@ namespace UQLT.Core.Chat
             param[4] = date;
 
             // Start a new thread.
-            Thread backgroundthread = new Thread(new ParameterizedThreadStart(AddMessageToHistoryInBackground));
+            var backgroundthread = new Thread(new ParameterizedThreadStart(AddMessageToHistoryInBackground));
             backgroundthread.Start(param);
         }
 

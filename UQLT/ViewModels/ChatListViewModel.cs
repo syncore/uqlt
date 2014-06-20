@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Windows;
+using agsXMPP.protocol.extensions.pubsub.@event;
 using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Core.Chat;
+using UQLT.Events;
 using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
@@ -20,6 +22,7 @@ namespace UQLT.ViewModels
     public class ChatListViewModel : PropertyChangedBase
     {
         private readonly IWindowManager _windowManager;
+        private ChatHistory _chatHistory;
         private BindableCollection<RosterGroupViewModel> _buddyList;
         private ChatHandler Handler;
         private agsXMPP.Jid Jid;
@@ -30,8 +33,9 @@ namespace UQLT.ViewModels
         /// Initializes a new instance of the <see cref="ChatListViewModel" /> class.
         /// </summary>
         /// <param name="WindowManager">The window manager.</param>
+        /// <param name="events">The events that this viewmodel publishes/subscribes to.</param>
         [ImportingConstructor]
-        public ChatListViewModel(IWindowManager WindowManager)
+        public ChatListViewModel(IWindowManager WindowManager, IEventAggregator events)
         {
             _windowManager = WindowManager;
             _buddyList = new BindableCollection<RosterGroupViewModel>();
@@ -40,7 +44,7 @@ namespace UQLT.ViewModels
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
-            Handler = new ChatHandler(this, _windowManager);
+            Handler = new ChatHandler(this, _windowManager, events);
         }
 
         /// <summary>
@@ -163,6 +167,16 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Opens the chat options window.
+        /// </summary>
+        public void OpenChatOptionsWindow()
+        {
+            dynamic settings = new ExpandoObject();
+            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            _windowManager.ShowWindow(new ChatOptionsViewModel(), null, settings);
+        }
+        
+        /// <summary>
         /// Removes the friend from the favorite friends.
         /// </summary>
         /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
@@ -206,6 +220,20 @@ namespace UQLT.ViewModels
             }
         }
 
+
+
+        /// <summary>
+        /// Clears the chat history from the chatlist viewmodel by created a new ChatHistory class for that purpose.
+        /// </summary>
+        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        public void ClearChatHistory(KeyValuePair<string, FriendViewModel> kvp)
+        {
+            _chatHistory = new ChatHistory();
+            _chatHistory.DeleteChatHistoryForUser(kvp.Key, Handler.MyJidUser());
+            
+
+        } 
+        
         /// <summary>
         /// Loads the saved favorite friends from JSON file on disk.
         /// </summary>
@@ -249,5 +277,6 @@ namespace UQLT.ViewModels
                 Debug.WriteLine(ex);
             }
         }
+
     }
 }

@@ -799,7 +799,7 @@ namespace UQLT.ViewModels
         private bool SavedUserFiltersExist()
         {
             // TODO: Implement multiple user account support.
-            return File.Exists(UQLTGlobals.SavedUserFilterPath) ? true : false;
+            return File.Exists(UQLTGlobals.SavedUserFilterPath);
         }
 
         /// <summary>
@@ -814,6 +814,7 @@ namespace UQLT.ViewModels
             GameStateIndex = 0;
             GameVisibilityIndex = 0;
             GamePremiumBool = false;
+            SetFilterStatusText(GameTypeIndex, GameArenaIndex, GameLocationIndex, GameStateIndex, GameVisibilityIndex, GamePremiumBool);
 
         }
     }

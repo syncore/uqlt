@@ -16,13 +16,11 @@ namespace UQLT.ViewModels
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
         private string _arenaStatusTitle;
-        private ChatListViewModel _chatListViewModel;
         private string _displayName = "UQLT v0.1";
         private FilterViewModel _filterViewModel;
         private string _locationStatusTitle;
         private int _playerCountStatusTitle;
         private string _premiumStatusTitle;
-        private ServerBrowserViewModel _serverBrowserViewModel;
         private int _serverCountStatusTitle;
 
         private string _stateStatusTitle;
@@ -43,8 +41,8 @@ namespace UQLT.ViewModels
             _events = events;
             events.Subscribe(this);
             _filterViewModel = new FilterViewModel(_events);
-            _serverBrowserViewModel = new ServerBrowserViewModel(_events);
-            _chatListViewModel = new ChatListViewModel(windowManager);
+            ServerBrowserViewModel = new ServerBrowserViewModel(_events);
+            ChatListViewModel = new ChatListViewModel(windowManager, _events);
             // TODO: _events for any events, i.e.: hiding buddy list
         }
 
@@ -70,17 +68,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the chat ListView model.
         /// </summary>
         /// <value>The chat ListView model.</value>
-        public ChatListViewModel ChatListViewModel
-        {
-            get
-            {
-                return _chatListViewModel;
-            }
-            set
-            {
-                _chatListViewModel = value;
-            }
-        }
+        public ChatListViewModel ChatListViewModel { get; set; }
 
         /// <summary>
         /// Gets or Sets the display name for this window.
@@ -171,17 +159,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the server browser view model.
         /// </summary>
         /// <value>The server browser view model.</value>
-        public ServerBrowserViewModel ServerBrowserViewModel
-        {
-            get
-            {
-                return _serverBrowserViewModel;
-            }
-            set
-            {
-                _serverBrowserViewModel = value;
-            }
-        }
+        public ServerBrowserViewModel ServerBrowserViewModel { get; set; }
 
         /// <summary>
         /// Gets or sets the server count status bar title.

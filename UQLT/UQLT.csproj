@@ -138,6 +138,8 @@
     <Compile Include="Models\Chat\RosterGroup.cs" />
     <Compile Include="Models\Chat\Friend.cs" />
     <Compile Include="Models\Chat\StatusInfo.cs" />
+    <Compile Include="Models\Configuration\ChatOptions.cs" />
+    <Compile Include="Models\Configuration\ConfigurationHandler.cs" />
     <Compile Include="Models\Configuration\Configuration.cs" />
     <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="UQLTGlobals.cs" />
     <Compile Include="UQLTWindowManager.cs" />
     <Compile Include="ViewModels\ChatMessageViewModel.cs" />
+    <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
     <Compile Include="ViewModels\FriendViewModel.cs" />
     <Compile Include="ViewModels\GameInvitationViewModel.cs" />
     <Compile Include="ViewModels\RosterGroupViewModel.cs" />
@@ -188,6 +191,9 @@
     </Compile>
     <Compile Include="Views\ChatMessageView.xaml.cs">
       <DependentUpon>ChatMessageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChatOptionsView.xaml.cs">
+      <DependentUpon>ChatOptionsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
@@ -241,6 +247,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ChatMessageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChatOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

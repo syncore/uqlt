@@ -26,10 +26,9 @@ namespace UQLT.Core.Chat
     {
         public static Hashtable ActiveChats = new Hashtable();
         private readonly IWindowManager _windowManager;
-        private ChatGameInfo _qlChatGameInfo;
-        private XmppClientConnection _xmppCon;
-        private SoundPlayer inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
-        private SoundPlayer msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
+        private readonly IEventAggregator _events;
+        private readonly SoundPlayer inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
+        private readonly SoundPlayer msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 
         /// <summary>
@@ -37,11 +36,13 @@ namespace UQLT.Core.Chat
         /// </summary>
         /// <param name="clvm">The ChatListViewModel.</param>
         /// <param name="wm">The Window Manager.</param>
-        public ChatHandler(ChatListViewModel clvm, IWindowManager wm)
+        /// <param name="events">The events that this viewmodel publishes/subsribes to.</param>
+        public ChatHandler(ChatListViewModel clvm, IWindowManager wm, IEventAggregator events)
         {
             CLVM = clvm;
             _windowManager = wm;
-            _xmppCon = new XmppClientConnection();
+            _events = events;
+            XmppCon = new XmppClientConnection();
 
             // XmppClientConnection event handlers
             XmppCon.OnLogin += new ObjectHandler(XmppCon_OnLogin);
@@ -53,24 +54,14 @@ namespace UQLT.Core.Chat
             XmppCon.ClientSocket.OnValidateCertificate += new RemoteCertificateValidationCallback(ClientSocket_OnValidateCertificate);
 
             ConnectToXMPP();
-            _qlChatGameInfo = new ChatGameInfo(this);
+            ChatGameInfo = new ChatGameInfo(this);
         }
 
         /// <summary>
         /// Gets or sets the chat game information.
         /// </summary>
         /// <value>The chat game information.</value>
-        public ChatGameInfo ChatGameInfo
-        {
-            get
-            {
-                return _qlChatGameInfo;
-            }
-            set
-            {
-                _qlChatGameInfo = value;
-            }
-        }
+        public ChatGameInfo ChatGameInfo { get; set; }
 
         /// <summary>
         /// Gets the ChatListViewModel
@@ -86,17 +77,7 @@ namespace UQLT.Core.Chat
         /// Gets or sets the XMPP connection
         /// </summary>
         /// <value>The XMPP connection</value>
-        public XmppClientConnection XmppCon
-        {
-            get
-            {
-                return _xmppCon;
-            }
-            set
-            {
-                _xmppCon = value;
-            }
-        }
+        public XmppClientConnection XmppCon { get; set; }
 
         /// <summary>
         /// Returns the currently logged in user's user name.
@@ -222,13 +203,13 @@ namespace UQLT.Core.Chat
         /// </summary>
         private void ConnectToXMPP()
         {
-            XmppCon.Username = ***REMOVED***;
             //XmppCon.Username = ***REMOVED***;
-            XmppCon.Password = ***REMOVED***;
+            XmppCon.Username = ***REMOVED***;
             //XmppCon.Password = ***REMOVED***;
+            XmppCon.Password = ***REMOVED***;
             XmppCon.Server = UQLTGlobals.QLXMPPDomain;
             XmppCon.Port = 5222;
-            //XmppCon.Resource = "uqlt";
+            XmppCon.Resource = "uqlt";
             //XmppCon.Priority = 12;
             //XmppCon.Priority = 0;
             XmppCon.AutoRoster = true;
@@ -242,14 +223,16 @@ namespace UQLT.Core.Chat
         /// <param name="jid">The user's jid.</param>
         private void FriendBecameAvailable(Jid jid)
         {
+            string friend = jid.User.ToLowerInvariant();
+            
             if (IsMe(jid)) return;
 
             // User was already online.
-            if (IsFriendAlreadyOnline(jid.User.ToLowerInvariant()))
+            if (IsFriendAlreadyOnline(friend))
             {
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = true;
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = jid.Resource;
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Add(jid.Resource);
+                CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = true;
+                CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = jid.Resource;
+                CLVM.OnlineGroup.Friends[friend].XMPPResources.Add(jid.Resource);
                 Debug.WriteLine("**********" + jid.User + " already had a client signed in! Setting multiple client flag and new resource...");
             }
             // User wasn't already online.
@@ -259,21 +242,21 @@ namespace UQLT.Core.Chat
                 // Must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
-                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = jid.Resource;
-                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Add(jid.Resource);
-                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = false;
-                    CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].IsOnline = true;
+                    CLVM.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
+                    CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = jid.Resource;
+                    CLVM.OnlineGroup.Friends[friend].XMPPResources.Add(jid.Resource);
+                    CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = false;
+                    CLVM.OnlineGroup.Friends[friend].IsOnline = true;
                 });
 
             }
 
             // If user user was previously offline then remove from offline friends group.        
             FriendViewModel val;
-            if (CLVM.OfflineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val))
+            if (CLVM.OfflineGroup.Friends.TryGetValue(friend, out val))
             {
                 // Additions and removals to ObservableDictionary must be done on the UI thread
-                Execute.OnUIThread(() => CLVM.OfflineGroup.Friends.Remove(jid.User.ToLowerInvariant()));
+                Execute.OnUIThread(() => CLVM.OfflineGroup.Friends.Remove(friend));
                 Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
             }
         }
@@ -285,21 +268,21 @@ namespace UQLT.Core.Chat
         private void FriendBecameUnavailable(Jid jid)
         {
             if (IsMe(jid)) return;
-
+            string friend = jid.User.ToLowerInvariant();
             FriendViewModel val;
-            if (!CLVM.OnlineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val)) return;
+            if (!CLVM.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
 
             // Check if friend has multiple clients.
-            if (CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients)
+            if (CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients)
             {
                 Debug.WriteLine(jid.User+ " had multiple clients signed in! Removing client with resource: " + jid.Resource);
 
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasMultipleXMPPClients = false;
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Remove(jid.Resource);
+                CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = false;
+                CLVM.OnlineGroup.Friends[friend].XMPPResources.Remove(jid.Resource);
 
                 // Set resource back to first client's resource.
-                if (CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.Count < 1) return;
-                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].ActiveXMPPResource = CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources.ElementAt(0);
+                if (CLVM.OnlineGroup.Friends[friend].XMPPResources.Count < 1) return;
+                CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = CLVM.OnlineGroup.Friends[friend].XMPPResources.ElementAt(0);
                 Debug.WriteLine(jid.Bare + "'s new resource is: " +
                                 CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources
                                     .ElementAt(0));
@@ -310,9 +293,9 @@ namespace UQLT.Core.Chat
                 // Additions and removals to ObservableDictionary must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OnlineGroup.Friends.Remove(jid.User.ToLowerInvariant());
-                    CLVM.OfflineGroup.Friends[jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
-                    CLVM.OfflineGroup.Friends[jid.User.ToLowerInvariant()].IsOnline = false;
+                    CLVM.OnlineGroup.Friends.Remove(friend);
+                    CLVM.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User)));
+                    CLVM.OfflineGroup.Friends[friend].IsOnline = false;
                 });
 
                 Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + jid + " User: " + jid.User + " Resource: " + jid.Resource);
@@ -329,7 +312,8 @@ namespace UQLT.Core.Chat
         /// </returns>
         private bool IsFavoriteFriend(string friend)
         {
-            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend.ToLowerInvariant()));
+            friend = friend.ToLowerInvariant();
+            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend));
         }
 
         /// <summary>
@@ -342,7 +326,8 @@ namespace UQLT.Core.Chat
         private bool IsFriendAlreadyOnline(string friend)
         {
             FriendViewModel val;
-            return (CLVM.OnlineGroup.Friends.TryGetValue(friend.ToLowerInvariant(), out val));
+            friend = friend.ToLowerInvariant();
+            return (CLVM.OnlineGroup.Friends.TryGetValue(friend, out val));
         }
 
         /// <summary>
@@ -372,34 +357,35 @@ namespace UQLT.Core.Chat
         /// </remarks>
         private void UpdateFriendStatus(string friend, string status)
         {
+            friend = friend.ToLowerInvariant();
             try
             {
-                StatusInfo si = JsonConvert.DeserializeObject<StatusInfo>(status);
+                var statusinfo = JsonConvert.DeserializeObject<StatusInfo>(status);
 
                 // BOT_GAME = 0: friend could either be watching a demo (ADDRESS = "bot") or
                 // actually in a real server (ADDRESS = "ip:port")
-                if (si.bot_game == 0)
+                if (statusinfo.bot_game == 0)
                 {
                     // friend is watching a demo
-                    if (si.address.Equals("bot"))
+                    if (statusinfo.address.Equals("bot"))
                     {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.WatchingDemo;
+                        CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.WatchingDemo;
                     }
                     // friend is actually in game
                     else
                     {
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.PlayingRealGame;
-                        CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].IsInGame = true;
+                        CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
+                        CLVM.OnlineGroup.Friends[friend].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
-                        var c = ChatGameInfo.CreateServerInfoForStatusAsync(friend.ToLowerInvariant(), si.server_id);
+                        var c = ChatGameInfo.CreateServerInfoForStatusAsync(friend, statusinfo.server_id);
                     }
                 }
 
                 // BOT_GAME = 1: friend is in a practice game or training match (we don't care about
                 // ADDRESS, but it will be = "loopback")
-                if (si.bot_game == 1)
+                if (statusinfo.bot_game == 1)
                 {
-                    CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].StatusType = TypeOfStatus.PlayingPracticeGame;
+                    CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
                 }
             }
             catch (Exception e)
