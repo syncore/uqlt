@@ -16,7 +16,7 @@ namespace UQLT.Core.Chat
     /// </summary>
     public class ChatGameInfo
     {
-        private Timer GameServerUpdateTimer;
+        private readonly Timer _gameServerUpdateTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatGameInfo" /> class.
@@ -25,7 +25,7 @@ namespace UQLT.Core.Chat
         public ChatGameInfo(ChatHandler handler)
         {
             Handler = handler;
-            GameServerUpdateTimer = new Timer();
+            _gameServerUpdateTimer = new Timer();
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace UQLT.Core.Chat
         /// Asynchronously creates the server information for status.
         /// </summary>
         /// <param name="friend">The friend.</param>
-        /// <param name="server_id">The server_id.</param>
+        /// <param name="serverId">The server id.</param>
         /// <remarks>
         /// This is used for an initial one-time creation of a Server (ServerDetailsViewModel)
         /// object for an in-game friend on the friend list
@@ -60,21 +60,21 @@ namespace UQLT.Core.Chat
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverId);
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
+                var response = await client.GetAsync(UQltGlobals.QlDomainDetailsIds + serverId);
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
-                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 // QL API returns an array, even for individual servers as in this case
                 var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // Create the Server (ServerDetailsViewModel) object for the player
                 foreach (var qlserver in qlservers)
                 {
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(qlserver, false);
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(qlserver, false);
                 }
             }
             catch (Exception ex)
@@ -89,10 +89,10 @@ namespace UQLT.Core.Chat
         /// </summary>
         public void StartServerUpdateTimer()
         {
-            GameServerUpdateTimer.Elapsed += new ElapsedEventHandler(OnTimedServerInfoUpdate);
-            GameServerUpdateTimer.Interval = 75000;
-            GameServerUpdateTimer.Enabled = true;
-            GameServerUpdateTimer.AutoReset = true;
+            _gameServerUpdateTimer.Elapsed += OnTimedServerInfoUpdate;
+            _gameServerUpdateTimer.Interval = 75000;
+            _gameServerUpdateTimer.Enabled = true;
+            _gameServerUpdateTimer.AutoReset = true;
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace UQLT.Core.Chat
             {
                 // server_id (i.e. PublicId) should have already been set on the initial creation of
                 // the Server (ServerDetailsViewModel) object
-                string server_id = Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId.ToString();
+                string serverId = Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId.ToString();
 
                 // QL site sends gzip compressed responses
                 if (gzipHandler.SupportsAutomaticDecompression)
@@ -120,14 +120,14 @@ namespace UQLT.Core.Chat
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + server_id);
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
+                var response = await client.GetAsync(UQltGlobals.QlDomainDetailsIds + serverId);
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
-                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 // QL API returns an array, even for individual servers as in this case
                 var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
@@ -135,14 +135,14 @@ namespace UQLT.Core.Chat
                 // we have chosen to expose
                 foreach (var qlserver in qlservers)
                 {
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = qlserver.public_id;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = qlserver.public_id;
                     //CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlserver.game_type].ShortGametypeName;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = qlserver.map;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = qlserver.map_title;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = qlserver.num_players;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = qlserver.max_clients;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = qlserver.g_redscore;
-                    Handler.CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GBlueScore = qlserver.g_bluescore;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = qlserver.map;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = qlserver.map_title;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = qlserver.num_players;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = qlserver.max_clients;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = qlserver.g_redscore;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GBlueScore = qlserver.g_bluescore;
                 }
             }
             catch (Exception ex)
@@ -161,7 +161,7 @@ namespace UQLT.Core.Chat
         {
             var ingamefriends = new List<string>();
 
-            foreach (KeyValuePair<string, FriendViewModel> kvp in Handler.CLVM.OnlineGroup.Friends)
+            foreach (KeyValuePair<string, FriendViewModel> kvp in Handler.Clvm.OnlineGroup.Friends)
             {
                 if (kvp.Value.IsInGame)
                 {
@@ -177,6 +177,7 @@ namespace UQLT.Core.Chat
             // Batch process these in game friends
             if (ingamefriends.Count != 0)
             {
+                // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
                 var u = UpdateServerInfoForStatusAsync(ingamefriends);
             }
         }
@@ -184,10 +185,11 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Stops the game server update timer for buddy list contacts.
         /// </summary>
+        /// <remarks>This is called from the view itself.</remarks>
         private void StopServerUpdateTimer()
         {
             // TODO: stop timer if we have launched a game, to prevent lag during game
-            GameServerUpdateTimer.Enabled = false;
+            _gameServerUpdateTimer.Enabled = false;
         }
 
         /// <summary>
@@ -208,10 +210,10 @@ namespace UQLT.Core.Chat
             var client = new HttpClient(gzipHandler);
 
             // Get the server ids (public_id)s of all in-game players to send to QL API
-            List<string> server_ids = new List<string>();
+            var serverIds = new List<string>();
             for (int i = 0; i < ingamefriends.Count; i++)
             {
-                server_ids.Add(Handler.CLVM.OnlineGroup.Friends[ingamefriends[i]].Server.PublicId.ToString());
+                serverIds.Add(Handler.Clvm.OnlineGroup.Friends[ingamefriends[i]].Server.PublicId.ToString());
             }
 
             try
@@ -222,27 +224,27 @@ namespace UQLT.Core.Chat
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + string.Join(",", server_ids));
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
+                var response = await client.GetAsync(UQltGlobals.QlDomainDetailsIds + string.Join(",", serverIds));
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
-                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
                 {
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = qlservers[i].public_id;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = qlservers[i].public_id;
                     //CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[qlservers[i].game_type].ShortGametypeName;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = qlservers[i].map;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = qlservers[i].map_title;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = qlservers[i].num_players;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = qlservers[i].max_clients;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = qlservers[i].g_redscore;
-                    Handler.CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GBlueScore = qlservers[i].g_bluescore;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = qlservers[i].map;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = qlservers[i].map_title;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = qlservers[i].num_players;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = qlservers[i].max_clients;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = qlservers[i].g_redscore;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GBlueScore = qlservers[i].g_bluescore;
                 }
             }
             catch (Exception ex)

@@ -12,7 +12,7 @@ namespace UQLT.Converters
     /// http: //stackoverflow.com/questions/1392811/c-wpf-make-a-gridviewcolumn-visible-false
     /// http: //highfieldtales.wordpress.com/2013/08/05/hacking-gridview-hide-columns/
     /// </summary>
-    public class QLRanksTypeToVisiblityConverter : IValueConverter
+    public class QlRanksTypeToVisiblityConverter : IValueConverter
     {
         /// <summary>
         /// Converts a value.

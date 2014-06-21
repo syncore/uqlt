@@ -25,17 +25,15 @@ namespace UQLT.ViewModels
     [Export(typeof(ChatMessageViewModel))]
     public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
     {
+        private readonly ChatHistory _chatHistory;
+        private readonly ChatHandler _handler;
+        private readonly Jid _jid;
+        private readonly StringBuilder _receivedMessages = new StringBuilder();
         private readonly IWindowManager _windowManager;
-        private ChatHistory _chatHistory;
+        private readonly XmppClientConnection _xmppCon;
         private string _displayName;
-        private ChatHandler _handler;
         private string _incomingMessage;
-        private Jid _jid;
         private string _outgoingMessage;
-        private StringBuilder _receivedMessages = new StringBuilder();
-        private XmppClientConnection _xmppCon;
-        
-        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessageViewModel" /> class.
@@ -43,15 +41,15 @@ namespace UQLT.ViewModels
         /// <param name="jid">The jid of the user we are chatting with.</param>
         /// <param name="xmppcon">The XmppClientConnection to use for this viewmodel.</param>
         /// <param name="handler">The ChatHandler to use for this viewmodel.</param>
-        /// <param name="WindowManager">The window manager.</param>
+        /// <param name="windowManager">The window manager.</param>
         [ImportingConstructor]
-        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager WindowManager)
+        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager windowManager)
         {
             _jid = jid;
             _displayName = "Chatting with " + _jid.User;
             _xmppCon = xmppcon;
             _handler = handler;
-            _windowManager = WindowManager;
+            _windowManager = windowManager;
             _chatHistory = new ChatHistory(this);
 
             if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
@@ -59,8 +57,8 @@ namespace UQLT.ViewModels
                 ChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
             }
 
-            Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid.ToString());
-            xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), new MessageCB(MessageCallback), null);
+            Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid);
+            xmppcon.MessageGrabber.Add(_jid, new BareJidComparer(), MessageCallback, null);
 
             AppendChatHistory();
         }
@@ -170,15 +168,15 @@ namespace UQLT.ViewModels
         {
             if (IsMessageInvite(msg.Body))
             {
-                const TypeOfSound sound = TypeOfSound.InvitationSound;
+                var sound = TypeOfSound.InvitationSound;
                 _handler.PlayMessageSound(sound);
-                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!"+"\n";
+                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!" + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
                 // Get server info for the invitation popup
                 // TODO: Some kind of flood limiting thing so people can't spam this invite feature.
                 string inviteId = Regex.Match(msg.Body, @"\d{6,}").Groups[0].Value;
                 var server = await RetrieveInvitationGameServerAsync(inviteId);
-                
+
                 //// Show invitation popup.
                 dynamic settings = new ExpandoObject();
                 settings.Topmost = true;
@@ -187,7 +185,7 @@ namespace UQLT.ViewModels
             }
             else
             {
-                const TypeOfSound sound = TypeOfSound.ChatSound;
+                var sound = TypeOfSound.ChatSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = msg.Body + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
@@ -212,60 +210,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sends the message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <remarks>This is called from the view itself.</remarks>
-        public void SendMessage(string message)
-        {
-            if (message.Length != 0)
-            {
-                if (_handler.SendMessage(_jid, message))
-                {
-                    OutgoingMessage = message + "\n";
-
-                    Debug.WriteLine("Attempting to send recipient: " + _jid.ToString() + " message: " + message);
-                    ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + message;
-
-                    // Log the message
-                    _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                    OutgoingMessage = string.Empty;
-                }
-                else
-                {
-                    ReceivedMessages = "" + _jid.User + " is offline. Message was not sent.\n";
-                    OutgoingMessage = string.Empty;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Determines whether the incoming message is an invitation to a game
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns><c>true</c> if the message is an invite, otherwise <c>false</c></returns>
-        private bool IsMessageInvite(string message)
-        {
-            return (message.StartsWith(_handler.strInvite));
-        }
-
-        /// <summary>
-        /// This is called when a message is received within the view associated with this viewmodel.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="msg">The message.</param>
-        /// <param name="data">The data.</param>
-        /// <remarks>This is only called when the window is actually open.</remarks>
-        private void MessageCallback(object sender, agsXMPP.protocol.client.Message msg, object data)
-        {
-            if (msg.Body != null)
-            {
-                Debug.WriteLine("Incoming message body is: " + msg.Body);
-                var m = MessageIncoming(msg);
-            }
-        }
-
-        /// <summary>
         /// Retrieves the game invitation server information.
         /// </summary>
         public async Task<ServerDetailsViewModel> RetrieveInvitationGameServerAsync(string serverId)
@@ -283,14 +227,14 @@ namespace UQLT.ViewModels
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
-                var response = await client.GetAsync(UQLTGlobals.QLDomainDetailsIds + serverId);
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
+                var response = await client.GetAsync(UQltGlobals.QlDomainDetailsIds + serverId);
                 response.EnsureSuccessStatusCode();
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
 
-                string json = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
                 // QL API returns an array, even for individual servers as in this case
                 var qlservers = JsonConvert.DeserializeObject<List<Server>>(json);
 
@@ -307,6 +251,59 @@ namespace UQLT.ViewModels
                 Debug.WriteLine(ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Sends the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <remarks>This is called from the view itself.</remarks>
+        public void SendMessage(string message)
+        {
+            if (message.Length == 0) { return; }
+
+            if (_handler.SendMessage(_jid, message))
+            {
+                OutgoingMessage = message + "\n";
+
+                Debug.WriteLine("Attempting to send recipient: " + _jid + " message: " + message);
+                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + message;
+
+                // Log the message
+                _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                OutgoingMessage = string.Empty;
+            }
+            else
+            {
+                ReceivedMessages = "" + _jid.User + " is offline. Message was not sent.\n";
+                OutgoingMessage = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the incoming message is an invitation to a game
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns><c>true</c> if the message is an invite, otherwise <c>false</c></returns>
+        private bool IsMessageInvite(string message)
+        {
+            return (message.StartsWith(_handler.StrInvite));
+        }
+
+        /// <summary>
+        /// This is called when a message is received within the view associated with this viewmodel.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="msg">The message.</param>
+        /// <param name="data">The data.</param>
+        /// <remarks>This is only called when the window is actually open.</remarks>
+        private void MessageCallback(object sender, agsXMPP.protocol.client.Message msg, object data)
+        {
+            if (msg.Body == null) { return; }
+
+            Debug.WriteLine("Incoming message body is: " + msg.Body);
+            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+            var m = MessageIncoming(msg);
         }
     }
 }

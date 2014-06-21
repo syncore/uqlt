@@ -9,17 +9,17 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerRequestEvent" /> class.
         /// </summary>
-        /// <param name="filterURL">The filter URL.</param>
-        public ServerRequestEvent(string filterURL)
+        /// <param name="filterUrl">The filter URL.</param>
+        public ServerRequestEvent(string filterUrl)
         {
-            ServerRequestURL = filterURL;
+            ServerRequestUrl = filterUrl;
         }
 
         /// <summary>
         /// Gets or sets the server request URL.
         /// </summary>
         /// <value>The server request URL.</value>
-        public string ServerRequestURL
+        public string ServerRequestUrl
         {
             get;
             set;

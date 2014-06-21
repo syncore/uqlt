@@ -340,9 +340,9 @@ namespace UQLT.Models.QuakeLiveAPI
             EloData val;
             foreach (var p in players)
             {
-                if (!UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                if (!UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                 {
-                    UQLTGlobals.PlayerEloInfo[p.name.ToLower()] = new EloData()
+                    UQltGlobals.PlayerEloInfo[p.name.ToLower()] = new EloData()
                     {
                         DuelElo = 0,
                         CaElo = 0,
@@ -366,11 +366,11 @@ namespace UQLT.Models.QuakeLiveAPI
         {
             foreach (var p in players)
             {
-                p.tdmelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                p.caelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                p.ffaelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
-                p.duelelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
-                p.ctfelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
             }
         }
 

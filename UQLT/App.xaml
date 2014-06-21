@@ -10,7 +10,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <!--The application bootstrapper-->
-                    <local:UQLTBootstrapper x:Key="bootstrapper" />
+                    <local:UqltBootstrapper x:Key="Bootstrapper" />
                     <!--::::::::::::::::::::-->
                     <!--Converters-->
                     <!--::::::::::::::::::::-->
@@ -18,7 +18,7 @@
                     <converters:LocIdToNameConverter x:Key="LocIdToName" />
                     <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace" />
                     <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound" />
-                    <converters:QLRanksTypeToVisiblityConverter x:Key="QLRanksTypeToVis" />
+                    <converters:QlRanksTypeToVisiblityConverter x:Key="QlRanksTypeToVis" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

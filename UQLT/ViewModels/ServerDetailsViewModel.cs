@@ -15,25 +15,19 @@ using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(ServerDetailsViewModel))]
-
     /// <summary>
     /// Individual server viewmodel. This class wraps a Server class and exposes additional
     /// properties specific to the View (in this case, ServerBrowserView).
     /// </summary>
+    [Export(typeof(ServerDetailsViewModel))]
     public class ServerDetailsViewModel : PropertyChangedBase
     {
+        private readonly QlFormatHelper _formatHelper = QlFormatHelper.Instance;
         private long _blueTeamElo;
-
         private string _formattedGameState;
-
         private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
-
         private long _redTeamElo;
-
         private string _timeRemaining;
-
-        private QLFormatHelper FormatHelper = QLFormatHelper.Instance;
 
         // port regexp: colon with at least 4 numbers
         private Regex port = new Regex(@"[\:]\d{4,}");
@@ -42,10 +36,16 @@ namespace UQLT.ViewModels
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
         /// </summary>
         /// <param name="server">The server wrapped by this viewmodel.</param>
+        /// <param name="isForServerBrowser">
+        /// If <c>true</c> then this class is being instantiated for use with server browser, so
+        /// perform additional operations such as sorting the servers and format the player list. If
+        /// <c>false</c> then this class is being instantiated elsewhere and these operations do not
+        /// need to be performed. Defaults to <c>true</c>
+        /// </param>
         [ImportingConstructor]
         public ServerDetailsViewModel(Server server, bool isForServerBrowser = true)
         {
-            QLServer = server;
+            QlServer = server;
             if (isForServerBrowser)
             {
                 SortServersAndFormatPlayers();
@@ -61,7 +61,6 @@ namespace UQLT.ViewModels
             get
             {
                 long bluetotalplayers = 0, totaleloblueteam = 0, blueplayerelo = 0;
-                EloData val = null;
 
                 if (NumPlayers == 0 || IsTeam0Condition)
                 {
@@ -75,40 +74,41 @@ namespace UQLT.ViewModels
                         {
                             if (p.team == 2)
                             {
+                                EloData val;
                                 if (GameType == 3)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        blueplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
                                     }
                                     else
                                     {
                                         blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [TDM] BLUE team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [TDM] BLUE team Elo calculation.");
                                     }
                                 }
                                 else if (GameType == 4)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        blueplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
                                     }
                                     else
                                     {
                                         blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CA] BLUE team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CA] BLUE team Elo calculation.");
                                     }
                                 }
                                 else if (GameType == 5)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        blueplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
                                     }
                                     else
                                     {
                                         blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CTF] BLUE team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CTF] BLUE team Elo calculation.");
                                     }
                                 }
 
@@ -151,11 +151,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.capturelimit;
+                return QlServer.capturelimit;
             }
             set
             {
-                QLServer.capturelimit = value;
+                QlServer.capturelimit = value;
                 NotifyOfPropertyChange(() => CaptureLimit);
             }
         }
@@ -168,11 +168,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.ECODE;
+                return QlServer.ECODE;
             }
             set
             {
-                QLServer.ECODE = value;
+                QlServer.ECODE = value;
                 NotifyOfPropertyChange(() => ECODE);
             }
         }
@@ -188,7 +188,7 @@ namespace UQLT.ViewModels
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + LocationId.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + LocationId + ".gif", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -245,11 +245,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.fraglimit;
+                return QlServer.fraglimit;
             }
             set
             {
-                QLServer.fraglimit = value;
+                QlServer.fraglimit = value;
                 NotifyOfPropertyChange(() => FragLimit);
             }
         }
@@ -265,15 +265,8 @@ namespace UQLT.ViewModels
         {
             get
             {
-                LocationData value = null;
-                if (FormatHelper.Locations.TryGetValue(LocationId, out value))
-                {
-                    return value.FullLocationName;
-                }
-                else
-                {
-                    return "Unknown";
-                }
+                LocationData value;
+                return _formatHelper.Locations.TryGetValue(LocationId, out value) ? value.FullLocationName : "Unknown";
             }
         }
 
@@ -285,11 +278,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.game_type;
+                return QlServer.game_type;
             }
             set
             {
-                QLServer.game_type = value;
+                QlServer.game_type = value;
                 NotifyOfPropertyChange(() => GameType);
                 NotifyOfPropertyChange(() => ShortGameTypeName);
             }
@@ -306,7 +299,7 @@ namespace UQLT.ViewModels
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + GameType.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + GameType + ".gif", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
@@ -324,11 +317,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.game_type_title;
+                return QlServer.game_type_title;
             }
             set
             {
-                QLServer.game_type_title = value;
+                QlServer.game_type_title = value;
                 NotifyOfPropertyChange(() => GameTypeTitle);
             }
         }
@@ -341,11 +334,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_bluescore;
+                return QlServer.g_bluescore;
             }
             set
             {
-                QLServer.g_bluescore = value;
+                QlServer.g_bluescore = value;
                 NotifyOfPropertyChange(() => GBlueScore);
             }
         }
@@ -358,11 +351,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_customSettings;
+                return QlServer.g_customSettings;
             }
             set
             {
-                QLServer.g_customSettings = value;
+                QlServer.g_customSettings = value;
                 NotifyOfPropertyChange(() => GCustomSettings);
             }
         }
@@ -375,11 +368,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_gamestate;
+                return QlServer.g_gamestate;
             }
             set
             {
-                QLServer.g_gamestate = value;
+                QlServer.g_gamestate = value;
                 NotifyOfPropertyChange(() => GGameState);
             }
         }
@@ -392,7 +385,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_instagib;
+                return QlServer.g_instagib;
             }
         }
 
@@ -404,11 +397,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_levelstarttime;
+                return QlServer.g_levelstarttime;
             }
             set
             {
-                QLServer.g_levelstarttime = value;
+                QlServer.g_levelstarttime = value;
                 NotifyOfPropertyChange(() => GLevelStartTime);
             }
         }
@@ -421,11 +414,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_needpass;
+                return QlServer.g_needpass;
             }
             set
             {
-                QLServer.g_needpass = value;
+                QlServer.g_needpass = value;
                 NotifyOfPropertyChange(() => GNeedPass);
             }
         }
@@ -438,11 +431,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.g_redscore;
+                return QlServer.g_redscore;
             }
             set
             {
-                QLServer.g_redscore = value;
+                QlServer.g_redscore = value;
                 NotifyOfPropertyChange(() => GRedScore);
             }
         }
@@ -455,11 +448,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.host_address;
+                return QlServer.host_address;
             }
             set
             {
-                QLServer.host_address = value;
+                QlServer.host_address = value;
                 NotifyOfPropertyChange(() => HostAddress);
             }
         }
@@ -472,11 +465,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.host_name;
+                return QlServer.host_name;
             }
             set
             {
-                QLServer.host_name = value;
+                QlServer.host_name = value;
                 NotifyOfPropertyChange(() => HostName);
             }
         }
@@ -499,11 +492,11 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <value><c>true</c> if this QLRanks supports this server's gametype otherwise, <c>false</c>.</value>
         /// <remarks>This is a custom UI setting.</remarks>
-        public bool IsQLRanksSupported
+        public bool IsQlRanksSupported
         {
             get
             {
-                return (GameType == 0 || GameType == 1 || GameType == 3 || GameType == 4 || GameType == 5) ? true : false;
+                return (GameType == 0 || GameType == 1 || GameType == 3 || GameType == 4 || GameType == 5);
             }
         }
 
@@ -557,7 +550,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return (GameType == 3 || GameType == 4 || GameType == 5 || GameType == 6 || GameType == 8 || GameType == 9 || GameType == 10 || GameType == 11) ? true : false;
+                return (GameType == 3 || GameType == 4 || GameType == 5 || GameType == 6 || GameType == 8 || GameType == 9 || GameType == 10 || GameType == 11);
             }
         }
 
@@ -569,11 +562,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.location_id;
+                return QlServer.location_id;
             }
             set
             {
-                QLServer.location_id = value;
+                QlServer.location_id = value;
                 NotifyOfPropertyChange(() => LocationId);
                 // These are read-only so need to be notified of location id changes:
                 NotifyOfPropertyChange(() => FlagImage);
@@ -590,11 +583,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.map;
+                return QlServer.map;
             }
             set
             {
-                QLServer.map = value;
+                QlServer.map = value;
                 NotifyOfPropertyChange(() => Map);
             }
         }
@@ -628,11 +621,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.map_title;
+                return QlServer.map_title;
             }
             set
             {
-                QLServer.map_title = value;
+                QlServer.map_title = value;
                 NotifyOfPropertyChange(() => MapTitle);
             }
         }
@@ -645,11 +638,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.max_clients;
+                return QlServer.max_clients;
             }
             set
             {
-                QLServer.max_clients = value;
+                QlServer.max_clients = value;
                 NotifyOfPropertyChange(() => MaxClients);
                 NotifyOfPropertyChange(() => TotalPlayers);
             }
@@ -676,11 +669,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.num_clients;
+                return QlServer.num_clients;
             }
             set
             {
-                QLServer.num_clients = value;
+                QlServer.num_clients = value;
                 NotifyOfPropertyChange(() => NumClients);
             }
         }
@@ -693,11 +686,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.num_players;
+                return QlServer.num_players;
             }
             set
             {
-                QLServer.num_players = value;
+                QlServer.num_players = value;
                 NotifyOfPropertyChange(() => NumPlayers);
                 NotifyOfPropertyChange(() => TotalPlayers);
             }
@@ -711,11 +704,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.owner;
+                return QlServer.owner;
             }
             set
             {
-                QLServer.owner = value;
+                QlServer.owner = value;
                 NotifyOfPropertyChange(() => Owner);
             }
         }
@@ -730,7 +723,7 @@ namespace UQLT.ViewModels
             get
             {
                 string cleanedip = port.Replace(HostAddress, string.Empty);
-                return UQLTGlobals.IPAddressDict[cleanedip];
+                return UQltGlobals.IpAddressDict[cleanedip];
             }
         }
 
@@ -742,7 +735,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.players;
+                return QlServer.players;
             }
         }
 
@@ -754,11 +747,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.premium;
+                return QlServer.premium;
             }
             set
             {
-                QLServer.premium = value;
+                QlServer.premium = value;
                 NotifyOfPropertyChange(() => Premium);
             }
         }
@@ -771,13 +764,23 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.public_id;
+                return QlServer.public_id;
             }
             set
             {
-                QLServer.public_id = value;
+                QlServer.public_id = value;
                 NotifyOfPropertyChange(() => PublicId);
             }
+        }
+
+        /// <summary>
+        /// Gets the server that this viewmodel wraps.
+        /// </summary>
+        /// <value>The server that this viewmodel wraps.</value>
+        public Server QlServer
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -788,11 +791,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.ranked;
+                return QlServer.ranked;
             }
             set
             {
-                QLServer.ranked = value;
+                QlServer.ranked = value;
                 NotifyOfPropertyChange(() => Ranked);
             }
         }
@@ -806,7 +809,7 @@ namespace UQLT.ViewModels
             get
             {
                 long redtotalplayers = 0, totaleloredteam = 0, redplayerelo = 0;
-                EloData val = null;
+                EloData val;
 
                 if (NumPlayers == 0 || IsTeam0Condition)
                 {
@@ -822,38 +825,38 @@ namespace UQLT.ViewModels
                             {
                                 if (GameType == 3)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        redplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
                                     }
                                     else
                                     {
                                         redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [TDM] RED team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [TDM] RED team Elo calculation.");
                                     }
                                 }
                                 else if (GameType == 4)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        redplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
                                     }
                                     else
                                     {
                                         redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CA] RED team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CA] RED team Elo calculation");
                                     }
                                 }
                                 else if (GameType == 5)
                                 {
-                                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                                     {
-                                        redplayerelo = UQLTGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
                                     }
                                     else
                                     {
                                         redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CTF] RED team Elo calculation. {0}", val);
+                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CTF] RED team Elo calculation");
                                     }
                                 }
 
@@ -896,11 +899,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.roundlimit;
+                return QlServer.roundlimit;
             }
             set
             {
-                QLServer.roundlimit = value;
+                QlServer.roundlimit = value;
                 NotifyOfPropertyChange(() => RoundLimit);
             }
         }
@@ -913,11 +916,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.roundtimelimit;
+                return QlServer.roundtimelimit;
             }
             set
             {
-                QLServer.roundtimelimit = value;
+                QlServer.roundtimelimit = value;
                 NotifyOfPropertyChange(() => RoundLimit);
             }
         }
@@ -930,11 +933,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.ruleset;
+                return QlServer.ruleset;
             }
             set
             {
-                QLServer.ruleset = value;
+                QlServer.ruleset = value;
                 NotifyOfPropertyChange(() => RuleSet);
             }
         }
@@ -947,23 +950,13 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.scorelimit;
+                return QlServer.scorelimit;
             }
             set
             {
-                QLServer.scorelimit = value;
+                QlServer.scorelimit = value;
                 NotifyOfPropertyChange(() => ScoreLimit);
             }
-        }
-
-        /// <summary>
-        /// Gets the server that this viewmodel wraps.
-        /// </summary>
-        /// <value>The server that this viewmodel wraps.</value>
-        public Server QLServer
-        {
-            get;
-            private set;
         }
 
         /// <summary>
@@ -975,7 +968,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return FormatHelper.Gametypes[GameType].ShortGametypeName;
+                return _formatHelper.Gametypes[GameType].ShortGametypeName;
             }
         }
 
@@ -989,15 +982,8 @@ namespace UQLT.ViewModels
         {
             get
             {
-                LocationData value = null;
-                if (FormatHelper.Locations.TryGetValue(LocationId, out value))
-                {
-                    return value.City;
-                }
-                else
-                {
-                    return "Unknown";
-                }
+                LocationData value;
+                return _formatHelper.Locations.TryGetValue(LocationId, out value) ? value.City : "Unknown";
             }
         }
 
@@ -1009,11 +995,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.skillDelta;
+                return QlServer.skillDelta;
             }
             set
             {
-                QLServer.skillDelta = value;
+                QlServer.skillDelta = value;
                 NotifyOfPropertyChange(() => SkillDelta);
             }
         }
@@ -1026,11 +1012,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.teamsize;
+                return QlServer.teamsize;
             }
             set
             {
-                QLServer.teamsize = value;
+                QlServer.teamsize = value;
                 NotifyOfPropertyChange(() => TeamSize);
             }
         }
@@ -1043,11 +1029,11 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QLServer.timelimit;
+                return QlServer.timelimit;
             }
             set
             {
-                QLServer.timelimit = value;
+                QlServer.timelimit = value;
                 NotifyOfPropertyChange(() => TimeLimit);
             }
         }
@@ -1105,15 +1091,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sorts the servers and formats the players for the view, if this class is being used in the server browser.
-        /// </summary>
-        private void SortServersAndFormatPlayers()
-        {
-            FormattedPlayerList = AddFormattedPlayers(QLServer.players);
-            GroupScoresAndPlayers("Score", "Team");
-        }
-        
-        /// <summary>
         /// Adds the players to a list of players that will be cleanly wrapped and formatted by a PlayerDetailsViewModel.
         /// </summary>
         /// <param name="players">The players.</param>
@@ -1141,6 +1118,16 @@ namespace UQLT.ViewModels
             var groupDescription = new PropertyGroupDescription(groupBy);
             view.SortDescriptions.Add(sortDescription);
             view.GroupDescriptions.Add(groupDescription);
+        }
+
+        /// <summary>
+        /// Sorts the servers and formats the players for the view, if this class is being used in
+        /// the server browser.
+        /// </summary>
+        private void SortServersAndFormatPlayers()
+        {
+            FormattedPlayerList = AddFormattedPlayers(QlServer.players);
+            GroupScoresAndPlayers("Score", "Team");
         }
     }
 }

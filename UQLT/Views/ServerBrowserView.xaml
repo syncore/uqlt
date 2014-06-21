@@ -80,13 +80,13 @@
 
                         <StackPanel x:Name="RedScore" Orientation="Horizontal">
                             <TextBlock Text="Red: " FontWeight="Bold" />
-                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock Text="{Binding RedTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupported, Converter={StaticResource BoolToVis}}" />
                             <TextBlock Text="{Binding GRedScore}" />
                         </StackPanel>
 
                         <StackPanel x:Name="BlueScore" Orientation="Horizontal">
                             <TextBlock Text="Blue: " FontWeight="Bold" />
-                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQLRanksSupported, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock Text="{Binding BlueTeamElo, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupported, Converter={StaticResource BoolToVis}}" />
                             <TextBlock Text="{Binding GBlueScore}" />
                         </StackPanel>
                     </StackPanel>
@@ -203,7 +203,7 @@
                     </GridViewColumn>
                     <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" />
 
-                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQLRanksSupported, Converter={StaticResource QLRanksTypeToVis}, ConverterParameter=85}" />
+                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQlRanksSupported, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}" />
                 </GridView>
             </ListView.View>
         </ListView>

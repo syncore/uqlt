@@ -26,23 +26,23 @@
             <!--Location-->
             <StackPanel Orientation="Horizontal">
                 <Image Name="FlagImage" Width="16" Height="16" Source="{Binding FlagImage}" HorizontalAlignment="Left" />
-                <TextBlock Name="GameLocation" Text="{Binding ShortLocationName, StringFormat='Location: {0}'}" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                <TextBlock Name="GameLocation" Text="{Binding ShortLocationName, StringFormat='Location: {0}'}" HorizontalAlignment="Left" Margin="10,0,0,0" />
             </StackPanel>
             <!--End Location-->
             <!--Gametype-->
             <StackPanel Orientation="Horizontal">
                 <Image Name="GameTypeImage" Width="16" Height="16" Source="{Binding GameTypeImage}" HorizontalAlignment="Left" />
-                <TextBlock Name="GameType" Text="{Binding GameTypeTitle, StringFormat='Type: {0}'}" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                <TextBlock Name="GameType" Text="{Binding GameTypeTitle, StringFormat='Type: {0}'}" HorizontalAlignment="Left" Margin="10,0,0,0" />
             </StackPanel>
             <!--End Gametype-->
             <!--Player Count-->
-            <TextBlock Name="GamePlayerCount" Text="{Binding TotalPlayers, StringFormat='Players: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0"/>
+            <TextBlock Name="GamePlayerCount" Text="{Binding TotalPlayers, StringFormat='Players: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0" />
             <!--End Player count-->
             <!--Gamestate-->
-            <TextBlock Name="GameState" Text="{Binding GameState, StringFormat='Status: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0"/>
+            <TextBlock Name="GameState" Text="{Binding GameState, StringFormat='Status: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0" />
             <!--End Gamestate-->
             <!--Time Reamining-->
-            <TextBlock Name="TimeRemaining" Text="{Binding TimeRemaining, StringFormat='Time Left: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0"/>
+            <TextBlock Name="TimeRemaining" Text="{Binding TimeRemaining, StringFormat='Time Left: {0}'}" HorizontalAlignment="Left" Margin="26,0,0,0" />
             <!--End Time Reamining-->
             <!--End Game details-->
         </StackPanel>

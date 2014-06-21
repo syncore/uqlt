@@ -10,8 +10,6 @@ namespace UQLT.Converters
     /// </summary>
     public class ScoreToRaceScoreConverter : IMultiValueConverter
     {
-        // values[0] = game type values[1] = score
-
         /// <summary>
         /// Converts source values to a value for the binding target. The data binding engine calls
         /// this method when it propagates the values from source bindings to the binding target.
@@ -38,6 +36,8 @@ namespace UQLT.Converters
         /// </returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            // values[0] = game type values[1] = score
+
             string score = null;
 
             if (System.Convert.ToInt32(values[0]) == 2)

@@ -5,13 +5,11 @@ using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(RosterGroupViewModel))]
-
     /// <summary>
     /// Individual roster group viewmodel. This class wraps the RosterGroup class and exposes
-    /// additional properties specific to the View (in this case, ChatlistView)
+    /// additional properties specific to the View (in this case, ChatlistView).
     /// </summary>
-
+    [Export(typeof(RosterGroupViewModel))]
     public class RosterGroupViewModel : PropertyChangedBase
     {
         private ObservableDictionary<string, FriendViewModel> _friends = new ObservableDictionary<string, FriendViewModel>();

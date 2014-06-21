@@ -9,21 +9,17 @@ using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(FriendViewModel))]
-
     /// <summary>
     /// Individual friend viewmodel. This class wraps the Friend class and exposes additional
     /// properties specific to the View (in this case, ChatListView).
     /// </summary>
+    [Export(typeof(FriendViewModel))]
     public class FriendViewModel : PropertyChangedBase
     {
+        private readonly BitmapImage _imageDemo = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/demo.gif", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _imageIngame = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _imagePractice = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
         private ServerDetailsViewModel _server;
-
-        // Image types for player status.
-        private BitmapImage image_demo = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/demo.gif", UriKind.RelativeOrAbsolute));
-
-        private BitmapImage image_ingame = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
-        private BitmapImage image_practice = new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FriendViewModel" /> class.
@@ -38,6 +34,24 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets this friend's XMPP resource.
+        /// </summary>
+        /// <value>The XMPP resource.</value>
+        /// <remarks>This will either be "uqlt" or "quakelive"</remarks>
+        public string ActiveXmppResource
+        {
+            get
+            {
+                return RosterFriend.ActiveXmppResource;
+            }
+            set
+            {
+                RosterFriend.ActiveXmppResource = value;
+                NotifyOfPropertyChange(() => ActiveXmppResource);
+            }
+        }
+
+        /// <summary>
         /// Gets the favorite image.
         /// </summary>
         /// <value>The favorite image.</value>
@@ -45,7 +59,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -57,7 +71,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new System.Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -74,19 +88,36 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the friend has a XMPP status.
+        /// Gets or sets a value indicating whether this friend has multiple XMPP clients.
         /// </summary>
-        /// <value><c>true</c> if this instance has XMPP status; otherwise, <c>false</c>.</value>
-        public bool HasXMPPStatus
+        /// <value><c>true</c> if this friend has multiple XMPP clients; otherwise, <c>false</c>.</value>
+        public bool HasMultipleXmppClients
         {
             get
             {
-                return RosterFriend.HasXMPPStatus;
+                return RosterFriend.HasMultipleXmppClients;
             }
             set
             {
-                RosterFriend.HasXMPPStatus = value;
-                NotifyOfPropertyChange(() => HasXMPPStatus);
+                RosterFriend.HasMultipleXmppClients = value;
+                NotifyOfPropertyChange(() => HasMultipleXmppClients);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the friend has a XMPP status.
+        /// </summary>
+        /// <value><c>true</c> if this instance has XMPP status; otherwise, <c>false</c>.</value>
+        public bool HasXmppStatus
+        {
+            get
+            {
+                return RosterFriend.HasXmppStatus;
+            }
+            set
+            {
+                RosterFriend.HasXmppStatus = value;
+                NotifyOfPropertyChange(() => HasXmppStatus);
             }
         }
 
@@ -243,13 +274,13 @@ namespace UQLT.ViewModels
                 switch (StatusType)
                 {
                     case TypeOfStatus.WatchingDemo:
-                        return image_demo;
+                        return _imageDemo;
 
                     case TypeOfStatus.PlayingPracticeGame:
-                        return image_practice;
+                        return _imagePractice;
 
                     case TypeOfStatus.PlayingRealGame:
-                        return image_ingame;
+                        return _imageIngame;
 
                     case TypeOfStatus.Nothing:
                     default:
@@ -279,60 +310,19 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets this friend's XMPP resource.
-        /// </summary>
-        /// <value>
-        /// The XMPP resource.
-        /// </value>
-        /// <remarks>
-        /// This will either be "uqlt" or "quakelive"
-        /// </remarks>
-        public string ActiveXMPPResource
-        {
-            get
-            {
-                return RosterFriend.ActiveXMPPResource;
-            }
-            set
-            {
-                RosterFriend.ActiveXMPPResource = value;
-                NotifyOfPropertyChange(() => ActiveXMPPResource);
-            }
-        }
-
-
-        /// <summary>
         /// Gets or sets the set of this friend's XMPP resources.
         /// </summary>
-        /// <value>
-        /// The set of this friend's XMPP resources.
-        /// </value>
-        public HashSet<string> XMPPResources
-        {
-            get { return RosterFriend.XMPPResources; }
-            set
-            {
-                RosterFriend.XMPPResources = value;
-                NotifyOfPropertyChange(() => XMPPResources);
-            }
-        }
-        
-        /// <summary>
-        /// Gets or sets a value indicating whether this friend has multiple XMPP clients.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this friend has multiple XMPP clients; otherwise, <c>false</c>.
-        /// </value>
-        public bool HasMultipleXMPPClients
+        /// <value>The set of this friend's XMPP resources.</value>
+        public HashSet<string> XmppResources
         {
             get
             {
-                return RosterFriend.HasMultipleXMPPClients;
+                return RosterFriend.XmppResources;
             }
             set
             {
-                RosterFriend.HasMultipleXMPPClients = value;
-                NotifyOfPropertyChange(() => HasMultipleXMPPClients);
+                RosterFriend.XmppResources = value;
+                NotifyOfPropertyChange(() => XmppResources);
             }
         }
     }

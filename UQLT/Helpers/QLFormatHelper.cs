@@ -88,23 +88,23 @@ namespace UQLT.Helpers
     /// short game type type title (i.e. "CTF"). This type of information is useful in multiple
     /// parts of the application and is stored here for ease of use.
     /// </summary>
-    public sealed class QLFormatHelper
+    public sealed class QlFormatHelper
     {
-        private static readonly QLFormatHelper _instance = new QLFormatHelper();
+        private static readonly QlFormatHelper _instance = new QlFormatHelper();
 
         private readonly Dictionary<int, GametypeData> _gametypes;
 
         private readonly Dictionary<object, LocationData> _locations;
 
         // Static constructor so C# compiler will not mark type as 'beforefieldinit', see http://csharpindepth.com/articles/general/singleton.aspx
-        static QLFormatHelper()
+        static QlFormatHelper()
         {
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="QLFormatHelper" /> class from being created.
+        /// Prevents a default instance of the <see cref="QlFormatHelper" /> class from being created.
         /// </summary>
-        private QLFormatHelper()
+        private QlFormatHelper()
         {
             _locations = new Dictionary<object, LocationData>();
             _gametypes = new Dictionary<int, GametypeData>();
@@ -115,7 +115,7 @@ namespace UQLT.Helpers
         /// Gets the instance.
         /// </summary>
         /// <value>The instance.</value>
-        public static QLFormatHelper Instance
+        public static QlFormatHelper Instance
         {
             get
             {
@@ -153,18 +153,18 @@ namespace UQLT.Helpers
         /// </summary>
         public void Populate()
         {
-            if (!File.Exists(UQLTGlobals.CurrentFilterPath))
+            if (!File.Exists(UQltGlobals.CurrentFilterPath))
             {
-                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
+                var failsafe = new FailsafeFilterHelper();
                 failsafe.DumpBackupFilters();
             }
 
             try
             {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
                 {
                     string s = sr.ReadToEnd();
-                    ImportedFilters json = JsonConvert.DeserializeObject<ImportedFilters>(s);
+                    var json = JsonConvert.DeserializeObject<ImportedFilters>(s);
                     // location data
                     foreach (var loc in json.locations)
                     {
@@ -204,13 +204,13 @@ namespace UQLT.Helpers
         /// <summary>
         /// Gets the flag image.
         /// </summary>
-        /// <param name="location_id">The location_id.</param>
+        /// <param name="locationId">The location_id.</param>
         /// <returns>A BitmapImage flag of a specified location_id</returns>
-        private BitmapImage GetFlag(object location_id)
+        private BitmapImage GetFlag(object locationId)
         {
             try
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + location_id.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + locationId.ToString() + ".gif", UriKind.RelativeOrAbsolute));
             }
             catch (Exception ex)
             {

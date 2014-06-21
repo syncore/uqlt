@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
@@ -13,7 +12,6 @@ using agsXMPP.protocol.client;
 using agsXMPP.protocol.iq.roster;
 using Caliburn.Micro;
 using Newtonsoft.Json;
-using UQLT.Helpers;
 using UQLT.Models.Chat;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
@@ -26,37 +24,33 @@ namespace UQLT.Core.Chat
     public class ChatHandler
     {
         public static Hashtable ActiveChats = new Hashtable();
-        public readonly string strInvite = "UQLT-IncomingGameInvitation-";
+        public readonly string StrInvite = "UQLT-IncomingGameInvitation-";
+        private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
+        private readonly SoundPlayer _inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
+        private readonly SoundPlayer _msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private readonly IWindowManager _windowManager;
-        private readonly IEventAggregator _events;
-        private readonly SoundPlayer inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
-        private readonly SoundPlayer msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
-        private readonly ConfigurationHandler cfgHandler = new ConfigurationHandler();
-        private QLFormatHelper QLFormatter = QLFormatHelper.Instance;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHandler" /> class.
         /// </summary>
         /// <param name="clvm">The ChatListViewModel.</param>
         /// <param name="wm">The Window Manager.</param>
-        /// <param name="events">The events that this viewmodel publishes/subsribes to.</param>
-        public ChatHandler(ChatListViewModel clvm, IWindowManager wm, IEventAggregator events)
+        public ChatHandler(ChatListViewModel clvm, IWindowManager wm)
         {
-            CLVM = clvm;
+            Clvm = clvm;
             _windowManager = wm;
-            _events = events;
             XmppCon = new XmppClientConnection();
 
             // XmppClientConnection event handlers
-            XmppCon.OnLogin += new ObjectHandler(XmppCon_OnLogin);
-            XmppCon.OnRosterItem += new XmppClientConnection.RosterHandler(XmppCon_OnRosterItem);
+            XmppCon.OnLogin += XmppCon_OnLogin;
+            XmppCon.OnRosterItem += XmppCon_OnRosterItem;
             // TODO: will probably need an OnRosterEnd event when Roster is fully loaded
-            XmppCon.OnRosterEnd += new ObjectHandler(XmppCon_OnRosterEnd);
-            XmppCon.OnPresence += new PresenceHandler(XmppCon_OnPresence);
-            XmppCon.OnMessage += new MessageHandler(XmppCon_OnMessage);
-            XmppCon.ClientSocket.OnValidateCertificate += new RemoteCertificateValidationCallback(ClientSocket_OnValidateCertificate);
+            XmppCon.OnRosterEnd += XmppCon_OnRosterEnd;
+            XmppCon.OnPresence += XmppCon_OnPresence;
+            XmppCon.OnMessage += XmppCon_OnMessage;
+            XmppCon.ClientSocket.OnValidateCertificate += ClientSocket_OnValidateCertificate;
 
-            ConnectToXMPP();
+            ConnectToXmpp();
             ChatGameInfo = new ChatGameInfo(this);
         }
 
@@ -70,7 +64,7 @@ namespace UQLT.Core.Chat
         /// Gets the ChatListViewModel
         /// </summary>
         /// <value>The ChatListViewModel</value>
-        public ChatListViewModel CLVM
+        public ChatListViewModel Clvm
         {
             get;
             private set;
@@ -103,22 +97,21 @@ namespace UQLT.Core.Chat
         {
             if (!IsChatSoundEnabled()) { return; }
 
-                try
+            try
+            {
+                if (soundtype == TypeOfSound.InvitationSound)
                 {
-                    if (soundtype == TypeOfSound.InvitationSound)
-                    {
-                        inviteSound.Play();
-                    }
-                    else
-                    {
-                        msgSound.Play();
-                    }
+                    _inviteSound.Play();
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.WriteLine(ex);
+                    _msgSound.Play();
                 }
-            
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
 
         /// <summary>
@@ -129,27 +122,19 @@ namespace UQLT.Core.Chat
         /// <returns></returns>
         public bool SendMessage(Jid recipient, string message)
         {
+            if (!IsFriendAlreadyOnline(recipient.User.ToLowerInvariant())) { return false; }
+            var msg = new agsXMPP.protocol.client.Message { Type = MessageType.chat };
 
-            if (IsFriendAlreadyOnline(recipient.User.ToLowerInvariant()))
+            // Send to friend's multiple clients (UQLT + QL & others)
+            foreach (var resource in Clvm.OnlineGroup.Friends[recipient.User.ToLowerInvariant()].XmppResources)
             {
-                var msg = new agsXMPP.protocol.client.Message();
-                msg.Type = MessageType.chat;
-
-                // Send to friend's multiple clients (UQLT + QL & others)
-                foreach (var resource in CLVM.OnlineGroup.Friends[recipient.User.ToLowerInvariant()].XMPPResources)
-                {
                 msg.To = new Jid(recipient.Bare + "/" + resource);
                 msg.Body = message;
                 XmppCon.Send(msg);
                 Debug.WriteLine("Sending message to " + recipient.Bare + "/" + resource);
-                }
+            }
 
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
 
         /// <summary>
@@ -162,8 +147,8 @@ namespace UQLT.Core.Chat
         /// </remarks>
         private void CheckFriendStatus(Presence presence)
         {
-            if (IsMe(presence.From)) return;
-            
+            if (IsMe(presence.From)) { return; }
+
             if (string.IsNullOrEmpty(presence.Status))
             {
                 ClearFriendStatus(presence);
@@ -171,7 +156,7 @@ namespace UQLT.Core.Chat
             }
             else
             {
-                CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXMPPStatus = true;
+                Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = true;
                 UpdateFriendStatus(presence.From.User, presence.Status);
                 Debug.WriteLine("**Status for " + presence.From.User.ToLowerInvariant() + " is: " + presence.Status);
             }
@@ -185,10 +170,10 @@ namespace UQLT.Core.Chat
         {
             FriendViewModel val;
             // On program start there is a timing issue where the key won't exist, so need to check first
-            if (!CLVM.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val)) return;
-            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXMPPStatus = false;
-            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
-            CLVM.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val)) return;
+            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = false;
+            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
+            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
         }
 
         /// <summary>
@@ -207,13 +192,13 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Connects to XMPP
         /// </summary>
-        private void ConnectToXMPP()
+        private void ConnectToXmpp()
         {
             //XmppCon.Username = ***REMOVED***;
             XmppCon.Username = ***REMOVED***;
             //XmppCon.Password = ***REMOVED***;
             XmppCon.Password = ***REMOVED***;
-            XmppCon.Server = UQLTGlobals.QLXMPPDomain;
+            XmppCon.Server = UQltGlobals.QlXmppDomain;
             XmppCon.Port = 5222;
             XmppCon.Resource = "uqlt";
             //XmppCon.Priority = 12;
@@ -230,15 +215,15 @@ namespace UQLT.Core.Chat
         private void FriendBecameAvailable(Jid jid)
         {
             string friend = jid.User.ToLowerInvariant();
-            
-            if (IsMe(jid)) return;
+
+            if (IsMe(jid)) { return; }
 
             // User was already online.
             if (IsFriendAlreadyOnline(friend))
             {
-                CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = true;
-                CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = jid.Resource;
-                CLVM.OnlineGroup.Friends[friend].XMPPResources.Add(jid.Resource);
+                Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = true;
+                Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
+                Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
                 Debug.WriteLine("**********" + jid.User + " already had a client signed in! Setting multiple client flag and new resource...");
             }
             // User wasn't already online.
@@ -248,22 +233,21 @@ namespace UQLT.Core.Chat
                 // Must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
-                    CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = jid.Resource;
-                    CLVM.OnlineGroup.Friends[friend].XMPPResources.Add(jid.Resource);
-                    CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = false;
-                    CLVM.OnlineGroup.Friends[friend].IsOnline = true;
+                    Clvm.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
+                    Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
+                    Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
+                    Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
+                    Clvm.OnlineGroup.Friends[friend].IsOnline = true;
                 });
-
             }
 
-            // If user user was previously offline then remove from offline friends group.        
+            // If user user was previously offline then remove from offline friends group.
             FriendViewModel val;
-            if (CLVM.OfflineGroup.Friends.TryGetValue(friend, out val))
+            if (Clvm.OfflineGroup.Friends.TryGetValue(friend, out val))
             {
                 // Additions and removals to ObservableDictionary must be done on the UI thread
-                Execute.OnUIThread(() => CLVM.OfflineGroup.Friends.Remove(friend));
-                Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count() + " After: " + CLVM.OnlineGroup.Friends.Count());
+                Execute.OnUIThread(() => Clvm.OfflineGroup.Friends.Remove(friend));
+                Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count() + " After: " + Clvm.OnlineGroup.Friends.Count());
             }
         }
 
@@ -273,40 +257,51 @@ namespace UQLT.Core.Chat
         /// <param name="jid">The user's jid.</param>
         private void FriendBecameUnavailable(Jid jid)
         {
-            if (IsMe(jid)) return;
+            if (IsMe(jid)) { return; }
+
             string friend = jid.User.ToLowerInvariant();
             FriendViewModel val;
-            if (!CLVM.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
 
             // Check if friend has multiple clients.
-            if (CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients)
+            if (Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients)
             {
-                Debug.WriteLine(jid.User+ " had multiple clients signed in! Removing client with resource: " + jid.Resource);
+                Debug.WriteLine(jid.User + " had multiple clients signed in! Removing client with resource: " + jid.Resource);
 
-                CLVM.OnlineGroup.Friends[friend].HasMultipleXMPPClients = false;
-                CLVM.OnlineGroup.Friends[friend].XMPPResources.Remove(jid.Resource);
+                Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
+                Clvm.OnlineGroup.Friends[friend].XmppResources.Remove(jid.Resource);
 
                 // Set resource back to first client's resource.
-                if (CLVM.OnlineGroup.Friends[friend].XMPPResources.Count < 1) return;
-                CLVM.OnlineGroup.Friends[friend].ActiveXMPPResource = CLVM.OnlineGroup.Friends[friend].XMPPResources.ElementAt(0);
+                if (Clvm.OnlineGroup.Friends[friend].XmppResources.Count < 1) return;
+                Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = Clvm.OnlineGroup.Friends[friend].XmppResources.ElementAt(0);
                 Debug.WriteLine(jid.Bare + "'s new resource is: " +
-                                CLVM.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XMPPResources
+                                Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].XmppResources
                                     .ElementAt(0));
             }
             else
             {
-                // Completely remove from Online friends list, since user does not have multiple clients.
-                // Additions and removals to ObservableDictionary must be done on the UI thread
+                // Completely remove from Online friends list, since user does not have multiple
+                // clients. Additions and removals to ObservableDictionary must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OnlineGroup.Friends.Remove(friend);
-                    CLVM.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User)));
-                    CLVM.OfflineGroup.Friends[friend].IsOnline = false;
+                    Clvm.OnlineGroup.Friends.Remove(friend);
+                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User)));
+                    Clvm.OfflineGroup.Friends[friend].IsOnline = false;
                 });
 
                 Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + jid + " User: " + jid.User + " Resource: " + jid.Resource);
-                Debug.WriteLine("Friends list before removing " + jid.User + "," + " count: " + CLVM.OnlineGroup.Friends.Count());
+                Debug.WriteLine("Friends list before removing " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count());
             }
+        }
+
+        /// <summary>
+        /// Determines whether the chat sound is enabled?
+        /// </summary>
+        /// <returns><c>true</c> if the chat sound is enabled, otherwise <c>false</c>.</returns>
+        private bool IsChatSoundEnabled()
+        {
+            _cfgHandler.ReadConfig();
+            return (_cfgHandler.ChatOptSound);
         }
 
         /// <summary>
@@ -319,7 +314,7 @@ namespace UQLT.Core.Chat
         private bool IsFavoriteFriend(string friend)
         {
             friend = friend.ToLowerInvariant();
-            return (UQLTGlobals.SavedFavoriteFriends.Contains(friend));
+            return (UQltGlobals.SavedFavoriteFriends.Contains(friend));
         }
 
         /// <summary>
@@ -333,7 +328,7 @@ namespace UQLT.Core.Chat
         {
             FriendViewModel val;
             friend = friend.ToLowerInvariant();
-            return (CLVM.OnlineGroup.Friends.TryGetValue(friend, out val));
+            return (Clvm.OnlineGroup.Friends.TryGetValue(friend, out val));
         }
 
         /// <summary>
@@ -348,7 +343,6 @@ namespace UQLT.Core.Chat
         {
             return (jid.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()));
         }
-
 
         /// <summary>
         /// Updates a friend's status based on the activity the friend is performing. Meaning that
@@ -375,14 +369,15 @@ namespace UQLT.Core.Chat
                     // friend is watching a demo
                     if (statusinfo.address.Equals("bot"))
                     {
-                        CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.WatchingDemo;
+                        Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.WatchingDemo;
                     }
                     // friend is actually in game
                     else
                     {
-                        CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
-                        CLVM.OnlineGroup.Friends[friend].IsInGame = true;
+                        Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
+                        Clvm.OnlineGroup.Friends[friend].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
+                        // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
                         var c = ChatGameInfo.CreateServerInfoForStatusAsync(friend, statusinfo.server_id);
                     }
                 }
@@ -391,7 +386,7 @@ namespace UQLT.Core.Chat
                 // ADDRESS, but it will be = "loopback")
                 if (statusinfo.bot_game == 1)
                 {
-                    CLVM.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
+                    Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
                 }
             }
             catch (Exception e)
@@ -425,8 +420,9 @@ namespace UQLT.Core.Chat
                 Execute.OnUIThread(() =>
                 {
                     _windowManager.ShowWindow(cm, null, settings);
+                    // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
                     var m = cm.MessageIncoming(msg);
-                    if (msg.Body.StartsWith(strInvite))
+                    if (msg.Body.StartsWith(StrInvite))
                     {
                         const TypeOfSound sound = TypeOfSound.InvitationSound;
                         PlayMessageSound(sound);
@@ -506,23 +502,13 @@ namespace UQLT.Core.Chat
                 // since ObservableDictionary is databound
                 Execute.OnUIThread(() =>
                 {
-                    CLVM.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
+                    Clvm.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
                 });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
-        }
-
-        /// <summary>
-        /// Determines whether the chat sound is enabled?
-        /// </summary>
-        /// <returns><c>true</c> if the chat sound is enabled, otherwise <c>false</c>.</returns>
-        private bool IsChatSoundEnabled()
-        {
-            cfgHandler.ReadConfig();
-            return (cfgHandler.ChatOptSound);
         }
     }
 }

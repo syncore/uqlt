@@ -6,22 +6,20 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows;
-using Caliburn.Micro;
-using UQLT.Events;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
 
 namespace UQLT.Core.Chat
 {
     /// <summary>
-    /// Class responsible for logging the history of chat messages
+    /// Class responsible for logging and retrieval of the history of chat messages.
     /// </summary>
     public class ChatHistory
     {
-        private ChatMessageViewModel CMVM;
-        private string sqlConString = "Data Source=" + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
-        private string sqlDbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
-        private readonly ConfigurationHandler cfgHandler = new ConfigurationHandler();
+        private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
+        private readonly ChatMessageViewModel _cmvm;
+        private readonly string _sqlConString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
+        private readonly string _sqlDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHistory" /> class.
@@ -29,15 +27,16 @@ namespace UQLT.Core.Chat
         /// <param name="cmvm">The ChatMessageViewModel associated with this class.</param>
         public ChatHistory(ChatMessageViewModel cmvm)
         {
-            CMVM = cmvm;
+            _cmvm = cmvm;
             VerifyHistoryDb();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatHistory"/> class.
+        /// Initializes a new instance of the <see cref="ChatHistory" /> class.
         /// </summary>
         /// <remarks>
-        /// This constructor parameterless constructor is used solely to clear the chat history from another viewmodel such as the <see cref="ChatListViewModel"/>
+        /// This constructor parameterless constructor is used solely to clear the chat history from
+        /// another viewmodel such as the <see cref="ChatListViewModel" />
         /// </remarks>
         public ChatHistory()
         {
@@ -55,7 +54,7 @@ namespace UQLT.Core.Chat
         public void AddMessageToHistoryDb(string profile, string otheruser, TypeOfMessage msgtype, string message, string date)
         {
             if (!IsChatHistoryEnabled()) { return; }
-            
+
             object[] param = new object[5];
             param[0] = profile;
             param[1] = otheruser;
@@ -64,7 +63,7 @@ namespace UQLT.Core.Chat
             param[4] = date;
 
             // Start a new thread.
-            var backgroundthread = new Thread(new ParameterizedThreadStart(AddMessageToHistoryInBackground));
+            var backgroundthread = new Thread(AddMessageToHistoryInBackground);
             backgroundthread.Start(param);
         }
 
@@ -75,30 +74,29 @@ namespace UQLT.Core.Chat
         /// <param name="otheruser">The remote user we are chatting with.</param>
         public void DeleteChatHistoryForUser(string profile, string otheruser)
         {
-            if (VerifyHistoryDb())
+            if (!VerifyHistoryDb()) { return; }
+
+            try
             {
-                try
+                using (var sqlcon = new SQLiteConnection(_sqlConString))
                 {
-                    using (SQLiteConnection sqlcon = new SQLiteConnection(sqlConString))
+                    sqlcon.Open();
+
+                    using (var cmd = new SQLiteCommand(sqlcon))
                     {
-                        sqlcon.Open();
+                        cmd.CommandText = "DELETE FROM chathistory WHERE profile = @profile AND otheruser = @otheruser";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@profile", profile);
+                        cmd.Parameters.AddWithValue("@otheruser", otheruser);
+                        int rowsAffected = cmd.ExecuteNonQuery();
 
-                        using (SQLiteCommand cmd = new SQLiteCommand(sqlcon))
-                        {
-                            cmd.CommandText = "DELETE FROM chathistory WHERE profile = @profile AND otheruser = @otheruser";
-                            cmd.Prepare();
-                            cmd.Parameters.AddWithValue("@profile", profile);
-                            cmd.Parameters.AddWithValue("@otheruser", otheruser);
-                            int rowsAffected = cmd.ExecuteNonQuery();
-
-                            MessageBox.Show("Deleted all " + rowsAffected + " messages between " + profile + " and " + otheruser);
-                        }
+                        MessageBox.Show("Deleted all " + rowsAffected + " messages between " + profile + " and " + otheruser);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
             }
         }
 
@@ -111,12 +109,12 @@ namespace UQLT.Core.Chat
         public void RetrieveMessageHistory(string profile, string otheruser)
         {
             if (!IsChatHistoryEnabled()) { return; }
-            
+
             object[] param = new object[2];
             param[0] = profile;
             param[1] = otheruser;
 
-            Thread backgroundthread = new Thread(new ParameterizedThreadStart(RetrieveMessageHistoryInBackground));
+            Thread backgroundthread = new Thread(RetrieveMessageHistoryInBackground);
             backgroundthread.Start(param);
         }
 
@@ -128,6 +126,8 @@ namespace UQLT.Core.Chat
         {
             object[] parameters = data as object[];
 
+            if (parameters == null) { return; }
+
             string profile = (string)parameters[0];
             string otheruser = (string)parameters[1];
             TypeOfMessage msgtype = (TypeOfMessage)parameters[2];
@@ -137,11 +137,11 @@ namespace UQLT.Core.Chat
             {
                 try
                 {
-                    using (SQLiteConnection sqlcon = new SQLiteConnection(sqlConString))
+                    using (var sqlcon = new SQLiteConnection(_sqlConString))
                     {
                         sqlcon.Open();
 
-                        using (SQLiteCommand cmd = new SQLiteCommand(sqlcon))
+                        using (var cmd = new SQLiteCommand(sqlcon))
                         {
                             cmd.CommandText = "INSERT INTO chathistory(profile, otheruser, msgtype, message, date) VALUES(@profile, @otheruser, @msgtype, @message, @date)";
                             cmd.Prepare();
@@ -168,7 +168,7 @@ namespace UQLT.Core.Chat
         /// <returns><c>true</c> if file exists, otherwise <c>false</c></returns>
         private bool ChatHistoryDbExists()
         {
-            return (File.Exists(sqlDbPath)) ? true : false;
+            return (File.Exists(_sqlDbPath));
         }
 
         /// <summary>
@@ -176,30 +176,29 @@ namespace UQLT.Core.Chat
         /// </summary>
         private void CreateHistoryDb()
         {
-            if (!ChatHistoryDbExists())
+            if (ChatHistoryDbExists()) { return; }
+
+            SQLiteConnection.CreateFile(_sqlDbPath);
+
+            try
             {
-                SQLiteConnection.CreateFile(sqlDbPath);
-
-                try
+                using (var sqlcon = new SQLiteConnection(_sqlConString))
                 {
-                    using (SQLiteConnection sqlcon = new SQLiteConnection(sqlConString))
+                    sqlcon.Open();
+
+                    string s = "CREATE TABLE chathistory (id INTEGER PRIMARY KEY AUTOINCREMENT, profile TEXT NOT NULL, otheruser TEXT NOT NULL, msgtype INTEGER, message TEXT, date DATETIME)";
+                    using (var cmd = new SQLiteCommand(s, sqlcon))
                     {
-                        sqlcon.Open();
-
-                        string s = "CREATE TABLE chathistory (id INTEGER PRIMARY KEY AUTOINCREMENT, profile TEXT NOT NULL, otheruser TEXT NOT NULL, msgtype INTEGER, message TEXT, date DATETIME)";
-                        using (SQLiteCommand cmd = new SQLiteCommand(s, sqlcon))
-                        {
-                            cmd.ExecuteNonQuery();
-                        }
+                        cmd.ExecuteNonQuery();
                     }
+                }
 
-                    Debug.WriteLine("Chat history database created.");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                    DeleteHistoryDb();
-                }
+                Debug.WriteLine("Chat history database created.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                DeleteHistoryDb();
             }
         }
 
@@ -210,8 +209,18 @@ namespace UQLT.Core.Chat
         {
             if (ChatHistoryDbExists())
             {
-                File.Delete(sqlDbPath);
+                File.Delete(_sqlDbPath);
             }
+        }
+
+        /// <summary>
+        /// Determines whether the is chat history enabled.
+        /// </summary>
+        /// <returns><c>true</c> if the chat history is enabled, otherwise <c>false</c></returns>
+        private bool IsChatHistoryEnabled()
+        {
+            _cfgHandler.ReadConfig();
+            return (_cfgHandler.ChatOptLogging);
         }
 
         /// <summary>
@@ -221,56 +230,59 @@ namespace UQLT.Core.Chat
         private void RetrieveMessageHistoryInBackground(object data)
         {
             object[] parameters = data as object[];
+            if (parameters == null) { return; }
+
             string profile = (string)parameters[0];
             string otheruser = (string)parameters[1];
 
-            if (VerifyHistoryDb())
+            if (!VerifyHistoryDb()) { return; }
+
+            try
             {
-                try
+                using (var sqlcon = new SQLiteConnection(_sqlConString))
                 {
-                    using (SQLiteConnection sqlcon = new SQLiteConnection(sqlConString))
+                    sqlcon.Open();
+
+                    using (var cmd = new SQLiteCommand(sqlcon))
                     {
-                        sqlcon.Open();
+                        cmd.CommandText = "SELECT * FROM chathistory WHERE profile = @profile AND otheruser = @otheruser ORDER BY date(date) ASC";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@profile", profile);
+                        cmd.Parameters.AddWithValue("@otheruser", otheruser);
 
-                        using (SQLiteCommand cmd = new SQLiteCommand(sqlcon))
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            cmd.CommandText = "SELECT * FROM chathistory WHERE profile = @profile AND otheruser = @otheruser ORDER BY date(date) ASC";
-                            cmd.Prepare();
-                            cmd.Parameters.AddWithValue("@profile", profile);
-                            cmd.Parameters.AddWithValue("@otheruser", otheruser);
-
-                            using (SQLiteDataReader reader = cmd.ExecuteReader())
+                            if (reader.HasRows)
                             {
-                                if (reader.HasRows)
-                                {
-                                    var messages = new StringBuilder();
+                                var messages = new StringBuilder();
 
-                                    while (reader.Read())
+                                while (reader.Read())
+                                {
+                                    switch ((long)reader["msgtype"])
                                     {
-                                        if ((long)reader["msgtype"] == (long)TypeOfMessage.Incoming)
-                                        {
+                                        case (long)TypeOfMessage.Incoming:
                                             messages.Append("[" + reader["date"] + "] " + reader["otheruser"] + ": " + reader["message"]);
-                                        }
-                                        else if ((long)reader["msgtype"] == (long)TypeOfMessage.Outgoing)
-                                        {
-                                            messages.Append("[" + reader["date"] + "] " + reader["profile"] + ": " + reader["message"]);
-                                        }
-                                    }
+                                            break;
 
-                                    CMVM.ReceivedMessages = messages.ToString();
+                                        case (long)TypeOfMessage.Outgoing:
+                                            messages.Append("[" + reader["date"] + "] " + reader["profile"] + ": " + reader["message"]);
+                                            break;
+                                    }
                                 }
-                                else
-                                {
-                                    Debug.WriteLine("No chat history between current user: " + profile + " and other user: " + otheruser + " found.");
-                                }
+
+                                _cmvm.ReceivedMessages = messages.ToString();
+                            }
+                            else
+                            {
+                                Debug.WriteLine("No chat history between current user: " + profile + " and other user: " + otheruser + " found.");
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
             }
         }
 
@@ -284,44 +296,28 @@ namespace UQLT.Core.Chat
                 CreateHistoryDb();
                 return true;
             }
-            else
+            using (var sqlcon = new SQLiteConnection(_sqlConString))
             {
-                using (SQLiteConnection sqlcon = new SQLiteConnection(sqlConString))
+                sqlcon.Open();
+
+                using (var cmd = new SQLiteCommand(sqlcon))
                 {
-                    sqlcon.Open();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = 'chathistory'";
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(sqlcon))
+                    using (var sdr = cmd.ExecuteReader())
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = "SELECT * FROM sqlite_master WHERE type = 'table' AND name = 'chathistory'";
-
-                        using (SQLiteDataReader sdr = cmd.ExecuteReader())
+                        if (sdr.Read())
                         {
-                            if (sdr.Read())
-                            {
-                                //Debug.WriteLine("Chat history table found in DB");
-                                return true;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("Chat history table not found in DB... Creating...");
-                                CreateHistoryDb();
-                                return false;
-                            }
+                            //Debug.WriteLine("Chat history table found in DB");
+                            return true;
                         }
+                        Debug.WriteLine("Chat history table not found in DB... Creating...");
+                        CreateHistoryDb();
+                        return false;
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Determines whether the is chat history enabled.
-        /// </summary>
-        /// <returns><c>true</c> if the chat history is enabled, otherwise <c>false</c></returns>
-        private bool IsChatHistoryEnabled()
-        {
-            cfgHandler.ReadConfig();
-            return (cfgHandler.ChatOptLogging);
         }
     }
 }

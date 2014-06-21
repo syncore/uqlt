@@ -5,12 +5,11 @@ using UQLT.Events;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(MainViewModel))]
-
     /// <summary>
     /// Viewmodel for the main window. This represents the bulk of the application once the user has
     /// gotten past the login screen by successfully authenticating with QL
     /// </summary>
+    [Export(typeof(MainViewModel))]
     public class MainViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<FilterStatusEvent>, IHandle<ServerCountEvent>, IHandle<PlayerCountEvent>
     {
         private readonly IEventAggregator _events;
@@ -22,11 +21,8 @@ namespace UQLT.ViewModels
         private int _playerCountStatusTitle;
         private string _premiumStatusTitle;
         private int _serverCountStatusTitle;
-
         private string _stateStatusTitle;
-
         private string _typeStatusTitle;
-
         private string _visibilityStatusTitle;
 
         /// <summary>

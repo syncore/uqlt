@@ -8,7 +8,7 @@ namespace UQLT
     /// <summary>
     /// Necessary Caliburn Micro boilerplate
     /// </summary>
-    public class UQLTWindowManager : WindowManager
+    public class UqltWindowManager : WindowManager
     {
         /// <summary>
         /// Makes sure the view is a window or is wrapped by one.
@@ -17,7 +17,7 @@ namespace UQLT
         /// <param name="view">The view.</param>
         /// <param name="isDialog">Whethor or not the window is being shown as a dialog.</param>
         /// <returns>The window.</returns>
-        protected override System.Windows.Window EnsureWindow(object model, object view, bool isDialog)
+        protected override Window EnsureWindow(object model, object view, bool isDialog)
         {
             Window window = base.EnsureWindow(model, view, isDialog);
             window.SizeToContent = SizeToContent.WidthAndHeight;

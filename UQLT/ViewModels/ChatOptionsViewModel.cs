@@ -12,22 +12,21 @@ namespace UQLT.ViewModels
     /// View model for the chat options
     /// </summary>
     [Export(typeof(ChatOptionsViewModel))]
-    public class ChatOptionsViewModel : PropertyChangedBase, IUQLTConfiguration, IHaveDisplayName, IViewAware
+    public class ChatOptionsViewModel : PropertyChangedBase, IUqltConfiguration, IHaveDisplayName, IViewAware
     {
-        private string _displayName;
+        private bool _isChatInGameEnabled;
         private bool _isChatLoggingEnabled;
         private bool _isChatSoundEnabled;
-        private bool _isChatInGameEnabled;
-        private Window dialogWindow;
-        
+        private Window _dialogWindow;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatOptionsViewModel"/> class.
+        /// Initializes a new instance of the <see cref="ChatOptionsViewModel" /> class.
         /// </summary>
-        
+
         [ImportingConstructor]
         public ChatOptionsViewModel()
         {
-            _displayName = "Chat options";
+            DisplayName = "Chat options";
             LoadConfig();
         }
 
@@ -35,28 +34,34 @@ namespace UQLT.ViewModels
         /// Raised when a view is attached.
         /// </summary>
         public event EventHandler<ViewAttachedEventArgs> ViewAttached;
-        
+
         /// <summary>
         /// Gets or Sets the name of this window.
         /// </summary>
-        public string DisplayName
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user has chosen to disable UQLT chat when
+        /// launching QL.
+        /// </summary>
+        /// <value><c>true</c> if the user disables UQLT chat upon launching QL; otherwise, <c>false</c>.</value>
+        public bool IsChatInGameEnabled
         {
             get
             {
-                return _displayName;
+                return _isChatInGameEnabled;
             }
             set
             {
-                _displayName = value;
+                _isChatInGameEnabled = value;
+                NotifyOfPropertyChange(() => IsChatInGameEnabled);
             }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the user has chat history logging enabled.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if the user has logging enabled; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if the user has logging enabled; otherwise, <c>false</c>.</value>
         public bool IsChatLoggingEnabled
         {
             get
@@ -73,9 +78,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Gets or sets a value indicating whether the user has the chat sound enabled.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if the user has the chat sound enabled; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if the user has the chat sound enabled; otherwise, <c>false</c>.</value>
         public bool IsChatSoundEnabled
         {
             get
@@ -90,32 +93,13 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the user has chosen to disable UQLT chat when launching QL.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the user disables UQLT chat upon launching QL; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsChatInGameEnabled
-        {
-            get
-            {
-                return _isChatInGameEnabled;
-            }
-            set
-            {
-                _isChatInGameEnabled = value;
-                NotifyOfPropertyChange(() => IsChatInGameEnabled);
-            }
-        }
-
-        /// <summary>
         /// Attaches a view to this instance.
         /// </summary>
         /// <param name="view">The view.</param>
         /// <param name="context">The context in which the view appears.</param>
         public void AttachView(object view, object context = null)
         {
-            dialogWindow = view as Window;
+            _dialogWindow = view as Window;
             if (ViewAttached != null)
             {
                 ViewAttached(this, new ViewAttachedEventArgs()
@@ -132,7 +116,16 @@ namespace UQLT.ViewModels
         /// <remarks>For different ways to implement window closing, see: http://stackoverflow.com/questions/10090584/how-to-close-dialog-window-from-viewmodel-caliburnwpf</remarks>
         public void CloseWin()
         {
-            dialogWindow.Close();
+            _dialogWindow.Close();
+        }
+
+        /// <summary>
+        /// Checks whether the configuration already exists
+        /// </summary>
+        /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
+        public bool ConfigExists()
+        {
+            return File.Exists(UQltGlobals.ConfigPath);
         }
 
         /// <summary>
@@ -142,18 +135,9 @@ namespace UQLT.ViewModels
         /// <returns>The view.</returns>
         public object GetView(object context = null)
         {
-            return dialogWindow;
+            return _dialogWindow;
         }
-        
-        /// <summary>
-        /// Checks whether the configuration already exists
-        /// </summary>
-        /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
-        public bool ConfigExists()
-        {
-            return File.Exists(UQLTGlobals.ConfigPath);
-        }
-        
+
         /// <summary>
         /// Loads the configuration.
         /// </summary>
@@ -188,13 +172,12 @@ namespace UQLT.ViewModels
         {
             var cfghandler = new ConfigurationHandler();
             cfghandler.ReadConfig();
-            
+
             cfghandler.ChatOptLogging = IsChatLoggingEnabled;
             cfghandler.ChatOptSound = IsChatSoundEnabled;
             cfghandler.ChatOptDisableInGame = IsChatInGameEnabled;
 
             cfghandler.WriteConfig();
-
         }
     }
 }

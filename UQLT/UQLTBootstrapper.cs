@@ -11,27 +11,27 @@ namespace UQLT
     /// <summary>
     /// Necessary Caliburn Micro boilerplate
     /// </summary>
-    public class UQLTBootstrapper : Bootstrapper<LoginViewModel>
+    public class UqltBootstrapper : Bootstrapper<LoginViewModel>
     {
-        private CompositionContainer container;
+        private CompositionContainer _container;
 
         /// <summary>
         /// Override to configure the framework and setup your IoC container.
         /// </summary>
         protected override void Configure()
         {
-            container = new CompositionContainer(new AggregateCatalog(AssemblySource.Instance.Select(x => new AssemblyCatalog(x)).OfType<ComposablePartCatalog>()));
+            _container = new CompositionContainer(new AggregateCatalog(AssemblySource.Instance.Select(x => new AssemblyCatalog(x)).OfType<ComposablePartCatalog>()));
 
-            CompositionBatch batch = new CompositionBatch();
+            var batch = new CompositionBatch();
 
             // standard caliburn window manager
             //batch.AddExportedValue<IWindowManager>(new WindowManager());
             // custom window manager implementation
-            batch.AddExportedValue<IWindowManager>(new UQLTWindowManager());
+            batch.AddExportedValue<IWindowManager>(new UqltWindowManager());
             batch.AddExportedValue<IEventAggregator>(new EventAggregator());
-            batch.AddExportedValue(container);
+            batch.AddExportedValue(_container);
 
-            container.Compose(batch);
+            _container.Compose(batch);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace UQLT
         protected override object GetInstance(Type serviceType, string key)
         {
             string contract = string.IsNullOrEmpty(key) ? AttributedModelServices.GetContractName(serviceType) : key;
-            var exports = container.GetExportedValues<object>(contract);
+            var exports = _container.GetExportedValues<object>(contract);
 
             if (exports.Count() > 0)
             {

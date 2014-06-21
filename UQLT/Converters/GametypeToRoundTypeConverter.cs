@@ -19,7 +19,7 @@ namespace UQLT.Converters
         /// <returns>A converted value. If the method returns null, the valid null value is used.</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string roundtype = null;
+            string roundtype;
             switch (System.Convert.ToInt32(value))
             {
                 case 4:

@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Data;
 using Caliburn.Micro;
-using Newtonsoft.Json;
 using UQLT.Core.ServerBrowser;
 using UQLT.Events;
 using UQLT.Interfaces;
@@ -15,32 +14,29 @@ using UQLT.Models.Configuration;
 
 namespace UQLT.ViewModels
 {
-	[Export(typeof(ServerBrowserViewModel))]
-
 	/// <summary>
-	/// Viewmodel for the Server Browser view
+	/// Viewmodel for the Server Browser view.
 	/// </summary>
-	public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>, IUQLTConfiguration
+	[Export(typeof(ServerBrowserViewModel))]
+	public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>, IUqltConfiguration
 	{
-		private readonly IEventAggregator _events;
-
+		private readonly ServerBrowser _sb;
 		private int _autoRefreshIndex;
 
-		private List<ServerBrowserRefreshItem> _autoRefreshItems = new List<ServerBrowserRefreshItem>()
-			{
-				new ServerBrowserRefreshItem() {Name = "every 30 seconds", Seconds = 30},
-				new ServerBrowserRefreshItem() {Name = "every 1 minute", Seconds = 60},
-				new ServerBrowserRefreshItem() {Name = "every 1.5 minutes", Seconds = 90},
-				new ServerBrowserRefreshItem() {Name = "every 5 minutes", Seconds = 300},
-			};
+		private List<ServerBrowserRefreshItem> _autoRefreshItems = new List<ServerBrowserRefreshItem>
+		{
+				new ServerBrowserRefreshItem {Name = "every 30 seconds", Seconds = 30},
+				new ServerBrowserRefreshItem {Name = "every 1 minute", Seconds = 60},
+				new ServerBrowserRefreshItem {Name = "every 1.5 minutes", Seconds = 90},
+				new ServerBrowserRefreshItem {Name = "every 5 minutes", Seconds = 300},
+		};
 
 		private int _autoRefreshSeconds;
-		private string _filterURL;
+		private string _filterUrl;
 		private bool _isAutoRefreshEnabled;
 		private bool _isUpdatingServers;
 		private ServerDetailsViewModel _selectedServer;
 		private ObservableCollection<ServerDetailsViewModel> _servers = new ObservableCollection<ServerDetailsViewModel>();
-		private ServerBrowser SB;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ServerBrowserViewModel" /> class.
@@ -49,14 +45,13 @@ namespace UQLT.ViewModels
 		[ImportingConstructor]
 		public ServerBrowserViewModel(IEventAggregator events)
 		{
-			_events = events;
-			_events.Subscribe(this);
+			events.Subscribe(this);
 
 			DoServerBrowserAutoSort("FullLocationName");
 			LoadConfig();
 
 			// Instantiate a new server browser for this viewmodel
-			SB = new ServerBrowser(this, events);
+			_sb = new ServerBrowser(this, events);
 		}
 
 		/// <summary>
@@ -113,17 +108,17 @@ namespace UQLT.ViewModels
 		/// Gets or sets the Quake Live filter URL.
 		/// </summary>
 		/// <value>The Quake Live filter URL.</value>
-		public string FilterURL
+		public string FilterUrl
 		{
 			get
 			{
-				return _filterURL;
+				return _filterUrl;
 			}
 
 			set
 			{
-				_filterURL = value + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
-				NotifyOfPropertyChange(() => FilterURL);
+				_filterUrl = value + Math.Truncate((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds);
+				NotifyOfPropertyChange(() => FilterUrl);
 			}
 		}
 
@@ -203,7 +198,7 @@ namespace UQLT.ViewModels
 		/// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
 		public bool ConfigExists()
 		{
-			return File.Exists(UQLTGlobals.ConfigPath);
+			return File.Exists(UQltGlobals.ConfigPath);
 		}
 
 		/// <summary>
@@ -214,9 +209,10 @@ namespace UQLT.ViewModels
 		/// <param name="message">The message (event).</param>
 		public void Handle(ServerRequestEvent message)
 		{
-			FilterURL = message.ServerRequestURL;
-			var l = SB.LoadServerListAsync(FilterURL);
-			Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestURL);
+			FilterUrl = message.ServerRequestUrl;
+			// Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+			var l = _sb.LoadServerListAsync(FilterUrl);
+			Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestUrl);
 		}
 
 		/// <summary>
@@ -269,7 +265,7 @@ namespace UQLT.ViewModels
 		public void SetRefreshTime(int seconds)
 		{
 			Debug.WriteLine("Setting auto-server refresh time to " + seconds + " seconds.");
-		    AutoRefreshSeconds = seconds;
+			AutoRefreshSeconds = seconds;
 			SaveConfig();
 		}
 
@@ -279,7 +275,7 @@ namespace UQLT.ViewModels
 		/// <remarks>This is called from the view itself.</remarks>
 		public void StartServerRefreshTimer()
 		{
-			SB.StartServerRefreshTimer();
+			_sb.StartServerRefreshTimer();
 		}
 
 		/// <summary>
@@ -288,7 +284,7 @@ namespace UQLT.ViewModels
 		/// <remarks>This is called from the view itself.</remarks>
 		public void StopServerRefreshTimer()
 		{
-			SB.StopServerRefreshTimer();
+			_sb.StopServerRefreshTimer();
 		}
 
 		/// <summary>

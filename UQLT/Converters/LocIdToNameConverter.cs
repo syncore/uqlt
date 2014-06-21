@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Data;
 using Newtonsoft.Json;
 using UQLT.Helpers;
@@ -19,9 +20,9 @@ namespace UQLT.Converters
         /// </summary>
         public LocIdToNameConverter()
         {
-            if (!File.Exists(UQLTGlobals.CurrentFilterPath))
+            if (!File.Exists(UQltGlobals.CurrentFilterPath))
             {
-                FailsafeFilterHelper failsafe = new FailsafeFilterHelper();
+                var failsafe = new FailsafeFilterHelper();
                 failsafe.DumpBackupFilters();
             }
         }
@@ -39,19 +40,14 @@ namespace UQLT.Converters
             string realname = null;
             try
             {
-                using (StreamReader sr = new StreamReader(UQLTGlobals.CurrentFilterPath))
+                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
                 {
                     var x = sr.ReadToEnd();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
 
-                    foreach (var loc in filters.locations)
+                    foreach (var loc in filters.locations.Where(loc => System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value)))
                     {
-                        if (System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value))
-                        {
-                            realname = loc.display_name;
-
-                            // Debug.WriteLine("Match found: " + loc.location_id + " matches: " + value);
-                        }
+                        realname = loc.display_name;
                     }
                 }
             }

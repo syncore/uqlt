@@ -5,18 +5,17 @@ using Caliburn.Micro;
 
 namespace UQLT.ViewModels
 {
-    [Export(typeof(LoginViewModel))]
-
     /// <summary>
     /// The viewmodel for the LoginView, which serves as the starting point that the user sees when
     /// launching the application.
     /// </summary>
+    [Export(typeof(LoginViewModel))]
     public class LoginViewModel : PropertyChangedBase, IHaveDisplayName, IViewAware
     {
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
+        private Window _dialogWindow;
         private string _displayName = "Login to Quake Live";
-        private Window dialogWindow;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
@@ -57,10 +56,10 @@ namespace UQLT.ViewModels
         /// <param name="context">The context in which the view appears.</param>
         public void AttachView(object view, object context = null)
         {
-            dialogWindow = view as Window;
+            _dialogWindow = view as Window;
             if (ViewAttached != null)
             {
-                ViewAttached(this, new ViewAttachedEventArgs()
+                ViewAttached(this, new ViewAttachedEventArgs
                 {
                     Context = context,
                     View = view
@@ -74,7 +73,7 @@ namespace UQLT.ViewModels
         /// <remarks>For different ways to implement window closing, see: http://stackoverflow.com/questions/10090584/how-to-close-dialog-window-from-viewmodel-caliburnwpf</remarks>
         public void CloseWin()
         {
-            dialogWindow.Close();
+            _dialogWindow.Close();
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace UQLT.ViewModels
         /// <returns>The view.</returns>
         public object GetView(object context = null)
         {
-            return dialogWindow;
+            return _dialogWindow;
         }
     }
 }

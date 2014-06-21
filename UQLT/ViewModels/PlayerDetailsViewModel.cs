@@ -13,14 +13,10 @@ namespace UQLT.ViewModels
     /// additional view-related properties for the View (in this case, ServerBrowserView).
     /// </summary>
     [Export(typeof(PlayerDetailsViewModel))]
-    
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
-        private static Regex nameColors = new Regex(@"[\^]\d");
-
+        private static readonly Regex NameColors = new Regex(@"[\^]\d");
         private string _cleanedClan;
-
-        // Custom UI properties
         private string _teamName;
 
         [ImportingConstructor]
@@ -38,7 +34,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + SubLevel.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + SubLevel + ".gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -75,7 +71,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                _cleanedClan = nameColors.Replace(Clan, string.Empty);
+                _cleanedClan = NameColors.Replace(Clan, string.Empty);
                 return _cleanedClan;
             }
 

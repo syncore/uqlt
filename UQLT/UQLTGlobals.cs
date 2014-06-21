@@ -8,35 +8,35 @@ namespace UQLT
     /// <summary>
     /// Static class (!!!) that contains key settings that must be available application-wide.
     /// </summary>
-    public static class UQLTGlobals
+    public static class UQltGlobals
     {
         /// <summary>
-        /// Initializes the <see cref="UQLTGlobals" /> class.
+        /// Initializes the <see cref="UQltGlobals" /> class.
         /// </summary>
-        static UQLTGlobals()
+        static UQltGlobals()
         {
             SavedUserFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\savedfilters.json");
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
             SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\rosterfav.json");
             ConfigPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\configuration.json");
 
-            IPAddressDict = new ConcurrentDictionary<string, long>();
+            IpAddressDict = new ConcurrentDictionary<string, long>();
             PlayerEloInfo = new ConcurrentDictionary<string, EloData>();
             SavedFavoriteFriends = new List<string>();
-            QLDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
-            QLDomainListFilter = QLDomainBase + "/browser/list?filter=";
-            QLDomainDetailsIds = QLDomainBase + "/browser/details?ids=";
+            QlDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
+            QlDomainListFilter = QlDomainBase + "/browser/list?filter=";
+            QlDomainDetailsIds = QlDomainBase + "/browser/details?ids=";
 
             // default filter: any gametype, any location, etc.
-            QLDefaultFilter = QLDomainListFilter + "eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=";
+            QlDefaultFilter = QlDomainListFilter + "eyJmaWx0ZXJzIjp7Imdyb3VwIjoiYW55IiwiZ2FtZV90eXBlIjoiYW55IiwiYXJlbmEiOiJhbnkiLCJzdGF0ZSI6ImFueSIsImRpZmZpY3VsdHkiOiJhbnkiLCJsb2NhdGlvbiI6ImFueSIsInByaXZhdGUiOjAsInByZW1pdW1fb25seSI6MCwiaW52aXRhdGlvbl9vbmx5IjowfSwiYXJlbmFfdHlwZSI6IiIsInBsYXllcnMiOltdLCJnYW1lX3R5cGVzIjpbXSwiaWciOjB9&_=";
 
-            QLUserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1";
+            QlUserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1";
 
-            //QLXMPPDomain = "xmpp.quakelive.com"; // xmpp.quakelive.com, focus.quakelive.com
-            QLXMPPDomain = ***REMOVED***; // xmpp.quakelive.com, focus.quakelive.com
+            //QlXmppDomain = "xmpp.quakelive.com"; // xmpp.quakelive.com, focus.quakelive.com
+            QlXmppDomain = ***REMOVED***; // xmpp.quakelive.com, focus.quakelive.com
 
-            UQLTXMPPResource = "uqlt";
-            QuakeLiveXMPPResource = "quakelive";
+            UqltxmppResource = "uqlt";
+            QuakeLiveXmppResource = "quakelive";
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace UQLT
         /// Gets the ip address, ping concurrent dictionary.
         /// </summary>
         /// <value>The ip address, ping information.</value>
-        public static ConcurrentDictionary<string, long> IPAddressDict
+        public static ConcurrentDictionary<string, long> IpAddressDict
         {
             get;
             private set;
@@ -83,7 +83,7 @@ namespace UQLT
         /// Gets the quakelive.com default game filter information.
         /// </summary>
         /// <value>The quakelive.com default game filter information.</value>
-        public static string QLDefaultFilter
+        public static string QlDefaultFilter
         {
             get;
             private set;
@@ -93,7 +93,7 @@ namespace UQLT
         // Gets the quakelive.com domain base.
         // </summary>
         // <value>The quakelive.com domain base.</value>
-        public static string QLDomainBase
+        public static string QlDomainBase
         {
             get;
             private set;
@@ -103,7 +103,7 @@ namespace UQLT
         /// Gets the quakelive.com domain details ids part of the URL.
         /// </summary>
         /// <value>The quakelive.com domain details ids part of the URL.</value>
-        public static string QLDomainDetailsIds
+        public static string QlDomainDetailsIds
         {
             get;
             private set;
@@ -113,7 +113,7 @@ namespace UQLT
         /// Gets the quakelive.com domain list filter part of the URL.
         /// </summary>
         /// <value>The quakelive.com domain list filter part of the URL.</value>
-        public static string QLDomainListFilter
+        public static string QlDomainListFilter
         {
             get;
             private set;
@@ -123,7 +123,7 @@ namespace UQLT
         /// Gets the QL client user agent.
         /// </summary>
         /// <value>The QL client user agent.</value>
-        public static string QLUserAgent
+        public static string QlUserAgent
         {
             get;
             private set;
@@ -133,7 +133,17 @@ namespace UQLT
         /// Gets the quakelive.com XMPP domain.
         /// </summary>
         /// <value>The quakelive.com XMPP domain.</value>
-        public static string QLXMPPDomain
+        public static string QlXmppDomain
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the Quake Live XMPP resource name
+        /// </summary>
+        /// <value>The Quake Live XMPP resource name</value>
+        public static string QuakeLiveXmppResource
         {
             get;
             private set;
@@ -175,22 +185,8 @@ namespace UQLT
         /// <summary>
         /// Gets the UQLT XMPP resource name
         /// </summary>
-        /// <value>
-        /// The UQLT XMPP resource name
-        /// </value>
-        public static string UQLTXMPPResource
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the Quake Live XMPP resource name
-        /// </summary>
-        /// <value>
-        /// The Quake Live XMPP resource name
-        /// </value>
-        public static string QuakeLiveXMPPResource
+        /// <value>The UQLT XMPP resource name</value>
+        public static string UqltxmppResource
         {
             get;
             private set;

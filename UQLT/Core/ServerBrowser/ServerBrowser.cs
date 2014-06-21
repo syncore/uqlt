@@ -26,14 +26,14 @@ namespace UQLT.Core.ServerBrowser
     /// <summary>
     /// Helper class responsible for server retrieval, pinging servers, and elo details for a ServerBrowserViewModel
     /// </summary>
-    public class ServerBrowser : IQLRanksUpdater
+    public class ServerBrowser : IQlRanksUpdater
     {
         private readonly IEventAggregator _events;
 
         // port regexp: colon with at least 4 numbers
-        private Regex port = new Regex(@"[\:]\d{4,}");
+        private readonly Regex _port = new Regex(@"[\:]\d{4,}");
 
-        private Timer ServerRefreshTimer;
+        private readonly Timer _serverRefreshTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerBrowser" /> class.
@@ -42,23 +42,24 @@ namespace UQLT.Core.ServerBrowser
         /// <param name="events">The events that this class publishes and/or receives.</param>
         public ServerBrowser(ServerBrowserViewModel sbvm, IEventAggregator events)
         {
-            SBVM = sbvm;
+            Sbvm = sbvm;
             _events = events;
-            SBVM.FilterURL = GetFilterUrlOnLoad();
-            ServerRefreshTimer = new Timer();
-            if (SBVM.IsAutoRefreshEnabled)
+            Sbvm.FilterUrl = GetFilterUrlOnLoad();
+            _serverRefreshTimer = new Timer();
+            if (Sbvm.IsAutoRefreshEnabled)
             {
                 StartServerRefreshTimer();
             }
             // Don't hit QL servers (debugging)
-            //var l = LoadServerListAsync(SBVM.FilterURL);
+            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+            //var l = LoadServerListAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>
         /// Gets the ServerBrowserViewModel associated with this ServerBrowser.
         /// </summary>
         /// <value>The ServerBrowserViewModel.</value>
-        public ServerBrowserViewModel SBVM
+        public ServerBrowserViewModel Sbvm
         {
             get;
             private set;
@@ -69,7 +70,7 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         /// <param name="players">The players.</param>
         /// <returns>The elo information array.</returns>
-        public async Task<QLRanks> GetEloDataFromQLRanksAPIAsync(string players)
+        public async Task<QLRanks> GetEloDataFromQlRanksApiAsync(string players)
         {
             var gzipHandler = new HttpClientHandler();
             var client = new HttpClient(gzipHandler);
@@ -79,17 +80,17 @@ namespace UQLT.Core.ServerBrowser
                 client.BaseAddress = new Uri("http://www.qlranks.com");
                 //client.BaseAddress = new Uri("http://10.0.0.7");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
 
                 var response = await client.GetAsync("/api.aspx?nick=" + players);
                 response.EnsureSuccessStatusCode(); // Throw on error code
                 string eloinfojson = await response.Content.ReadAsStringAsync();
 
-                QLRanks qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
+                var qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
 
                 return qlr;
             }
-            catch (Newtonsoft.Json.JsonException jEx)
+            catch (JsonException jEx)
             {
                 Debug.WriteLine(jEx.Message);
                 return null;
@@ -103,18 +104,17 @@ namespace UQLT.Core.ServerBrowser
 
         /// <summary>
         /// Asynchronously prepares the player information, given a list of QL servers, to be sent
-        /// to the QLRanks API in the <see cref="GetEloDataFromQLRanksAPIAsync" /> method.
+        /// to the QLRanks API in the <see cref="GetEloDataFromQlRanksApiAsync" /> method.
         /// </summary>
         /// <param name="servers">The list of servers.</param>
         /// <param name="maxPlayers">
         /// The maximum number of players to send to the limited QLRanks API per API call.
         /// </param>
         /// <returns></returns>
-        public async Task GetQLRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
+        public async Task GetQlRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
         {
             var playerstoupdate = new List<string>();
             var qlrapicalls = new List<List<string>>();
-            EloData val;
 
             // extract players, add to a list to update, split the list, then update
             foreach (var server in servers)
@@ -122,7 +122,8 @@ namespace UQLT.Core.ServerBrowser
                 foreach (var player in server.players)
                 {
                     // Elo "caching"
-                    if (UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
+                    EloData val;
+                    if (UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                     {
                         // If the player has our pre-defined default elo value of 0 (qlranks elo
                         // will never be 0) then add player to a list of players to be updated
@@ -152,7 +153,7 @@ namespace UQLT.Core.ServerBrowser
 
             for (int i = 0; i < qlrapicalls.Count; i++)
             {
-                qlranksTasks.Add(GetEloDataFromQLRanksAPIAsync(string.Join("+", qlrapicalls[i])));
+                qlranksTasks.Add(GetEloDataFromQlRanksApiAsync(string.Join("+", qlrapicalls[i])));
                 Debug.WriteLine("QLRANKS: API Task " + i + " URL: http://www.qlranks.com/api.aspx?nick=" + string.Join("+", qlrapicalls[i]));
             }
 
@@ -164,13 +165,13 @@ namespace UQLT.Core.ServerBrowser
             {
                 foreach (var qlrt in qlranksTasks)
                 {
-                    foreach (QLRanksPlayer qp in qlrt.Result.players)
+                    foreach (var qp in qlrt.Result.players)
                     {
-                        UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
-                        UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
-                        UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
-                        UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
-                        UQLTGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
+                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
+                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
+                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
+                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
+                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
                     }
                 }
                 // Player elos have been set in dictionary, now set on the Player object itself
@@ -202,35 +203,35 @@ namespace UQLT.Core.ServerBrowser
         /// <returns>Nothing.</returns>
         public async Task LoadServerListAsync(string filterurl, bool doqlranksupdate = true)
         {
-            filterurl = SBVM.FilterURL;
+            filterurl = Sbvm.FilterUrl;
 
-            SBVM.IsUpdatingServers = true;
+            Sbvm.IsUpdatingServers = true;
 
             string detailsurl = await MakeDetailsUrlAsync(filterurl);
 
-            IList<Server> servers = await GetServersFromDetailsUrlAsync(detailsurl);
+            var servers = await GetServersFromDetailsUrlAsync(detailsurl);
 
             // Must be done on the UI thread since we're updating UI elements
             Execute.OnUIThread(() =>
             {
-                SBVM.Servers.Clear();
-                if (servers != null)
+                Sbvm.Servers.Clear();
+
+                if (servers == null) { return; }
+                foreach (var server in servers)
                 {
-                    foreach (var server in servers)
-                    {
-                        SBVM.Servers.Add(new ServerDetailsViewModel(server));
-                    }
+                    Sbvm.Servers.Add(new ServerDetailsViewModel(server));
                 }
             });
 
-            SBVM.IsUpdatingServers = false;
+            Sbvm.IsUpdatingServers = false;
 
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
-            _events.Publish(new ServerCountEvent(SBVM.Servers.Count));
+            _events.Publish(new ServerCountEvent(Sbvm.Servers.Count));
 
             if (doqlranksupdate)
             {
-                var g = GetQLRanksPlayersAsync(servers);
+                // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+                var g = GetQlRanksPlayersAsync(servers);
             }
         }
 
@@ -239,10 +240,10 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         public void StartServerRefreshTimer()
         {
-            ServerRefreshTimer.Elapsed += new ElapsedEventHandler(OnServerRefresh);
-            ServerRefreshTimer.Interval = (SBVM.AutoRefreshSeconds * 1000);
-            ServerRefreshTimer.Enabled = true;
-            ServerRefreshTimer.AutoReset = true;
+            _serverRefreshTimer.Elapsed += OnServerRefresh;
+            _serverRefreshTimer.Interval = (Sbvm.AutoRefreshSeconds * 1000);
+            _serverRefreshTimer.Enabled = true;
+            _serverRefreshTimer.AutoReset = true;
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace UQLT.Core.ServerBrowser
         public void StopServerRefreshTimer()
         {
             //TODO: stop timer if we have launched a game, to prevent lag during game
-            ServerRefreshTimer.Enabled = false;
+            _serverRefreshTimer.Enabled = false;
         }
 
         /// <summary> Gets the filter URL on load. </summary> <returns> The
@@ -260,26 +261,26 @@ namespace UQLT.Core.ServerBrowser
         private string GetFilterUrlOnLoad()
         {
             string url = null;
-            if (File.Exists(UQLTGlobals.SavedUserFilterPath))
+            if (File.Exists(UQltGlobals.SavedUserFilterPath))
             {
                 try
                 {
-                    using (StreamReader sr = new StreamReader(UQLTGlobals.SavedUserFilterPath))
+                    using (var sr = new StreamReader(UQltGlobals.SavedUserFilterPath))
                     {
                         string saved = sr.ReadToEnd();
-                        SavedFilters savedFilterJson = JsonConvert.DeserializeObject<SavedFilters>(saved);
-                        url = UQLTGlobals.QLDomainListFilter + savedFilterJson.fltr_enc;
+                        var json = JsonConvert.DeserializeObject<SavedFilters>(saved);
+                        url = UQltGlobals.QlDomainListFilter + json.fltr_enc;
                     }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Unable to retrieve filter url: " + ex);
-                    url = UQLTGlobals.QLDefaultFilter;
+                    url = UQltGlobals.QlDefaultFilter;
                 }
             }
             else
             {
-                url = UQLTGlobals.QLDefaultFilter;
+                url = UQltGlobals.QlDefaultFilter;
             }
             return url;
         }
@@ -298,7 +299,6 @@ namespace UQLT.Core.ServerBrowser
             var gzipHandler = new HttpClientHandler();
             var client = new HttpClient(gzipHandler);
             int totalplayercount = 0;
-            EloData val;
 
             try
             {
@@ -308,22 +308,22 @@ namespace UQLT.Core.ServerBrowser
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                UQLTGlobals.IPAddressDict.Clear();
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                UQltGlobals.IpAddressDict.Clear();
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
 
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string serverdetailsjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                ObservableCollection<Server> serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(serverdetailsjson);
+                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                var serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(json);
                 var addresses = new List<string>();
 
-                foreach (Server s in serverlist)
+                foreach (var s in serverlist)
                 {
-                    string cleanedip = port.Replace(s.host_address, string.Empty);
+                    string cleanedip = _port.Replace(s.host_address, string.Empty);
                     addresses.Add(cleanedip);
-                    UQLTGlobals.IPAddressDict[cleanedip] = 0;
+                    UQltGlobals.IpAddressDict[cleanedip] = 0;
 
                     // set a custom property for game_type for each server's players
                     s.setPlayerGameTypeFromServer(s.game_type);
@@ -331,7 +331,8 @@ namespace UQLT.Core.ServerBrowser
                     // create EloData for each player in the given server
                     foreach (var player in s.players)
                     {
-                        if (!UQLTGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
+                        EloData val;
+                        if (!UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                         {
                             s.createEloData();
                         }
@@ -360,7 +361,7 @@ namespace UQLT.Core.ServerBrowser
                 // iterate over list of pingTasks
                 foreach (var pingTask in pingTasks)
                 {
-                    UQLTGlobals.IPAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
+                    UQltGlobals.IpAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
                     // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
                     // pingTask.Result.RoundtripTime + " ms ");
                 }
@@ -389,7 +390,7 @@ namespace UQLT.Core.ServerBrowser
         /// </returns>
         private async Task<string> MakeDetailsUrlAsync(string url)
         {
-            url = SBVM.FilterURL;
+            url = Sbvm.FilterUrl;
             var ids = new List<string>();
             var gzipHandler = new HttpClientHandler();
             var client = new HttpClient(gzipHandler);
@@ -402,24 +403,24 @@ namespace UQLT.Core.ServerBrowser
                     gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 }
 
-                client.DefaultRequestHeaders.Add("User-Agent", UQLTGlobals.QLUserAgent);
+                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
                 var response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode(); // Throw on error code
 
                 // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
                 // QL site actually doesn't send "application/json", but "text/html" even though it
                 // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string serverfilterjson = System.Net.WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+                string serverfilterjson = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
 
-                QLAPIFilterObject qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
+                var qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
 
                 foreach (QLAPIFilterServer qfs in qlfilter.servers)
                 {
                     ids.Add(qfs.public_id.ToString());
                 }
 
-                Debug.WriteLine("Formatted details URL: " + UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids));
-                return UQLTGlobals.QLDomainDetailsIds + string.Join(",", ids);
+                Debug.WriteLine("Formatted details URL: " + UQltGlobals.QlDomainDetailsIds + string.Join(",", ids));
+                return UQltGlobals.QlDomainDetailsIds + string.Join(",", ids);
             }
             catch (Exception ex)
             {
@@ -437,7 +438,8 @@ namespace UQLT.Core.ServerBrowser
         private void OnServerRefresh(object source, ElapsedEventArgs e)
         {
             Debug.WriteLine("Performing automatic server refresh...");
-            var l = LoadServerListAsync(SBVM.FilterURL, true);
+            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+            var l = LoadServerListAsync(Sbvm.FilterUrl, true);
         }
 
         /// <summary>

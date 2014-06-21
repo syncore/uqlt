@@ -3,7 +3,7 @@
     /// <summary>
     /// Necessary methods for saving various configuration options.
     /// </summary>
-    internal interface IUQLTConfiguration
+    internal interface IUqltConfiguration
     {
         /// <summary>
         /// Checks whether the configuration already exists
