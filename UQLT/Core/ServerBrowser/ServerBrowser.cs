@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,6 +12,7 @@ using System.Windows;
 using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Events;
+using UQLT.Helpers;
 using UQLT.Interfaces;
 using UQLT.Models.Filters.Remote;
 using UQLT.Models.Filters.User;
@@ -52,7 +51,7 @@ namespace UQLT.Core.ServerBrowser
             }
             // Don't hit QL servers (debugging)
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            //var l = LoadServerListAsync(Sbvm.FilterUrl);
+            var l = LoadServerListAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>
@@ -72,21 +71,13 @@ namespace UQLT.Core.ServerBrowser
         /// <returns>The elo information array.</returns>
         public async Task<QLRanks> GetEloDataFromQlRanksApiAsync(string players)
         {
-            var gzipHandler = new HttpClientHandler();
-            var client = new HttpClient(gzipHandler);
+            string url = "http://www.qlranks.com/api.aspx?nick=" + players;
+            //string url = "http://10.0.0.7/api.aspx?nick=" + players;
 
             try
             {
-                client.BaseAddress = new Uri("http://www.qlranks.com");
-                //client.BaseAddress = new Uri("http://10.0.0.7");
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
-
-                var response = await client.GetAsync("/api.aspx?nick=" + players);
-                response.EnsureSuccessStatusCode(); // Throw on error code
-                string eloinfojson = await response.Content.ReadAsStringAsync();
-
-                var qlr = JsonConvert.DeserializeObject<QLRanks>(eloinfojson);
+                var query = new RestApiQuery();
+                var qlr = await (query.QueryRestApiAsync<QLRanks>(url));
 
                 return qlr;
             }
@@ -116,7 +107,7 @@ namespace UQLT.Core.ServerBrowser
             var playerstoupdate = new List<string>();
             var qlrapicalls = new List<List<string>>();
 
-            // extract players, add to a list to update, split the list, then update
+            // Extract players, add to a list to update, split the list, then update.
             foreach (var server in servers)
             {
                 foreach (var player in server.players)
@@ -126,7 +117,7 @@ namespace UQLT.Core.ServerBrowser
                     if (UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                     {
                         // If the player has our pre-defined default elo value of 0 (qlranks elo
-                        // will never be 0) then add player to a list of players to be updated
+                        // will never be 0) then add player to a list of players to be updated.
                         if (val.DuelElo == 0)
                         {
                             playerstoupdate.Add(player.name.ToLower());
@@ -141,14 +132,14 @@ namespace UQLT.Core.ServerBrowser
                 }
             }
 
-            // split servers
+            // Split servers.
             for (int i = 0; i < playerstoupdate.Count; i += maxPlayers)
             {
                 qlrapicalls.Add(playerstoupdate.GetRange(i, Math.Min(maxPlayers, playerstoupdate.Count - i)));
                 Debug.WriteLine("QLRANKS: API Call Index: " + i);
             }
 
-            // perform the tasks
+            // Perform the tasks.
             var qlranksTasks = new List<Task<QLRanks>>();
 
             for (int i = 0; i < qlrapicalls.Count; i++)
@@ -157,10 +148,10 @@ namespace UQLT.Core.ServerBrowser
                 Debug.WriteLine("QLRANKS: API Task " + i + " URL: http://www.qlranks.com/api.aspx?nick=" + string.Join("+", qlrapicalls[i]));
             }
 
-            // all the combined n API calls must finish
+            // All the combined n API calls must finish.
             await Task.WhenAll(qlranksTasks.ToArray());
 
-            // set the player elos
+            // Set the player elos.
             try
             {
                 foreach (var qlrt in qlranksTasks)
@@ -260,7 +251,7 @@ namespace UQLT.Core.ServerBrowser
         /// & appended to it. </returns>
         private string GetFilterUrlOnLoad()
         {
-            string url = null;
+            string url;
             if (File.Exists(UQltGlobals.SavedUserFilterPath))
             {
                 try
@@ -292,81 +283,50 @@ namespace UQLT.Core.ServerBrowser
         /// <param name="url">The /browser/details?ids= URL.</param>
         /// <returns>A list of servers specified by the /browser/details?ids= URL</returns>
         /// <remarks>
-        /// Kind of an ugly kitchen sink method, will almost certainly need to be refactored at some point.
+        /// This method is primarily responsible for retrieving all of the server information that
+        /// is seen in the server browser.
         /// </remarks>
         private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
         {
-            var gzipHandler = new HttpClientHandler();
-            var client = new HttpClient(gzipHandler);
             int totalplayercount = 0;
 
             try
             {
-                // QL site sends gzip compressed responses
-                if (gzipHandler.SupportsAutomaticDecompression)
-                {
-                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                }
-
                 UQltGlobals.IpAddressDict.Clear();
-                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
-                var response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode(); // Throw on error code
 
-                // QL site actually doesn't send "application/json", but "text/html" even though it
-                // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string json = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-                var serverlist = JsonConvert.DeserializeObject<ObservableCollection<Server>>(json);
+                var query = new RestApiQuery();
+                var serverlist = await (query.QueryRestApiAsync<IList<Server>>(url));
                 var addresses = new List<string>();
 
+                // Process the server and player information for each server.
                 foreach (var s in serverlist)
                 {
+                    // Strip the port off of the ip address.
                     string cleanedip = _port.Replace(s.host_address, string.Empty);
                     addresses.Add(cleanedip);
-                    UQltGlobals.IpAddressDict[cleanedip] = 0;
 
-                    // set a custom property for game_type for each server's players
+                    // Set a custom property for game_type for each server's players.
                     s.setPlayerGameTypeFromServer(s.game_type);
 
-                    // create EloData for each player in the given server
+                    // Elo information.
                     foreach (var player in s.players)
                     {
                         EloData val;
                         if (!UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                         {
                             s.createEloData();
+                            s.setPlayerElos();
                         }
 
-                        // track the player count
+                        // Track the player count.
                         totalplayercount++;
                     }
-
-                    // Set the server's players' elo directly on the Player model
-                    foreach (var player in s.players)
-                    {
-                        s.setPlayerElos();
-                    }
                 }
 
-                var pingTasks = new List<Task<PingReply>>();
+                // Get the ping information.
+                await PingServersAsync(addresses);
 
-                foreach (string address in addresses)
-                {
-                    pingTasks.Add(PingAsync(address));
-                }
-
-                // wait for all the tasks to complete
-                await Task.WhenAll(pingTasks.ToArray());
-
-                // iterate over list of pingTasks
-                foreach (var pingTask in pingTasks)
-                {
-                    UQltGlobals.IpAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
-                    // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
-                    // pingTask.Result.RoundtripTime + " ms ");
-                }
-
-                // Send a message (event) to the MainViewModel to update the player count in the statusbar
+                // Send a message (event) to the MainViewModel to update the player count in the statusbar.
                 _events.Publish(new PlayerCountEvent(totalplayercount));
 
                 return serverlist;
@@ -392,31 +352,15 @@ namespace UQLT.Core.ServerBrowser
         {
             url = Sbvm.FilterUrl;
             var ids = new List<string>();
-            var gzipHandler = new HttpClientHandler();
-            var client = new HttpClient(gzipHandler);
 
             try
             {
-                // QL site sends gzip compressed responses
-                if (gzipHandler.SupportsAutomaticDecompression)
+                var query = new RestApiQuery();
+                var filterdata = await (query.QueryRestApiAsync<QLAPIFilterObject>(url));
+
+                foreach (QLAPIFilterServer qfs in filterdata.servers)
                 {
-                    gzipHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                }
-
-                client.DefaultRequestHeaders.Add("User-Agent", UQltGlobals.QlUserAgent);
-                var response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode(); // Throw on error code
-
-                // TODO: Parse server ids from string as a stream, since its frequently larger than 85kb
-                // QL site actually doesn't send "application/json", but "text/html" even though it
-                // is actually JSON HtmlDecode replaces &gt;, &lt; same as quakelive.js's EscapeHTML function
-                string serverfilterjson = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
-
-                var qlfilter = JsonConvert.DeserializeObject<QLAPIFilterObject>(serverfilterjson);
-
-                foreach (QLAPIFilterServer qfs in qlfilter.servers)
-                {
-                    ids.Add(qfs.public_id.ToString());
+                    ids.Add(qfs.public_id.ToString(CultureInfo.InvariantCulture));
                 }
 
                 Debug.WriteLine("Formatted details URL: " + UQltGlobals.QlDomainDetailsIds + string.Join(",", ids));
@@ -457,6 +401,34 @@ namespace UQLT.Core.ServerBrowser
             };
             ping.SendAsync(address, new object());
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Asynchronously pings a list of servers and updates a collection (dictionary) that
+        /// contains the server addresses.
+        /// </summary>
+        /// <param name="servers">The list of servers to ping.</param>
+        /// <returns>Nothing</returns>
+        private async Task PingServersAsync(IEnumerable<string> servers)
+        {
+            var pingTasks = new List<Task<PingReply>>();
+
+            foreach (var host in servers)
+            {
+                UQltGlobals.IpAddressDict[host] = 0;
+                pingTasks.Add(PingAsync(host));
+            }
+
+            // Wait for all the tasks to complete.
+            await Task.WhenAll(pingTasks.ToArray());
+
+            // Iterate and update dictionary.
+            foreach (var pingTask in pingTasks)
+            {
+                UQltGlobals.IpAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
+                // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
+                // pingTask.Result.RoundtripTime + " ms ");
+            }
         }
     }
 }

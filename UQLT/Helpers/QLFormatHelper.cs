@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
@@ -174,7 +175,7 @@ namespace UQLT.Helpers
                         if (!(loc.location_id is string))
                         {
                             //Debug.WriteLine("Adding location --> Location ID: {0} - Fullname: {1} - City: {2}", loc.location_id, loc.display_name, loc.city);
-                            Locations[loc.location_id] = new LocationData()
+                            Locations[loc.location_id] = new LocationData
                             {
                                 City = loc.city,
                                 FullLocationName = loc.display_name,
@@ -186,7 +187,7 @@ namespace UQLT.Helpers
                     foreach (var gtype in json.basic_gametypes)
                     {
                         //Debug.WriteLine("Adding gametype --> Full Gametype name: {0} - Short Gametype name: {1}", gtype.display_name, gtype.short_name);
-                        Gametypes[(gtype.game_type)] = new GametypeData()
+                        Gametypes[(gtype.game_type)] = new GametypeData
                         {
                             FullGametypeName = gtype.display_name,
                             ShortGametypeName = gtype.short_name,
@@ -210,7 +211,7 @@ namespace UQLT.Helpers
         {
             try
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + locationId.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + locationId + ".gif", UriKind.RelativeOrAbsolute));
             }
             catch (Exception ex)
             {
@@ -222,13 +223,13 @@ namespace UQLT.Helpers
         /// <summary>
         /// Gets the game icon image.
         /// </summary>
-        /// <param name="game_type">The game_type.</param>
+        /// <param name="gameType">The game_type.</param>
         /// <returns>A BitmapImage game icon for a specified game type.</returns>
-        private BitmapImage GetGameIcon(int game_type)
+        private BitmapImage GetGameIcon(int gameType)
         {
             try
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + game_type.ToString() + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/" + gameType.ToString(CultureInfo.InvariantCulture) + ".gif", UriKind.RelativeOrAbsolute));
             }
             catch (Exception ex)
             {
