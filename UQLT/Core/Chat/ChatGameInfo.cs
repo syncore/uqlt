@@ -102,20 +102,20 @@ namespace UQLT.Core.Chat
                 // we have chosen to expose
                 foreach (var server in serverdata)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = server.public_id;
-                    //CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[server.game_type].ShortGametypeName;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = server.map;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = server.map_title;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = server.num_players;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = server.max_clients;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = server.g_redscore;
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GBlueScore = server.g_bluescore;
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, false);
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = server.public_id;
+                    ////CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[server.game_type].ShortGametypeName;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = server.map;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = server.map_title;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = server.num_players;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = server.max_clients;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = server.g_redscore;
+                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GBlueScore = server.g_bluescore;
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                // need something here so it re-tries again in X seconds on failure
             }
         }
 
@@ -190,14 +190,15 @@ namespace UQLT.Core.Chat
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = servers[i].public_id;
-                    //CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[servers[i].game_type].ShortGametypeName;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = servers[i].map;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = servers[i].map_title;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = servers[i].num_players;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = servers[i].max_clients;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = servers[i].g_redscore;
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GBlueScore = servers[i].g_bluescore;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ServerDetailsViewModel(servers[i], false);
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = servers[i].public_id;
+                    ////CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[servers[i].game_type].ShortGametypeName;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = servers[i].map;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = servers[i].map_title;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = servers[i].num_players;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = servers[i].max_clients;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = servers[i].g_redscore;
+                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GBlueScore = servers[i].g_bluescore;
                 }
             }
             catch (Exception ex)

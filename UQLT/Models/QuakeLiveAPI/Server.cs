@@ -342,7 +342,7 @@ namespace UQLT.Models.QuakeLiveAPI
             {
                 if (!UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
                 {
-                    UQltGlobals.PlayerEloInfo[p.name.ToLower()] = new EloData()
+                    UQltGlobals.PlayerEloInfo[p.name.ToLower()] = new EloData
                     {
                         DuelElo = 0,
                         CaElo = 0,

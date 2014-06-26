@@ -130,8 +130,10 @@
     <Compile Include="Helpers\FocusBehavior.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
+    <Compile Include="Helpers\NotifyTaskCompletion.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
+    <Compile Include="Helpers\QlRanksDataRetriever.cs" />
     <Compile Include="Helpers\RestApiQuery.cs" />
     <Compile Include="Helpers\ScrollToEndBehavior.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />

@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -23,14 +25,14 @@ namespace UQLT.ViewModels
     public class ServerDetailsViewModel : PropertyChangedBase
     {
         private readonly QlFormatHelper _formatHelper = QlFormatHelper.Instance;
-        private long _blueTeamElo;
+        private readonly QlRanksDataRetriever _qlRanksDataRetriever = new QlRanksDataRetriever();
         private string _formattedGameState;
         private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
-        private long _redTeamElo;
         private string _timeRemaining;
 
         // port regexp: colon with at least 4 numbers
         private Regex port = new Regex(@"[\:]\d{4,}");
+        private NotifyTaskCompletion<long> _blueTeamElo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
@@ -46,6 +48,9 @@ namespace UQLT.ViewModels
         public ServerDetailsViewModel(Server server, bool isForServerBrowser = true)
         {
             QlServer = server;
+            QlRanksPlayersToUpdate = new HashSet<string>();
+            //RedTeamElo = new NotifyTaskCompletion<long>(CalculateTeamEloAsync(1));
+            //BlueTeamElo = new NotifyTaskCompletion<long>(CalculateTeamEloAsync(2));
             if (isForServerBrowser)
             {
                 SortServersAndFormatPlayers();
@@ -56,91 +61,9 @@ namespace UQLT.ViewModels
         /// Gets or sets the blue team's Elo.
         /// </summary>
         /// <value>The blue team's Elo.</value>
-        public long BlueTeamElo
+        public NotifyTaskCompletion<long> BlueTeamElo
         {
-            get
-            {
-                long bluetotalplayers = 0, totaleloblueteam = 0, blueplayerelo = 0;
-
-                if (NumPlayers == 0 || IsTeam0Condition)
-                {
-                    return 0;
-                }
-                else if (NumPlayers != 0 || !IsTeam0Condition)
-                {
-                    if (GameType == 3 || GameType == 4 || GameType == 5)
-                    {
-                        foreach (var p in Players)
-                        {
-                            if (p.team == 2)
-                            {
-                                EloData val;
-                                if (GameType == 3)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                                    }
-                                    else
-                                    {
-                                        blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [TDM] BLUE team Elo calculation.");
-                                    }
-                                }
-                                else if (GameType == 4)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                                    }
-                                    else
-                                    {
-                                        blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CA] BLUE team Elo calculation.");
-                                    }
-                                }
-                                else if (GameType == 5)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        blueplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
-                                    }
-                                    else
-                                    {
-                                        blueplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [BLUE] player Elo for [CTF] BLUE team Elo calculation.");
-                                    }
-                                }
-
-                                bluetotalplayers++;
-                                totaleloblueteam += blueplayerelo;
-                            }
-                        }
-
-                        if (bluetotalplayers == 0)
-                        {
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-
-                    _blueTeamElo = totaleloblueteam / bluetotalplayers;
-                    return _blueTeamElo;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-            set
-            {
-                _blueTeamElo = value;
-                NotifyOfPropertyChange(() => BlueTeamElo);
-            }
+            get { return new NotifyTaskCompletion<long>(CalculateTeamEloAsync(2)); }
         }
 
         /// <summary>
@@ -488,15 +411,35 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets a value indicating whether this server's gametype is supported by QLRanks.
+        /// Gets a value indicating whether this server's gametype is supported by QLRanks for all
+        /// game types.
         /// </summary>
         /// <value><c>true</c> if this QLRanks supports this server's gametype otherwise, <c>false</c>.</value>
-        /// <remarks>This is a custom UI setting.</remarks>
-        public bool IsQlRanksSupported
+        /// <remarks>
+        /// Currently, game modes 0, 1, 3, 4, 5 are supported by QLRanks API. This is a custom UI setting.
+        /// </remarks>
+        public bool IsQlRanksSupportedAllGames
         {
             get
             {
                 return (GameType == 0 || GameType == 1 || GameType == 3 || GameType == 4 || GameType == 5);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this server's gametype is supported by QLRanks for team
+        /// games only.
+        /// </summary>
+        /// <value><c>true</c> if this QLRanks supports this server's gametype otherwise, <c>false</c>.</value>
+        /// <remarks>
+        /// Currently, only team game modes 3, 4, 5 are supported by QLRanks API. This is a custom
+        /// UI setting.
+        /// </remarks>
+        public bool IsQlRanksSupportedTeamGame
+        {
+            get
+            {
+                return (GameType == 3 || GameType == 4 || GameType == 5);
             }
         }
 
@@ -518,26 +461,23 @@ namespace UQLT.ViewModels
                 int redsize = 0, bluesize = 0, zerosize = 0;
                 foreach (var p in Players)
                 {
-                    if (p.team == 0)
+                    switch (p.team)
                     {
-                        zerosize++;
-                    }
-                    else if (p.team == 1)
-                    {
-                        redsize++;
-                    }
-                    else if (p.team == 2)
-                    {
-                        bluesize++;
+                        case 0:
+                            zerosize++;
+                            break;
+
+                        case 1:
+                            redsize++;
+                            break;
+
+                        case 2:
+                            bluesize++;
+                            break;
                     }
                 }
 
-                if (((redsize == 0) && (bluesize == 0)) && (zerosize > 0))
-                {
-                    return true;
-                }
-
-                return false;
+                return ((redsize == 0) && (bluesize == 0)) && (zerosize > 0);
             }
         }
 
@@ -774,6 +714,17 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets the players whose missing QLRanks Elo data is to be updated.
+        /// </summary>
+        /// <value>The players to update.</value>
+        public HashSet<string> QlRanksPlayersToUpdate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the QLRanks data retriever.
+        /// </summary>
+        /// <value>The QLRanksdata retriever.</value>
+
+        /// <summary>
         /// Gets the server that this viewmodel wraps.
         /// </summary>
         /// <value>The server that this viewmodel wraps.</value>
@@ -804,91 +755,9 @@ namespace UQLT.ViewModels
         /// Gets or sets the red team's Elo.
         /// </summary>
         /// <value>The red team's Elo.</value>
-        public long RedTeamElo
+        public NotifyTaskCompletion<long> RedTeamElo
         {
-            get
-            {
-                long redtotalplayers = 0, totaleloredteam = 0, redplayerelo = 0;
-                EloData val;
-
-                if (NumPlayers == 0 || IsTeam0Condition)
-                {
-                    return 0;
-                }
-                else if (NumPlayers != 0 || !IsTeam0Condition)
-                {
-                    if (GameType == 3 || GameType == 4 || GameType == 5)
-                    {
-                        foreach (var p in Players)
-                        {
-                            if (p.team == 1)
-                            {
-                                if (GameType == 3)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                                    }
-                                    else
-                                    {
-                                        redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [TDM] RED team Elo calculation.");
-                                    }
-                                }
-                                else if (GameType == 4)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                                    }
-                                    else
-                                    {
-                                        redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CA] RED team Elo calculation");
-                                    }
-                                }
-                                else if (GameType == 5)
-                                {
-                                    if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                                    {
-                                        redplayerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
-                                    }
-                                    else
-                                    {
-                                        redplayerelo = 0;
-                                        Debug.WriteLine("Key doesn't exist - error retrieving [RED] player Elo for [CTF] RED team Elo calculation");
-                                    }
-                                }
-
-                                redtotalplayers++;
-                                totaleloredteam += redplayerelo;
-                            }
-                        }
-
-                        if (redtotalplayers == 0)
-                        {
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-
-                    _redTeamElo = totaleloredteam / redtotalplayers;
-                    return _redTeamElo;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-            set
-            {
-                _redTeamElo = value;
-                NotifyOfPropertyChange(() => RedTeamElo);
-            }
+            get { return new NotifyTaskCompletion<long>(CalculateTeamEloAsync(1)); }
         }
 
         /// <summary>
@@ -1095,7 +964,7 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <param name="players">The players.</param>
         /// <returns>A formatted player list.</returns>
-        private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(List<Player> players)
+        private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(IEnumerable<Player> players)
         {
             _formattedPlayerList.Clear();
             foreach (var player in players)
@@ -1104,6 +973,99 @@ namespace UQLT.ViewModels
             }
 
             return _formattedPlayerList;
+        }
+
+        /// <summary>
+        /// Asynchronously calculates the team's average elo for QLRanks-supported team gametypes.
+        /// </summary>
+        /// <param name="team">The team. <c>1</c> is blue, <c>2</c> is red.</param>
+        /// <returns>The team's average elo as a 64-bit signed integer.</returns>
+        private async Task<long> CalculateTeamEloAsync(int team)
+        {
+            if (NumPlayers == 0 || IsTeam0Condition) { return 0; }
+            if (!IsQlRanksSupportedTeamGame) { return 0; }
+
+            QlRanksPlayersToUpdate.Clear();
+
+            long totalplayers = 0, totaleloteam = 0, playerelo = 0;
+
+            foreach (var p in Players.Where(p => p.team == team))
+            {
+                EloData val;
+                switch (GameType)
+                {
+                    // TDM
+                    case 3:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                        }
+                        break;
+                    // CA
+                    case 4:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                        }
+                        else
+                        {
+                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            Debug.WriteLine(
+                                "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
+                        }
+                        break;
+                    // CTF
+                    case 5:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                        }
+                        else
+                        {
+                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            Debug.WriteLine(
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                        }
+                        break;
+                }
+
+                totalplayers++;
+                totaleloteam += playerelo;
+            }
+
+            // There are players with missing elo information... Run an update.
+            if (QlRanksPlayersToUpdate.Count != 0)
+            {
+                Debug.WriteLine("Retrieving missing elo information for team (" + team + ") calculation for player(s): " + string.Join("+", QlRanksPlayersToUpdate));
+                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", QlRanksPlayersToUpdate));
+                _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
+
+                foreach (var ptoupdate in QlRanksPlayersToUpdate)
+                {
+                    switch (GameType)
+                    {
+                        case 3:
+                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].TdmElo;
+                            break;
+
+                        case 4:
+                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CaElo;
+                            break;
+
+                        case 5:
+                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CtfElo;
+                            break;
+                    }
+                }
+            }
+
+            return (totaleloteam / totalplayers);
         }
 
         /// <summary>

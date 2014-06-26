@@ -95,7 +95,7 @@
                                                     <TextBlock TextWrapping="Wrap">
                                                         <TextBlock.Text>
                                                             <MultiBinding StringFormat="{}Red ({0} Elo): {1}">
-                                                                <Binding Path="Value.Server.RedTeamElo" FallbackValue="0" />
+                                                                <Binding Path="Value.Server.RedTeamElo.Result" FallbackValue="0" />
                                                                 <Binding Path="Value.Server.GRedScore" />
                                                             </MultiBinding>
                                                         </TextBlock.Text>
@@ -104,7 +104,7 @@
                                                     <TextBlock TextWrapping="Wrap">
                                                         <TextBlock.Text>
                                                             <MultiBinding StringFormat="{}Blue ({0} Elo): {1}">
-                                                                <Binding Path="Value.Server.BlueTeamElo" FallbackValue="0" />
+                                                                <Binding Path="Value.Server.BlueTeamElo.Result" FallbackValue="0" />
                                                                 <Binding Path="Value.Server.GBlueScore" />
                                                             </MultiBinding>
                                                         </TextBlock.Text>

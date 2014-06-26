@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Events;
 using UQLT.Helpers;
-using UQLT.Interfaces;
 using UQLT.Models.Filters.Remote;
 using UQLT.Models.Filters.User;
 using UQLT.Models.QLRanks;
@@ -25,7 +23,7 @@ namespace UQLT.Core.ServerBrowser
     /// <summary>
     /// Helper class responsible for server retrieval, pinging servers, and elo details for a ServerBrowserViewModel
     /// </summary>
-    public class ServerBrowser : IQlRanksUpdater
+    public class ServerBrowser
     {
         private readonly IEventAggregator _events;
 
@@ -65,125 +63,6 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary>
-        /// Asynchronously retrieves the player Elo information from the QLRanks API via HTTP GET request(s).
-        /// </summary>
-        /// <param name="players">The players.</param>
-        /// <returns>The elo information array.</returns>
-        public async Task<QLRanks> GetEloDataFromQlRanksApiAsync(string players)
-        {
-            string url = "http://www.qlranks.com/api.aspx?nick=" + players;
-            //string url = "http://10.0.0.7/api.aspx?nick=" + players;
-
-            try
-            {
-                var query = new RestApiQuery();
-                var qlr = await (query.QueryRestApiAsync<QLRanks>(url));
-
-                return qlr;
-            }
-            catch (JsonException jEx)
-            {
-                Debug.WriteLine(jEx.Message);
-                return null;
-            }
-            catch (HttpRequestException ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously prepares the player information, given a list of QL servers, to be sent
-        /// to the QLRanks API in the <see cref="GetEloDataFromQlRanksApiAsync" /> method.
-        /// </summary>
-        /// <param name="servers">The list of servers.</param>
-        /// <param name="maxPlayers">
-        /// The maximum number of players to send to the limited QLRanks API per API call.
-        /// </param>
-        /// <returns></returns>
-        public async Task GetQlRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
-        {
-            var playerstoupdate = new List<string>();
-            var qlrapicalls = new List<List<string>>();
-
-            // Extract players, add to a list to update, split the list, then update.
-            foreach (var server in servers)
-            {
-                foreach (var player in server.players)
-                {
-                    // Elo "caching"
-                    EloData val;
-                    if (UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
-                    {
-                        // If the player has our pre-defined default elo value of 0 (qlranks elo
-                        // will never be 0) then add player to a list of players to be updated.
-                        if (val.DuelElo == 0)
-                        {
-                            playerstoupdate.Add(player.name.ToLower());
-                            Debug.WriteLine("Player: " + player.name.ToLower() + " was not previously indexed. Adding to list of players whose elo we need...");
-                        }
-                    }
-                    else
-                    {
-                        playerstoupdate.Add(player.name.ToLower());
-                        Debug.WriteLine("Player: " + player.name.ToLower() + " was not previously indexed. Adding to list of players whose elo we need...");
-                    }
-                }
-            }
-
-            // Split servers.
-            for (int i = 0; i < playerstoupdate.Count; i += maxPlayers)
-            {
-                qlrapicalls.Add(playerstoupdate.GetRange(i, Math.Min(maxPlayers, playerstoupdate.Count - i)));
-                Debug.WriteLine("QLRANKS: API Call Index: " + i);
-            }
-
-            // Perform the tasks.
-            var qlranksTasks = new List<Task<QLRanks>>();
-
-            for (int i = 0; i < qlrapicalls.Count; i++)
-            {
-                qlranksTasks.Add(GetEloDataFromQlRanksApiAsync(string.Join("+", qlrapicalls[i])));
-                Debug.WriteLine("QLRANKS: API Task " + i + " URL: http://www.qlranks.com/api.aspx?nick=" + string.Join("+", qlrapicalls[i]));
-            }
-
-            // All the combined n API calls must finish.
-            await Task.WhenAll(qlranksTasks.ToArray());
-
-            // Set the player elos.
-            try
-            {
-                foreach (var qlrt in qlranksTasks)
-                {
-                    foreach (var qp in qlrt.Result.players)
-                    {
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
-                    }
-                }
-                // Player elos have been set in dictionary, now set on the Player object itself
-                // TODO: this will allow using Properties and NotifyPropertyChange to update the
-                //       player view in the server browser.
-                foreach (var s in servers)
-                {
-                    foreach (var player in s.players)
-                    {
-                        s.setPlayerElos();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Unable to load QLRanks player data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Debug.WriteLine(e);
-            }
-        }
-
-        /// <summary>
         /// Asynchrounously loads the Quake Live server list from a given /browser/list?filter= URL
         /// for display in the UI.
         /// </summary>
@@ -195,11 +74,8 @@ namespace UQLT.Core.ServerBrowser
         public async Task LoadServerListAsync(string filterurl, bool doqlranksupdate = true)
         {
             filterurl = Sbvm.FilterUrl;
-
             Sbvm.IsUpdatingServers = true;
-
             string detailsurl = await MakeDetailsUrlAsync(filterurl);
-
             var servers = await GetServersFromDetailsUrlAsync(detailsurl);
 
             // Must be done on the UI thread since we're updating UI elements
@@ -222,7 +98,10 @@ namespace UQLT.Core.ServerBrowser
             if (doqlranksupdate)
             {
                 // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-                var g = GetQlRanksPlayersAsync(servers);
+                var qlranksRetriever = new QlRanksDataRetriever();
+                // TODO: await
+                var g = qlranksRetriever.GetQlRanksPlayersAsync(servers);
+                //var g = GetQlRanksPlayersAsync(servers);
             }
         }
 
@@ -296,7 +175,7 @@ namespace UQLT.Core.ServerBrowser
 
                 var query = new RestApiQuery();
                 var serverlist = await (query.QueryRestApiAsync<IList<Server>>(url));
-                var addresses = new List<string>();
+                var addresses = new HashSet<string>();
 
                 // Process the server and player information for each server.
                 foreach (var s in serverlist)
@@ -351,7 +230,7 @@ namespace UQLT.Core.ServerBrowser
         private async Task<string> MakeDetailsUrlAsync(string url)
         {
             url = Sbvm.FilterUrl;
-            var ids = new List<string>();
+            var ids = new HashSet<string>();
 
             try
             {
