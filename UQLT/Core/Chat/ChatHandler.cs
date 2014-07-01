@@ -148,10 +148,22 @@ namespace UQLT.Core.Chat
         private void CheckFriendStatus(Presence presence)
         {
             if (IsMe(presence.From)) { return; }
-
+            
+            Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
+            
             if (string.IsNullOrEmpty(presence.Status))
             {
+
                 ClearFriendStatus(presence);
+                
+                // Only clear the status if there are not multiple clients signed in,
+                // otherwise the new client's status would override the old and would not be show in UI.
+                //if (!IsFriendAlreadyOnline(presence.From.User))
+                //{
+
+                //    ClearFriendStatus(presence);
+                //}
+                
                 Debug.WriteLine("**Status for " + presence.From.User.ToLowerInvariant() + " is empty.");
             }
             else
@@ -175,6 +187,21 @@ namespace UQLT.Core.Chat
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
         }
+
+        /// <summary>
+        /// Clears a friend's status.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        private void ClearFriendStatus(Jid jid)
+        {
+            FriendViewModel val;
+            // On program start there is a timing issue where the key won't exist, so need to check first
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val)) return;
+            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasXmppStatus = false;
+            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].IsInGame = false;
+            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
+        }
+
 
         /// <summary>
         /// Called when a valid certificate is received.
@@ -219,17 +246,24 @@ namespace UQLT.Core.Chat
             if (IsMe(jid)) { return; }
 
             // User was already online.
-            if (IsFriendAlreadyOnline(friend))
+            //if ((IsFriendAlreadyOnline(friend)) && (!Clvm.OnlineGroup.Friends[friend].ActiveXmppResource.Equals(jid.Resource)))
+            if ((IsFriendAlreadyOnline(friend)))
             {
-                Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = true;
-                Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
-                Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
-                Debug.WriteLine("**********" + jid.User + " already had a client signed in! Setting multiple client flag and new resource...");
+                if (!Clvm.OnlineGroup.Friends[friend].ActiveXmppResource.Equals(jid.Resource))
+                {
+                    Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = true;
+                    Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
+                    Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
+                    Debug.WriteLine("**********" + jid.User +
+                                    " already had a client signed in! Setting multiple client flag and new resource...");
+                }
             }
             // User wasn't already online.
             else
             {
                 Debug.WriteLine("**********" + jid + " did NOT already have a client signed in. Updating Online Friends roster group...");
+                //if
+                
                 // Must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
@@ -271,6 +305,12 @@ namespace UQLT.Core.Chat
                 Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
                 Clvm.OnlineGroup.Friends[friend].XmppResources.Remove(jid.Resource);
 
+                //// Clear XMPP status, if any, for UI purposes
+                if (Clvm.OnlineGroup.Friends[friend].HasXmppStatus)
+                {
+                    ClearFriendStatus(jid);
+                }
+                
                 // Set resource back to first client's resource.
                 if (Clvm.OnlineGroup.Friends[friend].XmppResources.Count < 1) return;
                 Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = Clvm.OnlineGroup.Friends[friend].XmppResources.ElementAt(0);

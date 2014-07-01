@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
+using Nito.AsyncEx;
 using UQLT.Helpers;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
@@ -32,7 +33,6 @@ namespace UQLT.ViewModels
 
         // port regexp: colon with at least 4 numbers
         private Regex port = new Regex(@"[\:]\d{4,}");
-        private NotifyTaskCompletion<long> _blueTeamElo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
@@ -49,8 +49,6 @@ namespace UQLT.ViewModels
         {
             QlServer = server;
             QlRanksPlayersToUpdate = new HashSet<string>();
-            //RedTeamElo = new NotifyTaskCompletion<long>(CalculateTeamEloAsync(1));
-            //BlueTeamElo = new NotifyTaskCompletion<long>(CalculateTeamEloAsync(2));
             if (isForServerBrowser)
             {
                 SortServersAndFormatPlayers();
@@ -61,9 +59,13 @@ namespace UQLT.ViewModels
         /// Gets or sets the blue team's Elo.
         /// </summary>
         /// <value>The blue team's Elo.</value>
-        public NotifyTaskCompletion<long> BlueTeamElo
+
+        public INotifyTaskCompletion<long> BlueTeamElo
         {
-            get { return new NotifyTaskCompletion<long>(CalculateTeamEloAsync(2)); }
+            get
+            {
+                return NotifyTaskCompletion.Create(CalculateTeamEloAsync(2));
+            }
         }
 
         /// <summary>
@@ -482,6 +484,36 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets the size of the red team.
+        /// </summary>
+        /// <value>
+        /// The size of the red team.
+        /// </value>
+        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
+        public int RedTeamSize
+        {
+            get
+            {
+                return Players.Count(p => p.team == 1);
+            }
+        }
+
+        /// <summary>
+        /// Gets the size of the blue team.
+        /// </summary>
+        /// <value>
+        /// The size of the blue team.
+        /// </value>
+        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
+        public int BlueTeamSize
+        {
+            get
+            {
+                return Players.Count(p => p.team == 2);
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this server features a team game type.
         /// </summary>
         /// <value><c>true</c> if this server features a team game; otherwise, <c>false</c>.</value>
@@ -720,11 +752,6 @@ namespace UQLT.ViewModels
         public HashSet<string> QlRanksPlayersToUpdate { get; set; }
 
         /// <summary>
-        /// Gets or sets the QLRanks data retriever.
-        /// </summary>
-        /// <value>The QLRanksdata retriever.</value>
-
-        /// <summary>
         /// Gets the server that this viewmodel wraps.
         /// </summary>
         /// <value>The server that this viewmodel wraps.</value>
@@ -734,6 +761,10 @@ namespace UQLT.ViewModels
             private set;
         }
 
+        /// <summary>
+        /// Gets or sets the QLRanks data retriever.
+        /// </summary>
+        /// <value>The QLRanksdata retriever.</value>
         /// <summary>
         /// Gets or sets the ranked setting.
         /// </summary>
@@ -752,12 +783,17 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the red team's Elo.
+        /// Gets the red team's Elo.
         /// </summary>
-        /// <value>The red team's Elo.</value>
-        public NotifyTaskCompletion<long> RedTeamElo
+        /// <value>
+        /// The red team's Elo.
+        /// </value>
+        public INotifyTaskCompletion<long> RedTeamElo
         {
-            get { return new NotifyTaskCompletion<long>(CalculateTeamEloAsync(1)); }
+            get
+            {
+                return NotifyTaskCompletion.Create(CalculateTeamEloAsync(1));
+            }
         }
 
         /// <summary>
@@ -983,6 +1019,8 @@ namespace UQLT.ViewModels
         private async Task<long> CalculateTeamEloAsync(int team)
         {
             if (NumPlayers == 0 || IsTeam0Condition) { return 0; }
+            if ((team == 1) && (RedTeamSize == 0)) { return 0; }
+            if ((team == 2) && (BlueTeamSize == 0)) { return 0; }
             if (!IsQlRanksSupportedTeamGame) { return 0; }
 
             QlRanksPlayersToUpdate.Clear();
@@ -1042,24 +1080,49 @@ namespace UQLT.ViewModels
             // There are players with missing elo information... Run an update.
             if (QlRanksPlayersToUpdate.Count != 0)
             {
+                // Create
+                _qlRanksDataRetriever.CreateEloData(QlRanksPlayersToUpdate);
+                
                 Debug.WriteLine("Retrieving missing elo information for team (" + team + ") calculation for player(s): " + string.Join("+", QlRanksPlayersToUpdate));
                 var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", QlRanksPlayersToUpdate));
                 _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
 
                 foreach (var ptoupdate in QlRanksPlayersToUpdate)
                 {
+                    EloData val;
                     switch (GameType)
                     {
                         case 3:
-                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].TdmElo;
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            {
+                                totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].TdmElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + ptoupdate + " [TDM]......");
+                            }
                             break;
 
                         case 4:
-                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CaElo;
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            {
+                                totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CaElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + ptoupdate + " [CA]......");
+                            }
                             break;
 
                         case 5:
-                            totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CtfElo;
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            {
+                                totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CtfElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + ptoupdate + " [CTF]......");
+                            }
                             break;
                     }
                 }

@@ -136,6 +136,21 @@ namespace UQLT.Helpers
             }
         }
 
+        public void CreateEloData<T>(IEnumerable<T> players)
+        {
+            foreach (var player in players)
+            {
+                UQltGlobals.PlayerEloInfo[player.ToString().ToLower()] = new EloData
+                {
+                    DuelElo = 0,
+                    CaElo = 0,
+                    TdmElo = 0,
+                    FfaElo = 0,
+                    CtfElo = 0
+                };   
+            }
+        }
+        
         /// <summary>
         /// Sets the ql ranks players asynchronous.
         /// </summary>
@@ -146,15 +161,6 @@ namespace UQLT.Helpers
         {
             foreach (var player in qlRanks.players)
             {
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()] = new EloData
-                {
-                    DuelElo = 0,
-                    CaElo = 0,
-                    TdmElo = 0,
-                    FfaElo = 0,
-                    CtfElo = 0
-                };
-                
                 UQltGlobals.PlayerEloInfo[player.nick.ToLower()].DuelElo = player.duel.elo;
                 UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CaElo = player.ca.elo;
                 UQltGlobals.PlayerEloInfo[player.nick.ToLower()].TdmElo = player.tdm.elo;
