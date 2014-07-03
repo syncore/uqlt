@@ -110,5 +110,13 @@ namespace UQLT.Models.Chat
         /// </summary>
         /// <value>The set of this friend's XMPP resources.</value>
         public HashSet<string> XmppResources { get; set; }
+
+        /// <summary>
+        /// Gets or sets the status
+        /// </summary>
+        /// <value>
+        /// The status
+        /// </value>
+        public string Status { get; set; }
     }
 }

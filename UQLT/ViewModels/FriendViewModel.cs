@@ -325,5 +325,17 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => XmppResources);
             }
         }
+
+        /// <summary>
+        /// Gets or sets the status
+        /// </summary>
+        /// <value>
+        /// The status
+        /// </value>
+        public string Status
+        {
+            get { return RosterFriend.Status; }
+            set { RosterFriend.Status = value; }
+        }
     }
 }
