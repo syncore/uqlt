@@ -546,7 +546,7 @@ namespace UQLT.ViewModels
             }
 
             Debug.WriteLine("Sending filter status text information to Main VM: {0} {1} {2} {3} {4} {5}", gametype, gamearena, gamelocation, gamestate, gamevisibility, premium);
-            _events.Publish(new FilterStatusEvent(gametype, gamearena, gamelocation, gamestate, gamevisibility, premium));
+            _events.PublishOnUIThread(new FilterStatusEvent(gametype, gamearena, gamelocation, gamestate, gamevisibility, premium));
         }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace UQLT.ViewModels
         /// <param name="url">The URL.</param>
         public void SetServerBrowserUrl(string url)
         {
-            _events.Publish(new ServerRequestEvent(url));
+            _events.PublishOnUIThread(new ServerRequestEvent(url));
         }
 
         /// <summary>

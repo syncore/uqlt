@@ -138,45 +138,6 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Checks a friend's status to determine what the friend is doing in Quake Live.
-        /// </summary>
-        /// <param name="presence">The presence.</param>
-        /// <remarks>
-        /// This is only fired when availability changes (user: offline -&gt; online OR user leaves
-        /// game server AND/OR joins game server).
-        /// </remarks>
-        private void CheckFriendStatus(Presence presence)
-        {
-            if (IsMe(presence.From)) { return; }
-
-            // This user's presesence does not contain a status.
-            if (string.IsNullOrEmpty(presence.Status))
-            {
-                // TODO: FIX THIS SO IT ACTUALLY WORKS PROPERLY
-                // In the case of multiple clients, if the model (not the presence) already has a status then use it, but also update.
-                if (!string.IsNullOrEmpty(Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].Status))
-                {
-                    UpdateFriendStatus(presence.From.User.ToLowerInvariant(), Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].Status);
-                }
-                else
-                {
-                    ClearFriendStatus(presence);
-                }
-                
-
-
-                Debug.WriteLine("**Status for " + presence.From.User.ToLowerInvariant() + " is empty.");
-            }
-            // This user's presence actually contained a status.
-            else
-            {
-                Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = true;
-                UpdateFriendStatus(presence.From.User, presence.Status);
-                Debug.WriteLine("**Status for " + presence.From.User.ToLowerInvariant() + " is: " + presence.Status);
-            }
-        }
-
-        /// <summary>
         /// Clears a friend's status.
         /// </summary>
         /// <param name="presence">The presence.</param>
@@ -188,24 +149,22 @@ namespace UQLT.Core.Chat
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = false;
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
-            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].Status = string.Empty;
         }
 
         /// <summary>
         /// Clears a friend's status.
         /// </summary>
-        /// <param name="jid">The jid.</param>
-        private void ClearFriendStatus(Jid jid)
+        /// <param name="friend">The friend (jid.From.User)</param>
+        private void ClearFriendStatus(string friend)
         {
             FriendViewModel val;
+            friend = friend.ToLowerInvariant();
             // On program start there is a timing issue where the key won't exist, so need to check first
-            if (!Clvm.OnlineGroup.Friends.TryGetValue(jid.User.ToLowerInvariant(), out val)) return;
-            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].HasXmppStatus = false;
-            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].IsInGame = false;
-            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
-            Clvm.OnlineGroup.Friends[jid.User.ToLowerInvariant()].Status = string.Empty;
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
+            Clvm.OnlineGroup.Friends[friend].HasXmppStatus = false;
+            Clvm.OnlineGroup.Friends[friend].IsInGame = false;
+            Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.Nothing;
         }
-
 
         /// <summary>
         /// Called when a valid certificate is received.
@@ -242,10 +201,11 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Friend has become available.
         /// </summary>
-        /// <param name="jid">The user's jid.</param>
-        private void FriendBecameAvailable(Jid jid)
+        /// <param name="presence">The user's presence.</param>
+        private void FriendBecameAvailable(Presence presence)
         {
-            string friend = jid.User.ToLowerInvariant();
+            string friend = presence.From.User.ToLowerInvariant();
+            var jid = presence.From;
 
             if (IsMe(jid)) { return; }
 
@@ -257,19 +217,20 @@ namespace UQLT.Core.Chat
                     Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = true;
                     Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
                     Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
+
                     Debug.WriteLine("**********" + jid.User +
-                                    " already had a client signed in! Setting multiple client flag and new resource...");
+                                    " (status: " + presence.Status + ") already had a client signed in! Setting multiple client flag and new resource...");
                 }
             }
             // User wasn't already online.
             else
             {
-                Debug.WriteLine("**********" + jid + " did NOT already have a client signed in. Updating Online Friends roster group...");
-                
+                Debug.WriteLine("**********" + jid + " (status: " + presence.Status + ") did NOT already have a client signed in. Updating Online Friends roster group...");
+
                 // Must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    Clvm.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User)));
+                    Clvm.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(presence.From.User)));
                     Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
                     Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
                     Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
@@ -277,14 +238,18 @@ namespace UQLT.Core.Chat
                 });
             }
 
+            // Update with proper status. We only care about QL client since UQLT will always have a blank status.
+            if (jid.Resource.Equals(UQltGlobals.QuakeLiveXmppResource))
+            {
+                UpdateFriendStatus(friend, presence.Status);
+            }
+
             // If user user was previously offline then remove from offline friends group.
             FriendViewModel val;
-            if (Clvm.OfflineGroup.Friends.TryGetValue(friend, out val))
-            {
-                // Additions and removals to ObservableDictionary must be done on the UI thread
-                Execute.OnUIThread(() => Clvm.OfflineGroup.Friends.Remove(friend));
-                Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count() + " After: " + Clvm.OnlineGroup.Friends.Count());
-            }
+            if (!Clvm.OfflineGroup.Friends.TryGetValue(friend, out val)) return;
+            // Additions and removals to ObservableDictionary must be done on the UI thread
+            Execute.OnUIThread(() => Clvm.OfflineGroup.Friends.Remove(friend));
+            Debug.WriteLine("Friends list before adding " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count() + " After: " + Clvm.OnlineGroup.Friends.Count());
         }
 
         /// <summary>
@@ -293,35 +258,32 @@ namespace UQLT.Core.Chat
         /// <param name="presence">The presence.</param>
         private void FriendBecameUnavailable(Presence presence)
         {
-            if (IsMe(presence.From)) { return; }
+            var jid = presence.From;
+            string friend = jid.User.ToLowerInvariant();
 
-            string friend = presence.From.User.ToLowerInvariant();
+            if (IsMe(jid)) { return; }
+
             FriendViewModel val;
             if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
 
             // Check if friend has multiple clients.
             if (Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients)
             {
-                
+                // If the outgoing friend was a QL client then clear the status displayed in the remaining UQLT client.
+                if (jid.Resource.Equals(UQltGlobals.QuakeLiveXmppResource))
+                {
+                    ClearFriendStatus(presence);
+                }
 
-                // Clear XMPP status, if any, for UI purposes
-                //if (Clvm.OnlineGroup.Friends[friend].HasXmppStatus)
-                //{
-                    //ClearFriendStatus(jid);
-                //}
-                
-                // Check the remaining user's status
-                CheckFriendStatus(presence);
-
-                Debug.WriteLine(presence.From.User + " had multiple clients signed in! Removing client with resource: " + presence.From.Resource);
-
+                // Handle the multiple resource situation.
+                Debug.WriteLine(jid.User + " had multiple clients signed in! Removing client with resource: " + jid.Resource);
                 Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
-                Clvm.OnlineGroup.Friends[friend].XmppResources.Remove(presence.From.Resource);
-                
+                Clvm.OnlineGroup.Friends[friend].XmppResources.Remove(jid.Resource);
+
                 // Set resource back to first client's resource.
                 if (Clvm.OnlineGroup.Friends[friend].XmppResources.Count < 1) return;
                 Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = Clvm.OnlineGroup.Friends[friend].XmppResources.ElementAt(0);
-                Debug.WriteLine(presence.From.Bare + "'s new resource is: " +
+                Debug.WriteLine(jid.Bare + "'s new resource is: " +
                                 Clvm.OnlineGroup.Friends[friend].XmppResources
                                     .ElementAt(0));
             }
@@ -332,12 +294,12 @@ namespace UQLT.Core.Chat
                 Execute.OnUIThread(() =>
                 {
                     Clvm.OnlineGroup.Friends.Remove(friend);
-                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(presence.From.User)));
+                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User)));
                     Clvm.OfflineGroup.Friends[friend].IsOnline = false;
                 });
 
-                Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + presence.From + " User: " + presence.From.User + " Resource: " + presence.From.Resource);
-                Debug.WriteLine("Friends list before removing " + presence.From.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count());
+                Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + jid + " User: " + jid.User + " Resource: " + jid.Resource);
+                Debug.WriteLine("Friends list before removing " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count());
             }
         }
 
@@ -405,6 +367,11 @@ namespace UQLT.Core.Chat
         private void UpdateFriendStatus(string friend, string status)
         {
             friend = friend.ToLowerInvariant();
+            if (string.IsNullOrEmpty(status))
+            {
+                ClearFriendStatus(friend);
+                return;
+            }
             try
             {
                 var statusinfo = JsonConvert.DeserializeObject<StatusInfo>(status);
@@ -435,9 +402,6 @@ namespace UQLT.Core.Chat
                 {
                     Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
                 }
-
-                // Set property
-                Clvm.OnlineGroup.Friends[friend].Status = status;
             }
             catch (Exception e)
             {
@@ -501,8 +465,7 @@ namespace UQLT.Core.Chat
             {
                 case PresenceType.available:
                     Debug.WriteLine("--> Got available presence from: " + presence.From);
-                    FriendBecameAvailable(presence.From);
-                    CheckFriendStatus(presence);
+                    FriendBecameAvailable(presence);
                     break;
 
                 case PresenceType.unavailable:

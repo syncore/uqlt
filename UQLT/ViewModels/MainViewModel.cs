@@ -278,11 +278,11 @@ namespace UQLT.ViewModels
             // Debug.WriteLine("Attempting to publish event");
             if (_filterViewModel.IsVisible)
             {
-                _events.Publish(new FilterVisibilityEvent(false));
+                _events.PublishOnUIThread(new FilterVisibilityEvent(false));
             }
             else
             {
-                _events.Publish(new FilterVisibilityEvent(true));
+                _events.PublishOnUIThread(new FilterVisibilityEvent(true));
             }
         }
     }

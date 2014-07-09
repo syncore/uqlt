@@ -93,7 +93,7 @@ namespace UQLT.Core.ServerBrowser
             Sbvm.IsUpdatingServers = false;
 
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
-            _events.Publish(new ServerCountEvent(Sbvm.Servers.Count));
+            _events.PublishOnUIThread(new ServerCountEvent(Sbvm.Servers.Count));
 
             if (doqlranksupdate)
             {
@@ -206,7 +206,7 @@ namespace UQLT.Core.ServerBrowser
                 await PingServersAsync(addresses);
 
                 // Send a message (event) to the MainViewModel to update the player count in the statusbar.
-                _events.Publish(new PlayerCountEvent(totalplayercount));
+                _events.PublishOnUIThread(new PlayerCountEvent(totalplayercount));
 
                 return serverlist;
             }

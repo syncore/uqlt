@@ -11,9 +11,17 @@ namespace UQLT
     /// <summary>
     /// Necessary Caliburn Micro boilerplate
     /// </summary>
-    public class UqltBootstrapper : Bootstrapper<LoginViewModel>
+    public class UqltBootstrapper : BootstrapperBase
     {
         private CompositionContainer _container;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UqltBootstrapper"/> class.
+        /// </summary>
+        public UqltBootstrapper()
+        {
+            Initialize();
+        }
 
         /// <summary>
         /// Override to configure the framework and setup your IoC container.
@@ -52,6 +60,17 @@ namespace UQLT
             }
 
             throw new Exception(string.Format("Could not locate any instances of contract {0}.", contract));
+        }
+
+        /// <summary>
+        /// Override this to add custom behavior to execute after the application starts.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The args.</param>
+        protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
+        {
+            // Display the main view of the application.
+            DisplayRootViewFor<LoginViewModel>();
         }
     }
 }
