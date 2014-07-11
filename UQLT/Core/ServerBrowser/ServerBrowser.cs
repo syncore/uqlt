@@ -49,7 +49,7 @@ namespace UQLT.Core.ServerBrowser
             }
             // Don't hit QL servers (debugging)
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var l = LoadServerListAsync(Sbvm.FilterUrl);
+            //var l = LoadServerListAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>
@@ -67,11 +67,8 @@ namespace UQLT.Core.ServerBrowser
         /// for display in the UI.
         /// </summary>
         /// <param name="filterurl">The /browser/list?filter= URL.</param>
-        /// <param name="doqlranksupdate">
-        /// if set to <c>true</c> then perform a QLRanks update for all players within server list.
-        /// </param>
         /// <returns>Nothing.</returns>
-        public async Task LoadServerListAsync(string filterurl, bool doqlranksupdate = true)
+        public async Task LoadServerListAsync(string filterurl)
         {
             filterurl = Sbvm.FilterUrl;
             Sbvm.IsUpdatingServers = true;
@@ -95,14 +92,10 @@ namespace UQLT.Core.ServerBrowser
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
             _events.PublishOnUIThread(new ServerCountEvent(Sbvm.Servers.Count));
 
-            if (doqlranksupdate)
-            {
-                // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-                var qlranksRetriever = new QlRanksDataRetriever();
-                // TODO: await
-                var g = qlranksRetriever.GetQlRanksPlayersAsync(servers);
-                //var g = GetQlRanksPlayersAsync(servers);
-            }
+            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+            var qlranksRetriever = new QlRanksDataRetriever();
+            // TODO: await?
+            var g = qlranksRetriever.GetQlRanksPlayersAsync(servers);
         }
 
         /// <summary>
@@ -262,7 +255,7 @@ namespace UQLT.Core.ServerBrowser
         {
             Debug.WriteLine("Performing automatic server refresh...");
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var l = LoadServerListAsync(Sbvm.FilterUrl, true);
+            var l = LoadServerListAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>

@@ -228,7 +228,7 @@ namespace UQLT.ViewModels
                 Debug.WriteLine("Not refreshing server info for player: " + kvp.Key + " because player isn't currently in a game server.");
             }
         }
-
+        
         /// <summary>
         /// Loads the saved favorite friends from JSON file on disk.
         /// </summary>

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
@@ -27,41 +23,25 @@ namespace UQLT.ViewModels
     public class ServerDetailsViewModel : PropertyChangedBase
     {
         private readonly QlFormatHelper _formatHelper = QlFormatHelper.Instance;
-        private readonly QlRanksDataRetriever _qlRanksDataRetriever = new QlRanksDataRetriever();
-        private string _formattedGameState;
-        private ObservableCollection<PlayerDetailsViewModel> _formattedPlayerList = new ObservableCollection<PlayerDetailsViewModel>();
-        private string _timeRemaining;
 
         // port regexp: colon with at least 4 numbers
-        private readonly Regex port = new Regex(@"[\:]\d{4,}");
+        private readonly Regex _port = new Regex(@"[\:]\d{4,}");
 
+        private readonly QlRanksDataRetriever _qlRanksDataRetriever = new QlRanksDataRetriever();
+        private string _formattedGameState;
+        private string _timeRemaining;
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
         /// </summary>
         /// <param name="server">The server wrapped by this viewmodel.</param>
-        /// <param name="isForBuddyList">
-        /// If <c>true</c> then this class is being instantiated for use with buddy list game info tooltip, so
-        /// perform the additional operation of retrieving the QLRanks Elo data for a friend's game server. If
-        /// <c>false</c> then this class is being instantiated for use with the server browser and this operation does not
-        /// need to be performed. Defaults to <c>false</c>
-        /// </param>
-        
+
         [ImportingConstructor]
-        public ServerDetailsViewModel(Server server, bool isForBuddyList = false)
+        public ServerDetailsViewModel(Server server)
         {
             QlServer = server;
-            SortServersAndFormatPlayers();
-            if (isForBuddyList)
-            {
-                server.SetPlayerGameTypeFromServer(server.game_type);
-                NotifyTaskCompletion.Create(CheckPlayerElosAsync());
-            }
+            FormattedPlayerList = FormatPlayerCollection(QlServer.players);
+            //GroupScoresAndPlayers("Score", "Team");
         }
-
-        /// <summary>
-        /// Gets or sets the blue team's Elo.
-        /// </summary>
-        /// <value>The blue team's Elo.</value>
 
         public INotifyTaskCompletion<long> BlueTeamElo
         {
@@ -70,7 +50,11 @@ namespace UQLT.ViewModels
                 return NotifyTaskCompletion.Create(CalculateTeamEloAsync(2));
             }
         }
-        
+
+        /// <summary>
+        /// Gets or sets the blue team's Elo.
+        /// </summary>
+        /// <value>The blue team's Elo.</value>
         /// <summary>
         /// Gets the size of the blue team.
         /// </summary>
@@ -166,19 +150,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the formatted player list.
         /// </summary>
         /// <value>The formatted player list.</value>
-        public ObservableCollection<PlayerDetailsViewModel> FormattedPlayerList
-        {
-            get
-            {
-                return _formattedPlayerList;
-            }
-
-            set
-            {
-                _formattedPlayerList = value;
-                NotifyOfPropertyChange(() => FormattedPlayerList);
-            }
-        }
+        public List<PlayerDetailsViewModel> FormattedPlayerList { get; set; }
 
         /// <summary>
         /// Gets or sets the frag limit.
@@ -431,6 +403,18 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets a value indicating whether the blue team is currently winning.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the blue team is leading; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is used to properly display the correct order on the team scoreboard. Greater than or equals required.</remarks>
+        public bool IsBlueTeamLeading
+        {
+            get { return (GBlueScore >= GRedScore); }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this server's gametype is supported by QLRanks for all
         /// game types.
         /// </summary>
@@ -461,6 +445,18 @@ namespace UQLT.ViewModels
             {
                 return (GameType == 3 || GameType == 4 || GameType == 5);
             }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the red team is currently winning.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the red team is leading; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is used to properly display the correct order on the team scoreboard. Unlike the blue comparison, simply greater than is required.</remarks>
+        public bool IsRedTeamLeading
+        {
+            get { return (GRedScore > GBlueScore); }
         }
 
         /// <summary>
@@ -683,7 +679,7 @@ namespace UQLT.ViewModels
             get
             {
                 long value;
-                string cleanedip = port.Replace(HostAddress, string.Empty);
+                string cleanedip = _port.Replace(HostAddress, string.Empty);
                 return UQltGlobals.IpAddressDict.TryGetValue(cleanedip, out value) ? value : 0;
             }
         }
@@ -732,6 +728,17 @@ namespace UQLT.ViewModels
                 QlServer.public_id = value;
                 NotifyOfPropertyChange(() => PublicId);
             }
+        }
+
+        /// <summary>
+        /// Gets the QLRanks data retriever.
+        /// </summary>
+        /// <value>
+        /// The QLRanks data retriever.
+        /// </value>
+        public QlRanksDataRetriever QlRanksDataRetriever
+        {
+            get { return _qlRanksDataRetriever; }
         }
 
         /// <summary>
@@ -994,181 +1001,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Retrieves elo information for use in the buddy list game information tooltip.
-        /// </summary>
-        /// <returns>Task</returns>
-        /// <remarks>This is only used for the buddylist game information tooltip (where IsForBuddyList is <c>true</c>)</remarks>
-        public async Task CheckPlayerElosAsync()
-        {
-            if (NumPlayers == 0) { return; }
-            if (!IsQlRanksSupportedAllGames) { return; }
-
-            var qlRanksPlayersToUpdate = new HashSet<string>();
-
-            foreach (var p in Players)
-            {
-                EloData val;
-                switch (GameType)
-                {
-                    // FFA
-                    case 0:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                        {
-                            p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
-                        }
-                        else
-                        {
-                            Debug.WriteLine(
-                                "Key doesn't exist - no FFA elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
-                        }
-                        break;
-                    // DUEL
-                    case 1:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                        {
-                            p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
-                        }
-                        else
-                        {
-                            Debug.WriteLine(
-                                "Key doesn't exist - no DUEL elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
-                        }
-                        break;
-                    // TDM
-                    case 3:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                        {
-                            p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                        }
-                        else
-                        {
-                            Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
-                        }
-                        break;
-                    // CA
-                    case 4:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                        {
-                            p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                        }
-                        else
-                        {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
-                            Debug.WriteLine(
-                                "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
-                        }
-                        break;
-                    // CTF
-                    case 5:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
-                        {
-                            p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
-                        }
-                        else
-                        {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
-                            Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
-                        }
-                        break;
-                }
-            }
-            // If there are players to update, then perform the update.
-            if (qlRanksPlayersToUpdate.Count != 0)
-            {
-                // Create
-                _qlRanksDataRetriever.CreateEloData(qlRanksPlayersToUpdate);
-
-                Debug.WriteLine("Retrieving missing elo information for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
-                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
-                _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
-                
-                foreach (var p in Players.Where(p => qlRanksPlayersToUpdate.Contains(p.name.ToLower())))
-                {
-
-                    EloData val;
-                    switch (GameType)
-                    {
-                        case 0:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
-                            {
-                                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [FFA]......");
-                            }
-                            break;
-
-                        case 1:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
-                            {
-                                p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [DUEL]......");
-                            }
-                            break;
-
-                        case 3:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
-                            {
-                                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [TDM]......");
-                            }
-                            break;
-
-                        case 4:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
-                            {
-                                p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CA]......");
-                            }
-                            break;
-
-                        case 5:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
-                            {
-                                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CTF]......");
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adds the players to a list of players that will be cleanly wrapped and formatted by a PlayerDetailsViewModel.
-        /// </summary>
-        /// <param name="players">The players.</param>
-        /// <returns>A formatted player list.</returns>
-        private ObservableCollection<PlayerDetailsViewModel> AddFormattedPlayers(IEnumerable<Player> players)
-        {
-            _formattedPlayerList.Clear();
-            foreach (var player in players)
-            {
-                _formattedPlayerList.Add(new PlayerDetailsViewModel(player));
-            }
-
-            return _formattedPlayerList;
-        }
-
-        /// <summary>
         /// Asynchronously calculates the team's average elo for QLRanks-supported team gametypes.
         /// </summary>
         /// <param name="team">The team. <c>1</c> is blue, <c>2</c> is red.</param>
@@ -1289,26 +1121,29 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Groups the scores and players.
+        /// Adds the players to a list of players that will be cleanly wrapped by a PlayerDetailsViewModel, orders the list by score, and groups it by team.
         /// </summary>
-        /// <param name="sortBy">The criteria to sort by.</param>
-        /// <param name="groupBy">The criteria to group by.</param>
-        private void GroupScoresAndPlayers(string sortBy, string groupBy)
+        /// <param name="players">The players.</param>
+        /// <returns>A formatted player list.</returns>
+        /// <remarks>This replaced <see cref="GridViewSort"/>for the player details, which required an observable collection to work properly (more overhead) and did not always work correctly.</remarks>
+        private List<PlayerDetailsViewModel> FormatPlayerCollection(IEnumerable<Player> players)
         {
-            var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
-            var sortDescription = new SortDescription(sortBy, ListSortDirection.Descending);
-            var groupDescription = new PropertyGroupDescription(groupBy);
-            view.SortDescriptions.Add(sortDescription);
-            view.GroupDescriptions.Add(groupDescription);
+            var sorted = players.Select(player => new PlayerDetailsViewModel(player)).ToList();
+            return sorted.OrderByDescending(a => a.Score).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
 
-        /// <summary>
-        /// Sorts the servers and formats the players for the view
-        /// </summary>
-        private void SortServersAndFormatPlayers()
-        {
-            FormattedPlayerList = AddFormattedPlayers(QlServer.players);
-            GroupScoresAndPlayers("Score", "Team");
-        }
+        ///// <summary>
+        ///// Groups the scores and players for proper display in the view.
+        ///// </summary>
+        ///// <param name="sortBy">The criteria to sort by.</param>
+        ///// <param name="groupBy">The criteria to group by.</param>
+        //private void GroupScoresAndPlayers(string sortBy, string groupBy)
+        //{
+        //    var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
+        //    var sortDescription = new SortDescription(sortBy, ListSortDirection.Descending);
+        //    var groupDescription = new PropertyGroupDescription(groupBy);
+        //    view.SortDescriptions.Add(sortDescription);
+        //    view.GroupDescriptions.Add(groupDescription);
+        //}
     }
 }

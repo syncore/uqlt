@@ -43,7 +43,7 @@ namespace UQLT.Core.Chat
         /// <param name="friend">The friend.</param>
         /// <param name="serverId">The server id.</param>
         /// <remarks>
-        /// This is used for an initial one-time creation of a Server (ServerDetailsViewModel)
+        /// This is used for an initial one-time creation of a Server object, which is a <see cref="ChatGameInfoViewModel"/>
         /// object for an in-game friend on the friend list
         /// </remarks>
         public async Task CreateServerInfoForStatusAsync(string friend, string serverId)
@@ -54,11 +54,11 @@ namespace UQLT.Core.Chat
                 var query = new RestApiQuery();
                 var serverdata = await (query.QueryRestApiAsync<List<Server>>(url));
 
-                // Create the Server (ServerDetailsViewModel) object for the player
-                foreach (var server in serverdata)
-                {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, true);
-                }
+                // Create the Server (SrvDetailsBuddyViewModel) object for the player
+                //foreach (var server in serverdata)
+                //{
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ChatGameInfoViewModel(serverdata[0]);
+                //}
             }
             catch (Exception ex)
             {
@@ -91,27 +91,15 @@ namespace UQLT.Core.Chat
             try
             {
                 // server_id (i.e. PublicId) should have already been set on the initial creation of
-                // the Server (ServerDetailsViewModel) object
+                // the Server (SrvDetailsBuddyViewModel) object
                 string serverId = Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId.ToString(CultureInfo.InvariantCulture);
                 string url = UQltGlobals.QlDomainDetailsIds + serverId;
 
                 var query = new RestApiQuery();
                 var serverdata = await (query.QueryRestApiAsync<List<Server>>(url));
 
-                // Update the individual properties within the Server (ServerDetailsViewModel) that
-                // we have chosen to expose
-                foreach (var server in serverdata)
-                {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, true);
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = server.public_id;
-                    ////CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[server.game_type].ShortGametypeName;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = server.map;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MapTitle = server.map_title;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.NumPlayers = server.num_players;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.MaxClients = server.max_clients;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GRedScore = server.g_redscore;
-                    //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.GBlueScore = server.g_bluescore;
-                }
+                Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ChatGameInfoViewModel(serverdata[0]);
+                    
             }
             catch (Exception ex)
             {
@@ -171,7 +159,7 @@ namespace UQLT.Core.Chat
         /// information from whatever is received from QL API This was created to avoid having
         /// multiple HTTP GET requests for every single in-game friend on the list.
         /// </remarks>
-        private async Task UpdateServerInfoForStatusAsync(List<string> ingamefriends)
+        private async Task UpdateServerInfoForStatusAsync(IReadOnlyList<string> ingamefriends)
         {
             // Get the server ids (public_id)s of all in-game players to send to QL API
             var serverIds = new List<string>();
@@ -190,15 +178,7 @@ namespace UQLT.Core.Chat
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ServerDetailsViewModel(servers[i], true);
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = servers[i].public_id;
-                    ////CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[servers[i].game_type].ShortGametypeName;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = servers[i].map;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MapTitle = servers[i].map_title;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.NumPlayers = servers[i].num_players;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.MaxClients = servers[i].max_clients;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GRedScore = servers[i].g_redscore;
-                    //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.GBlueScore = servers[i].g_bluescore;
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ChatGameInfoViewModel(servers[i]);
                 }
             }
             catch (Exception ex)

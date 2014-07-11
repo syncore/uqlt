@@ -201,6 +201,7 @@
     <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
     <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
     <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
+    <Compile Include="ViewModels\ChatGameInfoViewModel.cs" />
     <Compile Include="Views\ChatListView.xaml.cs">
       <DependentUpon>ChatListView.xaml</DependentUpon>
     </Compile>

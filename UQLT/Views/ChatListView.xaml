@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-             xmlns:helpers="clr-namespace:UQLT.Helpers"
              xmlns:vm="clr-namespace:UQLT.ViewModels"
              xmlns:chat="clr-namespace:UQLT.Models.Chat"
              xmlns:cal="http://www.caliburnproject.org"
@@ -36,7 +35,7 @@
             </TextBlock>
         </DataTemplate>
     </UserControl.Resources>
-    
+
     <Grid x:Name="ChatListRoot">
         <StackPanel Orientation="Vertical">
             <TreeView x:Name="TreBuddyList" HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0">
@@ -83,7 +82,11 @@
                                     <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXmppStatus, Converter={StaticResource BoolToVis}}" />
 
                                     <!--Start: individual friend stackpanel-->
-                                    <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Vertical"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.BetweenShowDelay="1000"
+                                                ToolTipService.ShowDuration="10000">
+
                                         <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0" />
 
                                         <!-- Player's demo or practice game message (only shown if player is watching demo or in practice match) -->
@@ -103,7 +106,6 @@
                                         <!-- Tooltip displaying server info on hover -->
                                         <StackPanel.ToolTip>
                                             <StackPanel Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
-
                                                 <!--Start: tooltip stackpanel-->
                                                 <StackPanel>
                                                     <!--Tooltip: location & ping information-->
@@ -113,17 +115,16 @@
                                                             <TextBlock.Text>
                                                                 <MultiBinding StringFormat="{}{0} (ping: {1} ms)">
                                                                     <Binding Path="Value.Server.ShortLocationName" />
-                                                                    <Binding Path="Value.Server.Ping" FallbackValue="0"/>
+                                                                    <Binding Path="Value.Server.Ping" FallbackValue="0" />
                                                                 </MultiBinding>
                                                             </TextBlock.Text>
                                                         </TextBlock>
                                                     </StackPanel>
-                                                    
-                                                    
+
                                                     <!--Tooltip: gametype information-->
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
-                                                    <Image Name="TooltipGameTypeImage" Width="16" Height="16" Source="{Binding Value.Server.GameTypeImage}" HorizontalAlignment="Left" />
-                                                    <TextBlock Name="TooltipGameType" Text="{Binding Value.Server.GameTypeTitle}" HorizontalAlignment="Left" Margin="10,0,0,0" />
+                                                        <Image Name="TooltipGameTypeImage" Width="16" Height="16" Source="{Binding Value.Server.GameTypeImage}" HorizontalAlignment="Left" />
+                                                        <TextBlock Name="TooltipGameType" Text="{Binding Value.Server.GameTypeTitle}" HorizontalAlignment="Left" Margin="10,0,0,0" />
                                                     </StackPanel>
 
                                                     <!--Tooltip: map information-->
@@ -131,33 +132,47 @@
                                                     <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}" />
 
                                                     <!--Tooltip: player count-->
-                                                    <TextBlock Text="{Binding Value.Server.TotalPlayers, StringFormat='Players: {0}'}"/>
+                                                    <TextBlock Text="{Binding Value.Server.TotalPlayers, StringFormat='Players: {0}'}" />
 
                                                     <!--Tooltip: time left-->
-                                                    <TextBlock Text="{Binding Value.Server.TimeRemaining, StringFormat='Time Left: {0}'}"/>
+                                                    <TextBlock Text="{Binding Value.Server.TimeRemaining, StringFormat='Time Left: {0}'}" />
 
                                                     <!--Tooltip: scoreboard and for team games-->
-                                                    <StackPanel x:Name="TooltipRedScore" Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
-                                                        <TextBlock Text="Red: "/>
-                                                        <TextBlock Text="{Binding Value.Server.RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
-                                                        <TextBlock Text="{Binding Value.Server.GRedScore}" />
-                                                    </StackPanel>
+                                                    <!--Red score greater than blue score. Display red first.-->
+                                                    <StackPanel x:Name="TooltipRedLeadingScore" Visibility="{Binding Value.Server.IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Red: " />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GRedScore}" />
+                                                        </StackPanel>
 
-                                                    <StackPanel x:Name="TooltipBlueScore" Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
-                                                        <TextBlock Text="Blue: "/>
-                                                        <TextBlock Text="{Binding Value.Server.BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
-                                                        <TextBlock Text="{Binding Value.Server.GBlueScore}" />
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Blue: " />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GBlueScore}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <!--Blue score greater than red score. Display blue first.-->
+                                                    <StackPanel x:Name="TooltipBlueLeadingScore" Visibility="{Binding Value.Server.IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Blue: " />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GBlueScore}" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Red: " />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GRedScore}" />
+                                                        </StackPanel>
                                                     </StackPanel>
 
                                                     <!--Individual player scores listview-->
-                                                    <ListView Name="ToolTipPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" ItemsSource="{Binding Value.Server.FormattedPlayerList}" IsSynchronizedWithCurrentItem="True" SelectionMode="Single">
-
+                                                    <ListView Name="ToolTipPlayerDetails" HorizontalAlignment="Left" ItemsSource="{Binding Value.Server.ToolTipPlayers}" SelectionMode="Single">
                                                         <ListView.View>
                                                             <GridView>
-                                                                <GridView.Columns>
-                                                                <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />
-                                                                <GridViewColumn Header="Clan" helpers:GridViewSort.PropertyName="Clan" DisplayMemberBinding="{Binding CleanedClan}" />
-                                                                <GridViewColumn Header="Name" helpers:GridViewSort.PropertyName="Name">
+                                                                <GridViewColumn Header="Team" CellTemplate="{StaticResource TeamColors}" />
+                                                                <GridViewColumn Header="Clan" DisplayMemberBinding="{Binding CleanedClan}" />
+                                                                <GridViewColumn Header="Name">
                                                                     <GridViewColumn.CellTemplate>
                                                                         <DataTemplate>
                                                                             <StackPanel Orientation="Horizontal">
@@ -167,21 +182,15 @@
                                                                         </DataTemplate>
                                                                     </GridViewColumn.CellTemplate>
                                                                 </GridViewColumn>
-                                                                <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" />
-
-                                                                <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=Value.Server.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}" />
-                                                                </GridView.Columns>
+                                                                <GridViewColumn Header="Score" CellTemplate="{StaticResource ScoreTemplate}" />
+                                                                <GridViewColumn Header="Elo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=Value.Server.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}" />
                                                             </GridView>
                                                         </ListView.View>
                                                     </ListView>
-
-
                                                 </StackPanel>
                                                 <!--End: tooltip stackpanel-->
-                                            
                                             </StackPanel>
                                         </StackPanel.ToolTip>
-                                    
                                     </StackPanel>
                                     <!--End: individual friend stackpanel-->
 
