@@ -125,7 +125,7 @@ namespace UQLT.Helpers
                 {
                     foreach (var player in s.players)
                     {
-                        s.setPlayerElos();
+                        s.SetPlayerElos();
                     }
                 }
             }

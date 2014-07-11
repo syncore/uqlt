@@ -49,7 +49,7 @@ namespace UQLT.Core.ServerBrowser
             }
             // Don't hit QL servers (debugging)
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            //var l = LoadServerListAsync(Sbvm.FilterUrl);
+            var l = LoadServerListAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace UQLT.Core.ServerBrowser
                     addresses.Add(cleanedip);
 
                     // Set a custom property for game_type for each server's players.
-                    s.setPlayerGameTypeFromServer(s.game_type);
+                    s.SetPlayerGameTypeFromServer(s.game_type);
 
                     // Elo information.
                     foreach (var player in s.players)
@@ -193,8 +193,8 @@ namespace UQLT.Core.ServerBrowser
                         EloData val;
                         if (!UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
                         {
-                            s.createEloData();
-                            s.setPlayerElos();
+                            s.CreateEloData();
+                            s.SetPlayerElos();
                         }
 
                         // Track the player count.

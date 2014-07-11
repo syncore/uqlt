@@ -241,7 +241,7 @@ namespace UQLT.ViewModels
                 // Create the Server (ServerDetailsViewModel) object for the player
                 foreach (var qlserver in qlservers)
                 {
-                    server = new ServerDetailsViewModel(qlserver, false);
+                    server = new ServerDetailsViewModel(qlserver);
                 }
 
                 return server;

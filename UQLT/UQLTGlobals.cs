@@ -33,7 +33,7 @@ namespace UQLT
             QlUserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1003.1 Safari/535.19 Awesomium/1.7.1";
 
             //QlXmppDomain = "xmpp.quakelive.com"; // xmpp.quakelive.com, focus.quakelive.com
-            QlXmppDomain = ***REMOVED***; // xmpp.quakelive.com, focus.quakelive.com
+            QlXmppDomain = ***REMOVED***; // xmpp.quakelive.com, xmpp-focus.quakelive.com
 
             UqltxmppResource = "uqlt";
             QuakeLiveXmppResource = "quakelive";

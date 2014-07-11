@@ -335,7 +335,7 @@ namespace UQLT.Models.QuakeLiveAPI
         /// <summary>
         /// Creates the EloData object for each player on the server.
         /// </summary>
-        public void createEloData()
+        public void CreateEloData()
         {
             EloData val;
             foreach (var p in players)
@@ -362,7 +362,7 @@ namespace UQLT.Models.QuakeLiveAPI
         /// This allows the elo to be set as a property in the PlayerDetailsViewModel, which enables
         /// automatic UI updating via NotifyOfPropertyChange when elo information is received.
         /// </remarks>
-        public void setPlayerElos()
+        public void SetPlayerElos()
         {
             foreach (var p in players)
             {
@@ -375,7 +375,9 @@ namespace UQLT.Models.QuakeLiveAPI
         }
 
         /// <summary> Sets the player game type from the QL server gametype on a per-server basis.
-        /// </summary> <param name="gt">The gametype.</param> <remarks> Needed because Player class
+        /// </summary> 
+        /// <param name="gt">The gametype.</param>
+        ///  <remarks> Needed because Player class
         /// has no access to the server's game_type. Player class will use this value to pull the
         /// correct Elo value from the elo dictionary. UI will also use this value especially when
         /// trying to determine the correct score format, most notably when RACE servers are
@@ -383,8 +385,9 @@ namespace UQLT.Models.QuakeLiveAPI
         /// tree errors in master-detail scenario where Player class doesn't have direct access to
         /// the game_type of the server & can't accurately determine ServerBrowser ElementName
         /// (without x:Reference hackery) and: (2) enable ability to sort players by Elo column in
-        /// UI. </remarks>
-        public void setPlayerGameTypeFromServer(int gt)
+        /// UI.
+        ///  </remarks>
+        public void SetPlayerGameTypeFromServer(int gt)
         {
             foreach (var p in players)
             {

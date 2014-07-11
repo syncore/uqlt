@@ -384,11 +384,13 @@ namespace UQLT.Core.Chat
                     if (statusinfo.address.Equals("bot"))
                     {
                         Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.WatchingDemo;
+                        Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                     }
                     // friend is actually in game
                     else
                     {
                         Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
+                        Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                         Clvm.OnlineGroup.Friends[friend].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
                         // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
@@ -401,6 +403,7 @@ namespace UQLT.Core.Chat
                 if (statusinfo.bot_game == 1)
                 {
                     Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
+                    Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                 }
             }
             catch (Exception e)

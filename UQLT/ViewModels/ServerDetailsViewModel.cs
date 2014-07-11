@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -32,26 +33,28 @@ namespace UQLT.ViewModels
         private string _timeRemaining;
 
         // port regexp: colon with at least 4 numbers
-        private Regex port = new Regex(@"[\:]\d{4,}");
+        private readonly Regex port = new Regex(@"[\:]\d{4,}");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
         /// </summary>
         /// <param name="server">The server wrapped by this viewmodel.</param>
-        /// <param name="isForServerBrowser">
-        /// If <c>true</c> then this class is being instantiated for use with server browser, so
-        /// perform additional operations such as sorting the servers and format the player list. If
-        /// <c>false</c> then this class is being instantiated elsewhere and these operations do not
-        /// need to be performed. Defaults to <c>true</c>
+        /// <param name="isForBuddyList">
+        /// If <c>true</c> then this class is being instantiated for use with buddy list game info tooltip, so
+        /// perform the additional operation of retrieving the QLRanks Elo data for a friend's game server. If
+        /// <c>false</c> then this class is being instantiated for use with the server browser and this operation does not
+        /// need to be performed. Defaults to <c>false</c>
         /// </param>
+        
         [ImportingConstructor]
-        public ServerDetailsViewModel(Server server, bool isForServerBrowser = true)
+        public ServerDetailsViewModel(Server server, bool isForBuddyList = false)
         {
             QlServer = server;
-            QlRanksPlayersToUpdate = new HashSet<string>();
-            if (isForServerBrowser)
+            SortServersAndFormatPlayers();
+            if (isForBuddyList)
             {
-                SortServersAndFormatPlayers();
+                server.SetPlayerGameTypeFromServer(server.game_type);
+                NotifyTaskCompletion.Create(CheckPlayerElosAsync());
             }
         }
 
@@ -65,6 +68,21 @@ namespace UQLT.ViewModels
             get
             {
                 return NotifyTaskCompletion.Create(CalculateTeamEloAsync(2));
+            }
+        }
+        
+        /// <summary>
+        /// Gets the size of the blue team.
+        /// </summary>
+        /// <value>
+        /// The size of the blue team.
+        /// </value>
+        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
+        public int BlueTeamSize
+        {
+            get
+            {
+                return Players.Count(p => p.team == 2);
             }
         }
 
@@ -484,36 +502,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets the size of the red team.
-        /// </summary>
-        /// <value>
-        /// The size of the red team.
-        /// </value>
-        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
-        public int RedTeamSize
-        {
-            get
-            {
-                return Players.Count(p => p.team == 1);
-            }
-        }
-
-        /// <summary>
-        /// Gets the size of the blue team.
-        /// </summary>
-        /// <value>
-        /// The size of the blue team.
-        /// </value>
-        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
-        public int BlueTeamSize
-        {
-            get
-            {
-                return Players.Count(p => p.team == 2);
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this server features a team game type.
         /// </summary>
         /// <value><c>true</c> if this server features a team game; otherwise, <c>false</c>.</value>
@@ -694,8 +682,9 @@ namespace UQLT.ViewModels
         {
             get
             {
+                long value;
                 string cleanedip = port.Replace(HostAddress, string.Empty);
-                return UQltGlobals.IpAddressDict[cleanedip];
+                return UQltGlobals.IpAddressDict.TryGetValue(cleanedip, out value) ? value : 0;
             }
         }
 
@@ -746,12 +735,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the players whose missing QLRanks Elo data is to be updated.
-        /// </summary>
-        /// <value>The players to update.</value>
-        public HashSet<string> QlRanksPlayersToUpdate { get; set; }
-
-        /// <summary>
         /// Gets the server that this viewmodel wraps.
         /// </summary>
         /// <value>The server that this viewmodel wraps.</value>
@@ -793,6 +776,21 @@ namespace UQLT.ViewModels
             get
             {
                 return NotifyTaskCompletion.Create(CalculateTeamEloAsync(1));
+            }
+        }
+
+        /// <summary>
+        /// Gets the size of the red team.
+        /// </summary>
+        /// <value>
+        /// The size of the red team.
+        /// </value>
+        /// <remarks>The Quake Live API does not provide this information by default.</remarks>
+        public int RedTeamSize
+        {
+            get
+            {
+                return Players.Count(p => p.team == 1);
             }
         }
 
@@ -996,6 +994,165 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Retrieves elo information for use in the buddy list game information tooltip.
+        /// </summary>
+        /// <returns>Task</returns>
+        /// <remarks>This is only used for the buddylist game information tooltip (where IsForBuddyList is <c>true</c>)</remarks>
+        public async Task CheckPlayerElosAsync()
+        {
+            if (NumPlayers == 0) { return; }
+            if (!IsQlRanksSupportedAllGames) { return; }
+
+            var qlRanksPlayersToUpdate = new HashSet<string>();
+
+            foreach (var p in Players)
+            {
+                EloData val;
+                switch (GameType)
+                {
+                    // FFA
+                    case 0:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(
+                                "Key doesn't exist - no FFA elo data found for player: " + p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                        }
+                        break;
+                    // DUEL
+                    case 1:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(
+                                "Key doesn't exist - no DUEL elo data found for player: " + p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                        }
+                        break;
+                    // TDM
+                    case 3:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                        }
+                        else
+                        {
+                            Debug.WriteLine(
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                        }
+                        break;
+                    // CA
+                    case 4:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            Debug.WriteLine(
+                                "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
+                        }
+                        break;
+                    // CTF
+                    case 5:
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        {
+                            p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            Debug.WriteLine(
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                        }
+                        break;
+                }
+            }
+            // If there are players to update, then perform the update.
+            if (qlRanksPlayersToUpdate.Count != 0)
+            {
+                // Create
+                _qlRanksDataRetriever.CreateEloData(qlRanksPlayersToUpdate);
+
+                Debug.WriteLine("Retrieving missing elo information for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
+                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
+                _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
+                
+                foreach (var p in Players.Where(p => qlRanksPlayersToUpdate.Contains(p.name.ToLower())))
+                {
+
+                    EloData val;
+                    switch (GameType)
+                    {
+                        case 0:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            {
+                                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [FFA]......");
+                            }
+                            break;
+
+                        case 1:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            {
+                                p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [DUEL]......");
+                            }
+                            break;
+
+                        case 3:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            {
+                                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [TDM]......");
+                            }
+                            break;
+
+                        case 4:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            {
+                                p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CA]......");
+                            }
+                            break;
+
+                        case 5:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            {
+                                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CTF]......");
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Adds the players to a list of players that will be cleanly wrapped and formatted by a PlayerDetailsViewModel.
         /// </summary>
         /// <param name="players">The players.</param>
@@ -1023,7 +1180,7 @@ namespace UQLT.ViewModels
             if ((team == 2) && (BlueTeamSize == 0)) { return 0; }
             if (!IsQlRanksSupportedTeamGame) { return 0; }
 
-            QlRanksPlayersToUpdate.Clear();
+            var qlRanksPlayersToUpdate = new HashSet<string>();
 
             long totalplayers = 0, totaleloteam = 0, playerelo = 0;
 
@@ -1042,7 +1199,7 @@ namespace UQLT.ViewModels
                         {
                             Debug.WriteLine(
                                 "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
-                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
                         }
                         break;
                     // CA
@@ -1053,7 +1210,7 @@ namespace UQLT.ViewModels
                         }
                         else
                         {
-                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
                             Debug.WriteLine(
                                 "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
                         }
@@ -1066,7 +1223,7 @@ namespace UQLT.ViewModels
                         }
                         else
                         {
-                            QlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
                             Debug.WriteLine(
                                 "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
                         }
@@ -1078,16 +1235,16 @@ namespace UQLT.ViewModels
             }
 
             // There are players with missing elo information... Run an update.
-            if (QlRanksPlayersToUpdate.Count != 0)
+            if (qlRanksPlayersToUpdate.Count != 0)
             {
                 // Create
-                _qlRanksDataRetriever.CreateEloData(QlRanksPlayersToUpdate);
-                
-                Debug.WriteLine("Retrieving missing elo information for team (" + team + ") calculation for player(s): " + string.Join("+", QlRanksPlayersToUpdate));
-                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", QlRanksPlayersToUpdate));
+                _qlRanksDataRetriever.CreateEloData(qlRanksPlayersToUpdate);
+
+                Debug.WriteLine("Retrieving missing elo information for team (" + team + ") calculation for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
+                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
                 _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
 
-                foreach (var ptoupdate in QlRanksPlayersToUpdate)
+                foreach (var ptoupdate in qlRanksPlayersToUpdate)
                 {
                     EloData val;
                     switch (GameType)
@@ -1146,8 +1303,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sorts the servers and formats the players for the view, if this class is being used in
-        /// the server browser.
+        /// Sorts the servers and formats the players for the view
         /// </summary>
         private void SortServersAndFormatPlayers()
         {

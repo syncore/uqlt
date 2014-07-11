@@ -57,7 +57,7 @@ namespace UQLT.Core.Chat
                 // Create the Server (ServerDetailsViewModel) object for the player
                 foreach (var server in serverdata)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, false);
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, true);
                 }
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace UQLT.Core.Chat
                 // we have chosen to expose
                 foreach (var server in serverdata)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, false);
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ServerDetailsViewModel(server, true);
                     //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId = server.public_id;
                     ////CLVM.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[server.game_type].ShortGametypeName;
                     //Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.Map = server.map;
@@ -190,7 +190,7 @@ namespace UQLT.Core.Chat
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ServerDetailsViewModel(servers[i], false);
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ServerDetailsViewModel(servers[i], true);
                     //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.PublicId = servers[i].public_id;
                     ////CLVM.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.ShortGameTypeName = QLFormatter.Gametypes[servers[i].game_type].ShortGametypeName;
                     //Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server.Map = servers[i].map;
