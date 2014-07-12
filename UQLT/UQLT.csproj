@@ -121,8 +121,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\EloToColorConverter.cs" />
     <Compile Include="Converters\GametypeToRoundTypeConverter.cs" />
     <Compile Include="Converters\LocIdToNameConverter.cs" />
+    <Compile Include="Converters\PingToColorConverter.cs" />
+    <Compile Include="Converters\PlayerCountToColorConverter.cs" />
     <Compile Include="Converters\QlRanksTypeToVisiblityConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
     <Compile Include="Core\Chat\ChatGameInfo.cs" />

@@ -19,6 +19,9 @@
                     <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace" />
                     <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound" />
                     <converters:QlRanksTypeToVisiblityConverter x:Key="QlRanksTypeToVis" />
+                    <converters:PingToColorConverter x:Key="PingToColor"/>
+                    <converters:PlayerCountToColorConverter x:Key="PlayerCountToColor"/>
+                    <converters:EloToColorConverter x:Key="EloToColor"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

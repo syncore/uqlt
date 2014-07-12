@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Timers;
 using UQLT.Helpers;
@@ -55,10 +56,17 @@ namespace UQLT.Core.Chat
                 var serverdata = await (query.QueryRestApiAsync<List<Server>>(url));
 
                 // Create the Server (SrvDetailsBuddyViewModel) object for the player
-                //foreach (var server in serverdata)
-                //{
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ChatGameInfoViewModel(serverdata[0]);
-                //}
+                try
+                {
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server =
+                        new ChatGameInfoViewModel(serverdata[0]);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // Clear friend status on error.
+                    Handler.ClearFriendStatus(friend);
+                }
+
             }
             catch (Exception ex)
             {
@@ -97,9 +105,17 @@ namespace UQLT.Core.Chat
 
                 var query = new RestApiQuery();
                 var serverdata = await (query.QueryRestApiAsync<List<Server>>(url));
+                try
+                {
+                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server =
+                        new ChatGameInfoViewModel(serverdata[0]);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // Clear friend status on error.
+                    Handler.ClearFriendStatus(friend);
+                }
 
-                Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server = new ChatGameInfoViewModel(serverdata[0]);
-                    
             }
             catch (Exception ex)
             {

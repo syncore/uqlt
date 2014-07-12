@@ -155,7 +155,7 @@ namespace UQLT.Core.Chat
         /// Clears a friend's status.
         /// </summary>
         /// <param name="friend">The friend (jid.From.User)</param>
-        private void ClearFriendStatus(string friend)
+        public void ClearFriendStatus(string friend)
         {
             FriendViewModel val;
             friend = friend.ToLowerInvariant();
@@ -408,6 +408,8 @@ namespace UQLT.Core.Chat
             }
             catch (Exception e)
             {
+                // Clear status on error.
+                ClearFriendStatus(friend);
                 Debug.WriteLine(e);
             }
         }

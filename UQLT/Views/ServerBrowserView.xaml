@@ -12,13 +12,21 @@
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
-            <TextBlock Text="{Binding TeamName}" />
+            <Border x:Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+                <TextBlock Foreground="White" Text="{Binding TeamName}"/>
+            </Border>
             <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Team}" Value="0">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray"/>
+                </DataTrigger>
                 <DataTrigger Binding="{Binding Team}" Value="1">
-                    <Setter Property="TextBlock.Foreground" Value="Red" />
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66FF1D1D"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Team}" Value="2">
-                    <Setter Property="TextBlock.Foreground" Value="Blue" />
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66000CFF"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="3">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -49,7 +57,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Ping: " FontWeight="Bold" />
-                        <TextBlock Text="{Binding Ping}" />
+                        <TextBlock Text="{Binding Ping}" Foreground="{Binding Ping, Converter={StaticResource PingToColor}}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Mode: " FontWeight="Bold" />
@@ -82,13 +90,13 @@
                         <StackPanel x:Name="RedLeadingScore" Visibility="{Binding IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Red: " FontWeight="Bold" />
-                            <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamElo.Result, Converter={StaticResource EloToColor}}"/>
                             <TextBlock Text="{Binding GRedScore}" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Blue: " FontWeight="Bold" />
-                            <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamElo.Result, Converter={StaticResource EloToColor}}"/>
                             <TextBlock Text="{Binding GBlueScore}" />
                         </StackPanel>
                     </StackPanel>
@@ -96,13 +104,13 @@
                         <StackPanel x:Name="BlueLeadingScore" Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Blue: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamElo.Result, Converter={StaticResource EloToColor}}"/>
                                 <TextBlock Text="{Binding GBlueScore}" />
                             </StackPanel>
                             
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Red: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamElo.Result, Converter={StaticResource EloToColor}}"/>
                                 <TextBlock Text="{Binding GRedScore}" />
                             </StackPanel>
 
@@ -173,7 +181,13 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="Ping" DisplayMemberBinding="{Binding Ping}" />
+                    <GridViewColumn Header="Ping" helpers:GridViewSort.PropertyName="Ping">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Ping}" Foreground="{Binding Ping, Converter={StaticResource PingToColor}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
 
                     <GridViewColumn Header="Game Type" helpers:GridViewSort.PropertyName="GameTypeTitle">
                         <GridViewColumn.CellTemplate>
@@ -190,7 +204,7 @@
                     <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="TotalPlayers">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding TotalPlayers}" TextDecorations="Underline" Foreground="Green" Cursor="Hand" />
+                                <TextBlock Text="{Binding TotalPlayers}" Foreground="{Binding NumPlayers, Converter={StaticResource PlayerCountToColor}}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -204,7 +218,7 @@
             </ListView.View>
         </ListView>
         <!--Player Details-->
-        <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="False" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
+        <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
                   IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="3">
 
             <ListView.View>
@@ -223,7 +237,13 @@
                     </GridViewColumn>
                     <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" />
 
-                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=SelectedServer.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}" />
+                    <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" Width="{Binding Path=SelectedServer.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PlayerElo}" Foreground="{Binding PlayerElo, Converter={StaticResource EloToColor}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

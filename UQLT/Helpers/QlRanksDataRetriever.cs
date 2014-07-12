@@ -34,14 +34,9 @@ namespace UQLT.Helpers
 
                 return qlr;
             }
-            catch (JsonException jEx)
+            catch (Exception e)
             {
-                Debug.WriteLine(jEx.Message);
-                return null;
-            }
-            catch (HttpRequestException ex)
-            {
-                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(e);
                 return null;
             }
         }
@@ -159,15 +154,21 @@ namespace UQLT.Helpers
         /// <remarks>This acts independently on a QLRanks object, whereas <see cref="GetQlRanksPlayersAsync"/> contains code that sets the data from a QL server object.</remarks>
         public void SetQlRanksPlayersAsync(QLRanks qlRanks)
         {
-            foreach (var player in qlRanks.players)
+            try
             {
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()].DuelElo = player.duel.elo;
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CaElo = player.ca.elo;
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()].TdmElo = player.tdm.elo;
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()].FfaElo = player.ffa.elo;
-                UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CtfElo = player.ctf.elo; 
+                foreach (var player in qlRanks.players)
+                {
+                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].DuelElo = player.duel.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CaElo = player.ca.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].TdmElo = player.tdm.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].FfaElo = player.ffa.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CtfElo = player.ctf.elo;
+                }
             }
-            
+            catch (NullReferenceException e)
+            {
+                Debug.WriteLine(e);
+            }
         }
     }
 }

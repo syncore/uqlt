@@ -13,13 +13,21 @@
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
-            <TextBlock Text="{Binding TeamName}" />
+            <Border x:Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+            <TextBlock Foreground="White" Text="{Binding TeamName}"/>
+                </Border>
             <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Team}" Value="0">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray"/>
+                </DataTrigger>
                 <DataTrigger Binding="{Binding Team}" Value="1">
-                    <Setter Property="TextBlock.Foreground" Value="Red" />
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66FF1D1D"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Team}" Value="2">
-                    <Setter Property="TextBlock.Foreground" Value="Blue" />
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66000CFF"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="3">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -168,9 +176,21 @@
 
                                                     <!--Individual player scores listview-->
                                                     <ListView Name="ToolTipPlayerDetails" HorizontalAlignment="Left" ItemsSource="{Binding Value.Server.ToolTipPlayers}" SelectionMode="Single">
+                                                        <!--<ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Team}" Value="1">
+                                                                        <Setter Property="Background" Value="#66FF1D1D"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Team}" Value="2">
+                                                                        <Setter Property="Background" Value="#66000CFF"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>-->
                                                         <ListView.View>
                                                             <GridView>
-                                                                <GridViewColumn Header="Team" CellTemplate="{StaticResource TeamColors}" />
+                                                                <GridViewColumn Header="Team" CellTemplate="{StaticResource TeamColors}"/>
                                                                 <GridViewColumn Header="Clan" DisplayMemberBinding="{Binding CleanedClan}" />
                                                                 <GridViewColumn Header="Name">
                                                                     <GridViewColumn.CellTemplate>
