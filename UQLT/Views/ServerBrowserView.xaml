@@ -163,9 +163,22 @@
                 </i:Interaction.Triggers>
             </ComboBox>
         </StackPanel>
-
+        
+        <!--Player search filter-->
+        <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="0" HorizontalAlignment="Right">
+            <TextBlock Text="Find player by name:" Margin="0,0,10,0" Height="20"/>
+            <TextBox TextWrapping="Wrap" Text="{Binding PlayerSearchTerm, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="20" Margin="0,0,5,0" IsEnabled="{Binding IsPlayerNameFilterEnabled}"/>
+            <Button Content="Clear" Margin="5,0" Height="20" IsEnabled="{Binding IsPlayerSearchEnabled}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <cal:ActionMessage MethodName="ClearAndResetPlayerSearchTerm"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </StackPanel>
+        
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Servers}" SelectedItem="{Binding SelectedServer}" Grid.Row="1">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="1">
 
             <ListView.View>
                 <GridView>
@@ -204,7 +217,7 @@
                     <GridViewColumn Header="Players" helpers:GridViewSort.PropertyName="TotalPlayers">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding TotalPlayers}" Foreground="{Binding NumPlayers, Converter={StaticResource PlayerCountToColor}}"/>
+                                <TextBlock Text="{Binding TotalPlayers}" Foreground="{Binding PlayerCount, Converter={StaticResource PlayerCountToColor}}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -220,7 +233,20 @@
         <!--Player Details-->
         <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
                   IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="3">
-
+            <!--Provide player highlighting for players found in a player search-->
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsPlayerFoundInSearch}" Value="True">
+                        <Setter Property="Background" Value="LemonChiffon"/>
+                        <Setter Property="BorderBrush" Value="Goldenrod"></Setter>
+                    </DataTrigger>
+                    <!--TODO: Highlight friends as well-->
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+            
+            
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />

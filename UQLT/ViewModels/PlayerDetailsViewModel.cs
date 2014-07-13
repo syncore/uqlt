@@ -18,6 +18,7 @@ namespace UQLT.ViewModels
         private static readonly Regex NameColors = new Regex(@"[\^]\d");
         private string _cleanedClan;
         private string _teamName;
+        private bool _isPlayerFoundInSearch;
 
         [ImportingConstructor]
         public PlayerDetailsViewModel(Player player)
@@ -79,6 +80,26 @@ namespace UQLT.ViewModels
             {
                 _cleanedClan = value;
                 NotifyOfPropertyChange(() => CleanedClan);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this player was found in a filter search in the Server Browser.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if player found in search]; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is the basis for UI highlighting in the server browser for found matches.</remarks>
+        public bool IsPlayerFoundInSearch
+        {
+            get
+            {
+                return _isPlayerFoundInSearch;
+            }
+            set
+            {
+                _isPlayerFoundInSearch = value;
+                NotifyOfPropertyChange(() => IsPlayerFoundInSearch);
             }
         }
 

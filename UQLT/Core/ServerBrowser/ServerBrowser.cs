@@ -160,14 +160,13 @@ namespace UQLT.Core.ServerBrowser
         /// </remarks>
         private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
         {
-            int totalplayercount = 0;
-
             try
             {
                 UQltGlobals.IpAddressDict.Clear();
 
                 var query = new RestApiQuery();
                 var serverlist = await (query.QueryRestApiAsync<IList<Server>>(url));
+                var playercount = 0;
                 var addresses = new HashSet<string>();
 
                 // Process the server and player information for each server.
@@ -189,9 +188,17 @@ namespace UQLT.Core.ServerBrowser
                             s.CreateEloData();
                             s.SetPlayerElos();
                         }
+                    }
 
-                        // Track the player count.
-                        totalplayercount++;
+                    // Determine the player count. Because QL is weird, this will not simply
+                    // be num_players, but will depend on teamsize (source: ql js)
+                    if (s.teamsize > 0)
+                    {
+                        playercount += s.num_players;
+                    }
+                    else
+                    {
+                        playercount += s.num_clients;
                     }
                 }
 
@@ -199,7 +206,8 @@ namespace UQLT.Core.ServerBrowser
                 await PingServersAsync(addresses);
 
                 // Send a message (event) to the MainViewModel to update the player count in the statusbar.
-                _events.PublishOnUIThread(new PlayerCountEvent(totalplayercount));
+
+                _events.PublishOnUIThread(new PlayerCountEvent(playercount));
 
                 return serverlist;
             }

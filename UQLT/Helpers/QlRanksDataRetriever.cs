@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
-using Newtonsoft.Json;
 using UQLT.Interfaces;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
@@ -17,6 +15,21 @@ namespace UQLT.Helpers
     /// </summary>
     public class QlRanksDataRetriever : IQlRanksUpdater
     {
+        public void CreateEloData<T>(IEnumerable<T> players)
+        {
+            foreach (var player in players)
+            {
+                UQltGlobals.PlayerEloInfo[player.ToString().ToLower()] = new EloData
+                {
+                    DuelElo = 0,
+                    CaElo = 0,
+                    TdmElo = 0,
+                    FfaElo = 0,
+                    CtfElo = 0
+                };
+            }
+        }
+
         /// <summary>
         /// Asynchronously retrieves the player Elo information from the QLRanks API via HTTP GET request(s).
         /// </summary>
@@ -131,21 +144,6 @@ namespace UQLT.Helpers
             }
         }
 
-        public void CreateEloData<T>(IEnumerable<T> players)
-        {
-            foreach (var player in players)
-            {
-                UQltGlobals.PlayerEloInfo[player.ToString().ToLower()] = new EloData
-                {
-                    DuelElo = 0,
-                    CaElo = 0,
-                    TdmElo = 0,
-                    FfaElo = 0,
-                    CtfElo = 0
-                };   
-            }
-        }
-        
         /// <summary>
         /// Sets the ql ranks players asynchronous.
         /// </summary>

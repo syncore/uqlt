@@ -123,6 +123,7 @@
     </Compile>
     <Compile Include="Converters\EloToColorConverter.cs" />
     <Compile Include="Converters\GametypeToRoundTypeConverter.cs" />
+    <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\LocIdToNameConverter.cs" />
     <Compile Include="Converters\PingToColorConverter.cs" />
     <Compile Include="Converters\PlayerCountToColorConverter.cs" />
@@ -138,6 +139,9 @@
     <Compile Include="Events\FilterStatusEvent.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Events\PlayerCountEvent.cs" />
+    <Compile Include="Events\PlayerFoundCountEvent.cs" />
+    <Compile Include="Events\PlayerFoundNameEvent.cs" />
+    <Compile Include="Events\PlayerSearchingEvent.cs" />
     <Compile Include="Events\ServerCountEvent.cs" />
     <Compile Include="Events\ServerRequestEvent.cs" />
     <Compile Include="Helpers\FailsafeFilterHelper.cs" />

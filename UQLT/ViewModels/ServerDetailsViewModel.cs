@@ -40,9 +40,13 @@ namespace UQLT.ViewModels
         {
             QlServer = server;
             FormattedPlayerList = FormatPlayerCollection(QlServer.players);
-            //GroupScoresAndPlayers("Score", "Team");
         }
 
+        /// <summary>
+        /// Gets the blue team's Elo.
+        /// </summary>
+        /// <value>The blue team's Elo.</value>
+        /// <summary>
         public INotifyTaskCompletion<long> BlueTeamElo
         {
             get
@@ -51,11 +55,7 @@ namespace UQLT.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets or sets the blue team's Elo.
-        /// </summary>
-        /// <value>The blue team's Elo.</value>
-        /// <summary>
+        ///<summary>
         /// Gets the size of the blue team.
         /// </summary>
         /// <value>
@@ -71,7 +71,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the capture limit.
+        /// Gets the capture limit.
         /// </summary>
         /// <value>The capture limit.</value>
         public int CaptureLimit
@@ -80,15 +80,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.capturelimit;
             }
-            set
-            {
-                QlServer.capturelimit = value;
-                NotifyOfPropertyChange(() => CaptureLimit);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the ecode.
+        /// Gets the ecode.
         /// </summary>
         /// <value>The ecode.</value>
         public int ECODE
@@ -96,11 +91,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.ECODE;
-            }
-            set
-            {
-                QlServer.ECODE = value;
-                NotifyOfPropertyChange(() => ECODE);
             }
         }
 
@@ -126,7 +116,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the state of the formatted game.
+        /// Gets the state of the formatted game.
         /// </summary>
         /// <value>The state of the formatted game.</value>
         /// <remarks>This is a custom UI setting.</remarks>
@@ -147,13 +137,13 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the formatted player list.
+        /// Gets the formatted player list.
         /// </summary>
         /// <value>The formatted player list.</value>
         public List<PlayerDetailsViewModel> FormattedPlayerList { get; set; }
 
         /// <summary>
-        /// Gets or sets the frag limit.
+        /// Gets the frag limit.
         /// </summary>
         /// <value>The frag limit.</value>
         public int FragLimit
@@ -161,11 +151,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.fraglimit;
-            }
-            set
-            {
-                QlServer.fraglimit = value;
-                NotifyOfPropertyChange(() => FragLimit);
             }
         }
 
@@ -186,7 +171,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the type of the game.
+        /// Gets the type of the game.
         /// </summary>
         /// <value>The type of the game.</value>
         public int GameType
@@ -194,12 +179,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.game_type;
-            }
-            set
-            {
-                QlServer.game_type = value;
-                NotifyOfPropertyChange(() => GameType);
-                NotifyOfPropertyChange(() => ShortGameTypeName);
             }
         }
 
@@ -225,7 +204,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the game type title.
+        /// Gets the game type title.
         /// </summary>
         /// <value>The game type title.</value>
         public string GameTypeTitle
@@ -234,15 +213,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.game_type_title;
             }
-            set
-            {
-                QlServer.game_type_title = value;
-                NotifyOfPropertyChange(() => GameTypeTitle);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the blue score.
+        /// Gets the blue score.
         /// </summary>
         /// <value>The blue score.</value>
         public int GBlueScore
@@ -251,15 +225,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.g_bluescore;
             }
-            set
-            {
-                QlServer.g_bluescore = value;
-                NotifyOfPropertyChange(() => GBlueScore);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the custom settings.
+        /// Gets the custom settings.
         /// </summary>
         /// <value>The custom settings.</value>
         public string GCustomSettings
@@ -268,15 +237,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.g_customSettings;
             }
-            set
-            {
-                QlServer.g_customSettings = value;
-                NotifyOfPropertyChange(() => GCustomSettings);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the state of the game.
+        /// Gets the state of the game.
         /// </summary>
         /// <value>The state of the game.</value>
         public string GGameState
@@ -284,11 +248,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.g_gamestate;
-            }
-            set
-            {
-                QlServer.g_gamestate = value;
-                NotifyOfPropertyChange(() => GGameState);
             }
         }
 
@@ -305,7 +264,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the level start time.
+        /// Gets the level start time.
         /// </summary>
         /// <value>The level start time.</value>
         public int GLevelStartTime
@@ -314,15 +273,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.g_levelstarttime;
             }
-            set
-            {
-                QlServer.g_levelstarttime = value;
-                NotifyOfPropertyChange(() => GLevelStartTime);
-            }
         }
 
         /// <summary>
-        /// Gets or sets whether this server needs a password.
+        /// Gets whether this server needs a password.
         /// </summary>
         /// <value>The value representing whether this server needs a password.</value>
         public int GNeedPass
@@ -331,15 +285,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.g_needpass;
             }
-            set
-            {
-                QlServer.g_needpass = value;
-                NotifyOfPropertyChange(() => GNeedPass);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the red score.
+        /// Gets the red score.
         /// </summary>
         /// <value>The red score.</value>
         public int GRedScore
@@ -348,15 +297,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.g_redscore;
             }
-            set
-            {
-                QlServer.g_redscore = value;
-                NotifyOfPropertyChange(() => GRedScore);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the host address.
+        /// Gets the host address.
         /// </summary>
         /// <value>The host address.</value>
         public string HostAddress
@@ -365,15 +309,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.host_address;
             }
-            set
-            {
-                QlServer.host_address = value;
-                NotifyOfPropertyChange(() => HostAddress);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the name of the host.
+        /// Gets the name of the host.
         /// </summary>
         /// <value>The name of the host.</value>
         public string HostName
@@ -381,11 +320,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.host_name;
-            }
-            set
-            {
-                QlServer.host_name = value;
-                NotifyOfPropertyChange(() => HostName);
             }
         }
 
@@ -511,7 +445,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the location identifier.
+        /// Gets the location identifier.
         /// </summary>
         /// <value>The location identifier.</value>
         public long LocationId
@@ -520,19 +454,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.location_id;
             }
-            set
-            {
-                QlServer.location_id = value;
-                NotifyOfPropertyChange(() => LocationId);
-                // These are read-only so need to be notified of location id changes:
-                NotifyOfPropertyChange(() => FlagImage);
-                NotifyOfPropertyChange(() => FullLocationName);
-                NotifyOfPropertyChange(() => ShortLocationName);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the map setting.
+        /// Gets the map setting.
         /// </summary>
         /// <value>The map setting.</value>
         public string Map
@@ -540,11 +465,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.map;
-            }
-            set
-            {
-                QlServer.map = value;
-                NotifyOfPropertyChange(() => Map);
             }
         }
 
@@ -570,7 +490,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the map title.
+        /// Gets the map title.
         /// </summary>
         /// <value>The map title.</value>
         public string MapTitle
@@ -579,15 +499,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.map_title;
             }
-            set
-            {
-                QlServer.map_title = value;
-                NotifyOfPropertyChange(() => MapTitle);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the maximum clients.
+        /// Gets the maximum clients.
         /// </summary>
         /// <value>The maximum clients.</value>
         public int MaxClients
@@ -595,12 +510,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.max_clients;
-            }
-            set
-            {
-                QlServer.max_clients = value;
-                NotifyOfPropertyChange(() => MaxClients);
-                NotifyOfPropertyChange(() => TotalPlayers);
             }
         }
 
@@ -618,7 +527,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the number clients.
+        /// Gets the number clients.
         /// </summary>
         /// <value>The number clients.</value>
         public int NumClients
@@ -627,15 +536,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.num_clients;
             }
-            set
-            {
-                QlServer.num_clients = value;
-                NotifyOfPropertyChange(() => NumClients);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the number players.
+        /// Gets the number players.
         /// </summary>
         /// <value>The number players.</value>
         public int NumPlayers
@@ -644,16 +548,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.num_players;
             }
-            set
-            {
-                QlServer.num_players = value;
-                NotifyOfPropertyChange(() => NumPlayers);
-                NotifyOfPropertyChange(() => TotalPlayers);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the owner.
+        /// Gets the owner.
         /// </summary>
         /// <value>The owner.</value>
         public string Owner
@@ -661,11 +559,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.owner;
-            }
-            set
-            {
-                QlServer.owner = value;
-                NotifyOfPropertyChange(() => Owner);
             }
         }
 
@@ -685,6 +578,23 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets the player count.
+        /// </summary>
+        /// <value>
+        /// The player count.
+        /// </value>
+        /// <remarks>The player count will depend on the teamsize. This was
+        /// determined by examining the QL JavaScript code.
+        /// </remarks>
+        public int PlayerCount
+        {
+            get
+            {
+                return TeamSize > 0 ? NumPlayers : NumClients;
+            }
+        }
+
+        /// <summary>
         /// Gets the players.
         /// </summary>
         /// <value>The players.</value>
@@ -697,7 +607,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the premium setting.
+        /// Gets the premium setting.
         /// </summary>
         /// <value>The premium setting.</value>
         public object Premium
@@ -706,15 +616,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.premium;
             }
-            set
-            {
-                QlServer.premium = value;
-                NotifyOfPropertyChange(() => Premium);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the public identifier.
+        /// Gets the public identifier.
         /// </summary>
         /// <value>The public identifier.</value>
         public int PublicId
@@ -722,11 +627,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.public_id;
-            }
-            set
-            {
-                QlServer.public_id = value;
-                NotifyOfPropertyChange(() => PublicId);
             }
         }
 
@@ -752,11 +652,11 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the QLRanks data retriever.
+        /// Gets the QLRanks data retriever.
         /// </summary>
         /// <value>The QLRanksdata retriever.</value>
         /// <summary>
-        /// Gets or sets the ranked setting.
+        /// Gets the ranked setting.
         /// </summary>
         /// <value>The ranked setting.</value>
         public int Ranked
@@ -764,11 +664,6 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.ranked;
-            }
-            set
-            {
-                QlServer.ranked = value;
-                NotifyOfPropertyChange(() => Ranked);
             }
         }
 
@@ -802,7 +697,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the round limit.
+        /// Gets the round limit.
         /// </summary>
         /// <value>The round limit.</value>
         public int RoundLimit
@@ -811,15 +706,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.roundlimit;
             }
-            set
-            {
-                QlServer.roundlimit = value;
-                NotifyOfPropertyChange(() => RoundLimit);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the round time limit.
+        /// Gets the round time limit.
         /// </summary>
         /// <value>The round time limit.</value>
         public int RoundTimeLimit
@@ -828,15 +718,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.roundtimelimit;
             }
-            set
-            {
-                QlServer.roundtimelimit = value;
-                NotifyOfPropertyChange(() => RoundLimit);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the rule set.
+        /// Gets the rule set.
         /// </summary>
         /// <value>The rule set.</value>
         public string RuleSet
@@ -845,15 +730,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.ruleset;
             }
-            set
-            {
-                QlServer.ruleset = value;
-                NotifyOfPropertyChange(() => RuleSet);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the score limit.
+        /// Gets the score limit.
         /// </summary>
         /// <value>The score limit.</value>
         public string ScoreLimit
@@ -862,10 +742,26 @@ namespace UQLT.ViewModels
             {
                 return QlServer.scorelimit;
             }
-            set
+        }
+
+        /// <summary>
+        /// Gets the server maximum capacity.
+        /// </summary>
+        /// <value>
+        /// The server maximum capacity.
+        /// </value>
+        /// <remarks>The maximum server capacity is not always equal to
+        ///  the max_clients value in the case where the gametype is FFA.
+        ///  This was determined by examining the QL JavaScript code.</remarks>
+        public int ServerMaxCapacity
+        {
+            get
             {
-                QlServer.scorelimit = value;
-                NotifyOfPropertyChange(() => ScoreLimit);
+                if (TeamSize > 0)
+                {
+                    return ((TeamSize) * ((GameType == 0) ? 1 : 2));
+                }
+                return MaxClients;
             }
         }
 
@@ -898,7 +794,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the skill delta.
+        /// Gets the skill delta.
         /// </summary>
         /// <value>The skill delta.</value>
         public int SkillDelta
@@ -907,15 +803,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.skillDelta;
             }
-            set
-            {
-                QlServer.skillDelta = value;
-                NotifyOfPropertyChange(() => SkillDelta);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the size of the team.
+        /// Gets the size of the team.
         /// </summary>
         /// <value>The size of the team.</value>
         public int TeamSize
@@ -924,15 +815,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.teamsize;
             }
-            set
-            {
-                QlServer.teamsize = value;
-                NotifyOfPropertyChange(() => TeamSize);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the time limit.
+        /// Gets the time limit.
         /// </summary>
         /// <value>The time limit.</value>
         public int TimeLimit
@@ -941,15 +827,10 @@ namespace UQLT.ViewModels
             {
                 return QlServer.timelimit;
             }
-            set
-            {
-                QlServer.timelimit = value;
-                NotifyOfPropertyChange(() => TimeLimit);
-            }
         }
 
         /// <summary>
-        /// Gets or sets the time remaining.
+        /// Gets the time remaining.
         /// </summary>
         /// <value>The time remaining.</value>
         /// <remarks>This is a custom UI setting.</remarks>
@@ -996,7 +877,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return string.Empty + NumPlayers + "/" + MaxClients;
+                return string.Empty + PlayerCount + "/" + ServerMaxCapacity;
             }
         }
 
@@ -1131,19 +1012,5 @@ namespace UQLT.ViewModels
             var sorted = players.Select(player => new PlayerDetailsViewModel(player)).ToList();
             return sorted.OrderByDescending(a => a.Score).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
-
-        ///// <summary>
-        ///// Groups the scores and players for proper display in the view.
-        ///// </summary>
-        ///// <param name="sortBy">The criteria to sort by.</param>
-        ///// <param name="groupBy">The criteria to group by.</param>
-        //private void GroupScoresAndPlayers(string sortBy, string groupBy)
-        //{
-        //    var view = CollectionViewSource.GetDefaultView(FormattedPlayerList);
-        //    var sortDescription = new SortDescription(sortBy, ListSortDirection.Descending);
-        //    var groupDescription = new PropertyGroupDescription(groupBy);
-        //    view.SortDescriptions.Add(sortDescription);
-        //    view.GroupDescriptions.Add(groupDescription);
-        //}
     }
 }

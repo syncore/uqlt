@@ -7,18 +7,22 @@ namespace UQLT.ViewModels
 {
     /// <summary>
     /// Viewmodel for the main window. This represents the bulk of the application once the user has
-    /// gotten past the login screen by successfully authenticating with QL
+    /// gotten past the login screen by successfully authenticating with QL.
     /// </summary>
     [Export(typeof(MainViewModel))]
-    public class MainViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<FilterStatusEvent>, IHandle<ServerCountEvent>, IHandle<PlayerCountEvent>
+    public class MainViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<FilterStatusEvent>, IHandle<ServerCountEvent>, IHandle<PlayerCountEvent>, IHandle<PlayerSearchingEvent>, IHandle<PlayerFoundCountEvent>, IHandle<PlayerFoundNameEvent>
     {
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
         private string _arenaStatusTitle;
         private string _displayName = "UQLT v0.1";
         private FilterViewModel _filterViewModel;
+        private bool _isPlayerSearching;
         private string _locationStatusTitle;
         private int _playerCountStatusTitle;
+        private int _playerFindCountStatusTitle;
+        private string _playerFindNamesStatusTitle;
+        private string _playerFindStringStatusTitle;
         private string _premiumStatusTitle;
         private int _serverCountStatusTitle;
         private string _stateStatusTitle;
@@ -98,6 +102,25 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the user is currently searching for a player by name.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the user is searching; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsPlayerSearching
+        {
+            get
+            {
+                return _isPlayerSearching;
+            }
+            set
+            {
+                _isPlayerSearching = value;
+                NotifyOfPropertyChange(() => IsPlayerSearching);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the game location status bar title.
         /// </summary>
         /// <value>The game location status bar title.</value>
@@ -130,6 +153,66 @@ namespace UQLT.ViewModels
             {
                 _playerCountStatusTitle = value;
                 NotifyOfPropertyChange(() => PlayerCountStatusTitle);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the player find count status title.
+        /// </summary>
+        /// <value>
+        /// The player find count status title.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public int PlayerFindCountStatusTitle
+        {
+            get
+            {
+                return _playerFindCountStatusTitle;
+            }
+            set
+            {
+                _playerFindCountStatusTitle = value;
+                NotifyOfPropertyChange(() => PlayerFindCountStatusTitle);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the player names found as a result of the search for the status bar.
+        /// </summary>
+        /// <value>
+        /// The names of the players found for the status bar.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public string PlayerFindNamesStatusTitle
+        {
+            get
+            {
+                return _playerFindNamesStatusTitle;
+            }
+            set
+            {
+                _playerFindNamesStatusTitle = value;
+                NotifyOfPropertyChange(() => PlayerFindNamesStatusTitle);
+            }
+        }
+
+        /// <summary>
+        /// Gets the player find string title.
+        /// </summary>
+        /// <value>
+        /// The player find string title.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public string PlayerFindStringStatusTitle
+        {
+            get
+            {
+                return _playerFindStringStatusTitle;
+            }
+            set
+            {
+                _playerFindStringStatusTitle = value;
+                NotifyOfPropertyChange(() => PlayerFindStringStatusTitle);
             }
         }
 
@@ -267,6 +350,42 @@ namespace UQLT.ViewModels
         {
             PlayerCountStatusTitle = message.PlayerCount;
             Debug.WriteLine("[EVENT RECEIVED] Incoming server count information from Server Browser: " + message.PlayerCount);
+        }
+
+        /// <summary>
+        /// Handles the message (event) sent to this viewmodel from the ServerBrowserViewModel to indicate
+        /// whether the user is currently searching for a player by name in order to update statusbar.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(PlayerSearchingEvent message)
+        {
+            IsPlayerSearching = message.IsSearching;
+            PlayerFindStringStatusTitle = message.SearchTerm;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming player search information from Server Browser, search term is: " + message.SearchTerm);
+        }
+
+        /// <summary>
+        /// Handles the message (event) sent to this viewmodel from the <see cref="ServerBrowserViewModel"/> to indicate
+        /// the number of matches found for a given search term when user is searching for a player by name in order to
+        /// update the statusbar.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(PlayerFoundCountEvent message)
+        {
+            PlayerFindCountStatusTitle = message.SearchResultCount;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming player search information from Server Browser, number of results found so far: " +  message.SearchResultCount);
+        }
+
+        /// <summary>
+        /// Handles the message (event) sent to this viewmodel from the <see cref="ServerBrowserViewModel"/> to indicate
+        /// the actual names of the players that match a given search query when user is searching for a player by name
+        /// in order to update the statusbar.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(PlayerFoundNameEvent message)
+        {
+            PlayerFindNamesStatusTitle = message.Players;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming player search information from Server Browser, names found so far: " + message.Players);
         }
 
         /// <summary>

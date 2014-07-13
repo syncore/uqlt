@@ -15,6 +15,7 @@
                     <!--Converters-->
                     <!--::::::::::::::::::::-->
                     <BooleanToVisibilityConverter x:Key="BoolToVis" />
+                    <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
                     <converters:LocIdToNameConverter x:Key="LocIdToName" />
                     <converters:ScoreToRaceScoreConverter x:Key="ScoreToRace" />
                     <converters:GametypeToRoundtypeConverter x:Key="GameTypeToRound" />
