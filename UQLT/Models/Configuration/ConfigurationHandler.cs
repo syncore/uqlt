@@ -42,6 +42,14 @@ namespace UQLT.Models.Configuration
         public bool SbOptAutoRefresh { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether server browser should display elo search options.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if server browser is to display elo search options; otherwise, <c>false</c>.
+        /// </value>
+        public bool SbOptDisplayEloSearch { get; set; }
+        
+        /// <summary>
         /// Gets or sets the index of the server browser automatic refresh option for the UI.
         /// </summary>
         /// <value>The index of the server browser automatic refresh option for the UI.</value>
@@ -72,6 +80,7 @@ namespace UQLT.Models.Configuration
                     SbOptAutoRefresh = cfg.serverbrowser_options.sb_auto_refresh;
                     SbOptAutoRefreshIndex = cfg.serverbrowser_options.sb_auto_refresh_index;
                     SbOptAutoRefreshSeconds = cfg.serverbrowser_options.sb_auto_refresh_seconds;
+                    SbOptDisplayEloSearch = cfg.serverbrowser_options.sb_display_elo_search;
                     // Chat
                     ChatOptLogging = cfg.chat_options.chat_logging;
                     ChatOptSound = cfg.chat_options.chat_sound;
@@ -95,7 +104,8 @@ namespace UQLT.Models.Configuration
             {
                 sb_auto_refresh = false,
                 sb_auto_refresh_index = 1,
-                sb_auto_refresh_seconds = 60
+                sb_auto_refresh_seconds = 60,
+                sb_display_elo_search = false
             };
             var chatoptions = new ChatOptions()
             {
@@ -132,7 +142,7 @@ namespace UQLT.Models.Configuration
                     string json = sr.ReadToEnd();
                     var cfg = JsonConvert.DeserializeObject<Configuration>(json);
 
-                    // Validate. Assume that if one option is invalid the entire config is valid, so
+                    // Validate. Assume that if one option is invalid the entire config is invalid, so
                     // completely restore from default.
 
                     // Server Browser options
@@ -179,7 +189,8 @@ namespace UQLT.Models.Configuration
             {
                 sb_auto_refresh = SbOptAutoRefresh,
                 sb_auto_refresh_index = SbOptAutoRefreshIndex,
-                sb_auto_refresh_seconds = SbOptAutoRefreshSeconds
+                sb_auto_refresh_seconds = SbOptAutoRefreshSeconds,
+                sb_display_elo_search = SbOptDisplayEloSearch
             };
             var chatoptions = new ChatOptions()
             {

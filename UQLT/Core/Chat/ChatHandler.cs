@@ -93,13 +93,13 @@ namespace UQLT.Core.Chat
         /// <remarks>
         /// if <c>type == 1</c> play normal message sound if <c>type == 2</c> play game invitation sound
         /// </remarks>
-        public void PlayMessageSound(TypeOfSound soundtype)
+        public void PlayMessageSound(SoundTypes soundtype)
         {
             if (!IsChatSoundEnabled()) { return; }
 
             try
             {
-                if (soundtype == TypeOfSound.InvitationSound)
+                if (soundtype == SoundTypes.InvitationSound)
                 {
                     _inviteSound.Play();
                 }
@@ -148,7 +148,7 @@ namespace UQLT.Core.Chat
             if (!Clvm.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val)) return;
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = false;
             Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
-            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = TypeOfStatus.Nothing;
+            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = StatusTypes.Nothing;
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace UQLT.Core.Chat
             if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
             Clvm.OnlineGroup.Friends[friend].HasXmppStatus = false;
             Clvm.OnlineGroup.Friends[friend].IsInGame = false;
-            Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.Nothing;
+            Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.Nothing;
         }
 
         /// <summary>
@@ -383,13 +383,13 @@ namespace UQLT.Core.Chat
                     // friend is watching a demo
                     if (statusinfo.address.Equals("bot"))
                     {
-                        Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.WatchingDemo;
+                        Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.WatchingDemo;
                         Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                     }
                     // friend is actually in game
                     else
                     {
-                        Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingRealGame;
+                        Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.PlayingRealGame;
                         Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                         Clvm.OnlineGroup.Friends[friend].IsInGame = true;
                         // query API to get type, map, location, player count info for status message
@@ -402,7 +402,7 @@ namespace UQLT.Core.Chat
                 // ADDRESS, but it will be = "loopback")
                 if (statusinfo.bot_game == 1)
                 {
-                    Clvm.OnlineGroup.Friends[friend].StatusType = TypeOfStatus.PlayingPracticeGame;
+                    Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.PlayingPracticeGame;
                     Clvm.OnlineGroup.Friends[friend].HasXmppStatus = true;
                 }
             }
@@ -443,12 +443,12 @@ namespace UQLT.Core.Chat
                     var m = cm.MessageIncoming(msg);
                     if (msg.Body.StartsWith(StrInvite))
                     {
-                        const TypeOfSound sound = TypeOfSound.InvitationSound;
+                        const SoundTypes sound = SoundTypes.InvitationSound;
                         PlayMessageSound(sound);
                     }
                     else
                     {
-                        const TypeOfSound sound = TypeOfSound.ChatSound;
+                        const SoundTypes sound = SoundTypes.ChatSound;
                         PlayMessageSound(sound);
                     }
                 });

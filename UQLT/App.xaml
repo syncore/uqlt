@@ -23,6 +23,7 @@
                     <converters:PingToColorConverter x:Key="PingToColor"/>
                     <converters:PlayerCountToColorConverter x:Key="PlayerCountToColor"/>
                     <converters:EloToColorConverter x:Key="EloToColor"/>
+                    <converters:EmptyStringToZeroConverter x:Key="EmptyStringToZero"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

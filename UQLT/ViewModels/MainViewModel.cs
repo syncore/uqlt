@@ -10,14 +10,19 @@ namespace UQLT.ViewModels
     /// gotten past the login screen by successfully authenticating with QL.
     /// </summary>
     [Export(typeof(MainViewModel))]
-    public class MainViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<FilterStatusEvent>, IHandle<ServerCountEvent>, IHandle<PlayerCountEvent>, IHandle<PlayerSearchingEvent>, IHandle<PlayerFoundCountEvent>, IHandle<PlayerFoundNameEvent>
+    public class MainViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<FilterStatusEvent>, IHandle<ServerCountEvent>, IHandle<PlayerCountEvent>, IHandle<PlayerSearchingEvent>, IHandle<PlayerFoundCountEvent>, IHandle<PlayerFoundNameEvent>, IHandle<EloSearchingEvent>, IHandle<EloFoundCountEvent>, IHandle<EloSearchTypeEvent>
     {
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
         private string _arenaStatusTitle;
         private string _displayName = "UQLT v0.1";
+        private int _eloSearchCountStatusTitle;
+        private string _eloSearchStringStatusTitle;
+        private string _eloSearchValueStatusTitle;
         private FilterViewModel _filterViewModel;
-        private bool _isPlayerSearching;
+        private bool _isEloSearching;
+        private bool _isFilterStatusInfoVisible;
+        private bool _isPlayerNameSearching;
         private string _locationStatusTitle;
         private int _playerCountStatusTitle;
         private int _playerFindCountStatusTitle;
@@ -43,6 +48,7 @@ namespace UQLT.ViewModels
             _filterViewModel = new FilterViewModel(_events);
             ServerBrowserViewModel = new ServerBrowserViewModel(_events);
             ChatListViewModel = new ChatListViewModel(windowManager, _events);
+            IsFilterStatusInfoVisible = true;
             // TODO: _events for any events, i.e.: hiding buddy list
         }
 
@@ -86,6 +92,66 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets the elo search count status title.
+        /// </summary>
+        /// <value>
+        /// The elo search count status title.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public int EloSearchCountStatusTitle
+        {
+            get
+            {
+                return _eloSearchCountStatusTitle;
+            }
+            set
+            {
+                _eloSearchCountStatusTitle = value;
+                NotifyOfPropertyChange(() => EloSearchCountStatusTitle);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the elo search string status title.
+        /// </summary>
+        /// <value>
+        /// The elo search string status title.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public string EloSearchStringStatusTitle
+        {
+            get
+            {
+                return _eloSearchStringStatusTitle;
+            }
+            set
+            {
+                _eloSearchStringStatusTitle = value;
+                NotifyOfPropertyChange(() => EloSearchStringStatusTitle);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the elo search value status title.
+        /// </summary>
+        /// <value>
+        /// The elo search value status title.
+        /// </value>
+        /// <remarks>This is a property used for the status bar.</remarks>
+        public string EloSearchValueStatusTitle
+        {
+            get
+            {
+                return _eloSearchValueStatusTitle;
+            }
+            set
+            {
+                _eloSearchValueStatusTitle = value;
+                NotifyOfPropertyChange(() => EloSearchValueStatusTitle);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the filter view model.
         /// </summary>
         /// <value>The filter view model.</value>
@@ -102,21 +168,63 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the user is currently searching by elo.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the user is searching by elo; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEloSearching
+        {
+            get
+            {
+                return _isEloSearching;
+            }
+            set
+            {
+                _isEloSearching = value;
+                IsFilterStatusInfoVisible = value != true;
+                NotifyOfPropertyChange(() => IsEloSearching);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the filter information is visible.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the filter information visible; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is used for the status bar and is adjusted based on whether or not
+        /// the user is conducting a player search or an elo search. </remarks>
+        public bool IsFilterStatusInfoVisible
+        {
+            get
+            {
+                return _isFilterStatusInfoVisible;
+            }
+            set
+            {
+                _isFilterStatusInfoVisible = value;
+                NotifyOfPropertyChange(() => IsFilterStatusInfoVisible);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the user is currently searching for a player by name.
         /// </summary>
         /// <value>
         /// <c>true</c> if the user is searching; otherwise, <c>false</c>.
         /// </value>
-        public bool IsPlayerSearching
+        public bool IsPlayerNameSearching
         {
             get
             {
-                return _isPlayerSearching;
+                return _isPlayerNameSearching;
             }
             set
             {
-                _isPlayerSearching = value;
-                NotifyOfPropertyChange(() => IsPlayerSearching);
+                _isPlayerNameSearching = value;
+                IsFilterStatusInfoVisible = value != true;
+                NotifyOfPropertyChange(() => IsPlayerNameSearching);
             }
         }
 
@@ -359,7 +467,7 @@ namespace UQLT.ViewModels
         /// <param name="message">The message (event).</param>
         public void Handle(PlayerSearchingEvent message)
         {
-            IsPlayerSearching = message.IsSearching;
+            IsPlayerNameSearching = message.IsSearching;
             PlayerFindStringStatusTitle = message.SearchTerm;
             //Debug.WriteLine("[EVENT RECEIVED] Incoming player search information from Server Browser, search term is: " + message.SearchTerm);
         }
@@ -389,20 +497,49 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Handles the message (event) sent to this viewmodel from the <see cref="ServerBrowserViewModel"/> to indicate
+        /// whether an elo search is currently taking place, and the search value being used.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(EloSearchingEvent message)
+        {
+            IsEloSearching = message.IsSearching;
+            EloSearchValueStatusTitle = message.SearchValue;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming Elo search information from Server Browser, elo value used for search is: " + message.SearchValue);
+        }
+
+        /// <summary>
+        /// Handles the message (event) sent to this viewmodel from the <see cref="ServerBrowserViewModel"/> to indicate
+        /// the number of servers, if any, that contain the found elo search value.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(EloFoundCountEvent message)
+        {
+            EloSearchCountStatusTitle = message.SearchResultCount;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming Elo search information from Server Browser, number of results found so far: " + message.SearchResultCount);
+        }
+
+        /// <summary>
+        /// Handles message (event) sent to this viewmodel from the <see cref="ServerBrowserViewModel"/> to indicate
+        /// the type of elo search that is currently taking place.
+        /// </summary>
+        /// <param name="message">The message (event).</param>
+        public void Handle(EloSearchTypeEvent message)
+        {
+            EloSearchStringStatusTitle = message.SearchTypeText;
+            //Debug.WriteLine("[EVENT RECEIVED] Incoming Elo search information from Server Browser type of search is: " + message.SearchTypeText);
+        }
+
+        /// <summary>
         /// Hides the filter menu.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public void HideFilters()
         {
             // Debug.WriteLine("Attempting to publish event");
-            if (_filterViewModel.IsVisible)
-            {
-                _events.PublishOnUIThread(new FilterVisibilityEvent(false));
-            }
-            else
-            {
-                _events.PublishOnUIThread(new FilterVisibilityEvent(true));
-            }
+            _events.PublishOnUIThread(_filterViewModel.IsVisible
+                ? new FilterVisibilityEvent(false)
+                : new FilterVisibilityEvent(true));
         }
     }
 }

@@ -87,6 +87,10 @@ namespace UQLT.Core.ServerBrowser
                 }
             });
 
+            // Check if QLRanks supported for these servers.
+            ResetServersForEloType();
+            CheckServersForEloType();
+            
             Sbvm.IsUpdatingServers = false;
 
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
@@ -116,6 +120,46 @@ namespace UQLT.Core.ServerBrowser
         {
             //TODO: stop timer if we have launched a game, to prevent lag during game
             _serverRefreshTimer.Enabled = false;
+        }
+
+        /// <summary>
+        /// Checks the servers to see what QLRanks Elo types may be represented.
+        /// </summary>
+        /// <remarks>This is used to correctly display elo search options in the <see cref="ServerBrowserViewModel"/></remarks>
+        private void CheckServersForEloType()
+        {
+            var teamgamesfound = false;
+            var duelgamesfound = false;
+            foreach (var server in Sbvm.Servers)
+            {
+                // Server list contains team games that have QLRanks support.
+                if (server.IsQlRanksSupportedTeamGame)
+                {
+                    teamgamesfound = true;
+                }
+
+                // Server list contains duel games.
+                if (server.GameType == 1)
+                {
+                    duelgamesfound = true;
+                }
+            }
+
+            if (teamgamesfound)
+            {
+                Sbvm.ServersContainQlRanksTeamGames = true;
+                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.TeamGamesOnly);
+            }
+            if (duelgamesfound)
+            {
+                Sbvm.ServersContainDuelGames = true;
+                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.DuelGamesOnly);
+            }
+            if ((teamgamesfound) && (duelgamesfound))
+            {
+                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.BothDuelAndTeamGames);
+            }
+
         }
 
         /// <summary> Gets the filter URL on load. </summary> <returns> The
@@ -206,7 +250,6 @@ namespace UQLT.Core.ServerBrowser
                 await PingServersAsync(addresses);
 
                 // Send a message (event) to the MainViewModel to update the player count in the statusbar.
-
                 _events.PublishOnUIThread(new PlayerCountEvent(playercount));
 
                 return serverlist;
@@ -309,6 +352,15 @@ namespace UQLT.Core.ServerBrowser
                 // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
                 // pingTask.Result.RoundtripTime + " ms ");
             }
+        }
+
+        /// <summary>
+        /// Resets the QLRanks Elo type boolean values for the server list.
+        /// </summary>
+        private void ResetServersForEloType()
+        {
+            Sbvm.ServersContainQlRanksTeamGames = false;
+            Sbvm.ServersContainDuelGames = false;
         }
     }
 }

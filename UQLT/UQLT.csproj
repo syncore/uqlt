@@ -122,6 +122,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\EloToColorConverter.cs" />
+    <Compile Include="Converters\EmptyStringToZeroConverter.cs" />
     <Compile Include="Converters\GametypeToRoundTypeConverter.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\LocIdToNameConverter.cs" />
@@ -132,10 +133,15 @@
     <Compile Include="Core\Chat\ChatGameInfo.cs" />
     <Compile Include="Core\Chat\ChatHandler.cs" />
     <Compile Include="Core\Chat\ChatHistory.cs" />
-    <Compile Include="Core\Chat\TypeOfMessage.cs" />
-    <Compile Include="Core\Chat\TypeOfSound.cs" />
-    <Compile Include="Core\Chat\TypeOfStatus.cs" />
+    <Compile Include="Core\Chat\MessageTypes.cs" />
+    <Compile Include="Core\Chat\SoundTypes.cs" />
+    <Compile Include="Core\Chat\StatusTypes.cs" />
+    <Compile Include="Core\ServerBrowser\EloSearchTypes.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
+    <Compile Include="Core\ServerBrowser\EloSearchCategoryTypes.cs" />
+    <Compile Include="Events\EloFoundCountEvent.cs" />
+    <Compile Include="Events\EloSearchingEvent.cs" />
+    <Compile Include="Events\EloSearchTypeEvent.cs" />
     <Compile Include="Events\FilterStatusEvent.cs" />
     <Compile Include="Events\FilterVisibilityEvent.cs" />
     <Compile Include="Events\PlayerCountEvent.cs" />
@@ -149,11 +155,13 @@
     <Compile Include="Helpers\FocusBehavior.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
+    <Compile Include="Helpers\NumericTextBoxFilter.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
     <Compile Include="Helpers\QlRanksDataRetriever.cs" />
     <Compile Include="Helpers\RestApiQuery.cs" />
     <Compile Include="Helpers\ScrollToEndBehavior.cs" />
+    <Compile Include="Helpers\TextBoxFilters.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IQlRanksUpdater.cs" />
     <Compile Include="Interfaces\IUqltConfiguration.cs" />
@@ -163,6 +171,7 @@
     <Compile Include="Models\Configuration\ChatOptions.cs" />
     <Compile Include="Models\Configuration\ConfigurationHandler.cs" />
     <Compile Include="Models\Configuration\Configuration.cs" />
+    <Compile Include="Models\Configuration\ServerBrowserEloItem.cs" />
     <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />

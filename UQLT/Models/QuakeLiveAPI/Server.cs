@@ -13,6 +13,19 @@ namespace UQLT.Models.QuakeLiveAPI
     public class Server
     {
         /// <summary>
+        /// Gets or sets the blue team's elo.
+        /// </summary>
+        /// <value>
+        /// The blue team's elo.
+        /// </value>
+        /// <remarks>This is a custom property.</remarks>
+        public long blueteamelo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the capturelimit.
         /// </summary>
         /// <value>The capturelimit.</value>
@@ -263,6 +276,19 @@ namespace UQLT.Models.QuakeLiveAPI
         }
 
         /// <summary>
+        /// Gets or sets the red team's elo.
+        /// </summary>
+        /// <value>
+        /// The red team's elo.
+        /// </value>
+        /// <remarks>This is a custom property.</remarks>
+        public long redteamelo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the roundlimit.
         /// </summary>
         /// <value>The roundlimit.</value>
@@ -375,7 +401,7 @@ namespace UQLT.Models.QuakeLiveAPI
         }
 
         /// <summary> Sets the player game type from the QL server gametype on a per-server basis.
-        /// </summary> 
+        /// </summary>
         /// <param name="gt">The gametype.</param>
         ///  <remarks> Needed because Player class
         /// has no access to the server's game_type. Player class will use this value to pull the

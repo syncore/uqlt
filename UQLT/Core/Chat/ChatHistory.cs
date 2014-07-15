@@ -51,7 +51,7 @@ namespace UQLT.Core.Chat
         /// <param name="msgtype">The type of message.</param>
         /// <param name="message">The message.</param>
         /// <param name="date">The date.</param>
-        public void AddMessageToHistoryDb(string profile, string otheruser, TypeOfMessage msgtype, string message, string date)
+        public void AddMessageToHistoryDb(string profile, string otheruser, MessageTypes msgtype, string message, string date)
         {
             if (!IsChatHistoryEnabled()) { return; }
 
@@ -130,7 +130,7 @@ namespace UQLT.Core.Chat
 
             string profile = (string)parameters[0];
             string otheruser = (string)parameters[1];
-            TypeOfMessage msgtype = (TypeOfMessage)parameters[2];
+            MessageTypes msgtype = (MessageTypes)parameters[2];
             string message = (string)parameters[3];
             string date = (string)parameters[4];
             if (VerifyHistoryDb())
@@ -260,11 +260,11 @@ namespace UQLT.Core.Chat
                                 {
                                     switch ((long)reader["msgtype"])
                                     {
-                                        case (long)TypeOfMessage.Incoming:
+                                        case (long)MessageTypes.Incoming:
                                             messages.Append("[" + reader["date"] + "] " + reader["otheruser"] + ": " + reader["message"]);
                                             break;
 
-                                        case (long)TypeOfMessage.Outgoing:
+                                        case (long)MessageTypes.Outgoing:
                                             messages.Append("[" + reader["date"] + "] " + reader["profile"] + ": " + reader["message"]);
                                             break;
                                     }

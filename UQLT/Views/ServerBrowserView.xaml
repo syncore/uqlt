@@ -7,7 +7,7 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:helpers="clr-namespace:UQLT.Helpers"
              mc:Ignorable="d"
-             d:DesignHeight="523" d:DesignWidth="1040">
+             d:DesignHeight="550" d:DesignWidth="1090">
 
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
@@ -85,36 +85,36 @@
                                 Team Scoreboard
                                 <LineBreak />
                         </TextBlock>
-                        
+
                         <!--Red score greater than blue score. Display red first.-->
                         <StackPanel x:Name="RedLeadingScore" Visibility="{Binding IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Red: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamElo.Result, Converter={StaticResource EloToColor}}"/>
-                            <TextBlock Text="{Binding GRedScore}" />
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Blue: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamElo.Result, Converter={StaticResource EloToColor}}"/>
-                            <TextBlock Text="{Binding GBlueScore}" />
-                        </StackPanel>
-                    </StackPanel>
-                    <!--Blue score greater than red score. Display blue first.-->
-                        <StackPanel x:Name="BlueLeadingScore" Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Blue: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamElo.Result, Converter={StaticResource EloToColor}}"/>
-                                <TextBlock Text="{Binding GBlueScore}" />
-                            </StackPanel>
-                            
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Red: " FontWeight="Bold" />
-                                <TextBlock Text="{Binding RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamElo.Result, Converter={StaticResource EloToColor}}"/>
+                                <TextBlock Text="{Binding RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
                                 <TextBlock Text="{Binding GRedScore}" />
                             </StackPanel>
 
-                            
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Blue: " FontWeight="Bold" />
+                                <TextBlock Text="{Binding BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
+                                <TextBlock Text="{Binding GBlueScore}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <!--Blue score greater than red score. Display blue first.-->
+                        <StackPanel x:Name="BlueLeadingScore" Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Blue: " FontWeight="Bold" />
+                                <TextBlock Text="{Binding BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
+                                <TextBlock Text="{Binding GBlueScore}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Red: " FontWeight="Bold" />
+                                <TextBlock Text="{Binding RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
+                                <TextBlock Text="{Binding GRedScore}" />
+                            </StackPanel>
+
+
                         </StackPanel>
 
                     </StackPanel>
@@ -130,12 +130,14 @@
 
     <Grid Width="1040">
         <Grid.RowDefinitions>
-            <RowDefinition Height="25*" />
-            <RowDefinition Height="210*" />
-            <RowDefinition Height="210*" />
+            <RowDefinition Height="31*" />
+            <RowDefinition Height="18*"/>
+            <RowDefinition Height="30*" />
+            <RowDefinition Height="238*"/>
+            <RowDefinition Height="250*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="770*" />
+            <ColumnDefinition Width="820*" />
             <ColumnDefinition Width="270*" />
         </Grid.ColumnDefinitions>
 
@@ -153,7 +155,7 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </CheckBox>
-            <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,4,0,6" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
+            <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,2,0,3" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <cal:ActionMessage MethodName="SetRefreshTime">
@@ -163,12 +165,18 @@
                 </i:Interaction.Triggers>
             </ComboBox>
         </StackPanel>
-        
+
         <!--Player search filter-->
         <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="0" HorizontalAlignment="Right">
-            <TextBlock Text="Find player by name:" Margin="0,0,10,0" Height="20"/>
-            <TextBox TextWrapping="Wrap" Text="{Binding PlayerSearchTerm, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="20" Margin="0,0,5,0" IsEnabled="{Binding IsPlayerNameFilterEnabled}"/>
-            <Button Content="Clear" Margin="5,0" Height="20" IsEnabled="{Binding IsPlayerSearchEnabled}">
+            <TextBlock Text="Find player by name:" Margin="0,0,10,0" Height="18"/>
+            <TextBox TextWrapping="Wrap" Text="{Binding PlayerSearchTerm, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="20" Margin="0,0,5,0" IsEnabled="{Binding IsSearchingEnabled}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <cal:ActionMessage MethodName="EnablePlayerSearchFilter"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
+            <Button Content="Clear" Margin="5,0" Height="20" IsEnabled="{Binding IsSearchingEnabled}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <cal:ActionMessage MethodName="ClearAndResetPlayerSearchTerm"/>
@@ -176,9 +184,53 @@
                 </i:Interaction.Triggers>
             </Button>
         </StackPanel>
+
+        <!--Elo search filter-->
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left">
+            <CheckBox x:Name="EloSearchCheckBox" Content="Show Elo search options" IsChecked="{Binding DisplayEloSearchOptions}" Margin="0,0,0,2" Height="18">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <cal:ActionMessage MethodName="SaveConfig" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="Unchecked">
+                        <cal:ActionMessage MethodName="SaveConfig" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </CheckBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Visibility="{Binding DisplayEloSearchOptions, Converter={StaticResource BoolToVis}}" Margin="0,0,0,5">
+                <TextBlock Text="Find servers containing: " Margin="10,5,0,0" Height="18"/>
+                <ComboBox x:Name="EloSearchComboBox" ItemsSource="{Binding EloSearchItems}" SelectedIndex="{Binding EloSearchIndex}" SelectedValuePath="EloSearchGameType" ShouldPreserveUserEnteredPrefix="True" IsEnabled="{Binding IsSearchingEnabled, Converter={StaticResource BoolToVis}}" Margin="6,0,0,0" Height="20"  MinWidth="220">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <cal:ActionMessage MethodName="SetCurrentEloSearchSelection">
+                                <cal:Parameter Value="{Binding ElementName=EloSearchComboBox, Path=SelectedValue}" />
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+                <TextBox helpers:NumericTextBoxFilter.OnlyAllowNumbers="True" TextWrapping="Wrap" Text="{Binding EloSearchValue, UpdateSourceTrigger=PropertyChanged}" Width="60" Height="20" Margin="5,2,10,3" IsEnabled="{Binding IsSearchingEnabled}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="GotFocus">
+                            <cal:ActionMessage MethodName="SetCurrentEloSearchSelection">
+                                <cal:Parameter Value="{Binding ElementName=EloSearchComboBox, Path=SelectedValue}"/>
+                            </cal:ActionMessage>
+                            <cal:ActionMessage MethodName="EnableEloSearchFilter"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
+                <Button Content="Clear" Margin="5,0,0,0" Height="20" IsEnabled="{Binding IsSearchingEnabled}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="ClearAndResetEloSearchValue"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </StackPanel>
         
+
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="1">
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="3">
 
             <ListView.View>
                 <GridView>
@@ -232,21 +284,21 @@
         </ListView>
         <!--Player Details-->
         <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
-                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="3">
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="4">
             <!--Provide player highlighting for players found in a player search-->
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsPlayerFoundInSearch}" Value="True">
-                        <Setter Property="Background" Value="LemonChiffon"/>
-                        <Setter Property="BorderBrush" Value="Goldenrod"></Setter>
-                    </DataTrigger>
-                    <!--TODO: Highlight friends as well-->
+                        <DataTrigger Binding="{Binding IsPlayerFoundInSearch}" Value="True">
+                            <Setter Property="Background" Value="LemonChiffon"/>
+                            <Setter Property="BorderBrush" Value="Goldenrod"></Setter>
+                        </DataTrigger>
+                        <!--TODO: Highlight friends as well-->
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
-            
-            
+
+
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />
@@ -274,11 +326,12 @@
             </ListView.View>
         </ListView>
         <!--Extended server details-->
-        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="2" Grid.Row="1" />
+        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="3" Grid.Row="2" Margin="0,0,-12,0" />
 
-        <Grid ColumnSpan="2" RowSpan="2" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6" Grid.Row="1">
+        <!--"Receiving QL server data" grid-->
+        <Grid ColumnSpan="2" Grid.RowSpan="3" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6" Grid.Row="3">
 
-            <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="76" HorizontalAlignment="Center" Margin="295,150,295,268">
+            <Border Background="#333" Width="450" VerticalAlignment="Center" BorderBrush="Red" BorderThickness="2" Height="98" HorizontalAlignment="Center" Margin="295,114,295,254">
                 <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
             		Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0" Margin="8,28,-12,28" />
             </Border>

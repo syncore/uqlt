@@ -3,7 +3,7 @@
     /// <summary>
     /// This enum represents the possible types of XMPP messages.
     /// </summary>
-    public enum TypeOfMessage
+    public enum MessageTypes
     {
         Outgoing,
         Incoming

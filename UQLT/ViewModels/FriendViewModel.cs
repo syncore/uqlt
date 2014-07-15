@@ -196,16 +196,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case TypeOfStatus.WatchingDemo:
+                    case StatusTypes.WatchingDemo:
                         return true;
 
-                    case TypeOfStatus.PlayingPracticeGame:
+                    case StatusTypes.PlayingPracticeGame:
                         return true;
 
-                    case TypeOfStatus.PlayingRealGame:
+                    case StatusTypes.PlayingRealGame:
                         return false;
 
-                    case TypeOfStatus.Nothing:
+                    case StatusTypes.Nothing:
                     default:
                         return false;
                 }
@@ -222,14 +222,14 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case TypeOfStatus.WatchingDemo:
+                    case StatusTypes.WatchingDemo:
                         return "Watching a demo";
 
-                    case TypeOfStatus.PlayingPracticeGame:
+                    case StatusTypes.PlayingPracticeGame:
                         return "Playing a practice match";
 
-                    case TypeOfStatus.Nothing:
-                    case TypeOfStatus.PlayingRealGame:
+                    case StatusTypes.Nothing:
+                    case StatusTypes.PlayingRealGame:
                     default:
                         return "";
                 }
@@ -273,16 +273,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case TypeOfStatus.WatchingDemo:
+                    case StatusTypes.WatchingDemo:
                         return _imageDemo;
 
-                    case TypeOfStatus.PlayingPracticeGame:
+                    case StatusTypes.PlayingPracticeGame:
                         return _imagePractice;
 
-                    case TypeOfStatus.PlayingRealGame:
+                    case StatusTypes.PlayingRealGame:
                         return _imageIngame;
 
-                    case TypeOfStatus.Nothing:
+                    case StatusTypes.Nothing:
                     default:
                         return default(BitmapImage);
                 }
@@ -293,7 +293,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the type of the status.
         /// </summary>
         /// <value>The type of the status.</value>
-        public TypeOfStatus StatusType
+        public StatusTypes StatusType
         {
             get
             {

@@ -150,13 +150,13 @@
                                                     <StackPanel x:Name="TooltipRedLeadingScore" Visibility="{Binding Value.Server.IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Red: " />
-                                                            <TextBlock Text="{Binding Value.Server.RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
                                                             <TextBlock Text="{Binding Value.Server.GRedScore}" />
                                                         </StackPanel>
 
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Blue: " />
-                                                            <TextBlock Text="{Binding Value.Server.BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
                                                             <TextBlock Text="{Binding Value.Server.GBlueScore}" />
                                                         </StackPanel>
                                                     </StackPanel>
@@ -164,12 +164,12 @@
                                                     <StackPanel x:Name="TooltipBlueLeadingScore" Visibility="{Binding Value.Server.IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Blue: " />
-                                                            <TextBlock Text="{Binding Value.Server.BlueTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
                                                             <TextBlock Text="{Binding Value.Server.GBlueScore}" />
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Red: " />
-                                                            <TextBlock Text="{Binding Value.Server.RedTeamElo.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
                                                             <TextBlock Text="{Binding Value.Server.GRedScore}" />
                                                         </StackPanel>
                                                     </StackPanel>

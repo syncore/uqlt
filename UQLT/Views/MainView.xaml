@@ -7,12 +7,12 @@
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1040*" />
+            <ColumnDefinition Width="1090*" />
             <ColumnDefinition Width="280*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="133*" />
-            <RowDefinition Height="423*" />
+            <RowDefinition Height="550*" />
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
         <ContentControl Name="FilterViewModel" Grid.Column="0" HorizontalAlignment="Left" />
@@ -27,9 +27,9 @@
         </Button>
 
         <!--Status bar-->
-        <StatusBar Grid.Row="2" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="1032" Grid.ColumnSpan="2">
-
-            <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsPlayerSearching, Converter={StaticResource InverseBoolToVis}}">
+        <StatusBar Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="1032" Grid.ColumnSpan="2">
+            <!--Filter information-->
+            <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsFilterStatusInfoVisible, Converter={StaticResource BoolToVis}}">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}Showing {0} servers and active {1} players for filter: {2}, {3}, {4}, {5} in location: {6} on arena: {7}">
                         <Binding Path="ServerCountStatusTitle" />
@@ -50,7 +50,8 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsPlayerSearching, Converter={StaticResource BoolToVis}}">
+            <!--Search by player name-->
+            <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsPlayerNameSearching, Converter={StaticResource BoolToVis}}">
                 <TextBlock.Text>
                 <MultiBinding StringFormat="{}Found {0} players containing: '{1}' in the current server list of {2} servers. Players: {3}">
                     <Binding Path="PlayerFindCountStatusTitle"/>
@@ -59,6 +60,17 @@
                         <Binding Path="PlayerFindNamesStatusTitle"/>
                     </MultiBinding>
                     </TextBlock.Text>
+            </TextBlock>
+        <!--Search by elo-->
+            <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsEloSearching, Converter={StaticResource BoolToVis}}">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}Found {0} servers containing: {1} {2} in the current server list of {3} servers.">
+                        <Binding Path="EloSearchCountStatusTitle"/>
+                        <Binding Path="EloSearchStringStatusTitle"/>
+                        <Binding Path="EloSearchValueStatusTitle"/>
+                        <Binding Path="ServerCountStatusTitle"/>
+                    </MultiBinding>
+                </TextBlock.Text>
             </TextBlock>
         </StatusBar>
     </Grid>

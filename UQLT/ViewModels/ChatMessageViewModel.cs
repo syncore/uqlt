@@ -168,7 +168,7 @@ namespace UQLT.ViewModels
         {
             if (IsMessageInvite(msg.Body))
             {
-                var sound = TypeOfSound.InvitationSound;
+                var sound = SoundTypes.InvitationSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!" + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
@@ -185,13 +185,13 @@ namespace UQLT.ViewModels
             }
             else
             {
-                var sound = TypeOfSound.ChatSound;
+                var sound = SoundTypes.ChatSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = msg.Body + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
             }
             // Log the message
-            _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, MessageTypes.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             IncomingMessage = string.Empty;
         }
 
@@ -270,7 +270,7 @@ namespace UQLT.ViewModels
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + message;
 
                 // Log the message
-                _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, TypeOfMessage.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, MessageTypes.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 OutgoingMessage = string.Empty;
             }
             else

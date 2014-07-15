@@ -3,7 +3,7 @@
     /// <summary>
     /// This enumeration describes the various types of chat-related sounds that might be played.
     /// </summary>
-    public enum TypeOfSound
+    public enum SoundTypes
     {
         ChatSound,
         InvitationSound

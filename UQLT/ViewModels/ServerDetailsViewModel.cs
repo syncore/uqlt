@@ -40,14 +40,25 @@ namespace UQLT.ViewModels
         {
             QlServer = server;
             FormattedPlayerList = FormatPlayerCollection(QlServer.players);
+            DoTeamEloRetrieval();
         }
 
         /// <summary>
-        /// Gets the blue team's Elo.
+        /// Gets or sets the blue team elo as a result of a non-asynchronous operation.
         /// </summary>
-        /// <value>The blue team's Elo.</value>
+        /// <value>
+        /// The blue team elo as the result of a non-asynchronous operation.
+        /// </value>
+        public long BlueTeamElo
+        {
+            get { return QlServer.blueteamelo; }
+        }
+
         /// <summary>
-        public INotifyTaskCompletion<long> BlueTeamElo
+        /// Gets the blue team's Elo as a result of an asynchronous operation.
+        /// </summary>
+        /// <value>The blue team's Elo as the result of an asynchronous operation.</value>
+        public INotifyTaskCompletion<long> BlueTeamEloAsAsyncValue
         {
             get
             {
@@ -668,12 +679,23 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets the red team's Elo.
+        /// Gets or sets the red team elo as a result of a non-asynchronous operation.
         /// </summary>
         /// <value>
-        /// The red team's Elo.
+        /// The red team elo as the result of a non-asynchronous operation.
         /// </value>
-        public INotifyTaskCompletion<long> RedTeamElo
+        public long RedTeamElo
+        {
+            get { return QlServer.redteamelo; }
+        }
+
+        /// <summary>
+        /// Gets the red team's Elo as the result of an asynchronous operation.
+        /// </summary>
+        /// <value>
+        /// The red team's Elo as the result of an asynchronous operation.
+        /// </value>
+        public INotifyTaskCompletion<long> RedTeamEloAsAsyncValue
         {
             get
             {
@@ -882,6 +904,18 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Does the team elo retrieval for QLRanks supported gametypes for missing players.
+        /// </summary>
+        /// <remarks>This is necessary to set the team elo values on the underlying <see cref="Server"/> model,
+        /// especially for filtering purposes. </remarks>
+        public void DoTeamEloRetrieval()
+        {
+            if (!IsQlRanksSupportedTeamGame) return;
+            NotifyTaskCompletion.Create(CalculateTeamEloAsync(1));
+            NotifyTaskCompletion.Create(CalculateTeamEloAsync(2));
+        }
+
+        /// <summary>
         /// Asynchronously calculates the team's average elo for QLRanks-supported team gametypes.
         /// </summary>
         /// <param name="team">The team. <c>1</c> is blue, <c>2</c> is red.</param>
@@ -996,6 +1030,14 @@ namespace UQLT.ViewModels
                             break;
                     }
                 }
+            }
+            if (team == 1)
+            {
+                QlServer.redteamelo = totaleloteam / totalplayers;
+            }
+            else
+            {
+                QlServer.blueteamelo = totaleloteam / totalplayers;
             }
 
             return (totaleloteam / totalplayers);

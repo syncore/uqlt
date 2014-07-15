@@ -99,7 +99,7 @@ namespace UQLT.Models.Chat
         /// </summary>
         /// <value>The type of the status.</value>
         /// <remarks>StatusType can be: 0: nothing, 1: demo, 2: practice, or 3: in-game</remarks>
-        public TypeOfStatus StatusType
+        public StatusTypes StatusType
         {
             get;
             set;
