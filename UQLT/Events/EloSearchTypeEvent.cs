@@ -56,25 +56,25 @@ namespace UQLT.Events
             switch (searchtype)
             {
                 case EloSearchTypes.DuelMinSearch:
-                    _searchTypeText = ServerBrowserViewModel.DuelMinSearchString;
+                    _searchTypeText = ServerBrowserSearch.DuelMinSearchString;
                     break;
 
                 case EloSearchTypes.DuelMaxSearch:
-                    _searchTypeText = ServerBrowserViewModel.DuelMaxSearchString;
+                    _searchTypeText = ServerBrowserSearch.DuelMaxSearchString;
                     break;
 
                 case EloSearchTypes.TeamOneTeamMinSearch:
-                    _searchTypeText = ServerBrowserViewModel.TeamOneTeamMinSearchString;
+                    _searchTypeText = ServerBrowserSearch.TeamOneTeamMinSearchString;
                     break;
 
                 case EloSearchTypes.TeamBothTeamsMinSearch:
-                    _searchTypeText = ServerBrowserViewModel.TeamBothTeamsMinSearchString;
+                    _searchTypeText = ServerBrowserSearch.TeamBothTeamsMinSearchString;
                     break;
                 case EloSearchTypes.TeamOneTeamMaxSearch:
-                    _searchTypeText = ServerBrowserViewModel.TeamOneTeamMaxSearchString;
+                    _searchTypeText = ServerBrowserSearch.TeamOneTeamMaxSearchString;
                     break;
                 case EloSearchTypes.TeamBothTeamsMaxSearch:
-                    _searchTypeText = ServerBrowserViewModel.TeamBothTeamsMaxSearchString;
+                    _searchTypeText = ServerBrowserSearch.TeamBothTeamsMaxSearchString;
                     break;
                 // This is the only place that type None is used.
                 case EloSearchTypes.None:

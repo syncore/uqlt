@@ -126,7 +126,7 @@ namespace UQLT.ViewModels
 
                 Debug.WriteLine("Retrieving missing elo information for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
                 var qlr = await QlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
-                QlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
+                QlRanksDataRetriever.SetQlRanksPlayers(qlr);
 
                 foreach (var p in Players.Where(p => qlRanksPlayersToUpdate.Contains(p.name.ToLower())))
                 {

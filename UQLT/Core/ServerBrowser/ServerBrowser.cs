@@ -21,7 +21,7 @@ using UQLT.ViewModels;
 namespace UQLT.Core.ServerBrowser
 {
     /// <summary>
-    /// Helper class responsible for server retrieval, pinging servers, and elo details for a ServerBrowserViewModel
+    /// Helper class responsible for server retrieval, pinging servers, and elo details for a <seealso cref="ServerBrowserViewModel"/>
     /// </summary>
     public class ServerBrowser
     {
@@ -148,16 +148,16 @@ namespace UQLT.Core.ServerBrowser
             if (teamgamesfound)
             {
                 Sbvm.ServersContainQlRanksTeamGames = true;
-                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.TeamGamesOnly);
+                Sbvm.SrvBrowserSearch.SetEloSearchCollectionSource(EloSearchCategoryTypes.TeamGamesOnly);
             }
             if (duelgamesfound)
             {
                 Sbvm.ServersContainDuelGames = true;
-                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.DuelGamesOnly);
+                Sbvm.SrvBrowserSearch.SetEloSearchCollectionSource(EloSearchCategoryTypes.DuelGamesOnly);
             }
             if ((teamgamesfound) && (duelgamesfound))
             {
-                Sbvm.SetEloSearchCollectionSource(EloSearchCategoryTypes.BothDuelAndTeamGames);
+                Sbvm.SrvBrowserSearch.SetEloSearchCollectionSource(EloSearchCategoryTypes.BothDuelAndTeamGames);
             }
 
         }

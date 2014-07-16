@@ -145,12 +145,12 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Sets the ql ranks players asynchronous.
+        /// Sets the ql ranks players' elo values.
         /// </summary>
         /// <param name="qlRanks">The QLRanks object</param>
         /// <returns></returns>
         /// <remarks>This acts independently on a QLRanks object, whereas <see cref="GetQlRanksPlayersAsync"/> contains code that sets the data from a QL server object.</remarks>
-        public void SetQlRanksPlayersAsync(QLRanks qlRanks)
+        public void SetQlRanksPlayers(QLRanks qlRanks)
         {
             try
             {

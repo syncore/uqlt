@@ -193,6 +193,7 @@
                         <cal:ActionMessage MethodName="SaveConfig" />
                     </i:EventTrigger>
                     <i:EventTrigger EventName="Unchecked">
+                        <cal:ActionMessage MethodName="ClearAndResetEloSearchValue"/>
                         <cal:ActionMessage MethodName="SaveConfig" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>

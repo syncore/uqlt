@@ -20,7 +20,7 @@ namespace UQLT.Interfaces
         /// <returns>Nothing</returns>
         Task GetQlRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150);
 
-        void SetQlRanksPlayersAsync(QLRanks qlRanks);
+        void SetQlRanksPlayers(QLRanks qlRanks);
         //void SetQLranksDefaultElo(string player);
     }
 }

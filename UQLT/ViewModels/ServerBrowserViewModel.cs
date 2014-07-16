@@ -5,8 +5,6 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Data;
 using Caliburn.Micro;
 using UQLT.Core.ServerBrowser;
@@ -22,41 +20,8 @@ namespace UQLT.ViewModels
     [Export(typeof(ServerBrowserViewModel))]
     public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>, IUqltConfiguration
     {
-        public static string DuelMaxSearchString = "duelers with MAXIMUM Elo of";
-        public static string DuelMinSearchString = "duelers with minimum Elo of";
-        public static string TeamBothTeamsMaxSearchString = "both teams with MAXIMUM average Elo of";
-        public static string TeamBothTeamsMinSearchString = "both teams with minimum average Elo of";
-        public static string TeamOneTeamMaxSearchString = "at least one team with MAXIMUM average Elo of";
-        public static string TeamOneTeamMinSearchString = "at least one team with minimum average Elo of";
-
-        private readonly ObservableCollection<ServerBrowserEloItem> _allEloTypes = new ObservableCollection<ServerBrowserEloItem>()
-        {
-            new ServerBrowserEloItem {Name = DuelMinSearchString, EloSearchGameType = EloSearchTypes.DuelMinSearch},
-            new ServerBrowserEloItem {Name = DuelMaxSearchString, EloSearchGameType = EloSearchTypes.DuelMaxSearch},
-            new ServerBrowserEloItem {Name = TeamOneTeamMinSearchString, EloSearchGameType = EloSearchTypes.TeamOneTeamMinSearch},
-            new ServerBrowserEloItem {Name = TeamBothTeamsMinSearchString, EloSearchGameType = EloSearchTypes.TeamBothTeamsMinSearch},
-            new ServerBrowserEloItem {Name = TeamOneTeamMaxSearchString, EloSearchGameType = EloSearchTypes.TeamOneTeamMaxSearch},
-            new ServerBrowserEloItem {Name = TeamBothTeamsMaxSearchString, EloSearchGameType = EloSearchTypes.TeamBothTeamsMaxSearch},
-        };
-
-        private readonly ObservableCollection<ServerBrowserEloItem> _duelEloTypes = new ObservableCollection<ServerBrowserEloItem>()
-        {
-            new ServerBrowserEloItem {Name = DuelMinSearchString, EloSearchGameType = EloSearchTypes.DuelMinSearch},
-            new ServerBrowserEloItem {Name = DuelMaxSearchString, EloSearchGameType = EloSearchTypes.DuelMaxSearch}
-        };
-
-        private readonly IEventAggregator _events;
-        private readonly StringBuilder _playerSearchFoundBuilder = new StringBuilder();
         private readonly ServerBrowser _sb;
-
-        private readonly ObservableCollection<ServerBrowserEloItem> _teamEloTypes = new ObservableCollection<ServerBrowserEloItem>()
-        {
-            new ServerBrowserEloItem {Name = TeamOneTeamMinSearchString, EloSearchGameType = EloSearchTypes.TeamOneTeamMinSearch},
-            new ServerBrowserEloItem {Name = TeamBothTeamsMinSearchString, EloSearchGameType = EloSearchTypes.TeamBothTeamsMinSearch},
-            new ServerBrowserEloItem {Name = TeamOneTeamMaxSearchString, EloSearchGameType = EloSearchTypes.TeamOneTeamMaxSearch},
-            new ServerBrowserEloItem {Name = TeamBothTeamsMaxSearchString, EloSearchGameType = EloSearchTypes.TeamBothTeamsMaxSearch}
-        };
-
+        private readonly ServerBrowserSearch _sbsearch;
         private int _autoRefreshIndex;
 
         private List<ServerBrowserRefreshItem> _autoRefreshItems = new List<ServerBrowserRefreshItem>
@@ -68,17 +33,14 @@ namespace UQLT.ViewModels
         };
 
         private int _autoRefreshSeconds;
-
         private bool _displayEloSearchOptions;
-        private int _eloSearchFoundCount;
         private int _eloSearchIndex;
-        private ObservableCollection<ServerBrowserEloItem> _eloSearchItems;
+        private List<ServerBrowserEloItem> _eloSearchItems;
         private string _eloSearchValue;
         private string _filterUrl;
         private bool _isAutoRefreshEnabled;
         private bool _isSearchingEnabled;
         private bool _isUpdatingServers;
-        private int _playerSearchFoundCount;
         private string _playerSearchTerm;
         private ServerDetailsViewModel _selectedServer;
         private ObservableCollection<ServerDetailsViewModel> _servers = new ObservableCollection<ServerDetailsViewModel>();
@@ -92,45 +54,21 @@ namespace UQLT.ViewModels
         [ImportingConstructor]
         public ServerBrowserViewModel(IEventAggregator events)
         {
-            _events = events;
-            _events.Subscribe(this);
+            events.Subscribe(this);
 
             DoServerBrowserAutoSort("FullLocationName");
-            EloSearchItems = _allEloTypes;
             LoadConfig();
 
-            // Instantiate a new server browser for this viewmodel
+            // Helpers for this viewmodel
             _sb = new ServerBrowser(this, events);
+            _sbsearch = new ServerBrowserSearch(this, events);
+
+            // Source of items
+            EloSearchItems = _sbsearch.AllEloTypes;
 
             // Hook the collection view source up to the collection of servers to enable ability to search for players on servers.
             ServersView = CollectionViewSource.GetDefaultView(Servers);
-            ServersView.Filter = EvaluatePlayerNameFilter;
-        }
-
-        /// <summary>
-        /// Gets or sets the currently active types of elo search possibilities for filtering purposes.
-        /// </summary>
-        /// <value>
-        /// The currently active types of elo search possibilities.
-        /// </value>
-        public EloSearchCategoryTypes ActiveEloSearchCategories
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the currently active type of elo search being conducted for filtering purposes.
-        /// </summary>
-        /// <value>
-        /// The currently active type of elo search.
-        /// </value>
-        /// <remarks>This is directly based on the value that the user has selected in the elo
-        /// search combobox in the view.</remarks>
-        public EloSearchTypes ActiveEloSearchType
-        {
-            get;
-            set;
+            ServersView.Filter = _sbsearch.EvaluatePlayerNameFilter;
         }
 
         /// <summary>
@@ -228,7 +166,7 @@ namespace UQLT.ViewModels
         /// The elo search items.
         /// </value>
         /// <remarks>This is used for the combo box in the view.</remarks>
-        public ObservableCollection<ServerBrowserEloItem> EloSearchItems
+        public List<ServerBrowserEloItem> EloSearchItems
         {
             get
             {
@@ -257,7 +195,7 @@ namespace UQLT.ViewModels
             {
                 if (value == _eloSearchValue) return;
                 _eloSearchValue = value;
-                ResetEloSearchStatus();
+                _sbsearch.ResetEloSearchStatus();
                 NotifyOfPropertyChange(() => EloSearchValue);
                 ServersView.Refresh();
             }
@@ -337,25 +275,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the names of the players found in the player search.
-        /// </summary>
-        /// <value>
-        /// The player names.
-        /// </value>
-        /// <remarks>This is used for the status bar.</remarks>
-        public StringBuilder PlayerNameFoundBuilder
-        {
-            get
-            {
-                return _playerSearchFoundBuilder;
-            }
-            set
-            {
-                _playerSearchFoundBuilder.Append(value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the player search term used to find a player within the current list of servers.
         /// </summary>
         /// <value>
@@ -371,7 +290,7 @@ namespace UQLT.ViewModels
             {
                 if (value == _playerSearchTerm) return;
                 _playerSearchTerm = value;
-                ResetPlayerSearchStatus();
+                _sbsearch.ResetPlayerSearchStatus();
                 NotifyOfPropertyChange(() => PlayerSearchTerm);
                 ServersView.Refresh();
             }
@@ -463,28 +382,35 @@ namespace UQLT.ViewModels
         public ICollectionView ServersView { get; set; }
 
         /// <summary>
-        /// Clears and resets the elo search value.
+        /// Gets the <see cref="ServerBrowserSearch"/> associated with this viewmodel.
         /// </summary>
-        public void ClearAndResetEloSearchValue()
+        /// <value>
+        /// The associated <see cref="ServerBrowserSearch"/>.
+        /// </value>
+        public ServerBrowserSearch SrvBrowserSearch
         {
-            EloSearchValue = string.Empty;
-            // Statusbar
-            _events.PublishOnUIThread(new EloSearchingEvent(false, string.Empty));
-            _events.PublishOnUIThread(new EloFoundCountEvent(0));
-            _events.PublishOnUIThread(new EloSearchTypeEvent(EloSearchTypes.None));
+            get
+            {
+                return _sbsearch;
+            }
         }
 
         /// <summary>
-        /// Clears the player name filter.
+        /// Clears the and reset elo search value.
         /// </summary>
+        /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
+        public void ClearAndResetEloSearchValue()
+        {
+            SrvBrowserSearch.ClearAndResetEloSearchValue();
+        }
+
+        /// <summary>
+        /// Clears and resets the player search term.
+        /// </summary>
+        /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
         public void ClearAndResetPlayerSearchTerm()
         {
-            PlayerSearchTerm = string.Empty;
-            // Statusbar
-            _events.PublishOnUIThread(new PlayerSearchingEvent(false, string.Empty));
-            _events.PublishOnUIThread(new PlayerFoundCountEvent(0));
-            _events.PublishOnUIThread(new PlayerFoundNameEvent(string.Empty));
-            PlayerNameFoundBuilder.Clear();
+            SrvBrowserSearch.ClearAndResetPlayerSearchTerm();
         }
 
         /// <summary>
@@ -496,18 +422,22 @@ namespace UQLT.ViewModels
             return File.Exists(UQltGlobals.ConfigPath);
         }
 
+        /// <summary>
+        /// Enables the elo search filter.
+        /// </summary>
+        /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
         public void EnableEloSearchFilter()
         {
-            PlayerSearchTerm = string.Empty;
-            ServersView.Filter = null;
-            ServersView.Filter = EvaluateEloValueFilter;
+            SrvBrowserSearch.EnableEloSearchFilter();
         }
 
+        /// <summary>
+        /// Enables the player search filter.
+        /// </summary>
+        /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
         public void EnablePlayerSearchFilter()
         {
-            EloSearchValue = null;
-            ServersView.Filter = null;
-            ServersView.Filter = EvaluatePlayerNameFilter;
+            SrvBrowserSearch.EnableEloSearchFilter();
         }
 
         /// <summary>
@@ -569,107 +499,13 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Sets the current type of elo search being conducted based on the value of the index selected in the view.
+        /// Sets the current elo search selection.
         /// </summary>
-        /// <param name="searchtype">The currently selected game search type (EloSearchGameType) on the <see cref="ServerBrowserEloItem"/></param>
-        /// <remarks>This is used to determine what the user has selected in the elo search combo box
-        /// in the view for filtering purposes.</remarks>
+        /// <param name="searchtype">The searchtype.</param>
+        /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
         public void SetCurrentEloSearchSelection(EloSearchTypes searchtype)
         {
-            Debug.WriteLine(">>> Got current selection of: " + searchtype);
-
-            switch (ActiveEloSearchCategories)
-            {
-                case EloSearchCategoryTypes.BothDuelAndTeamGames:
-                    switch (searchtype)
-                    {
-                        case EloSearchTypes.DuelMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.DuelMinSearch;
-                            break;
-
-                        case EloSearchTypes.DuelMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.DuelMaxSearch;
-                            break;
-
-                        case EloSearchTypes.TeamOneTeamMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamOneTeamMinSearch;
-                            break;
-
-                        case EloSearchTypes.TeamBothTeamsMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamBothTeamsMinSearch;
-                            break;
-
-                        case EloSearchTypes.TeamOneTeamMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamOneTeamMaxSearch;
-                            break;
-
-                        case EloSearchTypes.TeamBothTeamsMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamBothTeamsMaxSearch;
-                            break;
-                    }
-                    break;
-
-                case EloSearchCategoryTypes.DuelGamesOnly:
-                    switch (searchtype)
-                    {
-                        case EloSearchTypes.DuelMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.DuelMinSearch;
-                            break;
-
-                        case EloSearchTypes.DuelMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.DuelMaxSearch;
-                            break;
-                    }
-                    break;
-
-                case EloSearchCategoryTypes.TeamGamesOnly:
-                    switch (searchtype)
-                    {
-                        case EloSearchTypes.TeamOneTeamMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamOneTeamMinSearch;
-                            break;
-
-                        case EloSearchTypes.TeamBothTeamsMinSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamBothTeamsMinSearch;
-                            break;
-
-                        case EloSearchTypes.TeamOneTeamMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamOneTeamMaxSearch;
-                            break;
-
-                        case EloSearchTypes.TeamBothTeamsMaxSearch:
-                            ActiveEloSearchType = EloSearchTypes.TeamBothTeamsMaxSearch;
-                            break;
-                    }
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Sets the elo search collection based on the type of elo search.
-        /// </summary>
-        /// <param name="searchtype">The search type.</param>
-        public void SetEloSearchCollectionSource(EloSearchCategoryTypes searchtype)
-        {
-            Debug.WriteLine("Setting appropriate collection type to: " + searchtype);
-
-            switch (searchtype)
-            {
-                case EloSearchCategoryTypes.BothDuelAndTeamGames:
-                    EloSearchItems = _allEloTypes;
-                    ActiveEloSearchCategories = EloSearchCategoryTypes.BothDuelAndTeamGames;
-                    break;
-
-                case EloSearchCategoryTypes.DuelGamesOnly:
-                    EloSearchItems = _duelEloTypes;
-                    ActiveEloSearchCategories = EloSearchCategoryTypes.DuelGamesOnly;
-                    break;
-
-                case EloSearchCategoryTypes.TeamGamesOnly:
-                    EloSearchItems = _teamEloTypes;
-                    ActiveEloSearchCategories = EloSearchCategoryTypes.TeamGamesOnly;
-                    break;
-            }
+            SrvBrowserSearch.SetCurrentEloSearchSelection(searchtype);
         }
 
         /// <summary>
@@ -703,20 +539,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Clears all highlighted players found in a player search.
-        /// </summary>
-        private void ClearAllHighlightedPlayers()
-        {
-            foreach (var server in Servers)
-            {
-                foreach (var player in server.FormattedPlayerList.Where(player => player.IsPlayerFoundInSearch))
-                {
-                    player.IsPlayerFoundInSearch = false;
-                }
-            }
-        }
-
-        /// <summary>
         /// Does the server browser automatic sort based on specified criteria.
         /// </summary>
         /// <param name="property">The property criteria.</param>
@@ -725,196 +547,6 @@ namespace UQLT.ViewModels
             var view = CollectionViewSource.GetDefaultView(Servers);
             var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
             view.SortDescriptions.Add(sortDescription);
-        }
-
-        /// <summary>
-        /// Compares the numeric elo value that the user specifies with players elos (in the case of duel) or team
-        /// average elos in the case of team games to see if there are any matches.
-        /// </summary>
-        /// <param name="o">The object.</param>
-        /// <returns><c>true</c> if a match is found, otherwise <c>false</c>.</returns>
-        /// <remarks>Note: this method is executed for every single server in the collection when the player searches.</remarks>
-        private bool EvaluateEloValueFilter(object o)
-        {
-            var server = o as ServerDetailsViewModel;
-            if (server == null) { return false; }
-
-            // Fully backspaced so reset...
-            if (string.IsNullOrEmpty(EloSearchValue))
-            {
-                ClearAndResetEloSearchValue();
-                return true;
-            }
-            // Remember, this is on a per server (ServerDetailsViewModel) basis.
-            // Minimum elo duel search.
-            switch (ActiveEloSearchType)
-            {
-                case EloSearchTypes.DuelMinSearch:
-                    if (server.GameType != 1) return false;
-                    foreach (var player in server.FormattedPlayerList.Where(player => player.Team == 0).Where(player => player.PlayerDuelElo >= Convert.ToInt64(EloSearchValue)))
-                    {
-                        Debug.WriteLine("\n***Success! MINIMUM Duel Elo: " + EloSearchValue + " found for player: " + player.Name + " team: " + player.Team + " elo: " + player.PlayerDuelElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        HighlightFoundPlayer(player);
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-
-                case EloSearchTypes.DuelMaxSearch:
-                    if (server.GameType != 1) return false;
-                    foreach (var player in server.FormattedPlayerList.Where(player => player.Team == 0).Where(player => player.PlayerDuelElo <= Convert.ToInt64(EloSearchValue)))
-                    {
-                        Debug.WriteLine("\n***Success! MAXIMUM Duel Elo: " + EloSearchValue + " found for player: " + player.Name + " team: " + player.Team + " elo: " + player.PlayerDuelElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        HighlightFoundPlayer(player);
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-
-                case EloSearchTypes.TeamOneTeamMinSearch:
-                    if (!server.IsQlRanksSupportedTeamGame) { return false; }
-                    server.DoTeamEloRetrieval();
-                    if (server.BlueTeamElo >= Convert.ToInt64(EloSearchValue) || server.RedTeamElo >= Convert.ToInt64(EloSearchValue))
-                    {
-                        Debug.WriteLine("\n***Success! At least one team has MINIMUM Elo of: " + EloSearchValue +
-                                        " blue avg Elo: " + server.BlueTeamElo + ", red avg Elo: " + server.RedTeamElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-
-                case EloSearchTypes.TeamBothTeamsMinSearch:
-                    if (!server.IsQlRanksSupportedTeamGame) { return false; }
-                    server.DoTeamEloRetrieval();
-                    if ((server.BlueTeamElo >= Convert.ToInt64(EloSearchValue)) && (server.RedTeamElo >= Convert.ToInt64(EloSearchValue)))
-                    {
-                        Debug.WriteLine("\n***Success! Both teams have MINIMUM Elo of: " + EloSearchValue +
-                                        " blue avg Elo: " + server.BlueTeamElo + ", red avg Elo: " + server.RedTeamElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-
-                case EloSearchTypes.TeamOneTeamMaxSearch:
-                    if (!server.IsQlRanksSupportedTeamGame) { return false; }
-                    server.DoTeamEloRetrieval();
-                    if (server.BlueTeamElo <= Convert.ToInt64(EloSearchValue) || server.RedTeamElo <= Convert.ToInt64(EloSearchValue))
-                    {
-                        Debug.WriteLine("\n***Success! At least one team has MAXIMUM Elo of: " + EloSearchValue +
-                                        " blue avg Elo: " + server.BlueTeamElo + ", red avg Elo: " + server.RedTeamElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-
-                case EloSearchTypes.TeamBothTeamsMaxSearch:
-                    if (!server.IsQlRanksSupportedTeamGame) { return false; }
-                    server.DoTeamEloRetrieval();
-                    if ((server.BlueTeamElo <= Convert.ToInt64(EloSearchValue)) && (server.RedTeamElo <= Convert.ToInt64(EloSearchValue)))
-                    {
-                        Debug.WriteLine("\n***Success! Both teams have MAXIMUM Elo of: " + EloSearchValue +
-                                        " blue avg Elo: " + server.BlueTeamElo + ", red avg Elo: " + server.RedTeamElo + " on server with id: " + server.PublicId + "***");
-                        _eloSearchFoundCount++;
-                        UpdateEloSearchStatus();
-                        return true;
-                    }
-                    break;
-            }
-
-            // Nothing found.
-            UpdateEloSearchStatus();
-            return false;
-        }
-
-        /// <summary>
-        /// Compares the player name that the user specifies with the player list of each visible server to see if there are any matches.
-        /// </summary>
-        /// <param name="o">The object.</param>
-        /// <returns><c>true</c> if a match is found, otherwise <c>false</c>.</returns>
-        /// <remarks>Note: This method is executed for every single server in the collection when the player searches.</remarks>
-        private bool EvaluatePlayerNameFilter(object o)
-        {
-            var server = o as ServerDetailsViewModel;
-            if (server == null) { return false; }
-
-            // Fully backspaced so reset...
-            if (string.IsNullOrEmpty(PlayerSearchTerm))
-            {
-                ClearAndResetPlayerSearchTerm();
-                return true;
-            }
-            // QL minimum name length is two, so show all results if user only enters 1 character.
-            if (PlayerSearchTerm.Length < 2) { return true; }
-            // Remember, this is on a per server (ServerDetailsViewModel) basis.
-            foreach (var player in server.FormattedPlayerList.Where(player => player.Name.IndexOf(PlayerSearchTerm, StringComparison.InvariantCultureIgnoreCase) >= 0))
-            {
-                Debug.WriteLine("\n***Success! Match found: " + player.Name + " on server with id: " + server.PublicId + "***");
-                PlayerNameFoundBuilder.Append(player.Name + " ");
-                _playerSearchFoundCount++;
-                HighlightFoundPlayer(player);
-                UpdatePlayerSearchStatus();
-
-                return true;
-            }
-
-            // Nothing found.
-            UpdatePlayerSearchStatus();
-            return false;
-        }
-
-        /// <summary>
-        /// Sets a highlight flag on the player found in a player search in the player's <see cref="PlayerDetailsViewModel"/>
-        /// </summary>
-        /// <param name="player">The player.</param>
-        private void HighlightFoundPlayer(PlayerDetailsViewModel player)
-        {
-            player.IsPlayerFoundInSearch = true;
-        }
-
-        /// <summary>
-        /// Resets the elo search status.
-        /// </summary>
-        private void ResetEloSearchStatus()
-        {
-            _eloSearchFoundCount = 0;
-            ClearAllHighlightedPlayers();
-        }
-
-        /// <summary>
-        /// Resets the player search status.
-        /// </summary>
-        private void ResetPlayerSearchStatus()
-        {
-            _playerSearchFoundCount = 0;
-            ClearAllHighlightedPlayers();
-            PlayerNameFoundBuilder.Clear();
-        }
-
-        /// <summary>
-        /// Updates the elo search result status.
-        /// </summary>
-        /// <remarks>This sends a number of events to the <see cref="MainViewModel"/> to reflect the changes in the statusbar.</remarks>
-        private void UpdateEloSearchStatus()
-        {
-            _events.PublishOnUIThread(new EloSearchingEvent(true, EloSearchValue));
-            _events.PublishOnUIThread(new EloFoundCountEvent(_eloSearchFoundCount));
-            _events.PublishOnUIThread(new EloSearchTypeEvent(ActiveEloSearchType));
-        }
-
-        /// <summary>
-        /// Updates the player search result status.
-        /// </summary>
-        /// <remarks>This sends a number of events to the <see cref="MainViewModel"/> to reflect the changes in the statusbar.</remarks>
-        private void UpdatePlayerSearchStatus()
-        {
-            _events.PublishOnUIThread(new PlayerSearchingEvent(true, PlayerSearchTerm));
-            _events.PublishOnUIThread(new PlayerFoundCountEvent(_playerSearchFoundCount));
-            _events.PublishOnUIThread(new PlayerFoundNameEvent(PlayerNameFoundBuilder.ToString()));
         }
     }
 }

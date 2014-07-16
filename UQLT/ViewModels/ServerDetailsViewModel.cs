@@ -989,7 +989,7 @@ namespace UQLT.ViewModels
 
                 Debug.WriteLine("Retrieving missing elo information for team (" + team + ") calculation for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
                 var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
-                _qlRanksDataRetriever.SetQlRanksPlayersAsync(qlr);
+                _qlRanksDataRetriever.SetQlRanksPlayers(qlr);
 
                 foreach (var ptoupdate in qlRanksPlayersToUpdate)
                 {
