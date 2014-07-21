@@ -216,7 +216,7 @@
                             <cal:ActionMessage MethodName="SetCurrentEloSearchSelection">
                                 <cal:Parameter Value="{Binding ElementName=EloSearchComboBox, Path=SelectedValue}"/>
                             </cal:ActionMessage>
-                            <cal:ActionMessage MethodName="EnableEloSearchFilter"/>
+                        <cal:ActionMessage MethodName="EnableEloSearchFilter"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
@@ -292,7 +292,7 @@
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsPlayerFoundInSearch}" Value="True">
                             <Setter Property="Background" Value="LemonChiffon"/>
-                            <Setter Property="BorderBrush" Value="Goldenrod"></Setter>
+                            <Setter Property="BorderBrush" Value="Goldenrod"/>
                         </DataTrigger>
                         <!--TODO: Highlight friends as well-->
                     </Style.Triggers>

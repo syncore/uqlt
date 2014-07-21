@@ -437,7 +437,7 @@ namespace UQLT.ViewModels
         /// <remarks>Caliburn.Micro requires methods called from View to be located within associated viewmodel, even if methods are actually called from another class.</remarks>
         public void EnablePlayerSearchFilter()
         {
-            SrvBrowserSearch.EnableEloSearchFilter();
+            SrvBrowserSearch.EnablePlayerSearchFilter();
         }
 
         /// <summary>

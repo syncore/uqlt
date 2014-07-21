@@ -916,6 +916,43 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Sets the player Elos based on the appropriate game type specifically to allow the
+        /// databinding for the view to automatically refresh the Elo value as it comes in.
+        /// </summary>
+        public void SetPlayerElosView()
+        {
+            foreach (var player in FormattedPlayerList)
+            {
+                switch (player.PlayerGameType)
+                {
+                    case 0:
+                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].FfaElo;
+                        break;
+
+                    case 1:
+                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].DuelElo;
+                        break;
+
+                    case 3:
+                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].TdmElo;
+                        break;
+
+                    case 4:
+                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].CaElo;
+                        break;
+
+                    case 5:
+                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].CtfElo;
+                        break;
+
+                    default:
+                        player.PlayerElo = 0;
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Asynchronously calculates the team's average elo for QLRanks-supported team gametypes.
         /// </summary>
         /// <param name="team">The team. <c>1</c> is blue, <c>2</c> is red.</param>

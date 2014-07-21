@@ -17,8 +17,9 @@ namespace UQLT.ViewModels
     {
         private static readonly Regex NameColors = new Regex(@"[\^]\d");
         private string _cleanedClan;
-        private string _teamName;
         private bool _isPlayerFoundInSearch;
+        private long _playerElo;
+        private string _teamName;
 
         [ImportingConstructor]
         public PlayerDetailsViewModel(Player player)
@@ -195,30 +196,18 @@ namespace UQLT.ViewModels
         /// Gets the player's Elo depending on the gametype.
         /// </summary>
         /// <value>The player's Elo.</value>
+        /// <remarks>This property is specifically used for the view to enable
+        /// the elo to update the UI as it becomes available.</remarks>
         public long PlayerElo
         {
             get
             {
-                switch (PlayerGameType)
-                {
-                    case 0:
-                        return PlayerFfaElo;
-
-                    case 4:
-                        return PlayerCaElo;
-
-                    case 1:
-                        return PlayerDuelElo;
-
-                    case 3:
-                        return PlayerTdmElo;
-
-                    case 5:
-                        return PlayerCtfElo;
-
-                    default:
-                        return 0;
-                }
+                return _playerElo;
+            }
+            set
+            {
+                _playerElo = value;
+                NotifyOfPropertyChange(() => PlayerElo);
             }
         }
 

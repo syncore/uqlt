@@ -223,6 +223,7 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         public void EnableEloSearchFilter()
         {
+            // Clear player search when now performing elo search.
             Sbvm.PlayerSearchTerm = string.Empty;
             Sbvm.ServersView.Filter = null;
             Sbvm.ServersView.Filter = EvaluateEloValueFilter;
@@ -233,6 +234,7 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         public void EnablePlayerSearchFilter()
         {
+            // Clear elo search when now performing player search.
             Sbvm.EloSearchValue = string.Empty;
             Sbvm.ServersView.Filter = null;
             Sbvm.ServersView.Filter = EvaluatePlayerNameFilter;
@@ -510,12 +512,9 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         private void ClearAllHighlightedPlayers()
         {
-            foreach (var server in Sbvm.Servers)
+            foreach (var player in Sbvm.Servers.SelectMany(server => server.FormattedPlayerList.Where(player => player.IsPlayerFoundInSearch)))
             {
-                foreach (var player in server.FormattedPlayerList.Where(player => player.IsPlayerFoundInSearch))
-                {
-                    player.IsPlayerFoundInSearch = false;
-                }
+                player.IsPlayerFoundInSearch = false;
             }
         }
 

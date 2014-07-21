@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using UQLT.Interfaces;
 using UQLT.Models.QLRanks;
-using UQLT.Models.QuakeLiveAPI;
+using UQLT.ViewModels;
 
 namespace UQLT.Helpers
 {
@@ -58,12 +59,12 @@ namespace UQLT.Helpers
         /// Asynchronously prepares the player information, given a list of QL servers, to be sent
         /// to the QLRanks API in the <see cref="GetEloDataFromQlRanksApiAsync" /> method.
         /// </summary>
-        /// <param name="servers">The list of servers.</param>
-        /// <param name="maxPlayers">
-        /// The maximum number of players to send to the limited QLRanks API per API call.
-        /// </param>
-        /// <returns></returns>
-        public async Task GetQlRanksPlayersAsync(IList<Server> servers, int maxPlayers = 150)
+        /// <param name="servers">The list of servers wrapped by ServerDetailsViewModels.</param>
+        /// <param name="maxPlayers">The maximum number of players to send to the limited QLRanks API per API call.</param>
+        /// <returns>
+        /// Nothing
+        /// </returns>
+        public async Task GetQlRanksPlayersAsync(IList<ServerDetailsViewModel> servers, int maxPlayers = 150)
         {
             var playerstoupdate = new List<string>();
             var qlrapicalls = new List<List<string>>();
@@ -71,7 +72,7 @@ namespace UQLT.Helpers
             // Extract players, add to a list to update, split the list, then update.
             foreach (var server in servers)
             {
-                foreach (var player in server.players)
+                foreach (var player in server.Players)
                 {
                     // Elo "caching"
                     EloData val;
@@ -115,26 +116,24 @@ namespace UQLT.Helpers
             // Set the player elos.
             try
             {
-                foreach (var qlrt in qlranksTasks)
+                foreach (var qp in qlranksTasks.SelectMany(qlrt => qlrt.Result.players))
                 {
-                    foreach (var qp in qlrt.Result.players)
-                    {
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
-                        UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
-                    }
+                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
                 }
-                // Player elos have been set in dictionary, now set on the Player object itself
-                // TODO: this will allow using Properties and NotifyPropertyChange to update the
-                //       player view in the server browser.
+                // Player elos have been set in dictionary, now set on the Player object itself.
                 foreach (var s in servers)
                 {
-                    foreach (var player in s.players)
+                    foreach (var player in s.Players)
                     {
-                        s.SetPlayerElos();
+                        s.QlServer.SetPlayerElos();
                     }
+
+                    // Now set the elos on the PlayerDetailsViewModel so that the UI can automatically receive updates as they come in.
+                    s.SetPlayerElosView();
                 }
             }
             catch (Exception e)

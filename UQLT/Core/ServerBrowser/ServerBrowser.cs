@@ -99,7 +99,8 @@ namespace UQLT.Core.ServerBrowser
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
             var qlranksRetriever = new QlRanksDataRetriever();
             // TODO: await?
-            var g = qlranksRetriever.GetQlRanksPlayersAsync(servers);
+            //var g = qlranksRetriever.GetQlRanksPlayersAsync(Sbvm.Servers);
+            await qlranksRetriever.GetQlRanksPlayersAsync(Sbvm.Servers);
         }
 
         /// <summary>
