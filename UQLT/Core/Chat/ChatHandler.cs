@@ -122,11 +122,12 @@ namespace UQLT.Core.Chat
         /// <returns></returns>
         public bool SendMessage(Jid recipient, string message)
         {
-            if (!IsFriendAlreadyOnline(recipient.User.ToLowerInvariant())) { return false; }
+            var toUser = recipient.User.ToLowerInvariant();
+            if (!IsFriendAlreadyOnline(toUser)) { return false; }
             var msg = new agsXMPP.protocol.client.Message { Type = MessageType.chat };
 
             // Send to friend's multiple clients (UQLT + QL & others)
-            foreach (var resource in Clvm.OnlineGroup.Friends[recipient.User.ToLowerInvariant()].XmppResources)
+            foreach (var resource in Clvm.OnlineGroup.Friends[toUser].XmppResources)
             {
                 msg.To = new Jid(recipient.Bare + "/" + resource);
                 msg.Body = message;
@@ -144,11 +145,12 @@ namespace UQLT.Core.Chat
         private void ClearFriendStatus(Presence presence)
         {
             FriendViewModel val;
+            var fromUser = presence.From.User.ToLowerInvariant();
             // On program start there is a timing issue where the key won't exist, so need to check first
-            if (!Clvm.OnlineGroup.Friends.TryGetValue(presence.From.User.ToLowerInvariant(), out val)) return;
-            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].HasXmppStatus = false;
-            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].IsInGame = false;
-            Clvm.OnlineGroup.Friends[presence.From.User.ToLowerInvariant()].StatusType = StatusTypes.Nothing;
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(fromUser, out val)) return;
+            Clvm.OnlineGroup.Friends[fromUser].HasXmppStatus = false;
+            Clvm.OnlineGroup.Friends[fromUser].IsInGame = false;
+            Clvm.OnlineGroup.Friends[fromUser].StatusType = StatusTypes.Nothing;
         }
 
         /// <summary>
@@ -430,7 +432,8 @@ namespace UQLT.Core.Chat
         private void XmppCon_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
         {
             if (msg.Body == null) return;
-            if (!ActiveChats.ContainsKey(msg.From.Bare.ToLowerInvariant()))
+            var fromUser = msg.From.Bare.ToLowerInvariant();
+            if (!ActiveChats.ContainsKey(fromUser))
             {
                 var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager);
                 dynamic settings = new ExpandoObject();
@@ -455,7 +458,7 @@ namespace UQLT.Core.Chat
             }
             else
             {
-                Debug.WriteLine("A chat window already exists for: " + msg.From.Bare.ToLowerInvariant() + " not opening another.");
+                Debug.WriteLine("A chat window already exists for: " + fromUser + " not opening another.");
             }
         }
 
@@ -514,13 +517,14 @@ namespace UQLT.Core.Chat
         private void XmppCon_OnRosterItem(object sender, RosterItem item)
         {
             // TODO: if (item.Subscription != SubscriptionType.remove) stuff
+            var friend = item.Jid.User.ToLowerInvariant();
             try
             {
                 // Additions and removals to ObservableDictionary must be done on the UI thread
                 // since ObservableDictionary is databound
                 Execute.OnUIThread(() =>
                 {
-                    Clvm.OfflineGroup.Friends[item.Jid.User.ToLowerInvariant()] = new FriendViewModel(new Friend(item.Jid.User.ToLowerInvariant(), IsFavoriteFriend(item.Jid.User)));
+                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(item.Jid.User)));
                 });
             }
             catch (Exception ex)

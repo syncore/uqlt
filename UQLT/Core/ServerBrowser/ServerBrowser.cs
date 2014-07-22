@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -26,10 +26,6 @@ namespace UQLT.Core.ServerBrowser
     public class ServerBrowser
     {
         private readonly IEventAggregator _events;
-
-        // port regexp: colon with at least 4 numbers
-        private readonly Regex _port = new Regex(@"[\:]\d{4,}");
-
         private readonly Timer _serverRefreshTimer;
 
         /// <summary>
@@ -63,6 +59,64 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary>
+        /// Gets the and updates the player count.
+        /// </summary>
+        /// <param name="servers">The servers.</param>
+        /// <returns>The player count.</returns>
+        public int GetAndUpdatePlayerCount(IEnumerable<ServerDetailsViewModel> servers)
+        {
+            var playercount = servers.Sum(server => server.PlayerCount);
+            Sbvm.PlayerCount = playercount;
+
+            // Send a message (event) to the MainViewModel to update the player count in the statusbar.
+            _events.PublishOnUIThread(new PlayerCountEvent(Sbvm.PlayerCount));
+
+            return playercount;
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the actual servers from the /browser/details?ids= URL created
+        /// by <see cref="MakeDetailsUrlAsync" />.
+        /// </summary>
+        /// <param name="url">The /browser/details?ids= URL.</param>
+        /// <returns>A list of servers specified by the /browser/details?ids= URL</returns>
+        /// <remarks>
+        /// This method is primarily responsible for retrieving all of the server information that
+        /// is seen in the server browser.
+        /// </remarks>
+        public async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
+        {
+            try
+            {
+                var query = new RestApiQuery();
+                var serverlist = await (query.QueryRestApiAsync<IList<Server>>(url));
+
+                // Process the server and player information for each server.
+                foreach (var s in serverlist)
+                {
+                    // Elo information.
+                    foreach (var player in s.players)
+                    {
+                        EloData val;
+                        if (!UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
+                        {
+                            s.CreateEloData();
+                            s.SetPlayerElos();
+                        }
+                    }
+                }
+
+                return serverlist;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex); // TODO: create a debug log on the disk
+                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Asynchrounously loads the Quake Live server list from a given /browser/list?filter= URL
         /// for display in the UI.
         /// </summary>
@@ -70,7 +124,6 @@ namespace UQLT.Core.ServerBrowser
         /// <returns>Nothing.</returns>
         public async Task LoadServerListAsync(string filterurl)
         {
-            filterurl = Sbvm.FilterUrl;
             Sbvm.IsUpdatingServers = true;
             string detailsurl = await MakeDetailsUrlAsync(filterurl);
             var servers = await GetServersFromDetailsUrlAsync(detailsurl);
@@ -87,10 +140,17 @@ namespace UQLT.Core.ServerBrowser
                 }
             });
 
+            // Ping the servers
+            var pinger = new ServerPinger();
+            await pinger.SetPingInformationAsync(Sbvm.Servers);
+
+            // Update player count.
+            GetAndUpdatePlayerCount(Sbvm.Servers);
+
             // Check if QLRanks supported for these servers.
             ResetServersForEloType();
             CheckServersForEloType();
-            
+
             Sbvm.IsUpdatingServers = false;
 
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
@@ -160,7 +220,6 @@ namespace UQLT.Core.ServerBrowser
             {
                 Sbvm.SrvBrowserSearch.SetEloSearchCollectionSource(EloSearchCategoryTypes.BothDuelAndTeamGames);
             }
-
         }
 
         /// <summary> Gets the filter URL on load. </summary> <returns> The
@@ -194,76 +253,6 @@ namespace UQLT.Core.ServerBrowser
         }
 
         /// <summary>
-        /// Asynchronously retrieves the actual servers from the /browser/details?ids= URL created
-        /// by <see cref="MakeDetailsUrlAsync" />.
-        /// </summary>
-        /// <param name="url">The /browser/details?ids= URL.</param>
-        /// <returns>A list of servers specified by the /browser/details?ids= URL</returns>
-        /// <remarks>
-        /// This method is primarily responsible for retrieving all of the server information that
-        /// is seen in the server browser.
-        /// </remarks>
-        private async Task<IList<Server>> GetServersFromDetailsUrlAsync(string url)
-        {
-            try
-            {
-                UQltGlobals.IpAddressDict.Clear();
-
-                var query = new RestApiQuery();
-                var serverlist = await (query.QueryRestApiAsync<IList<Server>>(url));
-                var playercount = 0;
-                var addresses = new HashSet<string>();
-
-                // Process the server and player information for each server.
-                foreach (var s in serverlist)
-                {
-                    // Strip the port off of the ip address.
-                    string cleanedip = _port.Replace(s.host_address, string.Empty);
-                    addresses.Add(cleanedip);
-
-                    // Set a custom property for game_type for each server's players.
-                    s.SetPlayerGameTypeFromServer(s.game_type);
-
-                    // Elo information.
-                    foreach (var player in s.players)
-                    {
-                        EloData val;
-                        if (!UQltGlobals.PlayerEloInfo.TryGetValue(player.name.ToLower(), out val))
-                        {
-                            s.CreateEloData();
-                            s.SetPlayerElos();
-                        }
-                    }
-
-                    // Determine the player count. Because QL is weird, this will not simply
-                    // be num_players, but will depend on teamsize (source: ql js)
-                    if (s.teamsize > 0)
-                    {
-                        playercount += s.num_players;
-                    }
-                    else
-                    {
-                        playercount += s.num_clients;
-                    }
-                }
-
-                // Get the ping information.
-                await PingServersAsync(addresses);
-
-                // Send a message (event) to the MainViewModel to update the player count in the statusbar.
-                _events.PublishOnUIThread(new PlayerCountEvent(playercount));
-
-                return serverlist;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex); // TODO: create a debug log on the disk
-                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Asynchronosly retrieves the server ids (public_id's) from a filter in order to make a
         /// /browser/details?ids= URL.
         /// </summary>
@@ -274,7 +263,6 @@ namespace UQLT.Core.ServerBrowser
         /// </returns>
         private async Task<string> MakeDetailsUrlAsync(string url)
         {
-            url = Sbvm.FilterUrl;
             var ids = new HashSet<string>();
 
             try
@@ -303,57 +291,13 @@ namespace UQLT.Core.ServerBrowser
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="e">The <see cref="ElapsedEventArgs" /> instance containing the event data.</param>
-        private void OnServerRefresh(object source, ElapsedEventArgs e)
+        /// <remarks>async void use here is valid as this is an event handler</remarks>
+        private async void OnServerRefresh(object source, ElapsedEventArgs e)
         {
             Debug.WriteLine("Performing automatic server refresh...");
-            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var l = LoadServerListAsync(Sbvm.FilterUrl);
+            await LoadServerListAsync(Sbvm.FilterUrl);
         }
 
-        /// <summary>
-        /// Asynchronously pings a given address.
-        /// </summary>
-        /// <param name="address">The address.</param>
-        /// <returns>The round-trip time.</returns>
-        private Task<PingReply> PingAsync(string address)
-        {
-            var tcs = new TaskCompletionSource<PingReply>();
-            Ping ping = new Ping();
-            ping.PingCompleted += (obj, sender) =>
-            {
-                tcs.SetResult(sender.Reply);
-            };
-            ping.SendAsync(address, new object());
-            return tcs.Task;
-        }
-
-        /// <summary>
-        /// Asynchronously pings a list of servers and updates a collection (dictionary) that
-        /// contains the server addresses.
-        /// </summary>
-        /// <param name="servers">The list of servers to ping.</param>
-        /// <returns>Nothing</returns>
-        private async Task PingServersAsync(IEnumerable<string> servers)
-        {
-            var pingTasks = new List<Task<PingReply>>();
-
-            foreach (var host in servers)
-            {
-                UQltGlobals.IpAddressDict[host] = 0;
-                pingTasks.Add(PingAsync(host));
-            }
-
-            // Wait for all the tasks to complete.
-            await Task.WhenAll(pingTasks.ToArray());
-
-            // Iterate and update dictionary.
-            foreach (var pingTask in pingTasks)
-            {
-                UQltGlobals.IpAddressDict[pingTask.Result.Address.ToString()] = pingTask.Result.RoundtripTime;
-                // Debug.WriteLine("IP Address: " + pingTask.Result.Address + " time: " +
-                // pingTask.Result.RoundtripTime + " ms ");
-            }
-        }
 
         /// <summary>
         /// Resets the QLRanks Elo type boolean values for the server list.

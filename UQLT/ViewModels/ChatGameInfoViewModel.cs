@@ -25,7 +25,6 @@ namespace UQLT.ViewModels
             : base(server)
         {
             ToolTipPlayers = SortServerPlayersForBuddyList(server.players);
-            server.SetPlayerGameTypeFromServer(server.game_type);
             NotifyTaskCompletion.Create(CheckToolTipPlayerElosAsync());
         }
 
@@ -46,74 +45,74 @@ namespace UQLT.ViewModels
 
             var qlRanksPlayersToUpdate = new HashSet<string>();
 
-            foreach (var p in Players)
+            foreach (var p in ToolTipPlayers)
             {
                 EloData val;
                 switch (GameType)
                 {
                     // FFA
                     case 0:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name, out val))
                         {
-                            p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                            p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].FfaElo;
                         }
                         else
                         {
                             Debug.WriteLine(
-                                "Key doesn't exist - no FFA elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                                "Key doesn't exist - no FFA elo data found for player: " + p.Name);
+                            qlRanksPlayersToUpdate.Add(p.Name);
                         }
                         break;
                     // DUEL
                     case 1:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name, out val))
                         {
-                            p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                            p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].DuelElo;
                         }
                         else
                         {
                             Debug.WriteLine(
-                                "Key doesn't exist - no DUEL elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                                "Key doesn't exist - no DUEL elo data found for player: " + p.Name);
+                            qlRanksPlayersToUpdate.Add(p.Name);
                         }
                         break;
                     // TDM
                     case 3:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name, out val))
                         {
-                            p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                            p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].TdmElo;
                         }
                         else
                         {
                             Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                                "Key doesn't exist - no TDM elo data found for player: " + p.Name);
+                            qlRanksPlayersToUpdate.Add(p.Name);
                         }
                         break;
                     // CA
                     case 4:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name, out val))
                         {
-                            p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                            p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].CaElo;
                         }
                         else
                         {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.Name);
                             Debug.WriteLine(
-                                "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
+                                "Key doesn't exist - no CA elo data found for player: " + p.Name);
                         }
                         break;
                     // CTF
                     case 5:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name, out val))
                         {
-                            p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                            p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].CtfElo;
                         }
                         else
                         {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.Name);
                             Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                                "Key doesn't exist - no TDM elo data found for player: " + p.Name);
                         }
                         break;
                 }
@@ -128,63 +127,63 @@ namespace UQLT.ViewModels
                 var qlr = await QlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
                 QlRanksDataRetriever.SetQlRanksPlayers(qlr);
 
-                foreach (var p in Players.Where(p => qlRanksPlayersToUpdate.Contains(p.name.ToLower())))
+                foreach (var p in ToolTipPlayers.Where(p => qlRanksPlayersToUpdate.Contains(p.Name)))
                 {
                     EloData val;
                     switch (GameType)
                     {
                         case 0:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name.ToLower(), out val))
                             {
-                                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
+                                p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].FfaElo;
                             }
                             else
                             {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [FFA]......");
+                                Debug.WriteLine("...Key still does not exist yet for " + p.Name + " [FFA]......");
                             }
                             break;
 
                         case 1:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name.ToLower(), out val))
                             {
-                                p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
+                                p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].DuelElo;
                             }
                             else
                             {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [DUEL]......");
+                                Debug.WriteLine("...Key still does not exist yet for " + p.Name + " [DUEL]......");
                             }
                             break;
 
                         case 3:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name.ToLower(), out val))
                             {
-                                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                                p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].TdmElo;
                             }
                             else
                             {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [TDM]......");
+                                Debug.WriteLine("...Key still does not exist yet for " + p.Name + " [TDM]......");
                             }
                             break;
 
                         case 4:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name.ToLower(), out val))
                             {
-                                p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                                p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].CaElo;
                             }
                             else
                             {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CA]......");
+                                Debug.WriteLine("...Key still does not exist yet for " + p.Name + " [CA]......");
                             }
                             break;
 
                         case 5:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower().ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(p.Name.ToLower(), out val))
                             {
-                                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                                p.PlayerElo = UQltGlobals.PlayerEloInfo[p.Name].CtfElo;
                             }
                             else
                             {
-                                Debug.WriteLine("...Key still does not exist yet for " + p.name.ToLower() + " [CTF]......");
+                                Debug.WriteLine("...Key still does not exist yet for " + p.Name + " [CTF]......");
                             }
                             break;
                     }

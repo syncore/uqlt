@@ -19,8 +19,7 @@ namespace UQLT
             CurrentFilterPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\currentfilters.json");
             SavedFavFriendPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\rosterfav.json");
             ConfigPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\configuration.json");
-
-            IpAddressDict = new ConcurrentDictionary<string, long>();
+            
             PlayerEloInfo = new ConcurrentDictionary<string, EloData>();
             SavedFavoriteFriends = new List<string>();
             QlDomainBase = "http://www.quakelive.com"; // http://focus.quakelive.com
@@ -54,16 +53,6 @@ namespace UQLT
         /// </summary>
         /// <value>The current downloaded filter path.</value>
         public static string CurrentFilterPath
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the ip address, ping concurrent dictionary.
-        /// </summary>
-        /// <value>The ip address, ping information.</value>
-        public static ConcurrentDictionary<string, long> IpAddressDict
         {
             get;
             private set;

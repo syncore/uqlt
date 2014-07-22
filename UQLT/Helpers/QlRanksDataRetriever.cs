@@ -20,7 +20,7 @@ namespace UQLT.Helpers
         {
             foreach (var player in players)
             {
-                UQltGlobals.PlayerEloInfo[player.ToString().ToLower()] = new EloData
+                UQltGlobals.PlayerEloInfo[player.ToString()] = new EloData
                 {
                     DuelElo = 0,
                     CaElo = 0,
@@ -118,11 +118,11 @@ namespace UQLT.Helpers
             {
                 foreach (var qp in qlranksTasks.SelectMany(qlrt => qlrt.Result.players))
                 {
-                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].DuelElo = qp.duel.elo;
-                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CaElo = qp.ca.elo;
-                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].TdmElo = qp.tdm.elo;
-                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].FfaElo = qp.ffa.elo;
-                    UQltGlobals.PlayerEloInfo[qp.nick.ToLower()].CtfElo = qp.ctf.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick].DuelElo = qp.duel.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick].CaElo = qp.ca.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick].TdmElo = qp.tdm.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick].FfaElo = qp.ffa.elo;
+                    UQltGlobals.PlayerEloInfo[qp.nick].CtfElo = qp.ctf.elo;
                 }
                 // Player elos have been set in dictionary, now set on the Player object itself.
                 foreach (var s in servers)
@@ -133,7 +133,8 @@ namespace UQLT.Helpers
                     }
 
                     // Now set the elos on the PlayerDetailsViewModel so that the UI can automatically receive updates as they come in.
-                    s.SetPlayerElosView();
+                    // Also, want this to be synchronous; suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
+                    var set = s.SetPlayerElosView();
                 }
             }
             catch (Exception e)
@@ -155,11 +156,11 @@ namespace UQLT.Helpers
             {
                 foreach (var player in qlRanks.players)
                 {
-                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].DuelElo = player.duel.elo;
-                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CaElo = player.ca.elo;
-                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].TdmElo = player.tdm.elo;
-                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].FfaElo = player.ffa.elo;
-                    UQltGlobals.PlayerEloInfo[player.nick.ToLower()].CtfElo = player.ctf.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick].DuelElo = player.duel.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick].CaElo = player.ca.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick].TdmElo = player.tdm.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick].FfaElo = player.ffa.elo;
+                    UQltGlobals.PlayerEloInfo[player.nick].CtfElo = player.ctf.elo;
                 }
             }
             catch (NullReferenceException e)

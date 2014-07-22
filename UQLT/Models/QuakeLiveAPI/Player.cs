@@ -5,6 +5,8 @@
     /// </summary>
     public class Player
     {
+        private string _name;
+        
         /// <summary>
         /// Gets or sets the bot.
         /// </summary>
@@ -85,8 +87,14 @@
         /// <value>The name.</value>
         public string name
         {
-            get;
-            set;
+            get
+            {
+                return _name;
+            }
+            set
+            {
+                _name = value.ToLowerInvariant();
+            }
         }
 
         // <summary>

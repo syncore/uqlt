@@ -51,10 +51,10 @@ namespace UQLT.ViewModels
             _handler = handler;
             _windowManager = windowManager;
             _chatHistory = new ChatHistory(this);
-
-            if (!ChatHandler.ActiveChats.ContainsKey(_jid.Bare.ToLowerInvariant()))
+            var fromUser = _jid.Bare.ToLowerInvariant();
+            if (!ChatHandler.ActiveChats.ContainsKey(fromUser))
             {
-                ChatHandler.ActiveChats.Add(_jid.Bare.ToLowerInvariant(), this);
+                ChatHandler.ActiveChats.Add(fromUser, this);
             }
 
             Debug.WriteLine("*** ADDING TO MESSAGE GRABBER: " + _jid);
@@ -166,12 +166,13 @@ namespace UQLT.ViewModels
         /// <param name="msg">The message.</param>
         public async Task MessageIncoming(agsXMPP.protocol.client.Message msg)
         {
+            var fromUser = msg.From.User.ToLowerInvariant();
             if (IsMessageInvite(msg.Body))
             {
                 var sound = SoundTypes.InvitationSound;
                 _handler.PlayMessageSound(sound);
-                IncomingMessage = "" + msg.From.User.ToLowerInvariant() + " has invited you to match!" + "\n";
-                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + " has invited you to match!";
+                IncomingMessage = "" + fromUser + " has invited you to match!" + "\n";
+                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + fromUser + " has invited you to match!";
                 // Get server info for the invitation popup
                 // TODO: Some kind of flood limiting thing so people can't spam this invite feature.
                 string inviteId = Regex.Match(msg.Body, @"\d{6,}").Groups[0].Value;
@@ -181,14 +182,14 @@ namespace UQLT.ViewModels
                 dynamic settings = new ExpandoObject();
                 settings.Topmost = true;
                 settings.WindowStartupLocation = WindowStartupLocation.Manual;
-                Execute.OnUIThread(() => _windowManager.ShowWindow(new GameInvitationViewModel(server, msg.From.User.ToLowerInvariant()), null, settings));
+                Execute.OnUIThread(() => _windowManager.ShowWindow(new GameInvitationViewModel(server, fromUser), null, settings));
             }
             else
             {
                 var sound = SoundTypes.ChatSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = msg.Body + "\n";
-                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + msg.From.User.ToLowerInvariant() + ": " + msg.Body;
+                ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + fromUser + ": " + msg.Body;
             }
             // Log the message
             _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, MessageTypes.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));

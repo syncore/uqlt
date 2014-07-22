@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using Caliburn.Micro;
 using UQLT.Core.ServerBrowser;
@@ -18,7 +20,7 @@ namespace UQLT.ViewModels
     /// Viewmodel for the Server Browser view.
     /// </summary>
     [Export(typeof(ServerBrowserViewModel))]
-    public class ServerBrowserViewModel : PropertyChangedBase, IHandle<ServerRequestEvent>, IUqltConfiguration
+    public class ServerBrowserViewModel : PropertyChangedBase, IHandleWithTask<ServerRequestEvent>, IUqltConfiguration
     {
         private readonly ServerBrowser _sb;
         private readonly ServerBrowserSearch _sbsearch;
@@ -33,6 +35,7 @@ namespace UQLT.ViewModels
         };
 
         private int _autoRefreshSeconds;
+        private bool _canRefreshAllServers;
         private bool _displayEloSearchOptions;
         private int _eloSearchIndex;
         private List<ServerBrowserEloItem> _eloSearchItems;
@@ -41,6 +44,7 @@ namespace UQLT.ViewModels
         private bool _isAutoRefreshEnabled;
         private bool _isSearchingEnabled;
         private bool _isUpdatingServers;
+        private int _playerCount;
         private string _playerSearchTerm;
         private ServerDetailsViewModel _selectedServer;
         private ObservableCollection<ServerDetailsViewModel> _servers = new ObservableCollection<ServerDetailsViewModel>();
@@ -118,6 +122,30 @@ namespace UQLT.ViewModels
             {
                 _autoRefreshSeconds = value;
                 NotifyOfPropertyChange(() => AutoRefreshSeconds);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the entire server list can be refreshed at the present time.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the server list is not already being refreshed and thus can be refreshed,
+        /// otherwise <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// This is also a Caliburn.Micro action guard that automatically hooks up IsEnabled in the View.
+        /// See: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        /// </remarks>
+        public bool CanRefreshAllServers
+        {
+            get
+            {
+                return _canRefreshAllServers;
+            }
+            set
+            {
+                _canRefreshAllServers = value;
+                NotifyOfPropertyChange(() => CanRefreshAllServers);
             }
         }
 
@@ -270,7 +298,28 @@ namespace UQLT.ViewModels
                 _isUpdatingServers = value;
                 // Disable searching while servers are being loaded.
                 IsSearchingEnabled = value != true;
+                // Disable manual refresh if servers are being loaded.
+                CanRefreshAllServers = value != true;
                 NotifyOfPropertyChange(() => IsUpdatingServers);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the total player count.
+        /// </summary>
+        /// <value>
+        /// The player count.
+        /// </value>
+        public int PlayerCount
+        {
+            get
+            {
+                return _playerCount;
+            }
+            set
+            {
+                _playerCount = value;
+                NotifyOfPropertyChange(() => PlayerCount);
             }
         }
 
@@ -446,11 +495,10 @@ namespace UQLT.ViewModels
         /// filters" button from the FilterViewModel.
         /// </summary>
         /// <param name="message">The message (event).</param>
-        public void Handle(ServerRequestEvent message)
+        public async Task Handle(ServerRequestEvent message)
         {
             FilterUrl = message.ServerRequestUrl;
-            // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var l = _sb.LoadServerListAsync(FilterUrl);
+            await _sb.LoadServerListAsync(FilterUrl);
             Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestUrl);
         }
 
@@ -480,6 +528,58 @@ namespace UQLT.ViewModels
         {
             var cfghandler = new ConfigurationHandler();
             cfghandler.RestoreDefaultConfig();
+        }
+
+        /// <summary>
+        /// Refreshes the servers.
+        /// </summary>
+        /// <remarks>This is invokved when the user clicks the 'Refresh Servers' button in the view.</remarks>
+        public async Task RefreshAllServers()
+        {
+            await _sb.LoadServerListAsync(FilterUrl);
+            // Re-apply any searches after refreshing the list, if they exist.
+            if (!string.IsNullOrEmpty(EloSearchValue))
+            {
+                SetCurrentEloSearchSelection(_sbsearch.ActiveEloSearchType);
+                _sbsearch.EnableEloSearchFilter();
+            }
+            if (!string.IsNullOrEmpty(PlayerSearchTerm))
+            {
+                _sbsearch.EnablePlayerSearchFilter();
+            }
+        }
+
+        /// <summary>
+        /// Refreshes the selected server.
+        /// </summary>
+        /// <remarks>Note: Although collections are used, only one individual server can be refreshed at a time.
+        /// Collections reflect the servers array data format returned by the QL API.</remarks>
+        public async Task RefreshSelectedServer()
+        {
+            if (SelectedServer == null) { return; }
+
+            var selectedservers = await _sb.GetServersFromDetailsUrlAsync(UQltGlobals.QlDomainDetailsIds + SelectedServer.PublicId);
+            ServerDetailsViewModel newserver = null;
+
+            // .ToList() is required in this foreach loop as .NET modifies the contents of the Servers under the hood, causing an error.
+            // See: http://stackoverflow.com/questions/604831/collection-was-modified-enumeration-operation-may-not-execute
+            foreach (var server in Servers.Where(server => SelectedServer.PublicId == server.PublicId).ToList())
+            {
+                Servers.Remove(server);
+            }
+            foreach (var selectedserver in selectedservers)
+            {
+                newserver = new ServerDetailsViewModel(selectedserver);
+                Servers.Add(newserver);
+                var pinger = new ServerPinger();
+                await pinger.SetPingInformationAsync(newserver);
+                await newserver.SetPlayerElosView();
+            }
+
+            _sb.GetAndUpdatePlayerCount(Servers);
+            
+            // Selected server in the view now reflects the update.
+            SelectedServer = newserver;
         }
 
         /// <summary>

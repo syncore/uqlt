@@ -140,6 +140,7 @@
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
     <Compile Include="Core\ServerBrowser\EloSearchCategoryTypes.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowserSearch.cs" />
+    <Compile Include="Core\ServerBrowser\ServerPinger.cs" />
     <Compile Include="Events\EloFoundCountEvent.cs" />
     <Compile Include="Events\EloSearchingEvent.cs" />
     <Compile Include="Events\EloSearchTypeEvent.cs" />

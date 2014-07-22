@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
 using Newtonsoft.Json;
@@ -215,13 +216,12 @@ namespace UQLT.ViewModels
         /// The friend's game server information is only updated if the friend is currently in a
         /// server. This is called from the view itself.
         /// </remarks>
-        public void UpdateFriendGameServerInfo(KeyValuePair<string, FriendViewModel> kvp)
+        public async Task UpdateFriendGameServerInfo(KeyValuePair<string, FriendViewModel> kvp)
         {
             if (kvp.Value.IsInGame)
             {
                 Debug.WriteLine("Requesting server information for friend: " + kvp.Key + " server id: " + kvp.Value.Server.PublicId);
-                // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-                var h = _handler.ChatGameInfo.UpdateServerInfoForStatusAsync(kvp.Key);
+                await _handler.ChatGameInfo.UpdateServerInfoForStatusAsync(kvp.Key);
             }
             else
             {

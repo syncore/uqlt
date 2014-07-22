@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Timers;
+using UQLT.Core.ServerBrowser;
 using UQLT.Helpers;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
@@ -50,6 +51,7 @@ namespace UQLT.Core.Chat
         public async Task CreateServerInfoForStatusAsync(string friend, string serverId)
         {
             string url = UQltGlobals.QlDomainDetailsIds + serverId;
+            friend = friend.ToLowerInvariant();
             try
             {
                 var query = new RestApiQuery();
@@ -58,7 +60,7 @@ namespace UQLT.Core.Chat
                 // Create the Server (SrvDetailsBuddyViewModel) object for the player
                 try
                 {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server =
+                    Handler.Clvm.OnlineGroup.Friends[friend].Server =
                         new ChatGameInfoViewModel(serverdata[0]);
                 }
                 catch (ArgumentOutOfRangeException)
@@ -96,29 +98,33 @@ namespace UQLT.Core.Chat
         /// </remarks>
         public async Task UpdateServerInfoForStatusAsync(string friend)
         {
+            friend = friend.ToLowerInvariant();
             try
             {
                 // server_id (i.e. PublicId) should have already been set on the initial creation of
                 // the Server (SrvDetailsBuddyViewModel) object
-                string serverId = Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server.PublicId.ToString(CultureInfo.InvariantCulture);
+                string serverId =
+                    Handler.Clvm.OnlineGroup.Friends[friend].Server.PublicId.ToString(CultureInfo.InvariantCulture);
                 string url = UQltGlobals.QlDomainDetailsIds + serverId;
 
                 var query = new RestApiQuery();
                 var serverdata = await (query.QueryRestApiAsync<List<Server>>(url));
-                try
-                {
-                    Handler.Clvm.OnlineGroup.Friends[friend.ToLowerInvariant()].Server =
-                        new ChatGameInfoViewModel(serverdata[0]);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    // Clear friend status on error.
-                    Handler.ClearFriendStatus(friend);
-                }
+                var server = new ChatGameInfoViewModel(serverdata[0]);
+                var pinger = new ServerPinger();
 
+                Handler.Clvm.OnlineGroup.Friends[friend].Server = server;
+
+                await pinger.SetPingInformationAsync(server);
             }
+            //catch (ArgumentOutOfRangeException)
+            //{
+                // Clear friend status on error.
+                //Handler.ClearFriendStatus(friend);
+            //}
             catch (Exception ex)
             {
+                // Clear friend status on error.
+                Handler.ClearFriendStatus(friend);
                 Debug.WriteLine(ex);
             }
         }
@@ -128,7 +134,8 @@ namespace UQLT.Core.Chat
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="e">The <see cref="ElapsedEventArgs" /> instance containing the event data.</param>
-        private void OnTimedServerInfoUpdate(object source, ElapsedEventArgs e)
+        /// <remarks>async void use here is valid as this is an event handler</remarks>
+        private async void OnTimedServerInfoUpdate(object source, ElapsedEventArgs e)
         {
             var ingamefriends = new List<string>();
 
@@ -148,8 +155,7 @@ namespace UQLT.Core.Chat
             // Batch process these in game friends
             if (ingamefriends.Count != 0)
             {
-                // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-                var u = UpdateServerInfoForStatusAsync(ingamefriends);
+                await UpdateServerInfoForStatusAsync(ingamefriends);
             }
         }
 
@@ -190,11 +196,13 @@ namespace UQLT.Core.Chat
                 string url = UQltGlobals.QlDomainDetailsIds + string.Join(",", serverIds);
                 var query = new RestApiQuery();
                 var servers = await (query.QueryRestApiAsync<List<Server>>(url));
-
+                var pinger = new ServerPinger();
                 // set the player info for status
                 for (int i = 0; i < ingamefriends.Count; i++)
                 {
-                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = new ChatGameInfoViewModel(servers[i]);
+                    var server = new ChatGameInfoViewModel(servers[i]);
+                    Handler.Clvm.OnlineGroup.Friends[ingamefriends[i].ToLowerInvariant()].Server = server;
+                    await pinger.SetPingInformationAsync(server);
                 }
             }
             catch (Exception ex)

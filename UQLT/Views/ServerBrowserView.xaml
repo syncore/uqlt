@@ -128,12 +128,12 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Width="1040">
+    <Grid Width="1040" x:Name="ServerBrowserRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="31*" />
-            <RowDefinition Height="18*"/>
-            <RowDefinition Height="30*" />
-            <RowDefinition Height="238*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="31*" />
+            <RowDefinition Height="250*"/>
             <RowDefinition Height="250*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -156,6 +156,11 @@
                 </i:Interaction.Triggers>
             </CheckBox>
             <ComboBox x:Name="RefreshComboBox" ItemsSource="{Binding AutoRefreshItems}" SelectedIndex="{Binding AutoRefreshIndex}" SelectedValuePath="Seconds" Width="180" ShouldPreserveUserEnteredPrefix="True" Margin="0,2,0,3" Visibility="{Binding IsAutoRefreshEnabled, Converter={StaticResource BoolToVis}}">
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <cal:ActionMessage MethodName="SetRefreshTime">
@@ -164,22 +169,10 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </ComboBox>
-        </StackPanel>
-
-        <!--Player search filter-->
-        <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="0" HorizontalAlignment="Right">
-            <TextBlock Text="Find player by name:" Margin="0,0,10,0" Height="18"/>
-            <TextBox TextWrapping="Wrap" Text="{Binding PlayerSearchTerm, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="20" Margin="0,0,5,0" IsEnabled="{Binding IsSearchingEnabled}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="GotFocus">
-                        <cal:ActionMessage MethodName="EnablePlayerSearchFilter"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </TextBox>
-            <Button Content="Clear" Margin="5,0" Height="20" IsEnabled="{Binding IsSearchingEnabled}">
+            <Button Content="Refresh All Servers" Height="20" Margin="30,0,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
-                        <cal:ActionMessage MethodName="ClearAndResetPlayerSearchTerm"/>
+                        <cal:ActionMessage MethodName="RefreshAllServers"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
@@ -199,7 +192,7 @@
                 </i:Interaction.Triggers>
             </CheckBox>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Visibility="{Binding DisplayEloSearchOptions, Converter={StaticResource BoolToVis}}" Margin="0,0,0,5">
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Visibility="{Binding DisplayEloSearchOptions, Converter={StaticResource BoolToVis}}" Margin="0,0,0,3">
                 <TextBlock Text="Find servers containing: " Margin="10,5,0,0" Height="18"/>
                 <ComboBox x:Name="EloSearchComboBox" ItemsSource="{Binding EloSearchItems}" SelectedIndex="{Binding EloSearchIndex}" SelectedValuePath="EloSearchGameType" ShouldPreserveUserEnteredPrefix="True" IsEnabled="{Binding IsSearchingEnabled, Converter={StaticResource BoolToVis}}" Margin="6,0,0,0" Height="20"  MinWidth="220">
                     <i:Interaction.Triggers>
@@ -228,11 +221,34 @@
                     </i:Interaction.Triggers>
                 </Button>
             </StackPanel>
-        
+
+        <!--Player search filter-->
+        <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="1" HorizontalAlignment="Center">
+            <TextBlock Text="Find player by name:" Margin="0,0,10,0" Height="18"/>
+            <TextBox TextWrapping="Wrap" Text="{Binding PlayerSearchTerm, UpdateSourceTrigger=PropertyChanged}" Width="120" Height="20" Margin="0,0,5,0" IsEnabled="{Binding IsSearchingEnabled}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="GotFocus">
+                        <cal:ActionMessage MethodName="EnablePlayerSearchFilter"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
+            <Button Content="Clear" Margin="5,0" Height="20" IsEnabled="{Binding IsSearchingEnabled}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <cal:ActionMessage MethodName="ClearAndResetPlayerSearchTerm"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
+        </StackPanel>
 
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="3">
-
+        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="3" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=ServerBrowserRoot}">
+            <!--Resources for the Server Details context menu-->
+            <ListView.ContextMenu>
+                <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="Refresh this server" cal:Message.Attach="[Event Click] = [Action RefreshSelectedServer()]"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="FullLocationName">
@@ -285,7 +301,7 @@
         </ListView>
         <!--Player Details-->
         <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
-                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="4">
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="4" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
             <!--Provide player highlighting for players found in a player search-->
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">

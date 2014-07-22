@@ -46,7 +46,7 @@
 
     <Grid x:Name="ChatListRoot">
         <StackPanel Orientation="Vertical">
-            <TreeView x:Name="TreBuddyList" HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0">
+            <TreeView x:Name="TreBuddyList" HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True">
 
                 <!-- Auto expand groups -->
                 <TreeView.ItemContainerStyle>

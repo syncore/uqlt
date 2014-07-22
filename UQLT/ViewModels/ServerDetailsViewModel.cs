@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -30,6 +31,8 @@ namespace UQLT.ViewModels
         private readonly QlRanksDataRetriever _qlRanksDataRetriever = new QlRanksDataRetriever();
         private string _formattedGameState;
         private string _timeRemaining;
+        private long _ping;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
         /// </summary>
@@ -278,7 +281,7 @@ namespace UQLT.ViewModels
         /// Gets the level start time.
         /// </summary>
         /// <value>The level start time.</value>
-        public int GLevelStartTime
+        public long GLevelStartTime
         {
             get
             {
@@ -582,9 +585,28 @@ namespace UQLT.ViewModels
         {
             get
             {
-                long value;
-                string cleanedip = _port.Replace(HostAddress, string.Empty);
-                return UQltGlobals.IpAddressDict.TryGetValue(cleanedip, out value) ? value : 0;
+                return _ping;
+            }
+            set
+            {
+                _ping = value;
+                NotifyOfPropertyChange(() => Ping);
+            }
+        }
+
+        /// <summary>
+        /// Gets the server's IP address with the port number removed.
+        /// </summary>
+        /// <value>
+        /// The clean IP address.
+        /// </value>
+        /// <remarks>This is a custom property.</remarks>
+        public string CleanedIp
+        {
+            get
+            {
+                return QlServer.cleanedip;
+                
             }
         }
 
@@ -863,12 +885,12 @@ namespace UQLT.ViewModels
                 if (GGameState.Equals("IN_PROGRESS"))
                 {
                     var now = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
-                    var secsLeft = (long)(TimeLimit * 60) - (now - GLevelStartTime);
+                    var secsLeft = TimeLimit * 60 - (now - GLevelStartTime);
                     if (secsLeft > 0)
                     {
-                        var minsLeft = (long)(secsLeft / 60);
+                        var minsLeft = secsLeft / 60;
                         secsLeft -= minsLeft * 60;
-                        _timeRemaining = string.Format("{0}:{1}", minsLeft.ToString(), secsLeft.ToString("D2"));
+                        _timeRemaining = string.Format("{0}:{1}", minsLeft, secsLeft.ToString("D2"));
                     }
                     else
                     {
@@ -889,7 +911,7 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => TimeRemaining);
             }
         }
-
+        
         // <summary>
         // Gets the total players.
         // </summary>
@@ -919,30 +941,66 @@ namespace UQLT.ViewModels
         /// Sets the player Elos based on the appropriate game type specifically to allow the
         /// databinding for the view to automatically refresh the Elo value as it comes in.
         /// </summary>
-        public void SetPlayerElosView()
+        public async Task SetPlayerElosView()
         {
+            var qlRanksPlayersToUpdate = new HashSet<PlayerDetailsViewModel>();
             foreach (var player in FormattedPlayerList)
             {
-                switch (player.PlayerGameType)
+                EloData val;
+                switch (GameType)
                 {
                     case 0:
-                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].FfaElo;
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
+                        {
+                            player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name].FfaElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(player);
+                        }
                         break;
-
                     case 1:
-                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].DuelElo;
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
+                        {
+                            player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name].DuelElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(player);
+                        }
                         break;
 
                     case 3:
-                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].TdmElo;
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
+                        {
+                            player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name].TdmElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(player);
+                        }
                         break;
 
                     case 4:
-                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].CaElo;
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
+                        {
+                            player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name].CaElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(player);
+                        }
                         break;
 
                     case 5:
-                        player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name.ToLower()].CtfElo;
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
+                        {
+                            player.PlayerElo = UQltGlobals.PlayerEloInfo[player.Name].CtfElo;
+                        }
+                        else
+                        {
+                            qlRanksPlayersToUpdate.Add(player); 
+                        }
                         break;
 
                     default:
@@ -950,6 +1008,53 @@ namespace UQLT.ViewModels
                         break;
                 }
             }
+
+            // There are players with missing elo information... Run an update.
+            if (qlRanksPlayersToUpdate.Count != 0)
+            {
+                // Create
+                _qlRanksDataRetriever.CreateEloData(qlRanksPlayersToUpdate);
+
+                Debug.WriteLine("Retrieving missing elo information for player(s): " + string.Join("+", qlRanksPlayersToUpdate));
+                var qlr = await _qlRanksDataRetriever.GetEloDataFromQlRanksApiAsync(string.Join("+", qlRanksPlayersToUpdate));
+                _qlRanksDataRetriever.SetQlRanksPlayers(qlr);
+
+                foreach (var ptoupdate in qlRanksPlayersToUpdate)
+                {
+                    EloData val;
+                    switch (GameType)
+                    {
+                        case 0:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.Name, out val))
+                            {
+                                ptoupdate.PlayerElo = UQltGlobals.PlayerEloInfo[ptoupdate.Name].FfaElo;
+                            }
+                            break;
+
+                        case 1:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.Name, out val))
+                            {
+                                ptoupdate.PlayerElo = UQltGlobals.PlayerEloInfo[ptoupdate.Name].DuelElo;
+                            }
+                            break;
+
+                        case 3:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.Name, out val))
+                            {
+                                ptoupdate.PlayerElo = UQltGlobals.PlayerEloInfo[ptoupdate.Name].TdmElo;
+                            }
+                            break;
+
+                        case 4:
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.Name, out val))
+                            {
+                                ptoupdate.PlayerElo = UQltGlobals.PlayerEloInfo[ptoupdate.Name].CaElo;
+                            }
+                            break;
+                    }
+                }
+            }
+
         }
 
         /// <summary>
@@ -975,41 +1080,41 @@ namespace UQLT.ViewModels
                 {
                     // TDM
                     case 3:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name, out val))
                         {
-                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name].TdmElo;
                         }
                         else
                         {
                             Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name);
+                            qlRanksPlayersToUpdate.Add(p.name);
                         }
                         break;
                     // CA
                     case 4:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name, out val))
                         {
-                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name].CaElo;
                         }
                         else
                         {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name);
                             Debug.WriteLine(
-                                "Key doesn't exist - no CA elo data found for player: " + p.name.ToLower());
+                                "Key doesn't exist - no CA elo data found for player: " + p.name);
                         }
                         break;
                     // CTF
                     case 5:
-                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                        if (UQltGlobals.PlayerEloInfo.TryGetValue(p.name, out val))
                         {
-                            playerelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
+                            playerelo = UQltGlobals.PlayerEloInfo[p.name].CtfElo;
                         }
                         else
                         {
-                            qlRanksPlayersToUpdate.Add(p.name.ToLower());
+                            qlRanksPlayersToUpdate.Add(p.name);
                             Debug.WriteLine(
-                                "Key doesn't exist - no TDM elo data found for player: " + p.name.ToLower());
+                                "Key doesn't exist - no TDM elo data found for player: " + p.name);
                         }
                         break;
                 }
@@ -1034,7 +1139,7 @@ namespace UQLT.ViewModels
                     switch (GameType)
                     {
                         case 3:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate, out val))
                             {
                                 totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].TdmElo;
                             }
@@ -1045,7 +1150,7 @@ namespace UQLT.ViewModels
                             break;
 
                         case 4:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate, out val))
                             {
                                 totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CaElo;
                             }
@@ -1056,7 +1161,7 @@ namespace UQLT.ViewModels
                             break;
 
                         case 5:
-                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate.ToLower(), out val))
+                            if (UQltGlobals.PlayerEloInfo.TryGetValue(ptoupdate, out val))
                             {
                                 totaleloteam += UQltGlobals.PlayerEloInfo[ptoupdate].CtfElo;
                             }

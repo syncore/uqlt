@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UQLT.Models.QLRanks;
 
 namespace UQLT.Models.QuakeLiveAPI
@@ -12,6 +15,10 @@ namespace UQLT.Models.QuakeLiveAPI
     /// </summary>
     public class Server
     {
+        // port regexp: colon with at least 4 numbers
+        private readonly Regex _port = new Regex(@"[\:]\d{4,}");
+        private string _hostaddress;
+
         /// <summary>
         /// Gets or sets the blue team's elo.
         /// </summary>
@@ -32,6 +39,19 @@ namespace UQLT.Models.QuakeLiveAPI
         public int capturelimit
         {
             get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets the server's IP address with the port number removed.
+        /// </summary>
+        /// <value>
+        /// The clean IP address.
+        /// </value>
+        /// <remarks>This is a custom property.</remarks>
+        public string cleanedip
+        {
+            get; 
             set;
         }
 
@@ -99,7 +119,7 @@ namespace UQLT.Models.QuakeLiveAPI
         /// Gets or sets the g_levelstarttime.
         /// </summary>
         /// <value>The g_levelstarttime.</value>
-        public int g_levelstarttime
+        public long g_levelstarttime
         {
             get;
             set;
@@ -151,8 +171,15 @@ namespace UQLT.Models.QuakeLiveAPI
         /// <value>The host_address.</value>
         public string host_address
         {
-            get;
-            set;
+            get
+            {
+                return _hostaddress;
+            }
+            set
+            {
+                _hostaddress = value;
+                cleanedip = _port.Replace(value, string.Empty);
+            }
         }
 
         /// <summary>
@@ -364,19 +391,16 @@ namespace UQLT.Models.QuakeLiveAPI
         public void CreateEloData()
         {
             EloData val;
-            foreach (var p in players)
+            foreach (var p in players.Where(p => !UQltGlobals.PlayerEloInfo.TryGetValue(p.name, out val)))
             {
-                if (!UQltGlobals.PlayerEloInfo.TryGetValue(p.name.ToLower(), out val))
+                UQltGlobals.PlayerEloInfo[p.name] = new EloData
                 {
-                    UQltGlobals.PlayerEloInfo[p.name.ToLower()] = new EloData
-                    {
-                        DuelElo = 0,
-                        CaElo = 0,
-                        TdmElo = 0,
-                        FfaElo = 0,
-                        CtfElo = 0
-                    };
-                }
+                    DuelElo = 0,
+                    CaElo = 0,
+                    TdmElo = 0,
+                    FfaElo = 0,
+                    CtfElo = 0
+                };
             }
         }
 
@@ -392,32 +416,11 @@ namespace UQLT.Models.QuakeLiveAPI
         {
             foreach (var p in players)
             {
-                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].TdmElo;
-                p.caelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CaElo;
-                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].FfaElo;
-                p.duelelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].DuelElo;
-                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name.ToLower()].CtfElo;
-            }
-        }
-
-        /// <summary> Sets the player game type from the QL server gametype on a per-server basis.
-        /// </summary>
-        /// <param name="gt">The gametype.</param>
-        ///  <remarks> Needed because Player class
-        /// has no access to the server's game_type. Player class will use this value to pull the
-        /// correct Elo value from the elo dictionary. UI will also use this value especially when
-        /// trying to determine the correct score format, most notably when RACE servers are
-        /// involved. This could be better, but it was necessarry to: (1) eliminate UI visual/logic
-        /// tree errors in master-detail scenario where Player class doesn't have direct access to
-        /// the game_type of the server & can't accurately determine ServerBrowser ElementName
-        /// (without x:Reference hackery) and: (2) enable ability to sort players by Elo column in
-        /// UI.
-        ///  </remarks>
-        public void SetPlayerGameTypeFromServer(int gt)
-        {
-            foreach (var p in players)
-            {
-                p.player_game_type = gt;
+                p.tdmelo = UQltGlobals.PlayerEloInfo[p.name].TdmElo;
+                p.caelo = UQltGlobals.PlayerEloInfo[p.name].CaElo;
+                p.ffaelo = UQltGlobals.PlayerEloInfo[p.name].FfaElo;
+                p.duelelo = UQltGlobals.PlayerEloInfo[p.name].DuelElo;
+                p.ctfelo = UQltGlobals.PlayerEloInfo[p.name].CtfElo;
             }
         }
     }
