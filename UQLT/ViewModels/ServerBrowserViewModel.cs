@@ -498,7 +498,7 @@ namespace UQLT.ViewModels
         public async Task Handle(ServerRequestEvent message)
         {
             FilterUrl = message.ServerRequestUrl;
-            await _sb.LoadServerListAsync(FilterUrl);
+            await _sb.InitializeServersAsync(FilterUrl);
             Debug.WriteLine("[EVENT RECEIVED] Filter URL Change: " + message.ServerRequestUrl);
         }
 
@@ -536,7 +536,7 @@ namespace UQLT.ViewModels
         /// <remarks>This is invokved when the user clicks the 'Refresh Servers' button in the view.</remarks>
         public async Task RefreshAllServers()
         {
-            await _sb.LoadServerListAsync(FilterUrl);
+            await _sb.InitializeServersAsync(FilterUrl);
             // Re-apply any searches after refreshing the list, if they exist.
             if (!string.IsNullOrEmpty(EloSearchValue))
             {

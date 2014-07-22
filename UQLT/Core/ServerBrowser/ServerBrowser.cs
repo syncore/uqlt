@@ -45,7 +45,7 @@ namespace UQLT.Core.ServerBrowser
             }
             // Don't hit QL servers (debugging)
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var l = LoadServerListAsync(Sbvm.FilterUrl);
+            var i = InitializeServersAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>
@@ -118,11 +118,11 @@ namespace UQLT.Core.ServerBrowser
 
         /// <summary>
         /// Asynchrounously loads the Quake Live server list from a given /browser/list?filter= URL
-        /// for display in the UI.
+        /// for display in the UI. Makes calls to methods: to ping servers, update player counts, get Elo info.
         /// </summary>
         /// <param name="filterurl">The /browser/list?filter= URL.</param>
         /// <returns>Nothing.</returns>
-        public async Task LoadServerListAsync(string filterurl)
+        public async Task InitializeServersAsync(string filterurl)
         {
             Sbvm.IsUpdatingServers = true;
             string detailsurl = await MakeDetailsUrlAsync(filterurl);
@@ -140,10 +140,14 @@ namespace UQLT.Core.ServerBrowser
                 }
             });
 
+            // Set this to false at this particular moment so UI seems more responsive.
+            // Ping information will automatically come into view in UI.
+            Sbvm.IsUpdatingServers = false;
+            
             // Ping the servers
             var pinger = new ServerPinger();
             await pinger.SetPingInformationAsync(Sbvm.Servers);
-
+            
             // Update player count.
             GetAndUpdatePlayerCount(Sbvm.Servers);
 
@@ -151,11 +155,9 @@ namespace UQLT.Core.ServerBrowser
             ResetServersForEloType();
             CheckServersForEloType();
 
-            Sbvm.IsUpdatingServers = false;
-
             // Send a message (event) to the MainViewModel to update the server count in the statusbar.
             _events.PublishOnUIThread(new ServerCountEvent(Sbvm.Servers.Count));
-
+            
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
             var qlranksRetriever = new QlRanksDataRetriever();
             // TODO: await?
@@ -295,7 +297,7 @@ namespace UQLT.Core.ServerBrowser
         private async void OnServerRefresh(object source, ElapsedEventArgs e)
         {
             Debug.WriteLine("Performing automatic server refresh...");
-            await LoadServerListAsync(Sbvm.FilterUrl);
+            await InitializeServersAsync(Sbvm.FilterUrl);
         }
 
 

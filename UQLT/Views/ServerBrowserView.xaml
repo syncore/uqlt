@@ -35,7 +35,7 @@
             <TextBlock>
                 <TextBlock.Text>
                     <MultiBinding Converter="{StaticResource ScoreToRace}">
-                        <Binding Path="PlayerGameType" />
+                        <Binding Path="IsRacing"/>
                         <Binding Path="Score" />
                     </MultiBinding>
                 </TextBlock.Text>
@@ -330,8 +330,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" />
-
+                    <GridViewColumn Header="Score" helpers:GridViewSort.PropertyName="Score" CellTemplate="{StaticResource ScoreTemplate}" Width="80" />
                     <GridViewColumn Header="Elo" helpers:GridViewSort.PropertyName="PlayerElo" Width="{Binding Path=SelectedServer.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

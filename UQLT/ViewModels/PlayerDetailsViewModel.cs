@@ -21,10 +21,16 @@ namespace UQLT.ViewModels
         private long _playerElo;
         private string _teamName;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerDetailsViewModel"/> class.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        /// <param name="server">The server.</param>
         [ImportingConstructor]
-        public PlayerDetailsViewModel(Player player)
+        public PlayerDetailsViewModel(Player player, Server server)
         {
             Player = player;
+            Server = server;
         }
 
         /// <summary>
@@ -85,6 +91,19 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets the type of the game.
+        /// </summary>
+        /// <value>
+        /// The type of the game.
+        /// </value>
+        /// <remarks>This is needed in order to properly perform the Race score conversion
+        /// in the UI.</remarks>
+        public int GameType
+        {
+            get { return Server.game_type; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this player was found in a filter search in the Server Browser.
         /// </summary>
         /// <value>
@@ -101,6 +120,20 @@ namespace UQLT.ViewModels
             {
                 _isPlayerFoundInSearch = value;
                 NotifyOfPropertyChange(() => IsPlayerFoundInSearch);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the player is playing the special race game type.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this player is playing race; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsRacing
+        {
+            get
+            {
+                return Server.game_type == 2;
             }
         }
 
@@ -282,6 +315,18 @@ namespace UQLT.ViewModels
             {
                 return Player.score;
             }
+        }
+
+        /// <summary>
+        /// Gets the server.
+        /// </summary>
+        /// <value>
+        /// The server.
+        /// </value>
+        public Server Server
+        {
+            get;
+            private set;
         }
 
         /// <summary>

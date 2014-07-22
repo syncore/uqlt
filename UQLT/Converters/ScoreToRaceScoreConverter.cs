@@ -36,11 +36,11 @@ namespace UQLT.Converters
         /// </returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // values[0] = game type values[1] = score
+            // values[0] = bool IsRacing
+            // values[1] = score
 
             string score = null;
-
-            if (System.Convert.ToInt32(values[0]) == 2)
+            if ((bool)values[0])
             {
                 if (System.Convert.ToInt32(values[1]) <= 0 || System.Convert.ToInt32(values[1]) == 2147483647)
                 {

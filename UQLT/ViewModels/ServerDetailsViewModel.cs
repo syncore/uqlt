@@ -1193,7 +1193,7 @@ namespace UQLT.ViewModels
         /// <remarks>This replaced <see cref="GridViewSort"/>for the player details, which required an observable collection to work properly (more overhead) and did not always work correctly.</remarks>
         private List<PlayerDetailsViewModel> FormatPlayerCollection(IEnumerable<Player> players)
         {
-            var sorted = players.Select(player => new PlayerDetailsViewModel(player)).ToList();
+            var sorted = players.Select(player => new PlayerDetailsViewModel(player, QlServer)).ToList();
             return sorted.OrderByDescending(a => a.Score).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
     }
