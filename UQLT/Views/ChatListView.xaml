@@ -13,7 +13,7 @@
     <UserControl.Resources>
         <!--Template for Red/Blue Team Colors-->
         <DataTemplate x:Key="TeamColors">
-            <Border x:Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+            <Border Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
             <TextBlock Foreground="White" Text="{Binding TeamName}"/>
                 </Border>
             <DataTemplate.Triggers>
@@ -46,7 +46,8 @@
 
     <Grid x:Name="ChatListRoot">
         <StackPanel Orientation="Vertical">
-            <TreeView x:Name="TreBuddyList" HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True">
+            <!--Buddy list-->
+            <TreeView HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True">
 
                 <!-- Auto expand groups -->
                 <TreeView.ItemContainerStyle>
@@ -59,9 +60,9 @@
                     <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
                         <StackPanel Orientation="Horizontal">
                             <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
-                            <TextBlock x:Name="GroupName" Text="{Binding GroupName}" />
+                            <TextBlock Text="{Binding GroupName}" />
                             <TextBlock Text=" [" />
-                            <TextBlock x:Name="FriendCount" Text="{Binding Friends.Count}" Foreground="Green" />
+                            <TextBlock Text="{Binding Friends.Count}" Foreground="Green" />
                             <TextBlock Text="]" />
                             <!--This is a menu strictly for the group headers-->
                             <!--<StackPanel.ContextMenu>
@@ -98,7 +99,7 @@
                                         <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0" />
 
                                         <!-- Player's demo or practice game message (only shown if player is watching demo or in practice match) -->
-                                        <TextBlock x:Name="FriendStatus" Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0" />
+                                        <TextBlock Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0" />
 
                                         <!-- Player's game server information (only shown if player is in game) -->
                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
@@ -147,7 +148,7 @@
 
                                                     <!--Tooltip: scoreboard and for team games-->
                                                     <!--Red score greater than blue score. Display red first.-->
-                                                    <StackPanel x:Name="TooltipRedLeadingScore" Visibility="{Binding Value.Server.IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                    <StackPanel Visibility="{Binding Value.Server.IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Red: " />
                                                             <TextBlock Text="{Binding Value.Server.RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
@@ -161,7 +162,7 @@
                                                         </StackPanel>
                                                     </StackPanel>
                                                     <!--Blue score greater than red score. Display blue first.-->
-                                                    <StackPanel x:Name="TooltipBlueLeadingScore" Visibility="{Binding Value.Server.IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                    <StackPanel Visibility="{Binding Value.Server.IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
                                                         <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="Blue: " />
                                                             <TextBlock Text="{Binding Value.Server.BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />

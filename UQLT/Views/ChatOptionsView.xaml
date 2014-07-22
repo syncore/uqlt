@@ -12,11 +12,11 @@
 
         <StackPanel Orientation="Vertical" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="54,42,55,0">
 
-            <CheckBox x:Name="ChatLogCheckBox" IsChecked="{Binding IsChatLoggingEnabled}" Content="Log chat messages" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="148" Margin="0,25,0,0" />
+            <CheckBox IsChecked="{Binding IsChatLoggingEnabled}" Content="Log chat messages" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="148" Margin="0,25,0,0" />
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="This option enables or disables the chat history between you and other users." VerticalAlignment="Top" Height="30" Width="376" Margin="0,25,0,0" />
-            <CheckBox x:Name="ChatSoundCheckBox" IsChecked="{Binding IsChatSoundEnabled}" Content="Play sound when receiving messages" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="281" Margin="0,25,0,0" />
+            <CheckBox IsChecked="{Binding IsChatSoundEnabled}" Content="Play sound when receiving messages" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="281" Margin="0,25,0,0" />
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="This option enables or disables the beep sound when receiving messages." VerticalAlignment="Top" Height="30" Width="399" Margin="0,25,0,0" />
-            <CheckBox x:Name="ChatInGameCheckBox" IsChecked="{Binding IsChatInGameEnabled}" Content="Send received in-game messages to Quake Live" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="359" Margin="0,25,0,0" />
+            <CheckBox IsChecked="{Binding IsChatInGameEnabled}" Content="Send received in-game messages to Quake Live" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Width="359" Margin="0,25,0,0" />
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="The Quake Live system does not allow users to receive messages on 2 clients at the same time. If you check this box, then any messages sent to you in-game will be shown in Quake Live itself. If you un-check this box, then any messages received when you are in game will be displayed in UQLT chat windows but not in Quake Live." VerticalAlignment="Top" Height="129" Width="430" Margin="0,25,0,0" />
         </StackPanel>
         <Button Content="Save Options" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="202,0,184,5" Width="116" Height="22" Grid.Row="1">

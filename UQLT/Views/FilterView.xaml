@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              d:DesignWidth="300" Width="686" Height="170">
 
-    <Grid x:Name="FilterGrid" HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="686" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}">
+    <Grid HorizontalAlignment="Left" Height="173" VerticalAlignment="Top" Width="686" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}">
         <ComboBox x:Name="cboGameType" ItemsSource="{Binding GameTypes}" SelectedIndex="{Binding GameTypeIndex}" SelectedValuePath="game_type" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,24,0,0" ShouldPreserveUserEnteredPrefix="True" />
         <ComboBox x:Name="cboGameArena" ItemsSource="{Binding Arenas}" SelectedIndex="{Binding GameArenaIndex}" SelectedValuePath="arena" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="397,24,0,0"  ShouldPreserveUserEnteredPrefix="True" />
         <ComboBox x:Name="cboGameLocation" ItemsSource="{Binding Locations}" SelectedIndex="{Binding GameLocationIndex}" SelectedValuePath="location_id" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,74,0,0" ShouldPreserveUserEnteredPrefix="True" />
@@ -16,7 +16,7 @@
         <ComboBox x:Name="cboGameVisibility" ItemsSource="{Binding GameVisibility}" SelectedIndex="{Binding GameVisibilityIndex}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275" Margin="20,127,0,0" />
 
         <CheckBox x:Name="chkPremium" Content="Premium Games" IsChecked="{Binding GamePremiumBool}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="398,107,0,0" />
-        <Button x:Name="btnSaveFilters" Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="422,141,0,0">
+        <Button Content="Make Default" HorizontalAlignment="Left" VerticalAlignment="Top" Width="118" Margin="422,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="SaveNewUserFilters">
@@ -41,7 +41,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>
-        <Button x:Name="btnResetFilters" Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="559,141,0,0">
+        <Button Content="Reset Filters" HorizontalAlignment="Left" VerticalAlignment="Top" Width="122" Margin="559,141,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="ClearSavedUserFilters" />
@@ -59,10 +59,10 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>
-        <Label x:Name="lblGameType" Content="Game Type" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,1,0,0" FontWeight="Bold" />
-        <Label x:Name="lblGameArena" Content="Arena" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,1,0,0" FontWeight="Bold" />
-        <Label x:Name="lblGameLocation" Content="Game Location" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,50,0,0" FontWeight="Bold" />
-        <Label x:Name="lblGameStatus" Content="Game Status" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,50,0,0" FontWeight="Bold" />
-        <Label x:Name="lblGameVisibility" Content="Game Visibility" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,101,0,0" FontWeight="Bold" />
+        <Label Content="Game Type" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,1,0,0" FontWeight="Bold" />
+        <Label Content="Arena" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,1,0,0" FontWeight="Bold" />
+        <Label Content="Game Location" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,50,0,0" FontWeight="Bold" />
+        <Label Content="Game Status" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="394,50,0,0" FontWeight="Bold" />
+        <Label Content="Game Visibility" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,101,0,0" FontWeight="Bold" />
     </Grid>
 </UserControl>

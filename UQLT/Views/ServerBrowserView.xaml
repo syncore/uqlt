@@ -79,15 +79,15 @@
                         <TextBlock Text="Players: " FontWeight="Bold" />
                         <TextBlock Text="{Binding TotalPlayers}" />
                     </StackPanel>
-                    <StackPanel x:Name="TeamScoreboard" Orientation="Vertical" Margin="0,10,5,5">
-
+                    <!--Team scoreboard-->
+                    <StackPanel Orientation="Vertical" Margin="0,10,5,5" Visibility="{Binding IsTeamGame, Converter={StaticResource BoolToVis}}">
                         <TextBlock FontWeight="Bold" HorizontalAlignment="Center">
                                 Team Scoreboard
                                 <LineBreak />
                         </TextBlock>
 
                         <!--Red score greater than blue score. Display red first.-->
-                        <StackPanel x:Name="RedLeadingScore" Visibility="{Binding IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Visibility="{Binding IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Red: " FontWeight="Bold" />
                                 <TextBlock Text="{Binding RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding RedTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
@@ -101,7 +101,7 @@
                             </StackPanel>
                         </StackPanel>
                         <!--Blue score greater than red score. Display blue first.-->
-                        <StackPanel x:Name="BlueLeadingScore" Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Blue: " FontWeight="Bold" />
                                 <TextBlock Text="{Binding BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" Foreground="{Binding BlueTeamEloAsAsyncValue.Result, Converter={StaticResource EloToColor}}"/>
@@ -120,12 +120,7 @@
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
-            <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsTeamGame}" Value="False">
-                    <Setter TargetName="TeamScoreboard" Property="Visibility" Value="Hidden" />
-                </DataTrigger>
-            </DataTemplate.Triggers>
-        </DataTemplate>
+            </DataTemplate>
     </UserControl.Resources>
 
     <Grid Width="1040" x:Name="ServerBrowserRoot">
@@ -143,7 +138,7 @@
 
         <!--Server refresh options-->
         <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <CheckBox x:Name="RefreshCheckBox" Content="Auto-refresh servers" IsChecked="{Binding IsAutoRefreshEnabled}" Margin="0,6,0,8" Padding="2,0,10,0">
+            <CheckBox Content="Auto-refresh servers" IsChecked="{Binding IsAutoRefreshEnabled}" Margin="0,6,0,8" Padding="2,0,10,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Checked">
                         <cal:ActionMessage MethodName="SaveConfig" />
@@ -180,7 +175,7 @@
 
         <!--Elo search filter-->
         <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left">
-            <CheckBox x:Name="EloSearchCheckBox" Content="Show Elo search options" IsChecked="{Binding DisplayEloSearchOptions}" Margin="0,0,0,2" Height="18">
+            <CheckBox Content="Show Elo search options" IsChecked="{Binding DisplayEloSearchOptions}" Margin="0,0,0,2" Height="18">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Checked">
                         <cal:ActionMessage MethodName="SaveConfig" />
@@ -242,7 +237,7 @@
         </StackPanel>
 
         <!--Server Details-->
-        <ListView x:Name="SBServerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="3" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=ServerBrowserRoot}">
+        <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Width="770" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding ServersView}" SelectedItem="{Binding SelectedServer}" Grid.Row="3" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=ServerBrowserRoot}">
             <!--Resources for the Server Details context menu-->
             <ListView.ContextMenu>
                 <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -300,7 +295,7 @@
             </ListView.View>
         </ListView>
         <!--Player Details-->
-        <ListView x:Name="SBPlayerDetails" helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
+        <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="210" VerticalAlignment="Top" Width="770"
                   IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedServer.FormattedPlayerList}" SelectionMode="Single" Grid.Row="4" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
             <!--Provide player highlighting for players found in a player search-->
             <ListView.ItemContainerStyle>
@@ -342,7 +337,7 @@
             </ListView.View>
         </ListView>
         <!--Extended server details-->
-        <ContentControl x:Name="SBExtendedInfo" Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="3" Grid.Row="2" Margin="0,0,-12,0" />
+        <ContentControl Content="{Binding SelectedServer}" ContentTemplate="{StaticResource extendedDetailsTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Height="420" Width="270" Grid.RowSpan="3" Grid.Row="2" Margin="0,0,-12,0" />
 
         <!--"Receiving QL server data" grid-->
         <Grid ColumnSpan="2" Grid.RowSpan="3" Visibility="{Binding IsUpdatingServers, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".6" Grid.Row="3">

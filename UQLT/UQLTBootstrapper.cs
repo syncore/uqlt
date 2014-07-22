@@ -3,6 +3,8 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media.Animation;
 using Caliburn.Micro;
 using UQLT.ViewModels;
 
@@ -69,6 +71,9 @@ namespace UQLT
         /// <param name="e">The args.</param>
         protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
         {
+            // Reduce FPS from 60 to 30 to improve performance:
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+            
             // Display the main view of the application.
             DisplayRootViewFor<LoginViewModel>();
         }
