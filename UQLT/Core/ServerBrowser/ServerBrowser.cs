@@ -45,7 +45,7 @@ namespace UQLT.Core.ServerBrowser
             }
             // Don't hit QL servers (debugging)
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
-            var i = InitializeServersAsync(Sbvm.FilterUrl);
+            //var i = InitializeServersAsync(Sbvm.FilterUrl);
         }
 
         /// <summary>

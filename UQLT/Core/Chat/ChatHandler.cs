@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using UQLT.Models.Chat;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
+using RosterItem = agsXMPP.protocol.iq.roster.RosterItem;
 
 namespace UQLT.Core.Chat
 {
@@ -26,6 +27,7 @@ namespace UQLT.Core.Chat
         public static Hashtable ActiveChats = new Hashtable();
         public readonly string StrInvite = "UQLT-IncomingGameInvitation-";
         private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
+        private readonly SoundPlayer _friendRequestSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\friendrequest.wav"));
         private readonly SoundPlayer _inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
         private readonly SoundPlayer _msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private readonly IWindowManager _windowManager;
@@ -77,6 +79,34 @@ namespace UQLT.Core.Chat
         public XmppClientConnection XmppCon { get; set; }
 
         /// <summary>
+        /// Accepts the friend request.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        public void AcceptFriendRequest(Jid jid)
+        {
+            // Request subscription from the other user.
+            XmppCon.PresenceManager.Subscribe(jid);
+            // Accept request.
+            XmppCon.PresenceManager.ApproveSubscriptionRequest(jid);
+            Debug.WriteLine("Subscribed and accepted friend request from: " + jid);
+        }
+
+        /// <summary>
+        /// Clears a friend's status.
+        /// </summary>
+        /// <param name="friend">The friend (jid.From.User)</param>
+        public void ClearFriendStatus(string friend)
+        {
+            FriendViewModel val;
+            friend = friend.ToLowerInvariant();
+            // On program start there is a timing issue where the key won't exist, so need to check first
+            if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
+            Clvm.OnlineGroup.Friends[friend].HasXmppStatus = false;
+            Clvm.OnlineGroup.Friends[friend].IsInGame = false;
+            Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.Nothing;
+        }
+
+        /// <summary>
         /// Returns the currently logged in user's user name.
         /// </summary>
         /// <returns>
@@ -99,19 +129,63 @@ namespace UQLT.Core.Chat
 
             try
             {
-                if (soundtype == SoundTypes.InvitationSound)
+                switch (soundtype)
                 {
-                    _inviteSound.Play();
-                }
-                else
-                {
-                    _msgSound.Play();
+                    case SoundTypes.InvitationSound:
+                        _inviteSound.Play();
+                        break;
+
+                    case SoundTypes.ChatSound:
+                        _msgSound.Play();
+                        break;
+
+                    case SoundTypes.FriendRequest:
+                        _friendRequestSound.Play();
+                        break;
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
+        }
+
+        /// <summary>
+        /// Rejects the friend request.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        public void RejectFriendRequest(Jid jid)
+        {
+            XmppCon.PresenceManager.RefuseSubscriptionRequest(jid);
+        }
+
+        /// <summary>
+        /// Adds and subscribes to the friend.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        public void AddFriend(Jid jid)
+        {
+            XmppCon.RosterManager.AddRosterItem(jid);
+            XmppCon.PresenceManager.Subscribe(jid);
+            // Add friend to outgoing list, for the sake of the UI, even though at this
+            // point SubscriptionType will be "none"
+            if (!IsOutgoingFriend(jid))
+            {
+                Clvm.OutgoingGroup.Friends[jid.User.ToLowerInvariant()] =
+                             new FriendViewModel(new Friend(jid.User.ToLowerInvariant(), IsFavoriteFriend(jid.User.ToLowerInvariant()), true)); 
+            }
+            Debug.WriteLine("Successfully sent friend request to: " + jid);
+        }
+        
+        /// <summary>
+        /// Removes friend and unsubscribes from friend.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        public void RemoveFriend(Jid jid)
+        {
+            XmppCon.PresenceManager.Unsubscribe(jid);
+            XmppCon.RosterManager.RemoveRosterItem(jid);
+            Debug.WriteLine("Removed friend and unsubscribed from: " + jid.User);
         }
 
         /// <summary>
@@ -154,21 +228,6 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
-        /// Clears a friend's status.
-        /// </summary>
-        /// <param name="friend">The friend (jid.From.User)</param>
-        public void ClearFriendStatus(string friend)
-        {
-            FriendViewModel val;
-            friend = friend.ToLowerInvariant();
-            // On program start there is a timing issue where the key won't exist, so need to check first
-            if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
-            Clvm.OnlineGroup.Friends[friend].HasXmppStatus = false;
-            Clvm.OnlineGroup.Friends[friend].IsInGame = false;
-            Clvm.OnlineGroup.Friends[friend].StatusType = StatusTypes.Nothing;
-        }
-
-        /// <summary>
         /// Called when a valid certificate is received.
         /// </summary>
         /// <param name="sender">The sender.</param>
@@ -206,11 +265,18 @@ namespace UQLT.Core.Chat
         /// <param name="presence">The user's presence.</param>
         private void FriendBecameAvailable(Presence presence)
         {
-            string friend = presence.From.User.ToLowerInvariant();
             var jid = presence.From;
-
+            
             if (IsMe(jid)) { return; }
-
+            
+            string friend = presence.From.User.ToLowerInvariant();
+            FriendViewModel val;
+            
+            // Do not add outgoing friends who haven't accepted our request to the online group,
+            // even though such friends will send an "available" PresenceType.
+            
+            if (IsPendingFriend(jid)) { return; }
+            
             // User was already online.
             if ((IsFriendAlreadyOnline(friend)))
             {
@@ -232,12 +298,22 @@ namespace UQLT.Core.Chat
                 // Must be done on the UI thread
                 Execute.OnUIThread(() =>
                 {
-                    Clvm.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(presence.From.User)));
+                    Clvm.OnlineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(presence.From.User), false));
                     Clvm.OnlineGroup.Friends[friend].ActiveXmppResource = jid.Resource;
                     Clvm.OnlineGroup.Friends[friend].XmppResources.Add(jid.Resource);
                     Clvm.OnlineGroup.Friends[friend].HasMultipleXmppClients = false;
                     Clvm.OnlineGroup.Friends[friend].IsOnline = true;
                 });
+
+                // Note: OnRosterItem gets fired before OnPresence during initial login, however, 
+                // OnPresence gets fired before OnRosterItem when accepting the friend request.
+                // Without this check then the accepted friend request will appear in both the offline and online groups
+                // in our buddy list, assuming the friend request was accepted while the friend was online:
+                if (Clvm.OfflineGroup.Friends.TryGetValue(friend, out val))
+                {
+                    Execute.OnUIThread(() => Clvm.OfflineGroup.Friends.Remove(friend));
+                }
+
             }
 
             // Update with proper status. We only care about QL client since UQLT will always have a blank status.
@@ -247,7 +323,6 @@ namespace UQLT.Core.Chat
             }
 
             // If user user was previously offline then remove from offline friends group.
-            FriendViewModel val;
             if (!Clvm.OfflineGroup.Friends.TryGetValue(friend, out val)) return;
             // Additions and removals to ObservableDictionary must be done on the UI thread
             Execute.OnUIThread(() => Clvm.OfflineGroup.Friends.Remove(friend));
@@ -261,11 +336,16 @@ namespace UQLT.Core.Chat
         private void FriendBecameUnavailable(Presence presence)
         {
             var jid = presence.From;
-            string friend = jid.User.ToLowerInvariant();
-
+            
             if (IsMe(jid)) { return; }
 
+            string friend = jid.User.ToLowerInvariant();
             FriendViewModel val;
+
+            // Do not add pending friends to the online group, even though such friends will
+            // send an "unavailable" PresenceType.
+            if (IsPendingFriend(jid)) { return; }
+
             if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val)) return;
 
             // Check if friend has multiple clients.
@@ -296,13 +376,32 @@ namespace UQLT.Core.Chat
                 Execute.OnUIThread(() =>
                 {
                     Clvm.OnlineGroup.Friends.Remove(friend);
-                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User)));
+                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(jid.User), false));
                     Clvm.OfflineGroup.Friends[friend].IsOnline = false;
                 });
 
                 Debug.WriteLine("[FRIEND UNAVAILABLE]: " + " Jid: " + jid + " User: " + jid.User + " Resource: " + jid.Resource);
                 Debug.WriteLine("Friends list before removing " + jid.User + "," + " count: " + Clvm.OnlineGroup.Friends.Count());
             }
+        }
+
+        /// <summary>
+        /// Handles the incoming friend request.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        private void FriendRequestReceived(Jid jid)
+        {
+            var incoming = new FriendRequestViewModel(jid, this, _windowManager);
+            dynamic settings = new ExpandoObject();
+            settings.Topmost = true;
+            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            const SoundTypes sound = SoundTypes.FriendRequest;
+
+            Execute.OnUIThread(() =>
+            {
+                PlayMessageSound(sound);
+                _windowManager.ShowWindow(incoming, null, settings);
+            });
         }
 
         /// <summary>
@@ -343,6 +442,28 @@ namespace UQLT.Core.Chat
         }
 
         /// <summary>
+        /// Determines whether the specified friend's acecptance status is pending.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        /// <returns><c>true</c> if the acceptance status is pending, otherwise <c>false</c>.</returns>
+        /// <remarks>This applies to both friend requests that we have sent, and those that we have received
+        /// but we have not confirmed yet.</remarks>
+        private bool IsPendingFriend(Jid jid)
+        {
+            FriendViewModel val;
+            string friend = jid.User.ToLowerInvariant();
+            return (Clvm.OutgoingGroup.Friends.TryGetValue(friend, out val) ||
+                Clvm.IncomingGroup.Friends.TryGetValue(friend, out val));
+        }
+
+        private bool IsOutgoingFriend(Jid jid)
+        {
+            FriendViewModel val;
+            string friend = jid.User.ToLowerInvariant();
+            return (Clvm.OutgoingGroup.Friends.TryGetValue(friend, out val));
+        }
+
+        /// <summary>
         /// Determines whether the specified presence is from me, the currently logged in user.
         /// </summary>
         /// <param name="jid">The user's jid.</param>
@@ -353,6 +474,36 @@ namespace UQLT.Core.Chat
         private bool IsMe(Jid jid)
         {
             return (jid.Bare.Equals(XmppCon.MyJID.Bare.ToLowerInvariant()));
+        }
+
+        /// <summary>
+        /// Removes the friend from the UQLT internal roster. This removes the friend from
+        /// the Online or Offline groups irrespective of the actual XMPP server roster.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        private void RemoveFriendFromInternalRoster(Jid jid)
+        {
+            var friend = jid.User.ToLowerInvariant();
+            FriendViewModel val;
+
+            if (Clvm.OfflineGroup.Friends.TryGetValue(friend, out val))
+            {
+                Execute.OnUIThread(() =>
+                {
+                    Clvm.OfflineGroup.Friends.Remove(friend);
+                });
+
+                Debug.WriteLine("Removed " + jid.User + " from our internal offline/online groups.");
+            }
+            if (Clvm.OnlineGroup.Friends.TryGetValue(friend, out val))
+            {
+                Execute.OnUIThread(() =>
+                {
+                    Clvm.OnlineGroup.Friends.Remove(friend);
+                });
+
+                Debug.WriteLine("Removed " + jid.User + " from our internal offline/online groups.");
+            }
         }
 
         /// <summary>
@@ -479,32 +630,80 @@ namespace UQLT.Core.Chat
                 case PresenceType.unavailable:
                     Debug.WriteLine("--> Got unavailable presence from: " + presence.From);
                     FriendBecameUnavailable(presence);
+                    //RequestRoster();
                     break;
 
                 case PresenceType.subscribe:
-                    // Show a message indicating that friend request was sent to another user
+                    Debug.WriteLine("--> Incoming friend request from: " + presence.From);
+                    // Check to see if user is in roster first
+                    //IsFriendOnRoster(presence.From);
+                    if (IsPendingFriend(presence.From))
+                    {
+                        AcceptFriendRequest(presence.From);
+                    }
+                    else
+                    {
+                        FriendRequestReceived(presence.From);
+                    }
                     break;
 
                 case PresenceType.subscribed:
-                    // Show a dialog that allows the user to accept or reject the incoming friend request
+                    // User has accepted our friend request. Now automatically accept his
+                    // in order to prevent the incoming message from displaying (mutual subscription on client side).
+                    AcceptFriendRequest(presence.From);
+                    Debug.WriteLine("Presence type 'subscribed' received.");
                     break;
 
                 case PresenceType.unsubscribe:
-                    // Show a message indicating that user successfully un-friended another user
+                    // Friend has removed us from his roster. Remove him from ours as well.
+                    RemoveFriend(presence.From);
+                    RemoveFriendFromInternalRoster(presence.From);
+                    Debug.WriteLine("Presence type 'unsubscribe' received.");
                     break;
 
                 case PresenceType.unsubscribed:
-                    // Show a message indicating that the user chose to reject the incoming friend request
+                    // We've denied the incoming friend request.
+                    Debug.WriteLine("Presence type 'unsubscribed' received.");
                     break;
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified friend (jid) is already on the XMPP server's roster.
+        /// </summary>
+        /// <param name="jid">The jid.</param>
+        /// <returns><c>true</c> if the specified friend is already on the XMPP server's roster, otherwise <c>false</c>.</returns>
+        private bool IsFriendOnRoster(Jid jid)
+        {
+            return false;
+        }
+
+
+        private void RequestRoster()
+        {
+            var iq = new RosterIq(IqType.get);
+            XmppCon.IqGrabber.SendIq(iq, XmppCon_OnManualRosterRequest, null);
+        }
+
+        private void XmppCon_OnManualRosterRequest(object sender, IQ iq, object data)
+        {
+            var r = iq.Query as Roster;
+            if (r != null)
+            {
+                foreach (RosterItem i in r.GetRoster())
+                {
+                    Debug.WriteLine("^^^^^^^ Roster user found: " + i.Jid);
+                }
+            }
+        }
+        
         /// <summary>
         /// Called when the full XMPP roster has been received.
         /// </summary>
         /// <param name="sender">The sender.</param>
         private void XmppCon_OnRosterEnd(object sender)
         {
+            Debug.WriteLine("+++OnRosterEnd fired");
             // Start timer to refresh in-game friends' server information
             ChatGameInfo.StartServerUpdateTimer();
         }
@@ -516,20 +715,91 @@ namespace UQLT.Core.Chat
         /// <param name="item">The roster item.</param>
         private void XmppCon_OnRosterItem(object sender, RosterItem item)
         {
-            // TODO: if (item.Subscription != SubscriptionType.remove) stuff
+            Debug.WriteLine("======>OnRosterItem fired. Jid:" + item.Jid + " subscription type: " + item.Subscription);
+
             var friend = item.Jid.User.ToLowerInvariant();
-            try
+            FriendViewModel val;
+
+            if (item.Subscription == SubscriptionType.remove)
             {
-                // Additions and removals to ObservableDictionary must be done on the UI thread
-                // since ObservableDictionary is databound
-                Execute.OnUIThread(() =>
-                {
-                    Clvm.OfflineGroup.Friends[friend] = new FriendViewModel(new Friend(friend, IsFavoriteFriend(item.Jid.User)));
-                });
+                // Remove friend from actual XMPP server roster.
+                XmppCon.RosterManager.RemoveRosterItem(item.Jid);
+
+                // Remove friend from our internal roster (offline/online groups).
+                RemoveFriendFromInternalRoster(item.Jid);
             }
-            catch (Exception ex)
+            // Note: OnRosterItem gets fired before OnPresence during initial login, however, 
+            // OnPresence gets fired before OnRosterItem when accepting the friend request.
+            if (item.Subscription == SubscriptionType.both)
             {
-                Debug.WriteLine(ex);
+                try
+                {
+                    if (Clvm.OutgoingGroup.Friends.TryGetValue(friend, out val))
+                    {
+                        Execute.OnUIThread(() =>
+                        {
+                            Clvm.OutgoingGroup.Friends.Remove(friend);
+
+                        });
+                    }
+                    if (Clvm.IncomingGroup.Friends.TryGetValue(friend, out val))
+                    {
+                        Execute.OnUIThread(() =>
+                        {
+                            Clvm.IncomingGroup.Friends.Remove(friend);
+
+                        });
+                    }
+                    if (!Clvm.OnlineGroup.Friends.TryGetValue(friend, out val))
+                    {
+                        // Additions and removals to ObservableDictionary must be done on the UI thread
+                        // since ObservableDictionary is databound
+                        Execute.OnUIThread(() =>
+                        {
+                            Clvm.OfflineGroup.Friends[friend] =
+                                new FriendViewModel(new Friend(friend, IsFavoriteFriend(item.Jid.User), false));
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+            }
+
+            if (item.Subscription == SubscriptionType.none)
+            {
+                Debug.WriteLine("Subscription type of \"none\" received for: " + item.Jid + " Do nothing with this.");
+            }
+
+            // Friend requests that the other user has sent us but we have not accepted yet.
+            if (item.Subscription == SubscriptionType.from)
+            {
+                Debug.WriteLine("Subscription type of \"from\" received for: " + item.Jid + " Add this user to the incoming requests we haven't accepted yet.");
+                if (!Clvm.IncomingGroup.Friends.TryGetValue(friend, out val))
+                {
+                    Execute.OnUIThread(() =>
+                    {
+                        Clvm.IncomingGroup.Friends[friend] =
+                            new FriendViewModel(new Friend(friend, IsFavoriteFriend(item.Jid.User), true));
+                    });
+                }
+            }
+
+            // Friend requests we've sent but have not been accepted by the other user yet.
+            if (item.Subscription == SubscriptionType.to)
+            {
+                Debug.WriteLine("Subscription type of \"to\" received for: " + item.Jid + " Add this user to the outgoing requests and hope that he accepts us.");
+                if (!Clvm.OutgoingGroup.Friends.TryGetValue(friend, out val))
+                {
+                    Execute.OnUIThread(() =>
+                    {
+                        Clvm.OutgoingGroup.Friends[friend] =
+                            new FriendViewModel(new Friend(friend, IsFavoriteFriend(item.Jid.User), true));
+                    });
+                }
+                
+                
             }
         }
     }

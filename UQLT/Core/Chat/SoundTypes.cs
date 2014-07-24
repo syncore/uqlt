@@ -6,6 +6,7 @@
     public enum SoundTypes
     {
         ChatSound,
-        InvitationSound
+        InvitationSound,
+        FriendRequest
     }
 }

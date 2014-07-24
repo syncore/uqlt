@@ -207,10 +207,12 @@
     <Compile Include="UQltBootstrapper.cs" />
     <Compile Include="UQltGlobals.cs" />
     <Compile Include="UqltWindowManager.cs" />
+    <Compile Include="ViewModels\AddFriendViewModel.cs" />
     <Compile Include="ViewModels\ChatMessageViewModel.cs" />
     <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
     <Compile Include="ViewModels\FriendViewModel.cs" />
     <Compile Include="ViewModels\GameInvitationViewModel.cs" />
+    <Compile Include="ViewModels\FriendRequestViewModel.cs" />
     <Compile Include="ViewModels\RosterGroupViewModel.cs" />
     <Compile Include="ViewModels\ChatListViewModel.cs" />
     <Compile Include="ViewModels\FilterViewModel.cs" />
@@ -220,6 +222,9 @@
     <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
     <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
     <Compile Include="ViewModels\ChatGameInfoViewModel.cs" />
+    <Compile Include="Views\AddFriendView.xaml.cs">
+      <DependentUpon>AddFriendView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ChatListView.xaml.cs">
       <DependentUpon>ChatListView.xaml</DependentUpon>
     </Compile>
@@ -234,6 +239,9 @@
     </Compile>
     <Compile Include="Views\GameInvitationView.xaml.cs">
       <DependentUpon>GameInvitationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FriendRequestView.xaml.cs">
+      <DependentUpon>FriendRequestView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
@@ -276,6 +284,10 @@
     <Resource Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\AddFriendView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ChatListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -296,6 +308,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\FriendRequestView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\LoginView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -310,6 +326,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\sounds\friendrequest.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\sounds\invite.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

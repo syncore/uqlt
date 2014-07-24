@@ -16,10 +16,11 @@ namespace UQLT.Models.Chat
         /// if set to <c>true</c> then friend is a favorite friend. otherwise, not a favorite friend
         /// if set to <c>false</c>
         /// </param>
-        public Friend(string name, bool isfavorite)
+        public Friend(string name, bool isfavorite, bool ispending)
         {
             FriendName = name;
             IsFavorite = isfavorite;
+            IsPending = ispending;
             XmppResources = new HashSet<string>();
         }
 
@@ -89,6 +90,21 @@ namespace UQLT.Models.Chat
         /// </summary>
         /// <value><c>true</c> if this friend is online; otherwise, <c>false</c>.</value>
         public bool IsOnline
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether acceptance of this friend's
+        /// friend request is pending, that is, the friend has not accepted our
+        /// friend request yet.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this friend's request acceptance is pending
+        /// otherwise, <c>false</c>.
+        /// </value>
+        public bool IsPending
         {
             get;
             set;

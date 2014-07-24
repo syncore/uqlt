@@ -21,7 +21,7 @@
         <!-- Message contents textbox -->
         <TextBox helpers:ScrollToEndBehavior.OnTextChanged="True" Grid.Row="0" HorizontalAlignment="Left" Height="260" TextWrapping="Wrap" Text="{Binding ReceivedMessages}" VerticalAlignment="Top" Width="512" IsUndoEnabled="False" UndoLimit="0" IsReadOnly="True" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="True" VerticalScrollBarVisibility="Auto" />
         <!--Outgoing message textbox-->
-        <TextBox helpers:ScrollToEndBehavior.OnTextChanged="True" Grid.Row="1" HorizontalAlignment="Left" Height="110" TextWrapping="Wrap" Text="{Binding OutgoingMessage}" VerticalAlignment="Top" Width="512" UndoLimit="3" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+        <TextBox x:Name="OutgoingTextBox" helpers:ScrollToEndBehavior.OnTextChanged="True" Grid.Row="1" HorizontalAlignment="Left" Height="110" TextWrapping="Wrap" Text="{Binding OutgoingMessage}" VerticalAlignment="Top" Width="512" UndoLimit="3" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto">
             <!--Enter key has been pressed. Send the message-->
             <i:Interaction.Triggers>
                 <helpers:KeyPressTrigger KeyAction="KeyDown" Gesture="enter">

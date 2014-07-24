@@ -185,6 +185,28 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether acceptance of this friend's
+        /// friend request is pending, that is, the friend has not accepted our
+        /// friend request yet.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this friend's request acceptance is pending
+        /// otherwise, <c>false</c>.
+        /// </value>
+        public bool IsPending
+        {
+            get
+            {
+                return RosterFriend.IsPending;
+            }
+            set
+            {
+                RosterFriend.IsPending = value;
+                NotifyOfPropertyChange(() => IsPending);
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this friend is in a practice match or viewing a demo.
         /// </summary>
         /// <value>

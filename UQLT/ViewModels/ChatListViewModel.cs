@@ -21,6 +21,8 @@ namespace UQLT.ViewModels
     {
         private const string OfflineGroupTitle = "Offline Friends";
         private const string OnlineGroupTitle = "Online Friends";
+        private const string IncomingGroupTitle = "Incoming Friend Requests";
+        private const string OutgoingGroupTitle = "Outgoing Friend Requests";
         private readonly ChatHandler _handler;
         private readonly IWindowManager _windowManager;
         private BindableCollection<RosterGroupViewModel> _buddyList;
@@ -39,6 +41,8 @@ namespace UQLT.ViewModels
             _buddyList = new BindableCollection<RosterGroupViewModel>();
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(IncomingGroupTitle), true));
+            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OutgoingGroupTitle), false));
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
@@ -88,9 +92,38 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets the incoming friend request group.
+        /// </summary>
+        /// <value>
+        /// The incoming friend request group.
+        /// </value>
+        public RosterGroupViewModel IncomingGroup
+        {
+            get
+            {
+                return BuddyList[2];
+            }
+        }
+
+        /// <summary>
+        /// Gets the outgoing friend request group.
+        /// </summary>
+        /// <value>
+        /// The outgoing friend request group.
+        /// </value>
+        public RosterGroupViewModel OutgoingGroup
+        {
+            get
+            {
+                return BuddyList[3];
+            }
+        }
+
+
+        /// <summary>
         /// Adds the friend as a favorite friend.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <remarks>This is called from the view itself.</remarks>
         public void AddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
@@ -112,7 +145,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Determines whether this friend can be added as a favorite friend.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <returns>
         /// <c>true</c> if the friend can be added, <c>false</c> if the friend is already a favorite
         /// and cannot be added.
@@ -129,7 +162,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Determines whether this friend can be removed from the favorite friends list.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <returns>
         /// <c>true</c> if the friend can be removed, <c>false</c> if the friend is not a favorite
         /// and cannot be removed.
@@ -147,7 +180,7 @@ namespace UQLT.ViewModels
         /// Clears the chat history from the chatlist viewmodel by created a new ChatHistory class
         /// for that purpose.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         public void ClearChatHistory(KeyValuePair<string, FriendViewModel> kvp)
         {
             _chatHistory = new ChatHistory();
@@ -167,15 +200,14 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Opens a new chat message window for this friend.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <remarks>
         /// The window is opened when the user double-clicks the friend or right clicks the friend
         /// and selects 'Open chat' This is called from the view itself.
         /// </remarks>
         public void OpenChatWindow(KeyValuePair<string, FriendViewModel> kvp)
         {
-            // manual jid (missing resource, but shouldn't matter)
-            //Jid = new agsXMPP.Jid(kvp.Key + "@" + UQLTGlobals.QlXmppDomain);
+            // Manual jid construction. The full jid, including resource is needed here.
             _jid = new agsXMPP.Jid(kvp.Key + "@" + UQltGlobals.QlXmppDomain + "/" + kvp.Value.ActiveXmppResource);
             dynamic settings = new ExpandoObject();
             settings.Topmost = true;
@@ -186,9 +218,31 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Opens the add friend window.
+        /// </summary>
+        public void OpenAddFriendWindow()
+        {
+            dynamic settings = new ExpandoObject();
+            settings.Topmost = true;
+            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            _windowManager.ShowWindow(new AddFriendViewModel(_handler), null, settings);
+        }
+        
+        /// <summary>
+        /// Removes the friend from the buddy list and unsubscribes from friend.
+        /// </summary>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
+        public void RemoveFriend(KeyValuePair<string, FriendViewModel> kvp)
+        {
+            // Manual jid construction. Only the bare jid is needed here.
+            _jid = new agsXMPP.Jid(kvp.Key + "@" + UQltGlobals.QlXmppDomain);
+            _handler.RemoveFriend(_jid);
+        }
+
+        /// <summary>
         /// Removes the friend from the favorite friends.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <remarks>This is called from the view itself.</remarks>
         public void RemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
@@ -211,7 +265,7 @@ namespace UQLT.ViewModels
         /// Updates the friend's game server information. This occurs when the user highlights the
         /// player on the buddylist in the view.
         /// </summary>
-        /// <param name="kvp">The FriendViewModel KeyValuePair.</param>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         /// <remarks>
         /// The friend's game server information is only updated if the friend is currently in a
         /// server. This is called from the view itself.

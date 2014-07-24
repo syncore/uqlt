@@ -220,6 +220,7 @@
                                         <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                             <MenuItem Header="Open chat" cal:Message.Attach="OpenChatWindow($dataContext)" />
                                             <MenuItem Header="Clear chat history" cal:Message.Attach="ClearChatHistory($dataContext)" />
+                                            <MenuItem Header="Delete friend" cal:Message.Attach="RemoveFriend($dataContext)" />
                                             <MenuItem Header="Add friend to favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)" />
                                             <MenuItem Header="Remove friend from favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)" />
                                         </ContextMenu>
@@ -230,13 +231,25 @@
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-            <Button Content="Chat options" VerticalAlignment="Center" Margin="90,8,92,3">
-                <i:Interaction.Triggers>
+            <!--Add a friend and chat options-->
+            <StackPanel Orientation="Horizontal" Width="250">
+                <Button Content="Add a friend" Margin="15,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenAddFriendWindow" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Chat options" VerticalAlignment="Center" Margin="15,0,0,0">
+                    <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <cal:ActionMessage MethodName="OpenChatOptionsWindow" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
+                
+
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>
