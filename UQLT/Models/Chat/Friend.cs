@@ -12,10 +12,9 @@ namespace UQLT.Models.Chat
         /// Initializes a new instance of the <see cref="Friend" /> class.
         /// </summary>
         /// <param name="name">The name of the friend.</param>
-        /// <param name="isfavorite">
-        /// if set to <c>true</c> then friend is a favorite friend. otherwise, not a favorite friend
-        /// if set to <c>false</c>
-        /// </param>
+        /// <param name="isfavorite">if set to <c>true</c> then friend is a favorite friend. otherwise, not a favorite friend
+        /// if set to <c>false</c></param>
+        /// <param name="ispending">if set to <c>true</c> friend's acceptance is pending.</param>
         public Friend(string name, bool isfavorite, bool ispending)
         {
             FriendName = name;

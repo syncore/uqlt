@@ -31,7 +31,6 @@ namespace UQLT.ViewModels
         private readonly StringBuilder _receivedMessages = new StringBuilder();
         private readonly IWindowManager _windowManager;
         private readonly XmppClientConnection _xmppCon;
-        private string _displayName;
         private string _incomingMessage;
         private string _outgoingMessage;
 
@@ -46,7 +45,7 @@ namespace UQLT.ViewModels
         public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager windowManager)
         {
             _jid = jid;
-            _displayName = "Chatting with " + _jid.User;
+            DisplayName = "Chatting with " + _jid.User;
             _xmppCon = xmppcon;
             _handler = handler;
             _windowManager = windowManager;
@@ -66,17 +65,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Gets or Sets the display name of the window (ChatMessageView) associated with this view model.
         /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                return _displayName;
-            }
-            set
-            {
-                _displayName = value;
-            }
-        }
+        public string DisplayName { get; set; }
 
         /// <summary>
         /// Gets or sets the incoming message.

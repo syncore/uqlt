@@ -6,21 +6,22 @@
         Title="Incoming Friend Request" Height="300" Width="460" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="80*"/>
+            <RowDefinition Height="133*"/>
+            <RowDefinition Height="139*"/>
         </Grid.RowDefinitions>
         <!--Information about incoming friend request-->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Height="80" VerticalAlignment="Center" Width="400" Grid.Row="0">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Height="80" VerticalAlignment="Top" Width="400" Grid.Row="0" Margin="27,10,27,0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Image Name="FriendImage" Width="16" Height="16" Source="{Binding FriendImage}" HorizontalAlignment="Left" />
                 <TextBlock TextWrapping="Wrap" Text="{Binding RequestFrom, StringFormat='{}{0} wants to be your friend!'}" HorizontalAlignment="Center" Margin="5,0,0,0" FontSize="16" FontWeight="Bold"/>
-                </StackPanel>
+                
+            </StackPanel>
             <!--TODO: This will be a hyperlink to the QL profile-->
-            <TextBlock TextWrapping="Wrap" Text="{Binding RequestFrom, StringFormat='Click to view {0}`s profile.'}" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <TextBlock TextWrapping="Wrap"  Text="{Binding RequestFrom, StringFormat='Click to view {0}`s profile.'}" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,40,0,0"/>
             <!--<TextBlock TextWrapping="Wrap" Text="Click to view UnnamedPlayer's profile" HorizontalAlignment="Center" Margin="0,20,0,0"/>-->
         </StackPanel>
         <!--Action buttons-->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="50" VerticalAlignment="Top" Width="450" Grid.Row="1">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="50" VerticalAlignment="Top" Width="450" Grid.Row="1" Margin="2,0">
             <Button Content="Accept Request" Width="130" VerticalAlignment="Center" Margin="10,0,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
@@ -45,7 +46,7 @@
                 </i:Interaction.Triggers>
             </Button>
         </StackPanel>
-        <TextBlock TextWrapping="Wrap" Grid.Row="1" Text="If you decide later, then you will be prompted on the next chat login." VerticalAlignment="Center"  HorizontalAlignment="Center" Margin="3,40,3,0"/>
+        <TextBlock TextWrapping="Wrap" Grid.Row="1" Text="If you decide later, then you will be prompted on the next chat login." VerticalAlignment="Center"  HorizontalAlignment="Center" Margin="77,59,77,50" Width="300" Height="30"/>
 
     </Grid>
 </Window>

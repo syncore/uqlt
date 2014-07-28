@@ -21,8 +21,6 @@ namespace UQLT.ViewModels
     {
         private const string OfflineGroupTitle = "Offline Friends";
         private const string OnlineGroupTitle = "Online Friends";
-        private const string IncomingGroupTitle = "Incoming Friend Requests";
-        private const string OutgoingGroupTitle = "Outgoing Friend Requests";
         private readonly ChatHandler _handler;
         private readonly IWindowManager _windowManager;
         private BindableCollection<RosterGroupViewModel> _buddyList;
@@ -41,8 +39,7 @@ namespace UQLT.ViewModels
             _buddyList = new BindableCollection<RosterGroupViewModel>();
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
-            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(IncomingGroupTitle), true));
-            BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OutgoingGroupTitle), false));
+            
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
@@ -90,35 +87,6 @@ namespace UQLT.ViewModels
                 return BuddyList[0];
             }
         }
-
-        /// <summary>
-        /// Gets the incoming friend request group.
-        /// </summary>
-        /// <value>
-        /// The incoming friend request group.
-        /// </value>
-        public RosterGroupViewModel IncomingGroup
-        {
-            get
-            {
-                return BuddyList[2];
-            }
-        }
-
-        /// <summary>
-        /// Gets the outgoing friend request group.
-        /// </summary>
-        /// <value>
-        /// The outgoing friend request group.
-        /// </value>
-        public RosterGroupViewModel OutgoingGroup
-        {
-            get
-            {
-                return BuddyList[3];
-            }
-        }
-
 
         /// <summary>
         /// Adds the friend as a favorite friend.
@@ -188,6 +156,17 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Opens the add friend window.
+        /// </summary>
+        public void OpenAddFriendWindow()
+        {
+            dynamic settings = new ExpandoObject();
+            settings.Topmost = true;
+            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            _windowManager.ShowWindow(new AddFriendViewModel(_handler), null, settings);
+        }
+
+        /// <summary>
         /// Opens the chat options window.
         /// </summary>
         public void OpenChatOptionsWindow()
@@ -218,28 +197,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Opens the add friend window.
-        /// </summary>
-        public void OpenAddFriendWindow()
-        {
-            dynamic settings = new ExpandoObject();
-            settings.Topmost = true;
-            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            _windowManager.ShowWindow(new AddFriendViewModel(_handler), null, settings);
-        }
-        
-        /// <summary>
-        /// Removes the friend from the buddy list and unsubscribes from friend.
-        /// </summary>
-        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
-        public void RemoveFriend(KeyValuePair<string, FriendViewModel> kvp)
-        {
-            // Manual jid construction. Only the bare jid is needed here.
-            _jid = new agsXMPP.Jid(kvp.Key + "@" + UQltGlobals.QlXmppDomain);
-            _handler.RemoveFriend(_jid);
-        }
-
-        /// <summary>
         /// Removes the friend from the favorite friends.
         /// </summary>
         /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
@@ -259,6 +216,18 @@ namespace UQLT.ViewModels
             {
                 Debug.WriteLine("Favorites did not contain " + kvp.Key);
             }
+        }
+
+        /// <summary>
+        /// Removes the friend from the buddy list and unsubscribes from friend.
+        /// </summary>
+        /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
+        public void RemoveFriend(KeyValuePair<string, FriendViewModel> kvp)
+        {
+            // Manual jid construction. Only the bare jid is needed here.
+            _jid = new agsXMPP.Jid(kvp.Key + "@" + UQltGlobals.QlXmppDomain);
+            _handler.UnsubscribeAndRemoveFriend(_jid);
+            _handler.RemoveFriendFromInternalRosterGroups(_jid);
         }
 
         /// <summary>
@@ -282,7 +251,7 @@ namespace UQLT.ViewModels
                 Debug.WriteLine("Not refreshing server info for player: " + kvp.Key + " because player isn't currently in a game server.");
             }
         }
-        
+
         /// <summary>
         /// Loads the saved favorite friends from JSON file on disk.
         /// </summary>

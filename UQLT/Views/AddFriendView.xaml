@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:cal="http://www.caliburnproject.org"
-        Title="Add a friend" Height="250" Width="400" ResizeMode="NoResize">
-    <Grid>
+             xmlns:helpers="clr-namespace:UQLT.Helpers"
+             Title="Add a friend" Height="250" Width="400" ResizeMode="NoResize">
+    <Grid FocusManager.FocusedElement="{Binding ElementName=FriendTextBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="71*"/>
             <RowDefinition Height="35*"/>
@@ -19,7 +20,14 @@
             <!--Friend entry textbox and textblock-->
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
             <TextBlock TextWrapping="Wrap" Text="Friend's Quake Live name:" Height="23"/>
-                <TextBox Height="23" TextWrapping="Wrap" Text="{Binding FriendToAdd, UpdateSourceTrigger=PropertyChanged}" Width="160" Margin="8,0,0,0"/>
+                <TextBox x:Name="FriendTextBox"  Height="23" TextWrapping="Wrap" Text="{Binding FriendToAdd, UpdateSourceTrigger=PropertyChanged}" Width="160" Margin="8,0,0,0">
+                    <!--Enter key has been pressed. Add friend.-->
+                    <i:Interaction.Triggers>
+                        <helpers:KeyPressTrigger KeyAction="KeyDown" Gesture="enter">
+                            <cal:ActionMessage MethodName="AddFriendAsync"/>
+                        </helpers:KeyPressTrigger>
+                    </i:Interaction.Triggers>
+                </TextBox>
             </StackPanel>
         </StackPanel>
 
@@ -28,7 +36,7 @@
             <Button Content="Add Friend" VerticalAlignment="Center" Margin="40,0,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
-                        <cal:ActionMessage MethodName="AddFriend"/>
+                        <cal:ActionMessage MethodName="AddFriendAsync"/>
                     <!--Window closing handled in ViewModel-->
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
