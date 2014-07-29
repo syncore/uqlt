@@ -23,6 +23,7 @@ namespace UQLT.ViewModels
         private const string OnlineGroupTitle = "Online Friends";
         private readonly ChatHandler _handler;
         private readonly IWindowManager _windowManager;
+        private readonly IEventAggregator _events;
         private BindableCollection<RosterGroupViewModel> _buddyList;
         private ChatHistory _chatHistory;
         private agsXMPP.Jid _jid;
@@ -36,6 +37,7 @@ namespace UQLT.ViewModels
         public ChatListViewModel(IWindowManager windowManager, IEventAggregator events)
         {
             _windowManager = windowManager;
+            _events = events;
             _buddyList = new BindableCollection<RosterGroupViewModel>();
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
@@ -43,7 +45,7 @@ namespace UQLT.ViewModels
             LoadFavoriteFriends();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
-            _handler = new ChatHandler(this, _windowManager);
+            _handler = new ChatHandler(this, _windowManager, _events);
         }
 
         /// <summary>
@@ -151,8 +153,8 @@ namespace UQLT.ViewModels
         /// <param name="kvp">The <see cref="FriendViewModel"/> key value pair.</param>
         public void ClearChatHistory(KeyValuePair<string, FriendViewModel> kvp)
         {
-            _chatHistory = new ChatHistory();
-            _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), kvp.Key);
+            _chatHistory = new ChatHistory(_events);
+            _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), kvp.Key, true);
         }
 
         /// <summary>
@@ -193,7 +195,7 @@ namespace UQLT.ViewModels
             settings.WindowStartupLocation = WindowStartupLocation.Manual;
 
             Debug.WriteLine("--> Opening chat with: " + _jid);
-            _windowManager.ShowWindow(new ChatMessageViewModel(_jid, _handler.XmppCon, _handler, _windowManager), null, settings);
+            _windowManager.ShowWindow(new ChatMessageViewModel(_jid, _handler.XmppCon, _handler, _windowManager, _events), null, settings);
         }
 
         /// <summary>

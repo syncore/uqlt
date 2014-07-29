@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using Caliburn.Micro;
+using UQLT.Events;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
 
@@ -18,6 +20,7 @@ namespace UQLT.Core.Chat
     {
         private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
         private readonly ChatMessageViewModel _cmvm;
+        private readonly IEventAggregator _events;
         private readonly string _sqlConString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
         private readonly string _sqlDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
 
@@ -34,12 +37,14 @@ namespace UQLT.Core.Chat
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHistory" /> class.
         /// </summary>
+        /// <param name="events">The events.</param>
         /// <remarks>
-        /// This constructor parameterless constructor is used solely to clear the chat history from
+        /// This constructor is used solely to clear the chat history from
         /// another viewmodel such as the <see cref="ChatListViewModel" />
         /// </remarks>
-        public ChatHistory()
+        public ChatHistory(IEventAggregator events)
         {
+            _events = events;
             VerifyHistoryDb();
         }
 
@@ -72,7 +77,8 @@ namespace UQLT.Core.Chat
         /// </summary>
         /// <param name="profile">The currently-logged in user.</param>
         /// <param name="otheruser">The remote user we are chatting with.</param>
-        public void DeleteChatHistoryForUser(string profile, string otheruser)
+        /// <param name="sentfrombuddylist">if set to <c>true</c> then method was called from the <see cref="ChatListViewModel"/>.</param>
+        public void DeleteChatHistoryForUser(string profile, string otheruser, bool sentfrombuddylist)
         {
             if (!VerifyHistoryDb()) { return; }
 
@@ -89,6 +95,12 @@ namespace UQLT.Core.Chat
                         cmd.Parameters.AddWithValue("@profile", profile);
                         cmd.Parameters.AddWithValue("@otheruser", otheruser);
                         int rowsAffected = cmd.ExecuteNonQuery();
+
+                        // Cleared from ChatListView; send event directly to ChatListMessageView
+                        if (sentfrombuddylist)
+                        {
+                            _events.PublishOnUIThread(new ClearChatHistoryEvent(profile, otheruser));
+                        }
 
                         MessageBox.Show("Deleted all " + rowsAffected + " messages between " + profile + " and " + otheruser);
                     }

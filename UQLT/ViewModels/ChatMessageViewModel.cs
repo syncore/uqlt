@@ -14,6 +14,7 @@ using agsXMPP.Collections;
 using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Core.Chat;
+using UQLT.Events;
 using UQLT.Models.QuakeLiveAPI;
 
 namespace UQLT.ViewModels
@@ -23,9 +24,10 @@ namespace UQLT.ViewModels
     /// </summary>
 
     [Export(typeof(ChatMessageViewModel))]
-    public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName
+    public class ChatMessageViewModel : PropertyChangedBase, IHaveDisplayName, IHandle<ClearChatHistoryEvent>
     {
         private readonly ChatHistory _chatHistory;
+        private readonly IEventAggregator _events;
         private readonly ChatHandler _handler;
         private readonly Jid _jid;
         private readonly StringBuilder _receivedMessages = new StringBuilder();
@@ -41,14 +43,17 @@ namespace UQLT.ViewModels
         /// <param name="xmppcon">The XmppClientConnection to use for this viewmodel.</param>
         /// <param name="handler">The ChatHandler to use for this viewmodel.</param>
         /// <param name="windowManager">The window manager.</param>
+        /// <param name="events">The events.</param>
         [ImportingConstructor]
-        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager windowManager)
+        public ChatMessageViewModel(Jid jid, XmppClientConnection xmppcon, ChatHandler handler, IWindowManager windowManager, IEventAggregator events)
         {
             _jid = jid;
             DisplayName = "Chatting with " + _jid.User;
             _xmppCon = xmppcon;
             _handler = handler;
             _windowManager = windowManager;
+            _events = events;
+            _events.Subscribe(this);
             _chatHistory = new ChatHistory(this);
             var fromUser = _jid.Bare.ToLowerInvariant();
             if (!ChatHandler.ActiveChats.ContainsKey(fromUser))
@@ -142,11 +147,23 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Deletes the chat history for this user.
         /// </summary>
+        /// <remarks>This is called from the view itself.</remarks>
         public void DeleteChatHistory()
         {
             _receivedMessages.Clear();
             NotifyOfPropertyChange(() => ReceivedMessages);
-            _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), _jid.User);
+            _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), _jid.User, false);
+        }
+
+        /// <summary>
+        /// Handles the specified message (event).
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void Handle(ClearChatHistoryEvent message)
+        {
+            Debug.WriteLine("[EVENT RECEIVED]: Received ClearChatHistoryEvent from the buddylist itself.");
+            _receivedMessages.Clear();
+            NotifyOfPropertyChange(() => ReceivedMessages);
         }
 
         /// <summary>

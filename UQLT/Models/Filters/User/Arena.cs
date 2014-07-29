@@ -1,4 +1,6 @@
-﻿namespace UQLT.Models.Filters.User
+﻿using System.Collections.Generic;
+
+namespace UQLT.Models.Filters.User
 {
     /// <summary>
     /// Model representing the arena settings in the user's filters
@@ -30,6 +32,62 @@
         /// </summary>
         /// <value>The display_name.</value>
         public string display_name
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the max_players.
+        /// </summary>
+        /// <value>
+        /// The max_players.
+        /// </value>
+        /// <remarks>This is only used for purposes of Start A Match.
+        /// It has no effect on the server browser filters. </remarks>
+        public int max_players
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the min_players.
+        /// </summary>
+        /// <value>
+        /// The min_players.
+        /// </value>
+        /// <remarks>This is only used for purposes of Start A Match.
+        /// It has no effect on the server browser filters. </remarks>
+        public int min_players
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the tag_list.
+        /// </summary>
+        /// <value>
+        /// The tag_list.
+        /// </value>
+        /// <remarks>This is only used for purposes of Start A Match.
+        /// It has no effect on the server browser filters. </remarks>
+        public List<string> tag_list
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the valid_gametypes.
+        /// </summary>
+        /// <value>
+        /// The valid_gametypes.
+        /// </value>
+        /// <remarks>This is only used for purposes of Start A Match.
+        /// It has no effect on the server browser filters. </remarks>
+        public List<int> valid_gametypes
         {
             get;
             set;

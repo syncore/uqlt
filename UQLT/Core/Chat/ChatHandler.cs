@@ -32,16 +32,19 @@ namespace UQLT.Core.Chat
         private readonly SoundPlayer _inviteSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\invite.wav"));
         private readonly SoundPlayer _msgSound = new SoundPlayer(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\sounds\\notice.wav"));
         private readonly IWindowManager _windowManager;
+        private readonly IEventAggregator _events;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHandler" /> class.
         /// </summary>
         /// <param name="clvm">The ChatListViewModel.</param>
         /// <param name="wm">The Window Manager.</param>
-        public ChatHandler(ChatListViewModel clvm, IWindowManager wm)
+        /// <param name="events">The events.</param>
+        public ChatHandler(ChatListViewModel clvm, IWindowManager wm, IEventAggregator events)
         {
             Clvm = clvm;
             _windowManager = wm;
+            _events = events;
             XmppCon = new XmppClientConnection();
 
             // XmppClientConnection events
@@ -748,7 +751,7 @@ namespace UQLT.Core.Chat
             var fromUser = msg.From.Bare.ToLowerInvariant();
             if (!ActiveChats.ContainsKey(fromUser))
             {
-                var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager);
+                var cm = new ChatMessageViewModel(msg.From, XmppCon, this, _windowManager, _events);
                 dynamic settings = new ExpandoObject();
                 settings.WindowStartupLocation = WindowStartupLocation.Manual;
 

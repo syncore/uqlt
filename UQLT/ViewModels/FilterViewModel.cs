@@ -55,7 +55,7 @@ namespace UQLT.ViewModels
         public FilterViewModel(IEventAggregator events)
         {
             _events = events;
-            events.Subscribe(this);
+            _events.Subscribe(this);
 
             //TODO: implement downloading of filter list functionality
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
