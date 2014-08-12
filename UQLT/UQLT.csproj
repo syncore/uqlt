@@ -217,6 +217,7 @@
     <Compile Include="ViewModels\AddFriendViewModel.cs" />
     <Compile Include="ViewModels\ChatMessageViewModel.cs" />
     <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayerViewModel.cs" />
     <Compile Include="ViewModels\FriendViewModel.cs" />
     <Compile Include="ViewModels\GameInvitationViewModel.cs" />
     <Compile Include="ViewModels\FriendRequestViewModel.cs" />
@@ -240,6 +241,9 @@
     </Compile>
     <Compile Include="Views\ChatOptionsView.xaml.cs">
       <DependentUpon>ChatOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DemoPlayerView.xaml.cs">
+      <DependentUpon>DemoPlayerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
@@ -307,6 +311,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DemoPlayerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\FilterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -349,7 +357,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Core\DemoPlayer\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

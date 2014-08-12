@@ -205,8 +205,9 @@ namespace UQLT.ViewModels
                             var htmlDocument = new HtmlDocument();
                             htmlDocument.LoadHtml(result);
                             // <div class="playername player_nick_light">xxxxxxxxx</div>
-                            var div = htmlDocument.DocumentNode.SelectSingleNode("//div[contains(@class,'playername')]");
-                            if (div.InnerHtml.Equals("Unknown Player"))
+                            // focus update will be: <h1 class="profile_title">xxxxxxx</h1>
+                            var elem = htmlDocument.DocumentNode.SelectSingleNode("//h1[contains(@class,'profile_title')]");
+                            if (elem.InnerHtml.Equals("Unknown Player"))
                             {
                                 Debug.WriteLine("Player: " + FriendToAdd.ToLowerInvariant() + " NOT FOUND on QL site!");
                                 return false;
