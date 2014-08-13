@@ -227,9 +227,15 @@
                 <Button Content="Create" Width="80" Margin="0,0,12,0"/>
                 <Button Content="Rename" Width="80" Margin="0,0,12,0"/>
                 <Button Content="Delete" Width="80"/>
+            
             </StackPanel>
-            <!--Playlist listbox-->
-            <ListBox Height="368" Width="320" Margin="0,10,0,0"/>
+            <!--Rename-->
+            <StackPanel Orientation="Horizontal" Width="295" Margin="5,6,0,0" Visibility="{Binding IsRename, Converter={StaticResource BoolToVis}}">
+            <TextBox Height="23" TextWrapping="Wrap" Text="...Playlist name" Width="195"/>
+            <Button Content="Save" Height="23" Width="75" Margin="8,0,0,0"/>
+            </StackPanel>
+                <!--Playlist listbox-->
+            <ListBox Height="339" Width="320" Margin="0,10,0,0"/>
         <!--Playlist listbox buttons-->
             <TextBlock Height="16" TextWrapping="Wrap" Text="Drag items to re-order playlist" HorizontalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,10">
@@ -243,7 +249,7 @@
                 <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198"/>
                     
             </StackPanel>
+            
         </StackPanel>
-
     </Grid>
 </Window>
