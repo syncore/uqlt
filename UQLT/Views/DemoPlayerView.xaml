@@ -127,12 +127,14 @@
             <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                 <TextBlock TextWrapping="Wrap" Text="Quake Live Demo Directory:" Height="25" Margin="0,0,5,0" Padding="0,5,0,0"/>
                 <TextBox TextWrapping="Wrap" Text="..." Height="25" Margin="0,0,5,0"/>
-                <Button Content="Change" Height="25" Width="75"/>
+                <!--Change button actually not necessary due to
+                automatic demo directory creation and detection.
+                <Button Content="Change" Height="25" Width="75"/>-->
             </StackPanel>
             <!--Add demo buttons-->
             <StackPanel Orientation="Horizontal" Margin="5,10,0,0">
                 <Button Content="Add a demo directory" Margin="0,0,10,0"/>
-                <Button Content="Add a single demo"/>
+                <Button Content="Add demo(s)"/>
 
             </StackPanel>
             <TextBlock TextWrapping="Wrap" Text="Adding a directory or demo will copy the demo(s) to to your QL demo directory." Margin="5,5,0,0"/>

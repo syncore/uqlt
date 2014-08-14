@@ -2,10 +2,12 @@
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Animation;
 using Caliburn.Micro;
+using UQLT.Helpers;
 using UQLT.ViewModels;
 
 namespace UQLT
@@ -56,7 +58,7 @@ namespace UQLT
             string contract = string.IsNullOrEmpty(key) ? AttributedModelServices.GetContractName(serviceType) : key;
             var exports = _container.GetExportedValues<object>(contract);
 
-            if (exports.Count() > 0)
+            if (exports.Any())
             {
                 return exports.First();
             }
@@ -73,6 +75,30 @@ namespace UQLT
         {
             // Reduce FPS from 60 to 30 to improve performance:
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 30 });
+            
+            // TODO: will improve this later
+            // QL installation detection
+            if (!QLDirectoryUtils.IsQuakeLiveInstalled())
+            {
+                Debug.WriteLine("Unable to locate Quake Live game executable.");
+                MessageBox.Show("Unable to locate Quake Live game exectuable.");
+            }
+            else
+            {
+                Debug.WriteLine("Quake live executable detected.");
+            }
+            //Create directories
+            QLDirectoryUtils.CreateBaseQ3MapDirectory(QuakeLiveTypes.Production);
+            QLDirectoryUtils.CreateBaseQ3HomeDirectory(QuakeLiveTypes.Production);
+            QLDirectoryUtils.CreateDemoDirectory(QuakeLiveTypes.Production);
+            //TODO: more elaborate focus detection / have a secret method for allowing focus users to use UQLT
+            //if (QLDirectoryUtils.IsQuakeLiveFocusInstalled())
+            //{
+            //    QLDirectoryUtils.CreateBaseQ3MapDirectory(QuakeLiveTypes.Focus);
+            //    QLDirectoryUtils.CreateBaseQ3HomeDirectory(QuakeLiveTypes.Focus);
+            //    QLDirectoryUtils.CreateDemoDirectory(QuakeLiveTypes.Focus);
+            //}
+
             
             // Display the main view of the application.
             DisplayRootViewFor<LoginViewModel>();

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Caliburn.Micro;
+using UQLT.Helpers;
 using UQLT.Interfaces;
 
 namespace UQLT.ViewModels
@@ -14,7 +17,7 @@ namespace UQLT.ViewModels
     /// ViewModel for the DemoPlayerView
     /// </summary>
     [Export(typeof(DemoPlayerViewModel))]
-    public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName, IOSVersion
+    public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
     {
 
         private string _qlDemoDirectoryPath;
@@ -26,6 +29,8 @@ namespace UQLT.ViewModels
         public DemoPlayerViewModel()
         {
             DisplayName = "UQLT v0.1 - Demo Player";
+            //TODO: Focus
+            QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
         }
 
         /// <summary>
@@ -55,101 +60,67 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => QlDemoDirectoryPath);
             }
         }
-        
+
         /// <summary>
-        /// Handles the selection of the QL demo directory path.
+        /// Handles the addition of a demo directory.
         /// </summary>
-        /// <returns>
-        /// The new demo directory path as a string.
-        /// </returns>
-        //TODO: On first login, UQLT will prompt user for Quake Live directory, so we will likely read a default value for this from that prompt
-        public void SetQlDemoDirectory()
+        public void AddADemoDirectory()
         {
             using (var openfolderdialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                openfolderdialog.Description = "Select your Quake Live demo folder (id Software\\quakelive\\home\baseq3)";
+                openfolderdialog.Description = "Select a directory containing .dm_73 and/or .dm_90 QL demo files.";
                 openfolderdialog.ShowNewFolderButton = false;
-                if (IsWindowsXp())
-                {
-                    openfolderdialog.RootFolder = Environment.SpecialFolder.LocalApplicationData;
-                }
-                else if (IsVistaOrNewer())
-                {
-                    openfolderdialog.SelectedPath = GetLocalAppDataLowPath();
-                    // Automatically append "id Software\quakelive\home\baseq3" for now?
-                }
-                else
-                {
-                    openfolderdialog.RootFolder = Environment.SpecialFolder.LocalApplicationData;
-                    
-                }
+                openfolderdialog.RootFolder = Environment.SpecialFolder.MyComputer;
                 if (openfolderdialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    // Have some detection here to make sure it is indeed a valid QL directory...
-                    QlDemoDirectoryPath = openfolderdialog.SelectedPath;
+                    if (AdditionalDirContainsDemoFiles(openfolderdialog.SelectedPath))
+                    {
+                        // send to QLDemoDumper
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            string.Format("{0} and its sub-directories do not contain any Quake Live demo files!",
+                                openfolderdialog.SelectedPath), "No demo files found!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
 
-        private readonly Guid FOLDERID_LocalAppDataLow = new Guid("A520A1A4-1780-4FF6-BD18-167343C5AF16");
-
         /// <summary>
-        /// Gets the known folder path using a specified FOLDERID Guid.
+        /// Handles the addition of a single demo file.
         /// </summary>
-        /// <param name="knownFolderId">The known folder identifier.</param>
-        /// <returns> The known folder path.
-        /// </returns>
-        /// <remarks>For GUIDs see: http://msdn.microsoft.com/en-us/library/dd378457.aspx
-        /// </remarks>
-        private string GetKnownFolderPath(Guid knownFolderId)
+        public void AddASingleDemo()
         {
-            IntPtr pszPath = IntPtr.Zero;
-            try
+
+            using (var openfiledialog = new System.Windows.Forms.OpenFileDialog())
             {
-                int hr = SHGetKnownFolderPath(knownFolderId, 0, IntPtr.Zero, out pszPath);
-                if (hr >= 0)
-                    return Marshal.PtrToStringAuto(pszPath);
-                throw Marshal.GetExceptionForHR(hr);
-            }
-            finally
-            {
-                if (pszPath != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(pszPath);
-            }
-        }
+                openfiledialog.CheckFileExists = true;
+                openfiledialog.CheckPathExists = true;
+                openfiledialog.Multiselect = true;
+                openfiledialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                openfiledialog.Filter = "Quake Live demo (*.dm_73)|*.dm_73|Quake Live demo (*.dm_90)|*.dm_90";
 
-        [DllImport("shell32.dll")]
-        static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
-
-        /// <summary>
-        /// Gets the DRIVE:\Users\User\AppData\LocalLow directory at the OS level.
-        /// </summary>
-        /// <returns>The LocalLow directory path as a string.</returns>
-        /// <remarks> See: http://stackoverflow.com/a/4495081
-        /// </remarks>
-        private string GetLocalAppDataLowPath()
-        {
-            return GetKnownFolderPath(FOLDERID_LocalAppDataLow);
+            }   
         }
 
         /// <summary>
-        /// Determines whether the host is running Windows XP.
+        /// Checks whether the additional demo directory (and sub-directories) that the user has specified contains Quake Live demo files.
         /// </summary>
-        /// <returns></returns>
-        public bool IsWindowsXp()
+        /// <param name="path">The path.</param>
+        /// <returns><c>true</c> if the directory contains at least 1 file with the .dm_73 and/or .dm_90 extension.</returns>
+        private bool AdditionalDirContainsDemoFiles(string path)
         {
-            var osVersion = Environment.OSVersion;
-            return osVersion.Version.Major == 5 && osVersion.Version.Minor > 0;
+                var files =
+                    Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+                        .Where(
+                            file =>
+                                file.ToLowerInvariant().EndsWith("dm_73", StringComparison.OrdinalIgnoreCase) ||
+                                file.EndsWith("dm_90", StringComparison.OrdinalIgnoreCase));
+
+            return files.Any();
         }
 
-        /// <summary>
-        /// Determines whether the host is running Windows Vista or newer.
-        /// </summary>
-        /// <returns></returns>
-        public bool IsVistaOrNewer()
-        {
-            var osVersion = Environment.OSVersion;
-            return osVersion.Version.Major >= 6;
-        }
+
     }
 }

@@ -166,15 +166,16 @@
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
     <Compile Include="Helpers\NumericTextBoxFilter.cs" />
+    <Compile Include="Helpers\QLDirectoryUtils.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
     <Compile Include="Helpers\ObservableDictionary.cs" />
     <Compile Include="Helpers\QlRanksDataRetriever.cs" />
+    <Compile Include="Helpers\QuakeLiveTypes.cs" />
     <Compile Include="Helpers\RestApiQuery.cs" />
     <Compile Include="Helpers\ScrollToEndBehavior.cs" />
     <Compile Include="Helpers\TextBoxFilters.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IFileService.cs" />
-    <Compile Include="Interfaces\IOSVersion.cs" />
     <Compile Include="Interfaces\IQlRanksUpdater.cs" />
     <Compile Include="Interfaces\IUqltConfiguration.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
