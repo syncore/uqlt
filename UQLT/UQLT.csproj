@@ -143,6 +143,7 @@
     <Compile Include="Core\Chat\MessageTypes.cs" />
     <Compile Include="Core\Chat\SoundTypes.cs" />
     <Compile Include="Core\Chat\StatusTypes.cs" />
+    <Compile Include="Core\DemoPlayer\DemoDumper.cs" />
     <Compile Include="Core\ServerBrowser\EloSearchTypes.cs" />
     <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
     <Compile Include="Core\ServerBrowser\EloSearchCategoryTypes.cs" />
@@ -361,9 +362,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\DemoPlayer\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

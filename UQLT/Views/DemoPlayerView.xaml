@@ -124,20 +124,29 @@
         <!--Directory options-->
         <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0">
             <!--Current demo directory-->
+            <TextBlock TextWrapping="Wrap" Text="Quake Live Demo Directory:" Margin="5,0"/>
             <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
-                <TextBlock TextWrapping="Wrap" Text="Quake Live Demo Directory:" Height="25" Margin="0,0,5,0" Padding="0,5,0,0"/>
-                <TextBox TextWrapping="Wrap" Text="..." Height="25" Margin="0,0,5,0"/>
-                <!--Change button actually not necessary due to
-                automatic demo directory creation and detection.
-                <Button Content="Change" Height="25" Width="75"/>-->
+                <TextBlock TextWrapping="Wrap" Text="{Binding QlDemoDirectoryPath}" Margin="0,0,5,0" Width="700" FontWeight="Bold" Padding="0,3,0,0"/>
             </StackPanel>
             <!--Add demo buttons-->
             <StackPanel Orientation="Horizontal" Margin="5,10,0,0">
-                <Button Content="Add a demo directory" Margin="0,0,10,0"/>
-                <Button Content="Add demo(s)"/>
+                <Button Content="Add a demo directory" Margin="0,0,10,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="AddDemoDirectory"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Add demo(s)">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="AddDemo"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
 
             </StackPanel>
-            <TextBlock TextWrapping="Wrap" Text="Adding a directory or demo will copy the demo(s) to to your QL demo directory." Margin="5,5,0,0"/>
+            <TextBlock TextWrapping="Wrap" Text="Adding a directory or demo will copy the demo(s) to to your QL demo directory." Margin="5,5,0,5"/>
         </StackPanel>
         <!--Stackpanel container for file info, player, and chat msgs-->
         <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
@@ -147,7 +156,7 @@
             <TextBlock Height="20" TextWrapping="Wrap" Text="Quake Live demo files" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0"/>
             <!--File info listview-->
 
-            <ListView HorizontalAlignment="Left" Height="200" VerticalAlignment="Top" Width="695">
+            <ListView HorizontalAlignment="Left" Height="200" VerticalAlignment="Top" Width="699">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Filename">
@@ -171,13 +180,13 @@
             </ListView>
             <!--Player info and chat message description text split stackpanel-->
             <StackPanel Orientation="Horizontal"  Background="#FF931313">
-                <TextBlock Height="20" TextWrapping="Wrap" Text="Player information" Margin="5,0,200,0" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold"/>
+                <TextBlock Height="20" TextWrapping="Wrap" Text="Player information" Margin="5,0,200,0" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold" Width="699"/>
                 <TextBlock Height="20" TextWrapping="Wrap" Text="Chat messages" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold"/>
             </StackPanel>
                 <!--Stackpanel container for player and chat messages-->
             <StackPanel Orientation="Horizontal">
                 <!--Player info listview-->
-                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="348">
+                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="349">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Team">
@@ -190,7 +199,7 @@
                     </ListView.View>
                 </ListView>
                 <!--Chat messages listview-->
-                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="348">
+                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="349">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Player">
@@ -201,9 +210,9 @@
                     </ListView.View>
                 </ListView>
             </StackPanel>
-            <TextBlock Height="20" TextWrapping="Wrap" Text="Extended demo server information"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0"/>
+            <TextBlock Height="20" TextWrapping="Wrap" Text="Extended demo server information"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" Width="697" HorizontalAlignment="Left"/>
             <!--Extended server info listview-->
-            <ListView HorizontalAlignment="Left" Height="130" VerticalAlignment="Top" Width="695">
+            <ListView HorizontalAlignment="Left" Height="130" VerticalAlignment="Top" Width="699">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Cvar">

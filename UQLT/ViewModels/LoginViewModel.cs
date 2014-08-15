@@ -87,6 +87,11 @@ namespace UQLT.ViewModels
             CloseWin();
         }
 
+        public void LaunchDemoPlayer()
+        {
+            _windowManager.ShowWindow(new DemoPlayerViewModel(_windowManager));
+        }
+
         /// <summary>
         /// Gets a view previously attached to this instance.
         /// </summary>
