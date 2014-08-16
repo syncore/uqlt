@@ -5,6 +5,8 @@
     /// </summary>
     internal interface IUqltConfiguration
     {
+        // TODO: Configurations will be saved in sub-directory named after currently logged in Quake Live account
+
         /// <summary>
         /// Checks whether the configuration already exists
         /// </summary>

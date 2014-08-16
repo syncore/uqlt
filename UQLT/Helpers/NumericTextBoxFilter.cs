@@ -13,6 +13,14 @@ namespace UQLT.Helpers
     public static class NumericTextBoxFilter
     {
         /// <summary>
+        /// The only allow numbers property.
+        /// </summary>
+        public static readonly DependencyProperty OnlyAllowNumbersProperty =
+          DependencyProperty.RegisterAttached("OnlyAllowNumbers",
+          typeof(bool), typeof(NumericTextBoxFilter),
+          new UIPropertyMetadata(false, OnOnlyAllowNumbersChanged));
+
+        /// <summary>
         /// Gets the only allow numbers object.
         /// </summary>
         /// <param name="obj">The object.</param>
@@ -32,13 +40,12 @@ namespace UQLT.Helpers
             obj.SetValue(OnlyAllowNumbersProperty, value);
         }
 
-        /// <summary>
-        /// The only allow numbers property.
-        /// </summary>
-        public static readonly DependencyProperty OnlyAllowNumbersProperty =
-          DependencyProperty.RegisterAttached("OnlyAllowNumbers",
-          typeof(bool), typeof(NumericTextBoxFilter),
-          new UIPropertyMetadata(false, OnOnlyAllowNumbersChanged));
+        private static void BlockNonNumericCharacters(object sender, TextCompositionEventArgs e)
+        {
+            foreach (char ch in e.Text)
+                if (!Char.IsDigit(ch))
+                    e.Handled = true;
+        }
 
         /// <summary>
         /// Called when only allow numbers property is changed.
@@ -56,13 +63,5 @@ namespace UQLT.Helpers
             else
                 textBox.PreviewTextInput -= BlockNonNumericCharacters;
         }
-
-        private static void BlockNonNumericCharacters(object sender, TextCompositionEventArgs e)
-        {
-            foreach (char ch in e.Text)
-                if (!Char.IsDigit(ch))
-                    e.Handled = true;
-        }
-
     }
 }

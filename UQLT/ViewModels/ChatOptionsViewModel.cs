@@ -3,6 +3,7 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Windows;
 using Caliburn.Micro;
+using UQLT.Core;
 using UQLT.Interfaces;
 using UQLT.Models.Configuration;
 
@@ -14,11 +15,10 @@ namespace UQLT.ViewModels
     [Export(typeof(ChatOptionsViewModel))]
     public class ChatOptionsViewModel : PropertyChangedBase, IUqltConfiguration, IHaveDisplayName, IViewAware
     {
+        private Window _dialogWindow;
         private bool _isChatInGameEnabled;
         private bool _isChatLoggingEnabled;
         private bool _isChatSoundEnabled;
-        private Window _dialogWindow;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatOptionsViewModel" /> class.
         /// </summary>
@@ -125,7 +125,7 @@ namespace UQLT.ViewModels
         /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
         public bool ConfigExists()
         {
-            return File.Exists(UQltGlobals.ConfigPath);
+            return File.Exists(UQltFileUtils.GetConfigurationPath());
         }
 
         /// <summary>

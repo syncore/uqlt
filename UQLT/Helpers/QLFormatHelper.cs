@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
+using UQLT.Core;
 using UQLT.Models.Filters.User;
 
 namespace UQLT.Helpers
@@ -154,15 +155,14 @@ namespace UQLT.Helpers
         /// </summary>
         public void Populate()
         {
-            if (!File.Exists(UQltGlobals.CurrentFilterPath))
+            if (!File.Exists(UQltFileUtils.GetCurrentFilterPath()))
             {
-                var failsafe = new FailsafeFilterHelper();
-                failsafe.DumpBackupFilters();
+                UQltFileUtils.ExtractFailsafeFilters();
             }
 
             try
             {
-                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
+                using (var sr = new StreamReader(UQltFileUtils.GetCurrentFilterPath()))
                 {
                     string s = sr.ReadToEnd();
                     var json = JsonConvert.DeserializeObject<ImportedFilters>(s);

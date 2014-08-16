@@ -9,8 +9,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using Caliburn.Micro;
-using UQLT.Core.ServerBrowser;
+using UQLT.Core;
+using UQLT.Core.Modules.ServerBrowser;
 using UQLT.Events;
+using UQLT.Helpers;
 using UQLT.Interfaces;
 using UQLT.Models.Configuration;
 
@@ -468,7 +470,7 @@ namespace UQLT.ViewModels
         /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
         public bool ConfigExists()
         {
-            return File.Exists(UQltGlobals.ConfigPath);
+            return File.Exists(UQltFileUtils.GetConfigurationPath());
         }
 
         /// <summary>
@@ -577,7 +579,7 @@ namespace UQLT.ViewModels
             }
 
             _sb.GetAndUpdatePlayerCount(Servers);
-            
+
             // Selected server in the view now reflects the update.
             SelectedServer = newserver;
         }

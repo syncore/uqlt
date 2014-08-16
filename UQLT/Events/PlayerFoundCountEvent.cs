@@ -10,7 +10,7 @@
         /// Initializes a new instance of the <see cref="PlayerFoundCountEvent" /> class.
         /// </summary>
         /// <param name="searchresultcount">The number of matches found.</param>
-        
+
         public PlayerFoundCountEvent(int searchresultcount)
         {
             SearchResultCount = searchresultcount;

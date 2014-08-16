@@ -1,5 +1,4 @@
-﻿using UQLT.Core.ServerBrowser;
-using UQLT.ViewModels;
+﻿using UQLT.Core.Modules.ServerBrowser;
 
 namespace UQLT.Events
 {
@@ -70,9 +69,11 @@ namespace UQLT.Events
                 case EloSearchTypes.TeamBothTeamsMinSearch:
                     _searchTypeText = ServerBrowserSearch.TeamBothTeamsMinSearchString;
                     break;
+
                 case EloSearchTypes.TeamOneTeamMaxSearch:
                     _searchTypeText = ServerBrowserSearch.TeamOneTeamMaxSearchString;
                     break;
+
                 case EloSearchTypes.TeamBothTeamsMaxSearch:
                     _searchTypeText = ServerBrowserSearch.TeamBothTeamsMaxSearchString;
                     break;

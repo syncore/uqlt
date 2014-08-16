@@ -13,7 +13,8 @@ using agsXMPP;
 using agsXMPP.Collections;
 using Caliburn.Micro;
 using Newtonsoft.Json;
-using UQLT.Core.Chat;
+using UQLT.Core;
+using UQLT.Core.Modules.Chat;
 using UQLT.Events;
 using UQLT.Models.QuakeLiveAPI;
 
@@ -175,7 +176,7 @@ namespace UQLT.ViewModels
             var fromUser = msg.From.User.ToLowerInvariant();
             if (IsMessageInvite(msg.Body))
             {
-                var sound = SoundTypes.InvitationSound;
+                var sound = ChatSoundTypes.InvitationSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = "" + fromUser + " has invited you to match!" + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + fromUser + " has invited you to match!";
@@ -192,13 +193,13 @@ namespace UQLT.ViewModels
             }
             else
             {
-                var sound = SoundTypes.ChatSound;
+                var sound = ChatSoundTypes.MessageSound;
                 _handler.PlayMessageSound(sound);
                 IncomingMessage = msg.Body + "\n";
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + fromUser + ": " + msg.Body;
             }
             // Log the message
-            _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, MessageTypes.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, ChatMessageTypes.Incoming, IncomingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             IncomingMessage = string.Empty;
         }
 
@@ -277,7 +278,7 @@ namespace UQLT.ViewModels
                 ReceivedMessages = "[" + DateTime.Now.ToShortTimeString() + "] " + _handler.MyJidUser() + ": " + message;
 
                 // Log the message
-                _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, MessageTypes.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                _chatHistory.AddMessageToHistoryDb(_handler.MyJidUser(), _jid.User, ChatMessageTypes.Outgoing, OutgoingMessage, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 OutgoingMessage = string.Empty;
             }
             else

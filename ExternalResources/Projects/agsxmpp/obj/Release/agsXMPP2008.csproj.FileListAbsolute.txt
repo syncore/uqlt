@@ -1,0 +1,7 @@
+D:\tmp\ag\agsxmpp\bin\Net35\Release\agsXMPP.dll.config
+D:\tmp\ag\agsxmpp\bin\NET35\Release\agsXMPP.xml
+D:\tmp\ag\agsxmpp\bin\Net35\Release\agsXMPP.dll
+D:\tmp\ag\agsxmpp\bin\Release\agsXMPP.dll.config
+D:\tmp\ag\agsxmpp\bin\Release\agsXMPP.xml
+D:\tmp\ag\agsxmpp\bin\Release\agsXMPP.dll
+D:\tmp\ag\agsxmpp\obj\Release\agsXMPP.dll

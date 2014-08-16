@@ -10,140 +10,7 @@ namespace UQLT.Helpers
     /// </summary>
     public static class QLDirectoryUtils
     {
-
-
         private static readonly Guid FOLDERID_LocalAppDataLow = new Guid("A520A1A4-1780-4FF6-BD18-167343C5AF16");
-
-        /// <summary>
-        /// Determines whether the Quake Live game executable is installed.
-        /// </summary>
-        /// <returns><c>true</c> if quakelive.exe is found in the correct location depending on the OS installed, otherwise <c>false</c>.</returns>
-        public static bool IsQuakeLiveInstalled()
-        {
-            if (IsWindowsXp())
-            {
-                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "id Software\\quakelive\\quakelive.exe")))
-                {
-                    return true;
-                }
-            }
-            if (IsVistaOrNewer())
-            {
-                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "id Software\\quakelive\\quakelive.exe")))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Determines whether the Quake Live (focus) game executable is installed.
-        /// </summary>
-        /// <returns><c>true</c> if quakelive.exe is found in the correct location depending on the OS installed, otherwise <c>false</c>.</returns>
-        public static bool IsQuakeLiveFocusInstalled()
-        {
-            if (IsWindowsXp())
-            {
-                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "id Software\\focus\\quakelive.exe")))
-                {
-                    return true;
-                }
-            }
-            if (IsVistaOrNewer())
-            {
-                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "id Software\\focus\\quakelive.exe")))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Creates the baseq3 (map) directory if it does not already exist for a given Quake Live type.
-        /// </summary>
-        /// <param name="qltype">The Quake Live type.</param>
-        /// <remarks>This is the baseq3 map directory that contains the map .pk3 files (id Software\qltype\baseq3)</remarks>
-        public static void CreateBaseQ3MapDirectory(QuakeLiveTypes qltype)
-        {
-            switch (qltype)
-            {
-                case QuakeLiveTypes.Production:
-                    if (IsWindowsXp())
-                    {
-                        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                            "id Software\\quakelive\\baseq3");
-                        if (!Directory.Exists(path))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(path);
-                                Debug.WriteLine("[WINDOWS XP, PROD]: Created directory: " + path);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("[WINDOWS XP, PROD]: Unable to create directory: " + path + " exception: " + e);
-                            }
-                        }
-                    }
-                    if (IsVistaOrNewer())
-                    {
-                        var path = Path.Combine(GetLocalAppDataLowPath(), "id Software\\quakelive\\baseq3");
-                        if (!Directory.Exists(path))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(path);
-                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, PROD]: Created directory: " + path);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, PROD]: Unable to create directory: " + path + " exception: " + e);
-                            }
-                        }
-                    }
-                    return;
-                case QuakeLiveTypes.Focus:
-                    if (IsWindowsXp())
-                    {
-                        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                            "id Software\\focus\\baseq3");
-                        if (!Directory.Exists(path))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(path);
-                                Debug.WriteLine("[WINDOWS XP, FOCUS]: Created directory: " + path);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("[WINDOWS XP, FOCUS]: Unable to create directory: " + path + " exception: " + e);
-                            }
-                        }
-                    }
-                    if (IsVistaOrNewer())
-                    {
-                        var path = Path.Combine(GetLocalAppDataLowPath(), "id Software\\focus\\baseq3");
-                        if (!Directory.Exists(path))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(path);
-                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, FOCUS]: Created directory: " + path);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, FOCUS]: Unable to create directory: " + path + " exception: " + e);
-                            }
-                        }
-                    }
-                    return;
-            }
-
-        }
 
         /// <summary>
         /// Creates the home (and) baseq3 subdirectory as well that contains user config files (qzconfig.cfg, repconfig.cfg) and essential
@@ -191,6 +58,7 @@ namespace UQLT.Helpers
                         }
                     }
                     return;
+
                 case QuakeLiveTypes.Focus:
                     if (IsWindowsXp())
                     {
@@ -227,7 +95,89 @@ namespace UQLT.Helpers
                     }
                     return;
             }
+        }
 
+        /// <summary>
+        /// Creates the baseq3 (map) directory if it does not already exist for a given Quake Live type.
+        /// </summary>
+        /// <param name="qltype">The Quake Live type.</param>
+        /// <remarks>This is the baseq3 map directory that contains the map .pk3 files (id Software\qltype\baseq3)</remarks>
+        public static void CreateBaseQ3MapDirectory(QuakeLiveTypes qltype)
+        {
+            switch (qltype)
+            {
+                case QuakeLiveTypes.Production:
+                    if (IsWindowsXp())
+                    {
+                        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            "id Software\\quakelive\\baseq3");
+                        if (!Directory.Exists(path))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(path);
+                                Debug.WriteLine("[WINDOWS XP, PROD]: Created directory: " + path);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.WriteLine("[WINDOWS XP, PROD]: Unable to create directory: " + path + " exception: " + e);
+                            }
+                        }
+                    }
+                    if (IsVistaOrNewer())
+                    {
+                        var path = Path.Combine(GetLocalAppDataLowPath(), "id Software\\quakelive\\baseq3");
+                        if (!Directory.Exists(path))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(path);
+                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, PROD]: Created directory: " + path);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, PROD]: Unable to create directory: " + path + " exception: " + e);
+                            }
+                        }
+                    }
+                    return;
+
+                case QuakeLiveTypes.Focus:
+                    if (IsWindowsXp())
+                    {
+                        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            "id Software\\focus\\baseq3");
+                        if (!Directory.Exists(path))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(path);
+                                Debug.WriteLine("[WINDOWS XP, FOCUS]: Created directory: " + path);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.WriteLine("[WINDOWS XP, FOCUS]: Unable to create directory: " + path + " exception: " + e);
+                            }
+                        }
+                    }
+                    if (IsVistaOrNewer())
+                    {
+                        var path = Path.Combine(GetLocalAppDataLowPath(), "id Software\\focus\\baseq3");
+                        if (!Directory.Exists(path))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(path);
+                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, FOCUS]: Created directory: " + path);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.WriteLine("[WINDOWS VISTA OR NEWER, FOCUS]: Unable to create directory: " + path + " exception: " + e);
+                            }
+                        }
+                    }
+                    return;
+            }
         }
 
         /// <summary>
@@ -275,6 +225,7 @@ namespace UQLT.Helpers
                         }
                     }
                     return;
+
                 case QuakeLiveTypes.Focus:
                     if (IsWindowsXp())
                     {
@@ -311,15 +262,13 @@ namespace UQLT.Helpers
                     }
                     return;
             }
-
         }
-
 
         /// <summary>
         /// Determines whether the Quake Live or Quake Live Focus basepath exists.
         /// </summary>
         /// <param name="qltype">The qltype.</param>
-        /// <returns><c>True</c> if WindowsXP and: appdata%\id Software\quakelive or appdata%\id Software\focus exists, <c>true</c> 
+        /// <returns><c>True</c> if WindowsXP and: appdata%\id Software\quakelive or appdata%\id Software\focus exists, <c>true</c>
         /// if Windows Vista or newer and: %AppData%\..\LocalLow\id Software\quakelive\ or %AppData%\..\LocalLow\id Software\focus\ exists. Otherwise <c>false</c>.
         /// </returns>
         public static bool DoesQuakeLiveBasePathExist(QuakeLiveTypes qltype)
@@ -365,7 +314,7 @@ namespace UQLT.Helpers
         /// Determines whether the Quake Live or Quake Live Focus basepath exists.
         /// </summary>
         /// <param name="qltype">The qltype.</param>
-        /// <returns><c>True</c> if WindowsXP and: appdata%\id Software\quakelive\home or appdata%\id Software\focus\home exists, <c>true</c> 
+        /// <returns><c>True</c> if WindowsXP and: appdata%\id Software\quakelive\home or appdata%\id Software\focus\home exists, <c>true</c>
         /// if Windows Vista or newer and: %AppData%\..\LocalLow\id Software\quakelive\home\ or %AppData%\..\LocalLow\id Software\focus\home\ exists. Otherwise <c>false</c>.
         /// </returns>
         public static bool DoesQuakeLiveHomePathExist(QuakeLiveTypes qltype)
@@ -409,7 +358,7 @@ namespace UQLT.Helpers
 
         public static string GetQuakeLiveDemoDirectory(QuakeLiveTypes qltype)
         {
-            var path = string.Empty; 
+            var path = string.Empty;
             switch (qltype)
             {
                 case QuakeLiveTypes.Production:
@@ -444,6 +393,74 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
+        /// Determines whether the Quake Live (focus) game executable is installed.
+        /// </summary>
+        /// <returns><c>true</c> if quakelive.exe is found in the correct location depending on the OS installed, otherwise <c>false</c>.</returns>
+        public static bool IsQuakeLiveFocusInstalled()
+        {
+            if (IsWindowsXp())
+            {
+                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "id Software\\focus\\quakelive.exe")))
+                {
+                    return true;
+                }
+            }
+            if (IsVistaOrNewer())
+            {
+                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "id Software\\focus\\quakelive.exe")))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the Quake Live game executable is installed.
+        /// </summary>
+        /// <returns><c>true</c> if quakelive.exe is found in the correct location depending on the OS installed, otherwise <c>false</c>.</returns>
+        public static bool IsQuakeLiveInstalled()
+        {
+            if (IsWindowsXp())
+            {
+                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "id Software\\quakelive\\quakelive.exe")))
+                {
+                    return true;
+                }
+            }
+            if (IsVistaOrNewer())
+            {
+                if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "id Software\\quakelive\\quakelive.exe")))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the host is running Windows Vista or newer.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsVistaOrNewer()
+        {
+            var osVersion = Environment.OSVersion;
+            return osVersion.Version.Major >= 6;
+        }
+
+        /// <summary>
+        /// Determines whether the host is running Windows XP.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsWindowsXp()
+        {
+            var osVersion = Environment.OSVersion;
+            return osVersion.Version.Major == 5 && osVersion.Version.Minor > 0;
+        }
+
+        /// <summary>
         /// Gets the known folder path using a specified FOLDERID Guid.
         /// </summary>
         /// <param name="knownFolderId">The known folder identifier.</param>
@@ -468,9 +485,6 @@ namespace UQLT.Helpers
             }
         }
 
-        [DllImport("shell32.dll")]
-        private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
-
         /// <summary>
         /// Gets the DRIVE:\Users\User\AppData\LocalLow directory at the OS level.
         /// </summary>
@@ -482,24 +496,7 @@ namespace UQLT.Helpers
             return GetKnownFolderPath(FOLDERID_LocalAppDataLow);
         }
 
-        /// <summary>
-        /// Determines whether the host is running Windows XP.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsWindowsXp()
-        {
-            var osVersion = Environment.OSVersion;
-            return osVersion.Version.Major == 5 && osVersion.Version.Minor > 0;
-        }
-
-        /// <summary>
-        /// Determines whether the host is running Windows Vista or newer.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsVistaOrNewer()
-        {
-            var osVersion = Environment.OSVersion;
-            return osVersion.Version.Major >= 6;
-        }
+        [DllImport("shell32.dll")]
+        private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using UQLT.Core;
 using UQLT.Interfaces;
 using UQLT.Models.QLRanks;
 using UQLT.ViewModels;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UQLT.Core;
 using UQLT.Models.QLRanks;
 
 namespace UQLT.Models.QuakeLiveAPI
@@ -17,6 +17,7 @@ namespace UQLT.Models.QuakeLiveAPI
     {
         // port regexp: colon with at least 4 numbers
         private readonly Regex _port = new Regex(@"[\:]\d{4,}");
+
         private string _hostaddress;
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace UQLT.Models.QuakeLiveAPI
         /// <remarks>This is a custom property.</remarks>
         public string cleanedip
         {
-            get; 
+            get;
             set;
         }
 

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
+using UQLT.Core;
 using UQLT.Helpers;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;

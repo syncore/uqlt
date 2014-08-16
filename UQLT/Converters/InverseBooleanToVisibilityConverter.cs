@@ -49,6 +49,7 @@ namespace UQLT.Converters
             }
             return flag ? Visibility.Collapsed : Visibility.Visible;
         }
+
         /// <summary>
         /// Converts a value.
         /// </summary>

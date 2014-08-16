@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using UQLT.Models.QLRanks;
-using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
 
 namespace UQLT.Interfaces
@@ -22,6 +21,7 @@ namespace UQLT.Interfaces
         Task GetQlRanksPlayersAsync(IList<ServerDetailsViewModel> servers, int maxPlayers = 150);
 
         void SetQlRanksPlayers(QLRanks qlRanks);
+
         //void SetQLranksDefaultElo(string player);
     }
 }

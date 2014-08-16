@@ -4,7 +4,7 @@ using System.ComponentModel.Composition;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
-using UQLT.Core.Chat;
+using UQLT.Core.Modules.Chat;
 using UQLT.Models.Chat;
 
 namespace UQLT.ViewModels
@@ -16,9 +16,9 @@ namespace UQLT.ViewModels
     [Export(typeof(FriendViewModel))]
     public class FriendViewModel : PropertyChangedBase
     {
-        private readonly BitmapImage _imageDemo = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/demo.gif", UriKind.RelativeOrAbsolute));
-        private readonly BitmapImage _imageIngame = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/ingame.gif", UriKind.RelativeOrAbsolute));
-        private readonly BitmapImage _imagePractice = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/practice.gif", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _imageDemo = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/demo.gif", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _imageIngame = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/ingame.gif", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _imagePractice = new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/practice.gif", UriKind.RelativeOrAbsolute));
         private ServerDetailsViewModel _server;
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/favorite.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/favorite.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -71,7 +71,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/friend.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -218,16 +218,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case StatusTypes.WatchingDemo:
+                    case ChatStatusTypes.WatchingDemo:
                         return true;
 
-                    case StatusTypes.PlayingPracticeGame:
+                    case ChatStatusTypes.PlayingPracticeGame:
                         return true;
 
-                    case StatusTypes.PlayingRealGame:
+                    case ChatStatusTypes.PlayingRealGame:
                         return false;
 
-                    case StatusTypes.Nothing:
+                    case ChatStatusTypes.Nothing:
                     default:
                         return false;
                 }
@@ -244,14 +244,14 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case StatusTypes.WatchingDemo:
+                    case ChatStatusTypes.WatchingDemo:
                         return "Watching a demo";
 
-                    case StatusTypes.PlayingPracticeGame:
+                    case ChatStatusTypes.PlayingPracticeGame:
                         return "Playing a practice match";
 
-                    case StatusTypes.Nothing:
-                    case StatusTypes.PlayingRealGame:
+                    case ChatStatusTypes.Nothing:
+                    case ChatStatusTypes.PlayingRealGame:
                     default:
                         return "";
                 }
@@ -295,16 +295,16 @@ namespace UQLT.ViewModels
             {
                 switch (StatusType)
                 {
-                    case StatusTypes.WatchingDemo:
+                    case ChatStatusTypes.WatchingDemo:
                         return _imageDemo;
 
-                    case StatusTypes.PlayingPracticeGame:
+                    case ChatStatusTypes.PlayingPracticeGame:
                         return _imagePractice;
 
-                    case StatusTypes.PlayingRealGame:
+                    case ChatStatusTypes.PlayingRealGame:
                         return _imageIngame;
 
-                    case StatusTypes.Nothing:
+                    case ChatStatusTypes.Nothing:
                     default:
                         return default(BitmapImage);
                 }
@@ -315,7 +315,7 @@ namespace UQLT.ViewModels
         /// Gets or sets the type of the status.
         /// </summary>
         /// <value>The type of the status.</value>
-        public StatusTypes StatusType
+        public ChatStatusTypes StatusType
         {
             get
             {

@@ -53,22 +53,22 @@
             <!--Search by player name-->
             <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsPlayerNameSearching, Converter={StaticResource BoolToVis}}">
                 <TextBlock.Text>
-                <MultiBinding StringFormat="{}Found {0} players containing: '{1}' in the current server list of {2} servers. Players: {3}">
-                    <Binding Path="PlayerFindCountStatusTitle"/>
-                    <Binding Path="PlayerFindStringStatusTitle"/>
-                        <Binding Path="ServerCountStatusTitle"/>
-                        <Binding Path="PlayerFindNamesStatusTitle"/>
+                    <MultiBinding StringFormat="{}Found {0} players containing: '{1}' in the current server list of {2} servers. Players: {3}">
+                        <Binding Path="PlayerFindCountStatusTitle" />
+                        <Binding Path="PlayerFindStringStatusTitle" />
+                        <Binding Path="ServerCountStatusTitle" />
+                        <Binding Path="PlayerFindNamesStatusTitle" />
                     </MultiBinding>
-                    </TextBlock.Text>
+                </TextBlock.Text>
             </TextBlock>
-        <!--Search by elo-->
+            <!--Search by elo-->
             <TextBlock TextWrapping="Wrap" FontSize="10" Visibility="{Binding IsEloSearching, Converter={StaticResource BoolToVis}}">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}Found {0} servers containing: {1} {2} in the current server list of {3} servers.">
-                        <Binding Path="EloSearchCountStatusTitle"/>
-                        <Binding Path="EloSearchStringStatusTitle"/>
-                        <Binding Path="EloSearchValueStatusTitle"/>
-                        <Binding Path="ServerCountStatusTitle"/>
+                        <Binding Path="EloSearchCountStatusTitle" />
+                        <Binding Path="EloSearchStringStatusTitle" />
+                        <Binding Path="EloSearchValueStatusTitle" />
+                        <Binding Path="ServerCountStatusTitle" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>

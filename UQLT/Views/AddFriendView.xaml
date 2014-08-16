@@ -7,24 +7,23 @@
              Title="Add a friend" Height="250" Width="400" ResizeMode="NoResize">
     <Grid FocusManager.FocusedElement="{Binding ElementName=FriendTextBox}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="71*"/>
-            <RowDefinition Height="35*"/>
+            <RowDefinition Height="71*" />
+            <RowDefinition Height="35*" />
         </Grid.RowDefinitions>
         <!--Description and add friend textbox-->
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Height="80" VerticalAlignment="Center" Width="370" Grid.Row="0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Image Name="FriendImage" Width="16" Height="16" Source="{Binding FriendImage}" HorizontalAlignment="Left" />
-                <TextBlock TextWrapping="Wrap" Text="Add a Quake Live friend to your buddy list" HorizontalAlignment="Center" Margin="5,0,0,0"  FontWeight="Bold"/>
-                
+                <TextBlock TextWrapping="Wrap" Text="Add a Quake Live friend to your buddy list" HorizontalAlignment="Center" Margin="5,0,0,0"  FontWeight="Bold" />
             </StackPanel>
             <!--Friend entry textbox and textblock-->
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-            <TextBlock TextWrapping="Wrap" Text="Friend's Quake Live name:" Height="23"/>
+                <TextBlock TextWrapping="Wrap" Text="Friend's Quake Live name:" Height="23" />
                 <TextBox x:Name="FriendTextBox"  Height="23" TextWrapping="Wrap" Text="{Binding FriendToAdd, UpdateSourceTrigger=PropertyChanged}" Width="160" Margin="8,0,0,0">
                     <!--Enter key has been pressed. Add friend.-->
                     <i:Interaction.Triggers>
                         <helpers:KeyPressTrigger KeyAction="KeyDown" Gesture="enter">
-                            <cal:ActionMessage MethodName="AddFriendAsync"/>
+                            <cal:ActionMessage MethodName="AddFriendAsync" />
                         </helpers:KeyPressTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
@@ -36,19 +35,18 @@
             <Button Content="Add Friend" VerticalAlignment="Center" Margin="40,0,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
-                        <cal:ActionMessage MethodName="AddFriendAsync"/>
-                    <!--Window closing handled in ViewModel-->
+                        <cal:ActionMessage MethodName="AddFriendAsync" />
+                        <!--Window closing handled in ViewModel-->
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
             <Button Content="Cancel" VerticalAlignment="Center" Margin="20,0,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
-                        <cal:ActionMessage MethodName="CloseWin"/>
+                        <cal:ActionMessage MethodName="CloseWin" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
         </StackPanel>
-
     </Grid>
 </Window>

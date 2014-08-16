@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Dynamic;
@@ -7,9 +6,11 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
-using Newtonsoft.Json;
-using UQLT.Core.Chat;
+using UQLT.Core;
+using UQLT.Core.Modules.Chat;
+using UQLT.Interfaces;
 using UQLT.Models.Chat;
+using UQLT.Models.Configuration;
 
 namespace UQLT.ViewModels
 {
@@ -17,15 +18,16 @@ namespace UQLT.ViewModels
     /// Viewmodel for the buddy list
     /// </summary>
     [Export(typeof(ChatListViewModel))]
-    public class ChatListViewModel : PropertyChangedBase
+    public class ChatListViewModel : PropertyChangedBase, IUqltConfiguration
     {
         private const string OfflineGroupTitle = "Offline Friends";
         private const string OnlineGroupTitle = "Online Friends";
+        private readonly IEventAggregator _events;
         private readonly ChatHandler _handler;
         private readonly IWindowManager _windowManager;
-        private readonly IEventAggregator _events;
         private BindableCollection<RosterGroupViewModel> _buddyList;
         private ChatHistory _chatHistory;
+        private List<string> _favoriteFriends;
         private agsXMPP.Jid _jid;
 
         /// <summary>
@@ -41,8 +43,8 @@ namespace UQLT.ViewModels
             _buddyList = new BindableCollection<RosterGroupViewModel>();
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OnlineGroupTitle), true));
             BuddyList.Add(new RosterGroupViewModel(new RosterGroup(OfflineGroupTitle), false));
-            
-            LoadFavoriteFriends();
+
+            LoadConfig();
 
             // Instantiate a XMPP connection and hook up related events for this viewmodel
             _handler = new ChatHandler(this, _windowManager, _events);
@@ -64,6 +66,15 @@ namespace UQLT.ViewModels
                 _buddyList = value;
                 NotifyOfPropertyChange(() => BuddyList);
             }
+        }
+
+        public List<string> FavoriteFriends
+        {
+            get
+            {
+                return _favoriteFriends;
+            }
+            set { _favoriteFriends = value; }
         }
 
         /// <summary>
@@ -99,10 +110,9 @@ namespace UQLT.ViewModels
         {
             if (CanAddFavoriteFriend(kvp))
             {
-                UQltGlobals.SavedFavoriteFriends.Add(kvp.Key);
+                FavoriteFriends.Add(kvp.Key);
                 Debug.WriteLine("Added " + kvp.Key + " to favorite friends");
-                // Dump to disk
-                SaveFavoriteFriends();
+                SaveConfig();
                 // Reflect changes now
                 kvp.Value.IsFavorite = true;
             }
@@ -126,7 +136,7 @@ namespace UQLT.ViewModels
         /// </remarks>
         public bool CanAddFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            return (!UQltGlobals.SavedFavoriteFriends.Contains(kvp.Key));
+            return (!FavoriteFriends.Contains(kvp.Key));
         }
 
         /// <summary>
@@ -143,7 +153,7 @@ namespace UQLT.ViewModels
         /// </remarks>
         public bool CanRemoveFavoriteFriend(KeyValuePair<string, FriendViewModel> kvp)
         {
-            return (UQltGlobals.SavedFavoriteFriends.Contains(kvp.Key));
+            return (FavoriteFriends.Contains(kvp.Key));
         }
 
         /// <summary>
@@ -155,6 +165,40 @@ namespace UQLT.ViewModels
         {
             _chatHistory = new ChatHistory(_events);
             _chatHistory.DeleteChatHistoryForUser(_handler.MyJidUser(), kvp.Key, true);
+        }
+
+        /// <summary>
+        /// Checks whether the configuration already exists
+        /// </summary>
+        /// <returns><c>true</c> if configuration exists, otherwise <c>false</c></returns>
+        public bool ConfigExists()
+        {
+            return File.Exists(UQltFileUtils.GetConfigurationPath());
+        }
+
+        /// <summary>
+        /// Loads the configuration.
+        /// </summary>
+        public void LoadConfig()
+        {
+            if (!ConfigExists())
+            {
+                LoadDefaultConfig();
+            }
+
+            var cfghandler = new ConfigurationHandler();
+            cfghandler.ReadConfig();
+
+            FavoriteFriends = cfghandler.ChatFavoriteFriends;
+        }
+
+        /// <summary>
+        /// Loads the default configuration.
+        /// </summary>
+        public void LoadDefaultConfig()
+        {
+            var cfghandler = new ConfigurationHandler();
+            cfghandler.RestoreDefaultConfig();
         }
 
         /// <summary>
@@ -207,10 +251,9 @@ namespace UQLT.ViewModels
         {
             if (CanRemoveFavoriteFriend(kvp))
             {
-                UQltGlobals.SavedFavoriteFriends.Remove(kvp.Key);
+                FavoriteFriends.Remove(kvp.Key);
                 Debug.WriteLine("Removed " + kvp.Key + " from favorite friends");
-                // Dump to disk
-                SaveFavoriteFriends();
+                SaveConfig();
                 // Reflect changes now
                 kvp.Value.IsFavorite = false;
             }
@@ -233,6 +276,19 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Saves the configuration.
+        /// </summary>
+        public void SaveConfig()
+        {
+            var cfghandler = new ConfigurationHandler();
+            cfghandler.ReadConfig();
+
+            cfghandler.ChatFavoriteFriends = FavoriteFriends;
+
+            cfghandler.WriteConfig();
+        }
+
+        /// <summary>
         /// Updates the friend's game server information. This occurs when the user highlights the
         /// player on the buddylist in the view.
         /// </summary>
@@ -251,50 +307,6 @@ namespace UQLT.ViewModels
             else
             {
                 Debug.WriteLine("Not refreshing server info for player: " + kvp.Key + " because player isn't currently in a game server.");
-            }
-        }
-
-        /// <summary>
-        /// Loads the saved favorite friends from JSON file on disk.
-        /// </summary>
-        private void LoadFavoriteFriends()
-        {
-            try
-            {
-                using (var sr = new StreamReader(UQltGlobals.SavedFavFriendPath))
-                {
-                    var s = sr.ReadToEnd();
-                    var favorites = JsonConvert.DeserializeObject<List<string>>(s);
-                    foreach (var favorite in favorites)
-                    {
-                        UQltGlobals.SavedFavoriteFriends.Add(favorite);
-                        Debug.WriteLine("Auto-added " + favorite + " to favorite friends");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
-        /// Saves the favorite friends to a JSON file on disk.
-        /// </summary>
-        private void SaveFavoriteFriends()
-        {
-            try
-            {
-                string friendjson = JsonConvert.SerializeObject(UQltGlobals.SavedFavoriteFriends);
-                using (FileStream fs = File.Create(UQltGlobals.SavedFavFriendPath))
-                using (TextWriter writer = new StreamWriter(fs))
-                {
-                    writer.WriteLine(friendjson);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
             }
         }
     }

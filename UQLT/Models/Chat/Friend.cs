@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UQLT.Core.Chat;
+using UQLT.Core.Modules.Chat;
 
 namespace UQLT.Models.Chat
 {
@@ -114,7 +114,7 @@ namespace UQLT.Models.Chat
         /// </summary>
         /// <value>The type of the status.</value>
         /// <remarks>StatusType can be: 0: nothing, 1: demo, 2: practice, or 3: in-game</remarks>
-        public StatusTypes StatusType
+        public ChatStatusTypes StatusType
         {
             get;
             set;

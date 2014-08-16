@@ -16,18 +16,6 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="ServerBrowserOptions"/> should display the elo search options.
-        /// </summary>
-        /// <value>
-        /// Display elo search options if <c>true</c>, do not display if <c>false</c>.
-        /// </value>
-        public bool sb_display_elo_search
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the auto_refresh_index.
         /// </summary>
         /// <value>The auto_refresh_index.</value>
@@ -42,6 +30,18 @@
         /// </summary>
         /// <value>The auto_refresh_seconds.</value>
         public int sb_auto_refresh_seconds
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="ServerBrowserOptions"/> should display the elo search options.
+        /// </summary>
+        /// <value>
+        /// Display elo search options if <c>true</c>, do not display if <c>false</c>.
+        /// </value>
+        public bool sb_display_elo_search
         {
             get;
             set;

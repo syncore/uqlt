@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +58,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="agsXMPP">
-      <HintPath>.\agsXMPP.dll</HintPath>
+      <HintPath>..\ExternalResources\Projects\agsxmpp\bin\Release\agsXMPP.dll</HintPath>
     </Reference>
     <Reference Include="Caliburn.Micro">
       <HintPath>..\packages\Caliburn.Micro.Core.2.0.0\lib\net45\Caliburn.Micro.dll</HintPath>
@@ -86,7 +86,7 @@
       <HintPath>..\packages\Nito.AsyncEx.2.1.3\lib\net45\Nito.AsyncEx.Enlightenment.dll</HintPath>
     </Reference>
     <Reference Include="QLImages">
-      <HintPath>..\ResourceProjects\QLImages\QLImages\bin\Release\QLImages.dll</HintPath>
+      <HintPath>..\ExternalResources\Projects\QLImages\QLImages\bin\Release\QLImages.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -113,7 +113,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UQLTRes">
-      <HintPath>..\ResourceProjects\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll</HintPath>
+      <HintPath>..\ExternalResources\Projects\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -137,18 +137,19 @@
     <Compile Include="Converters\PlayerCountToColorConverter.cs" />
     <Compile Include="Converters\QlRanksTypeToVisiblityConverter.cs" />
     <Compile Include="Converters\ScoreToRaceScoreConverter.cs" />
-    <Compile Include="Core\Chat\ChatGameInfo.cs" />
-    <Compile Include="Core\Chat\ChatHandler.cs" />
-    <Compile Include="Core\Chat\ChatHistory.cs" />
-    <Compile Include="Core\Chat\MessageTypes.cs" />
-    <Compile Include="Core\Chat\SoundTypes.cs" />
-    <Compile Include="Core\Chat\StatusTypes.cs" />
-    <Compile Include="Core\DemoPlayer\DemoDumper.cs" />
-    <Compile Include="Core\ServerBrowser\EloSearchTypes.cs" />
-    <Compile Include="Core\ServerBrowser\ServerBrowser.cs" />
-    <Compile Include="Core\ServerBrowser\EloSearchCategoryTypes.cs" />
-    <Compile Include="Core\ServerBrowser\ServerBrowserSearch.cs" />
-    <Compile Include="Core\ServerBrowser\ServerPinger.cs" />
+    <Compile Include="Core\Modules\Chat\ChatGameInfo.cs" />
+    <Compile Include="Core\Modules\Chat\ChatHandler.cs" />
+    <Compile Include="Core\Modules\Chat\ChatHistory.cs" />
+    <Compile Include="Core\Modules\Chat\ChatMessageTypes.cs" />
+    <Compile Include="Core\Modules\Chat\ChatSoundTypes.cs" />
+    <Compile Include="Core\Modules\Chat\ChatStatusTypes.cs" />
+    <Compile Include="Core\Modules\DemoPlayer\DemoDumper.cs" />
+    <Compile Include="Core\Modules\ServerBrowser\EloSearchTypes.cs" />
+    <Compile Include="Core\Modules\ServerBrowser\ServerBrowser.cs" />
+    <Compile Include="Core\Modules\ServerBrowser\EloSearchCategoryTypes.cs" />
+    <Compile Include="Core\Modules\ServerBrowser\ServerBrowserSearch.cs" />
+    <Compile Include="Core\Modules\ServerBrowser\ServerPinger.cs" />
+    <Compile Include="Core\UqltResourceTypes.cs" />
     <Compile Include="Events\ClearChatHistoryEvent.cs" />
     <Compile Include="Events\EloFoundCountEvent.cs" />
     <Compile Include="Events\EloSearchingEvent.cs" />
@@ -161,7 +162,6 @@
     <Compile Include="Events\PlayerSearchingEvent.cs" />
     <Compile Include="Events\ServerCountEvent.cs" />
     <Compile Include="Events\ServerRequestEvent.cs" />
-    <Compile Include="Helpers\FailsafeFilterHelper.cs" />
     <Compile Include="Helpers\FlashWindowHelper.cs" />
     <Compile Include="Helpers\FocusBehavior.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
@@ -175,6 +175,7 @@
     <Compile Include="Helpers\RestApiQuery.cs" />
     <Compile Include="Helpers\ScrollToEndBehavior.cs" />
     <Compile Include="Helpers\TextBoxFilters.cs" />
+    <Compile Include="Core\UQltFileUtils.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IFileService.cs" />
     <Compile Include="Interfaces\IQlRanksUpdater.cs" />
@@ -216,9 +217,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="UQltBootstrapper.cs" />
-    <Compile Include="UQltGlobals.cs" />
-    <Compile Include="UqltWindowManager.cs" />
+    <Compile Include="Core\UQltBootstrapper.cs" />
+    <Compile Include="Core\UQltGlobals.cs" />
+    <Compile Include="Core\UqltWindowManager.cs" />
     <Compile Include="ViewModels\AddFriendViewModel.cs" />
     <Compile Include="ViewModels\ChatMessageViewModel.cs" />
     <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
@@ -283,8 +284,9 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="currentfilters.json">
+    <None Include="..\ExternalResources\Projects\UQLTRes\UQLTRes\Data\currentfilters.uql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Data\currentfilters.uql</Link>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -297,7 +299,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icon.ico" />
+    <Resource Include="Icons\icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\AddFriendView.xaml">
@@ -346,14 +348,20 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\sounds\friendrequest.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="..\ExternalResources\Projects\UQLTRes\UQLTRes\Data\qldemodumper.exe">
+      <Link>Data\qldemodumper.exe</Link>
     </Content>
-    <Content Include="data\sounds\invite.wav">
+    <Content Include="..\ExternalResources\Projects\UQLTRes\UQLTRes\Data\Sounds\friendrequest.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Data\Sounds\friendrequest.wav</Link>
     </Content>
-    <Content Include="data\sounds\notice.wav">
+    <Content Include="..\ExternalResources\Projects\UQLTRes\UQLTRes\Data\Sounds\invite.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Data\Sounds\invite.wav</Link>
+    </Content>
+    <Content Include="..\ExternalResources\Projects\UQLTRes\UQLTRes\Data\Sounds\notice.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>Data\Sounds\notice.wav</Link>
     </Content>
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -364,7 +372,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

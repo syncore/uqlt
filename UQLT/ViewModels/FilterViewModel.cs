@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Caliburn.Micro;
 using Newtonsoft.Json;
+using UQLT.Core;
 using UQLT.Events;
 using UQLT.Helpers;
 using UQLT.Models.Filters.Remote;
@@ -333,7 +334,7 @@ namespace UQLT.ViewModels
         {
             if (SavedUserFiltersExist())
             {
-                File.Delete(UQltGlobals.SavedUserFilterPath);
+                File.Delete(UQltFileUtils.GetSavedUserFilterPath());
             }
 
             ApplyDefaultFilters();
@@ -416,8 +417,8 @@ namespace UQLT.ViewModels
             // ig, GameTypes array, ranked determination from gametype:
             try
             {
-                // read filter json from filedir\data\currentfilters.json
-                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
+                // read filter json from filedir\data\currentfilters.uql
+                using (var sr = new StreamReader(UQltFileUtils.GetCurrentFilterPath()))
                 {
                     var json = sr.ReadToEnd();
                     var gi = JsonConvert.DeserializeObject<ImportedFilters>(json);
@@ -503,7 +504,7 @@ namespace UQLT.ViewModels
 
             // Write json file to disk
             string savedfilterjson = JsonConvert.SerializeObject(sf);
-            using (FileStream fs = File.Create(UQltGlobals.SavedUserFilterPath))
+            using (FileStream fs = File.Create(UQltFileUtils.GetSavedUserFilterPath()))
             using (TextWriter writer = new StreamWriter(fs))
             {
                 writer.WriteLine(savedfilterjson);
@@ -581,7 +582,7 @@ namespace UQLT.ViewModels
         {
             try
             {
-                using (var sr = new StreamReader(UQltGlobals.SavedUserFilterPath))
+                using (var sr = new StreamReader(UQltFileUtils.GetSavedUserFilterPath()))
                 {
                     string savedblob = sr.ReadToEnd();
                     var json = JsonConvert.DeserializeObject<SavedFilters>(savedblob);
@@ -637,7 +638,7 @@ namespace UQLT.ViewModels
         /// <returns><c>true</c> if the downloaded filter list exist, otherwise <c>false</c></returns>
         private bool DownloadedFilterListExists()
         {
-            return File.Exists(UQltGlobals.CurrentFilterPath);
+            return File.Exists(UQltFileUtils.GetCurrentFilterPath());
         }
 
         /// <summary>
@@ -652,8 +653,8 @@ namespace UQLT.ViewModels
             {
                 try
                 {
-                    // Read filter json from filedir\data\currentfilters.json
-                    using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
+                    // Read filter json from filedir\data\currentfilters.uql
+                    using (var sr = new StreamReader(UQltFileUtils.GetCurrentFilterPath()))
                     {
                         var json = await sr.ReadToEndAsync();
                         var filters = JsonConvert.DeserializeObject<ImportedFilters>(json);
@@ -694,8 +695,7 @@ namespace UQLT.ViewModels
                     Debug.WriteLine(ex);
 
                     // TODO: make this download filter from net, if that fails THEN load hard-coded filter
-                    var failsafe = new FailsafeFilterHelper();
-                    failsafe.DumpBackupFilters();
+                    UQltFileUtils.ExtractFailsafeFilters();
                     ApplyDefaultFilters();
                 }
             }
@@ -705,8 +705,7 @@ namespace UQLT.ViewModels
             //       filter list from webserver on next run.
             else
             {
-                var failsafe = new FailsafeFilterHelper();
-                failsafe.DumpBackupFilters();
+                UQltFileUtils.ExtractFailsafeFilters();
                 ApplyDefaultFilters();
             }
         }
@@ -733,7 +732,7 @@ namespace UQLT.ViewModels
 
             try
             {
-                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
+                using (var sr = new StreamReader(UQltFileUtils.GetCurrentFilterPath()))
                 {
                     string blob = sr.ReadToEnd();
                     var json = JsonConvert.DeserializeObject<ImportedFilters>(blob);
@@ -779,7 +778,7 @@ namespace UQLT.ViewModels
         private bool SavedUserFiltersExist()
         {
             // TODO: Implement multiple user account support.
-            return File.Exists(UQltGlobals.SavedUserFilterPath);
+            return File.Exists(UQltFileUtils.GetSavedUserFilterPath());
         }
     }
 }

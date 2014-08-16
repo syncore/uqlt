@@ -12,14 +12,14 @@
         <Button Content="Login" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="236,444,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
-                    <cal:ActionMessage MethodName="DoLogin"/>
-                        </i:EventTrigger>
-                </i:Interaction.Triggers>
+                    <cal:ActionMessage MethodName="DoLogin" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
         </Button>
         <Button Content="Demo Playert Test" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="368,444,0,0">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
-                    <cal:ActionMessage MethodName="LaunchDemoPlayer"/>
+                    <cal:ActionMessage MethodName="LaunchDemoPlayer" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>

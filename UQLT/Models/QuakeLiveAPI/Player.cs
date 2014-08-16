@@ -6,7 +6,7 @@
     public class Player
     {
         private string _name;
-        
+
         /// <summary>
         /// Gets or sets the bot.
         /// </summary>

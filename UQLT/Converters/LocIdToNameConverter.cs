@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Data;
 using Newtonsoft.Json;
-using UQLT.Helpers;
+using UQLT.Core;
 using UQLT.Models.Filters.User;
 
 namespace UQLT.Converters
@@ -20,10 +20,9 @@ namespace UQLT.Converters
         /// </summary>
         public LocIdToNameConverter()
         {
-            if (!File.Exists(UQltGlobals.CurrentFilterPath))
+            if (!File.Exists(UQltFileUtils.GetCurrentFilterPath()))
             {
-                var failsafe = new FailsafeFilterHelper();
-                failsafe.DumpBackupFilters();
+                UQltFileUtils.ExtractFailsafeFilters();
             }
         }
 
@@ -40,12 +39,15 @@ namespace UQLT.Converters
             string realname = null;
             try
             {
-                using (var sr = new StreamReader(UQltGlobals.CurrentFilterPath))
+                using (var sr = new StreamReader(UQltFileUtils.GetCurrentFilterPath()))
                 {
-                    var x = sr.ReadToEnd();
+                    string x = sr.ReadToEnd();
                     var filters = JsonConvert.DeserializeObject<ImportedFilters>(x);
 
-                    foreach (var loc in filters.locations.Where(loc => System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value)))
+                    foreach (
+                        Location loc in
+                            filters.locations.Where(
+                                loc => System.Convert.ToInt32(loc.location_id) == System.Convert.ToInt32(value)))
                     {
                         realname = loc.display_name;
                     }

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using UQLT.Core;
 
 namespace UQLT.Models.Configuration
 {
@@ -16,6 +18,14 @@ namespace UQLT.Models.Configuration
         private readonly int[] _validAutoRefreshIndices = { 0, 1, 2, 3 };
 
         private readonly int[] _validAutoRefreshSeconds = { 30, 60, 90, 300 };
+
+        /// <summary>
+        /// Gets or sets the favorite friends for the currently logged-in user.
+        /// </summary>
+        /// <value>
+        /// The currently logged-in user's favorite friends.
+        /// </value>
+        public List<string> ChatFavoriteFriends { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether UQLT chat is disabled when in-game.
@@ -42,14 +52,6 @@ namespace UQLT.Models.Configuration
         public bool SbOptAutoRefresh { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether server browser should display elo search options.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if server browser is to display elo search options; otherwise, <c>false</c>.
-        /// </value>
-        public bool SbOptDisplayEloSearch { get; set; }
-        
-        /// <summary>
         /// Gets or sets the index of the server browser automatic refresh option for the UI.
         /// </summary>
         /// <value>The index of the server browser automatic refresh option for the UI.</value>
@@ -62,6 +64,14 @@ namespace UQLT.Models.Configuration
         public int SbOptAutoRefreshSeconds { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether server browser should display elo search options.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if server browser is to display elo search options; otherwise, <c>false</c>.
+        /// </value>
+        public bool SbOptDisplayEloSearch { get; set; }
+
+        /// <summary>
         /// Reads the configuration.
         /// </summary>
         public void ReadConfig()
@@ -71,7 +81,7 @@ namespace UQLT.Models.Configuration
                 // Failsafe
                 ValidateConfig();
 
-                using (var sr = new StreamReader(UQltGlobals.ConfigPath))
+                using (var sr = new StreamReader(UQltFileUtils.GetConfigurationPath()))
                 {
                     string json = sr.ReadToEnd();
                     var cfg = JsonConvert.DeserializeObject<Configuration>(json);
@@ -85,6 +95,7 @@ namespace UQLT.Models.Configuration
                     ChatOptLogging = cfg.chat_options.chat_logging;
                     ChatOptSound = cfg.chat_options.chat_sound;
                     ChatOptDisableInGame = cfg.chat_options.chat_disable_ingame;
+                    ChatFavoriteFriends = cfg.chat_options.chat_favorite_friends;
                 }
             }
             catch (Exception ex)
@@ -111,7 +122,8 @@ namespace UQLT.Models.Configuration
             {
                 chat_logging = true,
                 chat_sound = true,
-                chat_disable_ingame = true
+                chat_disable_ingame = true,
+                chat_favorite_friends = new List<string>()
             };
 
             var config = new Configuration()
@@ -122,12 +134,12 @@ namespace UQLT.Models.Configuration
 
             // Write to disk.
             string json = JsonConvert.SerializeObject(config);
-            using (FileStream fs = File.Create(UQltGlobals.ConfigPath))
+            using (FileStream fs = File.Create(UQltFileUtils.GetConfigurationPath()))
             using (TextWriter writer = new StreamWriter(fs))
             {
                 writer.WriteLine(json);
             }
-            Debug.WriteLine("** Wrote DEFAULT/FAILSAFE configuration to disk at: " + UQltGlobals.ConfigPath + " **");
+            Debug.WriteLine("** Wrote DEFAULT/FAILSAFE configuration to disk at: " + UQltFileUtils.GetConfigurationPath() + " **");
         }
 
         /// <summary>
@@ -137,7 +149,7 @@ namespace UQLT.Models.Configuration
         {
             try
             {
-                using (StreamReader sr = new StreamReader(UQltGlobals.ConfigPath))
+                using (StreamReader sr = new StreamReader(UQltFileUtils.GetConfigurationPath()))
                 {
                     string json = sr.ReadToEnd();
                     var cfg = JsonConvert.DeserializeObject<Configuration>(json);
@@ -196,7 +208,8 @@ namespace UQLT.Models.Configuration
             {
                 chat_logging = ChatOptLogging,
                 chat_sound = ChatOptSound,
-                chat_disable_ingame = ChatOptDisableInGame
+                chat_disable_ingame = ChatOptDisableInGame,
+                chat_favorite_friends = ChatFavoriteFriends
             };
             var config = new Configuration()
             {
@@ -205,12 +218,12 @@ namespace UQLT.Models.Configuration
             };
             // write to disk
             string json = JsonConvert.SerializeObject(config);
-            using (FileStream fs = File.Create(UQltGlobals.ConfigPath))
+            using (FileStream fs = File.Create(UQltFileUtils.GetConfigurationPath()))
             using (TextWriter writer = new StreamWriter(fs))
             {
                 writer.WriteLine(json);
             }
-            Debug.WriteLine("** Wrote configuration to disk at: " + UQltGlobals.ConfigPath + " **");
+            Debug.WriteLine("** Wrote configuration to disk at: " + UQltFileUtils.GetConfigurationPath() + " **");
         }
     }
 }

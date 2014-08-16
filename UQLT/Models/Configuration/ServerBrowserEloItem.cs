@@ -1,4 +1,4 @@
-﻿using UQLT.Core.ServerBrowser;
+﻿using UQLT.Core.Modules.ServerBrowser;
 
 namespace UQLT.Models.Configuration
 {
@@ -8,20 +8,20 @@ namespace UQLT.Models.Configuration
     public class ServerBrowserEloItem
     {
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets or sets the type of gametype represented by this item.
         /// </summary>
-        /// <value>The name.</value>
-        public string Name
+        /// <value>The elo type.</value>
+        public EloSearchTypes EloSearchGameType
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the type of gametype represented by this item.
+        /// Gets or sets the name.
         /// </summary>
-        /// <value>The elo type.</value>
-        public EloSearchTypes EloSearchGameType
+        /// <value>The name.</value>
+        public string Name
         {
             get;
             set;

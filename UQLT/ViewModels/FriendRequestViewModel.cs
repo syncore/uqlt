@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using agsXMPP;
 using Caliburn.Micro;
-using UQLT.Core.Chat;
+using UQLT.Core.Modules.Chat;
 using Uri = System.Uri;
 
 namespace UQLT.ViewModels
@@ -57,7 +57,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/images/chat/friend.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/friend.gif", UriKind.RelativeOrAbsolute));
             }
         }
 

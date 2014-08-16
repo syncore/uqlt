@@ -40,6 +40,5 @@ namespace UQLT.Converters
                 ? 0
                 : value;
         }
-
     }
 }

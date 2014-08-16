@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using Nito.AsyncEx;
+using UQLT.Core;
 using UQLT.Helpers;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
@@ -30,9 +30,8 @@ namespace UQLT.ViewModels
 
         private readonly QlRanksDataRetriever _qlRanksDataRetriever = new QlRanksDataRetriever();
         private string _formattedGameState;
-        private string _timeRemaining;
         private long _ping;
-        
+        private string _timeRemaining;
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDetailsViewModel" /> class.
         /// </summary>
@@ -93,6 +92,21 @@ namespace UQLT.ViewModels
             get
             {
                 return QlServer.capturelimit;
+            }
+        }
+
+        /// <summary>
+        /// Gets the server's IP address with the port number removed.
+        /// </summary>
+        /// <value>
+        /// The clean IP address.
+        /// </value>
+        /// <remarks>This is a custom property.</remarks>
+        public string CleanedIp
+        {
+            get
+            {
+                return QlServer.cleanedip;
             }
         }
 
@@ -595,22 +609,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets the server's IP address with the port number removed.
-        /// </summary>
-        /// <value>
-        /// The clean IP address.
-        /// </value>
-        /// <remarks>This is a custom property.</remarks>
-        public string CleanedIp
-        {
-            get
-            {
-                return QlServer.cleanedip;
-                
-            }
-        }
-
-        /// <summary>
         /// Gets the player count.
         /// </summary>
         /// <value>
@@ -911,7 +909,7 @@ namespace UQLT.ViewModels
                 NotifyOfPropertyChange(() => TimeRemaining);
             }
         }
-        
+
         // <summary>
         // Gets the total players.
         // </summary>
@@ -959,6 +957,7 @@ namespace UQLT.ViewModels
                             qlRanksPlayersToUpdate.Add(player);
                         }
                         break;
+
                     case 1:
                         if (UQltGlobals.PlayerEloInfo.TryGetValue(player.Name, out val))
                         {
@@ -999,7 +998,7 @@ namespace UQLT.ViewModels
                         }
                         else
                         {
-                            qlRanksPlayersToUpdate.Add(player); 
+                            qlRanksPlayersToUpdate.Add(player);
                         }
                         break;
 
@@ -1054,7 +1053,6 @@ namespace UQLT.ViewModels
                     }
                 }
             }
-
         }
 
         /// <summary>
