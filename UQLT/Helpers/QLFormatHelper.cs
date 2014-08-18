@@ -215,7 +215,7 @@ namespace UQLT.Helpers
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
                 return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
             }
         }
@@ -233,7 +233,7 @@ namespace UQLT.Helpers
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
                 return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/unknown_gametype.gif", UriKind.RelativeOrAbsolute));
             }
         }

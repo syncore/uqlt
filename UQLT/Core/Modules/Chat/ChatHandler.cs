@@ -207,7 +207,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
             }
         }
 

@@ -70,7 +70,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
                 // need something here so it re-tries again in X seconds on failure
             }
         }
@@ -123,7 +123,7 @@ namespace UQLT.Core.Modules.Chat
             {
                 // Clear friend status on error.
                 Handler.ClearFriendStatus(friend);
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -205,7 +205,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
             }
         }
     }

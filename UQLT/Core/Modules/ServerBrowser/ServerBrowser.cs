@@ -109,7 +109,7 @@ namespace UQLT.Core.Modules.ServerBrowser
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex); // TODO: create a debug log on the disk
+                Debug.WriteLine(ex.Message); // TODO: create a debug log on the disk
                 MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
@@ -281,7 +281,7 @@ namespace UQLT.Core.Modules.ServerBrowser
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
                 MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }

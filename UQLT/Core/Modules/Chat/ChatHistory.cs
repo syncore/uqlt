@@ -21,8 +21,8 @@ namespace UQLT.Core.Modules.Chat
         private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
         private readonly ChatMessageViewModel _cmvm;
         private readonly IEventAggregator _events;
-        private readonly string _sqlConString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
-        private readonly string _sqlDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data\\chist.udb");
+        private readonly string _sqlConString = "Data Source=" + UQltFileUtils.GetChatHistoryDatabasePath();
+        private readonly string _sqlDbPath = UQltFileUtils.GetChatHistoryDatabasePath();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatHistory" /> class.
@@ -108,7 +108,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -209,7 +209,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
                 DeleteHistoryDb();
             }
         }
@@ -294,7 +294,7 @@ namespace UQLT.Core.Modules.Chat
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.Message);
             }
         }
 

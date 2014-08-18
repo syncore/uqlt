@@ -65,7 +65,7 @@ namespace UQLT.Helpers
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex);
+                    Debug.WriteLine(ex.Message);
                     return default(T);
                 }
             }

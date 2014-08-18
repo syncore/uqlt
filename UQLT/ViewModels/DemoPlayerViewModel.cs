@@ -101,12 +101,9 @@ namespace UQLT.ViewModels
 
                     // send to list splitter/QLDemoDumper
                     var dumper = new DemoDumper();
-                    List<List<string>> x =
-                        dumper.GetMaxDemosPerDump(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
-                    for (int i = 0; i < x.Count; ++i)
-                    {
-                        Debug.WriteLine("Dump process #: " + i);
-                    }
+                    var demos = dumper.CollectDemos(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
+                    dumper.ProcessDemos(demos);
+                    
                 }
                 else
                 {

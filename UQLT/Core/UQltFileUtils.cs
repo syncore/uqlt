@@ -16,18 +16,23 @@ namespace UQLT.Core
 
         private const string ConfigurationFile = "uqltconfig.uql";
         private const string CoreResourceLocation = "UQLT.";
+        private const string ChatHistoryDatabaseFile = "chist.udb";
         private const string CurrentFilterFile = "currentfilters.uql";
         private const string DataResourceLocation = "UQLT.Data.";
         private const string DataSoundsResourceLocation = "UQLT.Data.Sounds.";
         private const string FriendRequestSound = "friendrequest.wav";
         private const string InviteSound = "invite.wav";
         private const string MessageSound = "notice.wav";
+        private const string QlDemoDumperFile = "qldemodumper.exe";
         private const string QlImagesFile = "QLImages.dll";
         private const string SavedUserFilterFile = "savedfilters.uql";
         private static readonly string DataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
         private static readonly string ConfigurationPath = Path.Combine(DataDirectory, ConfigurationFile);
+        private static readonly string ChatHistoryPath = Path.Combine(DataDirectory, ChatHistoryDatabaseFile);
         private static readonly string CurrentFilterPath = Path.Combine(DataDirectory, CurrentFilterFile);
-        private static readonly string DataSoundsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\Sounds");
+        private static readonly string DataSoundsDirectory = Path.Combine(DataDirectory, "Sounds");
+        private static readonly string DemoParseTempDirectory = Path.Combine(DataDirectory, "DParse");
+        private static readonly string QlDemoDumperPath = Path.Combine(DataDirectory, QlDemoDumperFile);
         private static readonly string SavedUserFilterPath = Path.Combine(DataDirectory, SavedUserFilterFile);
 
         private static readonly List<string> UqltRequiredCoreFiles = new List<string>
@@ -65,6 +70,14 @@ namespace UQLT.Core
         }
 
         /// <summary>
+        /// Extracts the QL demo dumper executable.
+        /// </summary>
+        public static void ExtractDemoDumperExecutable()
+        {
+            ExtractEmbeddedUqltResource(UqltResourceDll, DataDirectory, UqltResourceTypes.Data, new List<string> { QlDemoDumperFile });
+        }
+
+        /// <summary>
         /// Extracts the UQLT embedded resource to the specified output directory.
         /// </summary>
         /// <param name="name">The assembly name.</param>
@@ -96,8 +109,9 @@ namespace UQLT.Core
                             fileStream.WriteByte((byte)stream.ReadByte());
                         }
                         fileStream.Close();
-                        Debug.WriteLine(string.Format("[RESOURCE EXTRACTED]: Wrote {0} from {1} to {2}", file, name),
-                            outputDir);
+                        Debug.WriteLine(string.Format("[RESOURCE EXTRACTED]: Wrote {0} from {1} to {2}", file, name,
+                            outputDir));
+
                     }
                 }
             }
@@ -109,9 +123,18 @@ namespace UQLT.Core
         /// </summary>
         public static void ExtractFailsafeFilters()
         {
-            ExtractEmbeddedUqltResource(UqltResourceDll, DataDirectory, UqltResourceTypes.Data, new List<string> { "currentfilters.uql" });
+            ExtractEmbeddedUqltResource(UqltResourceDll, DataDirectory, UqltResourceTypes.Data, new List<string> { CurrentFilterFile });
         }
 
+        /// <summary>
+        /// Gets the chat history database's file path.
+        /// </summary>
+        /// <returns>The path to the chat history database file as a string.</returns>
+        public static string GetChatHistoryDatabasePath()
+        {
+            return ChatHistoryPath;
+        }
+        
         /// <summary>
         /// Gets the UQLT configuration path.
         /// </summary>
@@ -128,6 +151,15 @@ namespace UQLT.Core
         public static string GetCurrentFilterPath()
         {
             return CurrentFilterPath;
+        }
+
+        /// <summary>
+        /// Gets temporary directory used for storing parsed demo information.
+        /// </summary>
+        /// <returns>The path to the demo parser temporary directory.</returns>
+        public static string GetDemoParseTempDirectory()
+        {
+            return DemoParseTempDirectory;
         }
 
         /// <summary>
@@ -152,6 +184,15 @@ namespace UQLT.Core
                     break;
             }
             return resourcelocation;
+        }
+
+        /// <summary>
+        /// Gets the path to the QLDemoDumper executable.
+        /// </summary>
+        /// <returns>The path to the QLDemoDumper executable as a string.</returns>
+        public static string GetQlDemoDumperPath()
+        {
+            return QlDemoDumperPath;
         }
 
         /// <summary>
@@ -290,7 +331,7 @@ namespace UQLT.Core
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(string.Format("Unable to load assembly with name: {0}, exception: {1}", name, ex));
+                Debug.WriteLine(string.Format("Unable to load assembly with name: {0}, exception: {1}", name, ex.Message));
             }
             return assembly;
         }

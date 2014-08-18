@@ -692,7 +692,7 @@ namespace UQLT.ViewModels
                 catch (Exception ex)
                 {
                     MessageBox.Show("Unable to read filter data.");
-                    Debug.WriteLine(ex);
+                    Debug.WriteLine(ex.Message);
 
                     // TODO: make this download filter from net, if that fails THEN load hard-coded filter
                     UQltFileUtils.ExtractFailsafeFilters();
