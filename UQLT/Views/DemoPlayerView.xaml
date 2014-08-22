@@ -16,7 +16,7 @@
                         <Image Name="MapImage" Width="112" Height="84" Source="{Binding MapImage}" Margin="0,0,0,0" />
                     </StackPanel>
                     <!--Filename, map, recorded by, game date, type, location-->
-                    <StackPanel Orientation="Vertical" Margin="12,0,0,0" Width="323">
+                    <StackPanel Orientation="Vertical" Margin="120,0,0,0" Width="323">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="File name: " />
                             <TextBlock Text="{Binding Path=Filename}" />
@@ -43,67 +43,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!--Score info-->
-                    <StackPanel Orientation="Vertical" Width="220" Margin="15,0,0,0">
-                        <!--Team game-->
-                        <StackPanel Orientation="Vertical" Visibility="{Binding IsTeamGame, Converter={StaticResource BoolToVis}}">
-                            <TextBlock FontWeight="Bold" HorizontalAlignment="Left">
-                                Scores
-                            </TextBlock>
-                            <!--Red score greater than blue score. Display red first.-->
-                            <StackPanel Visibility="{Binding IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Red: " />
-                                    <TextBlock Text="{Binding RedScore}" />
-                                </StackPanel>
 
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Blue: " />
-                                </StackPanel>
-                            </StackPanel>
-                            <!--Blue score greater than red score. Display blue first.-->
-                            <StackPanel Visibility="{Binding IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Blue: " />
-                                    <TextBlock Text="{Binding BlueScore}" />
-                                </StackPanel>
-
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Red: " />
-                                    <TextBlock Text="{Binding RedScore}" />
-                                </StackPanel>
-                            </StackPanel>
-                            <!--Non-team game-->
-                            <StackPanel Visibility="{Binding IsNonTeamGame, Converter={StaticResource BoolToVis}}">
-                                <!--Player 1's score greater than Player 2's score. Display Player 1 first.-->
-                                <StackPanel Visibility="{Binding IsPlayerOneLeading, Converter={StaticResource BoolToVis}}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PlayerOne, StringFormat='{}{0}:'}" />
-                                        <TextBlock Text="{Binding PlayerOneScore}" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PlayerTwo, StringFormat='{}{0}:'}" />
-                                        <TextBlock Text="{Binding PlayerTwoScore}" />
-                                    </StackPanel>
-                                </StackPanel>
-                                <!--Player 2's score greater than Player 1's score. Display Player 2 first.-->
-                                <StackPanel Visibility="{Binding IsPlayerTwoLeading, Converter={StaticResource BoolToVis}}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PlayerTwo, StringFormat='{}{0}:'}" />
-                                        <TextBlock Text="{Binding PlayerTwoScore}" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding PlayerOne, StringFormat='{}{0}:'}" />
-                                        <TextBlock Text="{Binding PlayerOneScore}" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Winner: " />
-                                <TextBlock Text="{Binding Winner}" />
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -183,7 +123,7 @@
             <!--Stackpanel container for player and chat messages-->
             <StackPanel Orientation="Horizontal">
                 <!--Player info listview-->
-                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="349">
+                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="698">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Team">
@@ -191,17 +131,6 @@
                             <GridViewColumn Header="Clan">
                             </GridViewColumn>
                             <GridViewColumn Header="Player">
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                <!--Chat messages listview-->
-                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="349">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Player">
-                            </GridViewColumn>
-                            <GridViewColumn Header="Message">
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>

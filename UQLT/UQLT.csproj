@@ -190,6 +190,9 @@
     <Compile Include="Models\Configuration\ServerBrowserEloItem.cs" />
     <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
+    <Compile Include="Models\DemoPlayer\Demo.cs" />
+    <Compile Include="Models\DemoPlayer\Player.cs" />
+    <Compile Include="Models\DemoPlayer\Srvinfo.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
     <Compile Include="Models\Filters\User\Location.cs" />
     <Compile Include="Models\Filters\User\Arena.cs" />

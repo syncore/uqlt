@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Text;
 using System.Threading;
 using System.Windows;
 
@@ -15,6 +16,9 @@ namespace UQLT.Core.Modules.DemoPlayer
     public class DemoDumper
     {
         private volatile bool _isProcessPending;
+        private volatile int _processesCompleted;
+        private int _totalProcessesToComplete;
+        private StringBuilder _processOutputBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DemoDumper"/> class.
@@ -32,56 +36,28 @@ namespace UQLT.Core.Modules.DemoPlayer
         public List<List<string>> CollectDemos(List<string> demoFiles)
         {
             long totalMem = GetTotalInstalledMemory();
-            int maxDemosPerProcess = 32;
+            int maxDemosPerProcess = 64;
             if ((totalMem > 1025) && (totalMem <= 4097))
-            {
-                maxDemosPerProcess = 64;
-            }
-            else if ((totalMem > 4097))
             {
                 maxDemosPerProcess = 96;
             }
+            else if ((totalMem > 4097))
+            {
+                maxDemosPerProcess = 128;
+            }
 
             var demosperprocess = new List<List<string>>();
-            int numdemoprocesses = 0;
+            _totalProcessesToComplete = 0;
             for (int i = 0; i < demoFiles.Count; i += maxDemosPerProcess)
             {
                 demosperprocess.Add(demoFiles.GetRange(i, Math.Min(maxDemosPerProcess, demoFiles.Count - i)));
-                ++numdemoprocesses;
+                ++_totalProcessesToComplete;
             }
             Debug.WriteLine("QLDemoDumper will run a total of {0} processes. Will process {1} demos per process based" +
-                            " on total installed RAM of {2} MB.", numdemoprocesses, maxDemosPerProcess, totalMem);
+                            " on total installed RAM of {2} MB.", _totalProcessesToComplete, maxDemosPerProcess, totalMem);
             return demosperprocess;
         }
 
-        /// <summary>
-        /// Gets the total installed memory.
-        /// </summary>
-        /// <returns></returns>
-        private long GetTotalInstalledMemory()
-        {
-            long mem = 0;
-            try
-            {
-                var searcher =
-                    new ManagementObjectSearcher("root\\CIMV2",
-                    "SELECT * FROM Win32_ComputerSystem");
-
-                foreach (ManagementObject queryObj in searcher.Get())
-                {
-
-                    Debug.WriteLine("System's total installed RAM {0}", queryObj["TotalPhysicalMemory"]);
-                    mem = Convert.ToInt64(queryObj["TotalPhysicalMemory"]);
-                }
-            }
-            catch (ManagementException e)
-            {
-                MessageBox.Show("An error occurred while querying for WMI data: " + e.Message);
-            }
-            return (mem / 1048576);
-        }
-
-        
         /// <summary>
         /// Processes the demos.
         /// </summary>
@@ -107,15 +83,11 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// </summary>
         private void CreateDemoJson()
         {
-            List<string> tmpFiles =
-                Directory.EnumerateFiles(UQltFileUtils.GetDemoParseTempDirectory(), "*.*", SearchOption.TopDirectoryOnly)
-                    .Where(
-                        file => file.ToLowerInvariant().EndsWith("tmp", StringComparison.OrdinalIgnoreCase)).ToList();
-                            
+            var tmpFiles = GetTempDemoTexts();
 
             //var processList = tmpFiles.Select(tmpFile => new Process()).ToList();
             Debug.WriteLine("Found a total of {0} qdparse temp files", tmpFiles.Count);
-            List<Process> processList = new List<Process>();
+            var processList = new List<Process>();
             for (int i = 0; i < tmpFiles.Count; ++i)
             {
                 processList.Add(new Process());
@@ -207,6 +179,73 @@ namespace UQLT.Core.Modules.DemoPlayer
         }
 
         /// <summary>
+        /// Deletes the temporary demo text files.
+        /// </summary>
+        private void DeleteTempDemoTexts()
+        {
+            var tmpFiles = GetTempDemoTexts();
+            foreach (var file in tmpFiles)
+            {
+                try
+                {
+                    File.Delete(file);
+                    Debug.WriteLine(string.Format("[CLEANUP]: Deleted temporary file {0}", file));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to delete file: " + ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Starts the dumper process.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        private void DumperProcess(object data)
+        {
+            // 0.1 sec
+            int waitAmount = 100;
+
+            object[] parameters = data as object[];
+            if (parameters == null) { return; }
+
+            var process = (Process)parameters[0];
+            var tmpFile = (string)parameters[1];
+
+            while (_isProcessPending)
+            {
+                waitAmount += 100;
+                Thread.Sleep(waitAmount);
+                //Debug.WriteLine("...Waiting for previous demo dumper process to finish.");
+            }
+
+            try
+            {
+                _isProcessPending = true;
+                var outputFile = Path.Combine(UQltFileUtils.GetDemoParseTempDirectory(),
+                    Path.GetFileNameWithoutExtension(tmpFile) + ".uql");
+                process.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
+                process.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.CreateNoWindow = true;
+                _processOutputBuilder = new StringBuilder("");
+                process.OutputDataReceived += DumperProcessOutputHandler;
+                process.EnableRaisingEvents = true;
+                process.Exited += DumperProcessFinished;
+                process.Start();
+                process.BeginOutputReadLine();
+                Debug.WriteLine("Starting dumper process on demo list: " + tmpFile);
+                process.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Method called to handle the process's Exited event.
         /// </summary>
         /// <param name="sender">The sender.</param>
@@ -214,7 +253,68 @@ namespace UQLT.Core.Modules.DemoPlayer
         private void DumperProcessFinished(object sender, EventArgs e)
         {
             _isProcessPending = false;
-            Debug.WriteLine("Process has exitted.");
+            ++_processesCompleted;
+            if (_processesCompleted == _totalProcessesToComplete)
+            {
+                DeleteTempDemoTexts();
+                _processOutputBuilder = null;
+                _processesCompleted = 0;
+                MessageBox.Show("Demo processing complete!");
+            }
+            Debug.WriteLine("Dumper process has exited.");
+        }
+
+        /// <summary>
+        /// Handles any output received from the demo dumper process.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="line">The <see cref="DataReceivedEventArgs"/> instance containing the event data.</param>
+        private void DumperProcessOutputHandler(object sender, DataReceivedEventArgs line)
+        {
+            if (!string.IsNullOrEmpty(line.Data))
+            {
+                _processOutputBuilder.Append(Environment.NewLine + line.Data);
+            }
+            Debug.WriteLine(_processOutputBuilder);
+        }
+
+        /// <summary>
+        /// Gets the temporary demo texts files.
+        /// </summary>
+        /// <returns>A list of the paths to the temporary text files that are to be sent to the dumper and/or cleaned up.</returns>
+        private List<string> GetTempDemoTexts()
+        {
+            List<string> tmpFiles =
+                Directory.EnumerateFiles(UQltFileUtils.GetDemoParseTempDirectory(), "*.*", SearchOption.TopDirectoryOnly)
+                    .Where(
+                        file => file.ToLowerInvariant().EndsWith("tmp", StringComparison.OrdinalIgnoreCase)).ToList();
+            return tmpFiles;
+        }
+
+        /// <summary>
+        /// Gets the total installed memory.
+        /// </summary>
+        /// <returns>The total installed memory in megabytes.</returns>
+        private long GetTotalInstalledMemory()
+        {
+            long mem = 0;
+            try
+            {
+                var searcher =
+                    new ManagementObjectSearcher("root\\CIMV2",
+                    "SELECT * FROM Win32_ComputerSystem");
+
+                foreach (ManagementObject queryObj in searcher.Get())
+                {
+                    Debug.WriteLine("System's total installed RAM {0}", queryObj["TotalPhysicalMemory"]);
+                    mem = Convert.ToInt64(queryObj["TotalPhysicalMemory"]);
+                }
+            }
+            catch (ManagementException e)
+            {
+                Debug.WriteLine("An error occurred while querying for WMI data: " + e.Message);
+            }
+            return (mem / 1048576);
         }
 
         private void StartDumperProcessThread(Process process, string tmpFile)
@@ -225,48 +325,6 @@ namespace UQLT.Core.Modules.DemoPlayer
 
             var bgThread = new Thread(DumperProcess);
             bgThread.Start(param);
-
-        }
-
-
-        /// <summary>
-        /// Starts the dumper process.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        private void DumperProcess(object data)
-        {
-            const int waitAmount = 100;
-            while (_isProcessPending)
-            {
-                Thread.Sleep(waitAmount);
-                Debug.WriteLine("...Waiting for previous demo dumper process to finish.");
-            }
-            
-            object[] parameters = data as object[];
-            if (parameters == null) { return; }
-
-            var process = (Process) parameters[0];
-            var tmpFile = (string) parameters[1];
-
-
-                try
-                {
-                    _isProcessPending = true;
-                    var outputFile = Path.Combine(UQltFileUtils.GetDemoParseTempDirectory(),
-                        Path.GetFileNameWithoutExtension(tmpFile) + ".uql");
-                    process.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
-                    process.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
-                    process.StartInfo.UseShellExecute = false;
-                    process.EnableRaisingEvents = true;
-                    process.Exited += DumperProcessFinished;
-                    process.Start();
-                    Debug.WriteLine("Starting dumper process on demo list: " + tmpFile);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-            
         }
 
         /// <summary>
