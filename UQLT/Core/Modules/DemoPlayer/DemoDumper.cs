@@ -16,10 +16,12 @@ namespace UQLT.Core.Modules.DemoPlayer
     /// </summary>
     public class DemoDumper
     {
+        private readonly object _processLock = new Object();
+        private readonly object _processOutputLock = new Object();
+        private volatile bool _hasHandledCancelationRequest;
         private volatile bool _isProcessPending;
         private volatile int _processesCompleted;
         private StringBuilder _processOutputBuilder;
-        private volatile int _processThreads;
         private int _totalProcessesToComplete;
 
         /// <summary>
@@ -80,25 +82,33 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="demoList">The demo list.</param>
         public void ProcessDemos(List<List<string>> demoList)
         {
-            DpVm.HasReceivedProcessCancelation = false;
+            _hasHandledCancelationRequest = false;
             DpVm.IsProcessingDemos = true;
-            CreateTempDemoTexts(demoList);
+            DpVm.HasReceivedProcessCancelation = false;
             WriteDemoDumperExecutable();
+            CreateTempDemoTexts(demoList);
             CreateDemoJson();
         }
 
         /// <summary>
-        /// All demo processing processes have been completed (either by running through to termination or by being canceled)
+        /// All demo processing processes have been completed (either by running through to termination or by being canceled).
+        /// Resets various progress and process values.
         /// </summary>
+        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void AllProcessesCompleted()
         {
-            DeleteTempDemoTexts();
-            // Reset various progress & process values
-            DpVm.ProcessingProgress = 0;
+            _totalProcessesToComplete = 0;
             _processesCompleted = 0;
+            _isProcessPending = false;
+            //UI
+            DpVm.ProcessingProgress = 0;
             DpVm.IsProcessingDemos = false;
+            DpVm.CanCancelProcess = true;
+            //File ops
+            DeleteTempDemoTexts();
+            DeleteDemoDumperExecutable();
+
             //MessageBox.Show("Demo processing complete!");
-            //_processOutputBuilder = null;
         }
 
         /// <summary>
@@ -116,8 +126,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         private void CreateDemoJson()
         {
             var tmpFiles = GetTempDemoTexts();
-
-            //var processList = tmpFiles.Select(tmpFile => new Process()).ToList();
             Debug.WriteLine("Found a total of {0} qdparse temp files", tmpFiles.Count);
             var processList = new List<Process>();
             for (int i = 0; i < tmpFiles.Count; ++i)
@@ -179,9 +187,10 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Deletes the demo dumper executable from the disk if it exists.
         /// </summary>
+        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void DeleteDemoDumperExecutable()
         {
-            if (!File.Exists(UQltFileUtils.GetQlDemoDumperPath())) return;
+            if (!File.Exists(UQltFileUtils.GetQlDemoDumperPath())) { return; }
             try
             {
                 File.Delete(UQltFileUtils.GetQlDemoDumperPath());
@@ -189,7 +198,7 @@ namespace UQLT.Core.Modules.DemoPlayer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Debug.WriteLine("Problem deleting QLDemoDumper executable: " + ex.Message);
             }
         }
 
@@ -213,11 +222,13 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Deletes the temporary demo text files.
         /// </summary>
+        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void DeleteTempDemoTexts()
         {
             var tmpFiles = GetTempDemoTexts();
             foreach (var file in tmpFiles)
             {
+                if (!File.Exists(file)) { break; }
                 try
                 {
                     File.Delete(file);
@@ -236,12 +247,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="data">The data.</param>
         private void DumperProcess(object data)
         {
-            if (_processThreads == 0)
-            {
-                AllProcessesCompleted();
-                return;
-            }
-
             // 0.1 sec
             int waitAmount = 100;
 
@@ -257,8 +262,15 @@ namespace UQLT.Core.Modules.DemoPlayer
                 Thread.Sleep(waitAmount);
                 //Debug.WriteLine("...Waiting for previous demo dumper process to finish.");
             }
-            // Has user canceled the demo processing?
-            if (!DpVm.HasReceivedProcessCancelation)
+            // Process cancellation from the UI
+            if (DpVm.HasReceivedProcessCancelation)
+            {
+                // UI responsive
+                DpVm.IsProcessingDemos = false;
+                AllProcessesCompleted();
+                return;
+            }
+            lock (_processLock)
             {
                 try
                 {
@@ -282,12 +294,8 @@ namespace UQLT.Core.Modules.DemoPlayer
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
+                    _isProcessPending = false;
                 }
-            }
-            else
-            {
-                --_processThreads;
-                // Thread will abort
             }
         }
 
@@ -300,7 +308,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         {
             _isProcessPending = false;
             ++_processesCompleted;
-            --_processThreads;
             UpdateProgress();
             if (_processesCompleted == _totalProcessesToComplete)
             {
@@ -319,15 +326,19 @@ namespace UQLT.Core.Modules.DemoPlayer
         {
             if (!string.IsNullOrEmpty(line.Data))
             {
-                _processOutputBuilder.Append(Environment.NewLine + line.Data);
-                if (line.Data.Contains("Traceback (most"))
+                //StringBuilder is not thread-safe
+                lock (_processOutputLock)
                 {
-                MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
-                    MessageBoxImage.Error);    
+                    _processOutputBuilder.Append(Environment.NewLine + line.Data);
+
+                    if (line.Data.Contains("Traceback (most"))
+                    {
+                        MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    Debug.WriteLine(_processOutputBuilder);
                 }
             }
-
-            Debug.WriteLine(_processOutputBuilder);
         }
 
         /// <summary>
@@ -382,7 +393,6 @@ namespace UQLT.Core.Modules.DemoPlayer
 
             var bgThread = new Thread(DumperProcess);
             bgThread.Start(param);
-            _processThreads++;
         }
 
         /// <summary>

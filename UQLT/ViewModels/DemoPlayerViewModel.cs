@@ -21,6 +21,9 @@ namespace UQLT.ViewModels
     public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
     {
         private readonly IWindowManager _windowManager;
+        private bool _canCancelProcess = true;
+        private string _cancelText = "Cancel";
+        private volatile bool _hasReceivedProcessCancelation;
         private bool _isProcessingDemos;
         private double _processingProgress;
         private string _qlDemoDirectoryPath;
@@ -38,6 +41,46 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance can still cancel processes.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance can still cancel processes; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is used to disable the Cancel button in the UI once the user has already canceled.</remarks>
+        public bool CanCancelProcess
+        {
+            get
+            {
+                return _canCancelProcess;
+            }
+            set
+            {
+                _canCancelProcess = value;
+                CancelText = value ? "Cancel" : "Canceling... Please wait...";
+                NotifyOfPropertyChange(() => CanCancelProcess);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the text used for the cancel button based on whether a cancelation is pending.
+        /// </summary>
+        /// <value>
+        /// The cancel text.
+        /// </value>
+        public string CancelText
+        {
+            get
+            {
+                return _cancelText;
+            }
+            set
+            {
+                _cancelText = value;
+                NotifyOfPropertyChange(() => CancelText);
+            }
+        }
+
+        /// <summary>
         /// Gets or Sets the display name for this window.
         /// </summary>
         public string DisplayName { get; set; }
@@ -48,7 +91,17 @@ namespace UQLT.ViewModels
         /// <value>
         /// <c>true</c> if this instance has received a demo process cancelation request; otherwise, <c>false</c>.
         /// </value>
-        public bool HasReceivedProcessCancelation { get; set; }
+        public bool HasReceivedProcessCancelation
+        {
+            get
+            {
+                return _hasReceivedProcessCancelation;
+            }
+            set
+            {
+                _hasReceivedProcessCancelation = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether demos are currently being processed.
@@ -168,6 +221,7 @@ namespace UQLT.ViewModels
         public void CancelAllProcessing()
         {
             HasReceivedProcessCancelation = true;
+            CanCancelProcess = false;
         }
 
         /// <summary>

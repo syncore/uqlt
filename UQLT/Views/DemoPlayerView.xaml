@@ -191,7 +191,7 @@
                         <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
             		Text="Processing demos... This might take a while." Padding="20,0,0,0" Margin="8,17,-12,28" />
                         <ProgressBar Value="{Binding ProcessingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
-                        <Button Content="Cancel" Margin="0,5,0,0" Width="80">
+                        <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelProcess}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <cal:ActionMessage MethodName="CancelAllProcessing" />
