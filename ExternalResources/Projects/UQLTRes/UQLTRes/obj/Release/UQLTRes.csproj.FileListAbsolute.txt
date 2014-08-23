@@ -1,7 +1,0 @@
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\bin\Release\UQLTRes.dll
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\bin\Release\UQLTRes.pdb
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\obj\Release\UQLTRes.g.resources
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\obj\Release\UQLT.Properties.Resources.resources
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\obj\Release\UQLTRes.csproj.GenerateResource.Cache
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\obj\Release\UQLTRes.dll
-D:\csharp\uqlt\ExternalResources\Projects\UQLTRes\UQLTRes\obj\Release\UQLTRes.pdb

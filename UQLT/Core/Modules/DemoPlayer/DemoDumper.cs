@@ -7,6 +7,7 @@ using System.Management;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using UQLT.ViewModels;
 
 namespace UQLT.Core.Modules.DemoPlayer
 {
@@ -17,15 +18,30 @@ namespace UQLT.Core.Modules.DemoPlayer
     {
         private volatile bool _isProcessPending;
         private volatile int _processesCompleted;
-        private int _totalProcessesToComplete;
         private StringBuilder _processOutputBuilder;
+        private volatile int _processThreads;
+        private int _totalProcessesToComplete;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DemoDumper"/> class.
+        /// Initializes a new instance of the <see cref="DemoDumper" /> class.
         /// </summary>
-        public DemoDumper()
+        /// <param name="dpvm">The <see cref="DemoPlayerViewModel"/>associated with this class.</param>
+        public DemoDumper(DemoPlayerViewModel dpvm)
         {
+            DpVm = dpvm;
             Cleanup();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="DemoPlayerViewModel"/> associated with this class.
+        /// </summary>
+        /// <value>
+        /// The <see cref="DemoPlayerViewModel"/> associated with this class.
+        /// </value>
+        public DemoPlayerViewModel DpVm
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -64,9 +80,25 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="demoList">The demo list.</param>
         public void ProcessDemos(List<List<string>> demoList)
         {
+            DpVm.HasReceivedProcessCancelation = false;
+            DpVm.IsProcessingDemos = true;
             CreateTempDemoTexts(demoList);
             WriteDemoDumperExecutable();
             CreateDemoJson();
+        }
+
+        /// <summary>
+        /// All demo processing processes have been completed (either by running through to termination or by being canceled)
+        /// </summary>
+        private void AllProcessesCompleted()
+        {
+            DeleteTempDemoTexts();
+            // Reset various progress & process values
+            DpVm.ProcessingProgress = 0;
+            _processesCompleted = 0;
+            DpVm.IsProcessingDemos = false;
+            //MessageBox.Show("Demo processing complete!");
+            //_processOutputBuilder = null;
         }
 
         /// <summary>
@@ -204,6 +236,12 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="data">The data.</param>
         private void DumperProcess(object data)
         {
+            if (_processThreads == 0)
+            {
+                AllProcessesCompleted();
+                return;
+            }
+
             // 0.1 sec
             int waitAmount = 100;
 
@@ -219,29 +257,37 @@ namespace UQLT.Core.Modules.DemoPlayer
                 Thread.Sleep(waitAmount);
                 //Debug.WriteLine("...Waiting for previous demo dumper process to finish.");
             }
-
-            try
+            // Has user canceled the demo processing?
+            if (!DpVm.HasReceivedProcessCancelation)
             {
-                _isProcessPending = true;
-                var outputFile = Path.Combine(UQltFileUtils.GetDemoParseTempDirectory(),
-                    Path.GetFileNameWithoutExtension(tmpFile) + ".uql");
-                process.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
-                process.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.CreateNoWindow = true;
-                _processOutputBuilder = new StringBuilder("");
-                process.OutputDataReceived += DumperProcessOutputHandler;
-                process.EnableRaisingEvents = true;
-                process.Exited += DumperProcessFinished;
-                process.Start();
-                process.BeginOutputReadLine();
-                Debug.WriteLine("Starting dumper process on demo list: " + tmpFile);
-                process.WaitForExit();
+                try
+                {
+                    _isProcessPending = true;
+                    var outputFile = Path.Combine(UQltFileUtils.GetDemoParseTempDirectory(),
+                        Path.GetFileNameWithoutExtension(tmpFile) + ".uql");
+                    process.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
+                    process.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.CreateNoWindow = true;
+                    _processOutputBuilder = new StringBuilder("");
+                    process.OutputDataReceived += DumperProcessOutputHandler;
+                    process.EnableRaisingEvents = true;
+                    process.Exited += DumperProcessFinished;
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    Debug.WriteLine("Starting dumper process on demo list: " + tmpFile);
+                    process.WaitForExit();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Debug.WriteLine(ex.Message);
+                --_processThreads;
+                // Thread will abort
             }
         }
 
@@ -254,13 +300,13 @@ namespace UQLT.Core.Modules.DemoPlayer
         {
             _isProcessPending = false;
             ++_processesCompleted;
+            --_processThreads;
+            UpdateProgress();
             if (_processesCompleted == _totalProcessesToComplete)
             {
-                DeleteTempDemoTexts();
-                _processOutputBuilder = null;
-                _processesCompleted = 0;
-                MessageBox.Show("Demo processing complete!");
+                AllProcessesCompleted();
             }
+
             Debug.WriteLine("Dumper process has exited.");
         }
 
@@ -274,7 +320,13 @@ namespace UQLT.Core.Modules.DemoPlayer
             if (!string.IsNullOrEmpty(line.Data))
             {
                 _processOutputBuilder.Append(Environment.NewLine + line.Data);
+                if (line.Data.Contains("Traceback (most"))
+                {
+                MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);    
+                }
             }
+
             Debug.WriteLine(_processOutputBuilder);
         }
 
@@ -284,7 +336,7 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <returns>A list of the paths to the temporary text files that are to be sent to the dumper and/or cleaned up.</returns>
         private List<string> GetTempDemoTexts()
         {
-            List<string> tmpFiles =
+            var tmpFiles =
                 Directory.EnumerateFiles(UQltFileUtils.GetDemoParseTempDirectory(), "*.*", SearchOption.TopDirectoryOnly)
                     .Where(
                         file => file.ToLowerInvariant().EndsWith("tmp", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -317,6 +369,11 @@ namespace UQLT.Core.Modules.DemoPlayer
             return (mem / 1048576);
         }
 
+        /// <summary>
+        /// Starts the dumper process thread.
+        /// </summary>
+        /// <param name="process">The process.</param>
+        /// <param name="tmpFile">The temporary file.</param>
         private void StartDumperProcessThread(Process process, string tmpFile)
         {
             object[] param = new object[2];
@@ -325,6 +382,18 @@ namespace UQLT.Core.Modules.DemoPlayer
 
             var bgThread = new Thread(DumperProcess);
             bgThread.Start(param);
+            _processThreads++;
+        }
+
+        /// <summary>
+        /// Updates the total progress value.
+        /// </summary>
+        private void UpdateProgress()
+        {
+            double progress = 0.0;
+            progress += (double)(_processesCompleted) / (_totalProcessesToComplete) * 100;
+            DpVm.ProcessingProgress = progress;
+            Debug.WriteLine("Total progress: {0}", progress);
         }
 
         /// <summary>

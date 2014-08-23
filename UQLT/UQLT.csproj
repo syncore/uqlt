@@ -145,6 +145,7 @@
     <Compile Include="Core\Modules\Chat\ChatSoundTypes.cs" />
     <Compile Include="Core\Modules\Chat\ChatStatusTypes.cs" />
     <Compile Include="Core\Modules\DemoPlayer\DemoDumper.cs" />
+    <Compile Include="Core\Modules\DemoPlayer\DemoPopulate.cs" />
     <Compile Include="Core\Modules\ServerBrowser\EloSearchTypes.cs" />
     <Compile Include="Core\Modules\ServerBrowser\ServerBrowser.cs" />
     <Compile Include="Core\Modules\ServerBrowser\EloSearchCategoryTypes.cs" />

@@ -342,8 +342,6 @@
                 <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
             		Text="Receiving Quake Live server data... Please wait." Padding="20,0,0,0" Margin="8,28,-12,28" />
             </Border>
-            <!--<TextBlock Foreground="Red" FontSize="14" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center"
-                   Text="{Binding NumberOfServersToUpdate, StringFormat='Updating servers (total: {0})'}" />-->
         </Grid>
     </Grid>
 </UserControl>

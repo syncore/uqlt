@@ -21,6 +21,8 @@ namespace UQLT.ViewModels
     public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
     {
         private readonly IWindowManager _windowManager;
+        private bool _isProcessingDemos;
+        private double _processingProgress;
         private string _qlDemoDirectoryPath;
 
         /// <summary>
@@ -39,6 +41,52 @@ namespace UQLT.ViewModels
         /// Gets or Sets the display name for this window.
         /// </summary>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has received a demo process cancelation request.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance has received a demo process cancelation request; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasReceivedProcessCancelation { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether demos are currently being processed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if demos are currently being processed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsProcessingDemos
+        {
+            get
+            {
+                return _isProcessingDemos;
+            }
+            set
+            {
+                _isProcessingDemos = value;
+                NotifyOfPropertyChange(() => IsProcessingDemos);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the demo processing progress.
+        /// </summary>
+        /// <value>
+        /// The demo processing progress.
+        /// </value>
+        public double ProcessingProgress
+        {
+            get
+            {
+                return _processingProgress;
+            }
+            set
+            {
+                _processingProgress = value;
+                NotifyOfPropertyChange(() => ProcessingProgress);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the QL demo directory path.
@@ -73,7 +121,7 @@ namespace UQLT.ViewModels
                 demofilepaths.AddRange(openfiledialog.FileNames);
 
                 // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
-                await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
+                //await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
 
                 // send to list splitter/QLDemoDumper
             }
@@ -100,10 +148,9 @@ namespace UQLT.ViewModels
                     //await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
 
                     // send to list splitter/QLDemoDumper
-                    var dumper = new DemoDumper();
+                    var dumper = new DemoDumper(this);
                     var demos = dumper.CollectDemos(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
                     dumper.ProcessDemos(demos);
-                    
                 }
                 else
                 {
@@ -113,6 +160,14 @@ namespace UQLT.ViewModels
                         MessageBoxImage.Error);
                 }
             }
+        }
+
+        /// <summary>
+        /// Cancels all demo processing.
+        /// </summary>
+        public void CancelAllProcessing()
+        {
+            HasReceivedProcessCancelation = true;
         }
 
         /// <summary>
