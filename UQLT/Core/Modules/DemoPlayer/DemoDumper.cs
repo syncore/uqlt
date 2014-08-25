@@ -16,10 +16,8 @@ namespace UQLT.Core.Modules.DemoPlayer
     /// </summary>
     public class DemoDumper
     {
-        private readonly object _processLock = new Object();
         private readonly object _processOutputLock = new Object();
-        private volatile bool _hasHandledCancelationRequest;
-        private volatile bool _isProcessPending;
+        private Dictionary<Process, string> _processes;
         private volatile int _processesCompleted;
         private StringBuilder _processOutputBuilder;
         private int _totalProcessesToComplete;
@@ -82,7 +80,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="demoList">The demo list.</param>
         public void ProcessDemos(List<List<string>> demoList)
         {
-            _hasHandledCancelationRequest = false;
             DpVm.IsProcessingDemos = true;
             DpVm.HasReceivedProcessCancelation = false;
             WriteDemoDumperExecutable();
@@ -94,12 +91,10 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// All demo processing processes have been completed (either by running through to termination or by being canceled).
         /// Resets various progress and process values.
         /// </summary>
-        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void AllProcessesCompleted()
         {
             _totalProcessesToComplete = 0;
             _processesCompleted = 0;
-            _isProcessPending = false;
             //UI
             DpVm.ProcessingProgress = 0;
             DpVm.IsProcessingDemos = false;
@@ -127,18 +122,12 @@ namespace UQLT.Core.Modules.DemoPlayer
         {
             var tmpFiles = GetTempDemoTexts();
             Debug.WriteLine("Found a total of {0} qdparse temp files", tmpFiles.Count);
-            var processList = new List<Process>();
-            for (int i = 0; i < tmpFiles.Count; ++i)
+            _processes = new Dictionary<Process, string>();
+            foreach (var file in tmpFiles)
             {
-                processList.Add(new Process());
+                _processes.Add(new Process(), file);
             }
-
-            for (int i = 0; i < processList.Count; ++i)
-            {
-                var process = processList[i];
-                var tmpfile = tmpFiles[i];
-                StartDumperProcessThread(process, tmpfile);
-            }
+            StartDumperProcessThread(_processes);
         }
 
         /// <summary>
@@ -187,7 +176,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Deletes the demo dumper executable from the disk if it exists.
         /// </summary>
-        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void DeleteDemoDumperExecutable()
         {
             if (!File.Exists(UQltFileUtils.GetQlDemoDumperPath())) { return; }
@@ -222,7 +210,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Deletes the temporary demo text files.
         /// </summary>
-        /// <remarks>Multiple threads will try to access in event of cancellation.</remarks>
         private void DeleteTempDemoTexts()
         {
             var tmpFiles = GetTempDemoTexts();
@@ -248,53 +235,46 @@ namespace UQLT.Core.Modules.DemoPlayer
         private void DumperProcess(object data)
         {
             // 0.1 sec
-            int waitAmount = 100;
+            //int waitAmount = 100;
 
             object[] parameters = data as object[];
             if (parameters == null) { return; }
-
-            var process = (Process)parameters[0];
-            var tmpFile = (string)parameters[1];
-
-            while (_isProcessPending)
+            var processes = (Dictionary<Process, string>)parameters[0];
+            foreach (var process in processes)
             {
-                waitAmount += 100;
-                Thread.Sleep(waitAmount);
-                //Debug.WriteLine("...Waiting for previous demo dumper process to finish.");
-            }
-            // Process cancellation from the UI
-            if (DpVm.HasReceivedProcessCancelation)
-            {
-                // UI responsive
-                DpVm.IsProcessingDemos = false;
-                AllProcessesCompleted();
-                return;
-            }
-            lock (_processLock)
-            {
+                var proc = process.Key;
+                var tmpFile = process.Value;
+                
+                // Process cancellation received from the UI
+                if (DpVm.HasReceivedProcessCancelation)
+                {
+                    // UI responsive
+                    DpVm.IsProcessingDemos = false;
+                    AllProcessesCompleted();
+                    return;
+                }
                 try
                 {
-                    _isProcessPending = true;
                     var outputFile = Path.Combine(UQltFileUtils.GetDemoParseTempDirectory(),
-                        Path.GetFileNameWithoutExtension(tmpFile) + ".uql");
-                    process.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
-                    process.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.CreateNoWindow = true;
+                        Path.GetFileNameWithoutExtension(process.Value) + ".uql");
+                    proc.StartInfo.FileName = UQltFileUtils.GetQlDemoDumperPath();
+                    proc.StartInfo.Arguments = string.Format("-l {0} -o {1}", tmpFile, outputFile);
+                    proc.StartInfo.UseShellExecute = false;
+                    proc.StartInfo.RedirectStandardOutput = true;
+                    proc.StartInfo.CreateNoWindow = true;
                     _processOutputBuilder = new StringBuilder("");
-                    process.OutputDataReceived += DumperProcessOutputHandler;
-                    process.EnableRaisingEvents = true;
-                    process.Exited += DumperProcessFinished;
-                    process.Start();
-                    process.BeginOutputReadLine();
+                    proc.OutputDataReceived += DumperProcessOutputHandler;
+                    proc.EnableRaisingEvents = true;
+                    proc.Exited += DumperProcessFinished;
+                    proc.Start();
+                    proc.BeginOutputReadLine();
                     Debug.WriteLine("Starting dumper process on demo list: " + tmpFile);
-                    process.WaitForExit();
+                    // Wait for previous process to exit and block current thread until it does so
+                    proc.WaitForExit();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine(ex.Message);
-                    _isProcessPending = false;
                 }
             }
         }
@@ -306,7 +286,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void DumperProcessFinished(object sender, EventArgs e)
         {
-            _isProcessPending = false;
             ++_processesCompleted;
             UpdateProgress();
             if (_processesCompleted == _totalProcessesToComplete)
@@ -383,13 +362,11 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Starts the dumper process thread.
         /// </summary>
-        /// <param name="process">The process.</param>
-        /// <param name="tmpFile">The temporary file.</param>
-        private void StartDumperProcessThread(Process process, string tmpFile)
+        /// <param name="processes">The processes.</param>
+        private void StartDumperProcessThread(Dictionary<Process, string> processes)
         {
-            object[] param = new object[2];
-            param[0] = process;
-            param[1] = tmpFile;
+            object[] param = new object[1];
+            param[0] = processes;
 
             var bgThread = new Thread(DumperProcess);
             bgThread.Start(param);
