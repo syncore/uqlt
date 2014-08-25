@@ -211,12 +211,12 @@ namespace UQLT.Helpers
         {
             try
             {
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + locationId + ".gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/locationflags/" + locationId + ".gif", UriKind.RelativeOrAbsolute));
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/locationflags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
             }
         }
 

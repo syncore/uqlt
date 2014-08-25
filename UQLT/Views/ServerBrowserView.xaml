@@ -249,7 +249,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0" />
                                     <!--<TextBlock Name="CountryName" Text="{Binding location_id, Converter={StaticResource LocIdToName}}" />-->
-                                    <TextBlock Name="CountryName" Text="{Binding FullLocationName}" />
+                                    <TextBlock Text="{Binding FullLocationName}" />
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

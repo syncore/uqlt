@@ -13,7 +13,7 @@ namespace UQLT.Models.DemoPlayer
         public string timestamp { get; set; }
         public string gametype_title { get; set; }
         public int gametype { get; set; }
-        public List<object> spectators { get; set; }
+        public List<Player> spectators { get; set; }
         public double size { get; set; }
         public string filename { get; set; }
         public List<Player> players { get; set; }

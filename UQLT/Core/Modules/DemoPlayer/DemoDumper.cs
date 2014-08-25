@@ -99,6 +99,9 @@ namespace UQLT.Core.Modules.DemoPlayer
             DpVm.ProcessingProgress = 0;
             DpVm.IsProcessingDemos = false;
             DpVm.CanCancelProcess = true;
+            // Populate
+            DemoPopulate demoPopulate = new DemoPopulate(DpVm);
+            demoPopulate.PopulateUserDemoList();
             //File ops
             DeleteTempDemoTexts();
             DeleteDemoDumperExecutable();
@@ -326,11 +329,8 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <returns>A list of the paths to the temporary text files that are to be sent to the dumper and/or cleaned up.</returns>
         private List<string> GetTempDemoTexts()
         {
-            var tmpFiles =
-                Directory.EnumerateFiles(UQltFileUtils.GetDemoParseTempDirectory(), "*.*", SearchOption.TopDirectoryOnly)
-                    .Where(
-                        file => file.ToLowerInvariant().EndsWith("tmp", StringComparison.OrdinalIgnoreCase)).ToList();
-            return tmpFiles;
+            return Directory.EnumerateFiles(UQltFileUtils.GetDemoParseTempDirectory(), "*.*", SearchOption.TopDirectoryOnly)
+                    .Where(file => file.ToLowerInvariant().EndsWith("tmp", StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         /// <summary>

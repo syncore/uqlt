@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:cal="http://www.caliburnproject.org"
+        xmlns:helpers="clr-namespace:UQLT.Helpers"
         Title="UQLT v0.1 - Demo Player" Height="782" Width="1040">
 
     <Window.Resources>
+        <!--Template for Demo Summary-->
         <DataTemplate x:Key="DemoQuickInfoTemplate">
             <!--Outer container-->
             <StackPanel Orientation="Vertical">
@@ -19,37 +21,58 @@
                     <StackPanel Orientation="Vertical" Margin="120,0,0,0" Width="323">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="File name: " />
-                            <TextBlock Text="{Binding Path=Filename}" />
+                            <TextBlock Text="{Binding Filename}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Map: " />
-                            <TextBlock Text="{Binding Path=MapTitle}" />
+                            <TextBlock Text="{Binding Map}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Recorded by: " />
-                            <TextBlock Text="{Binding Path=RecordedBy}" />
+                            <TextBlock Text="{Binding RecordedBy}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Game date: " />
-                            <TextBlock Text="{Binding Path=GameDate}" />
+                            <TextBlock Text="{Binding Date}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Game type: " />
-                            <TextBlock Text="{Binding Path=GameType}" />
+                            <StackPanel Orientation="Horizontal">
+                                <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}" />
+                                <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}" />
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Game location: " />
-                            <TextBlock Text="{Binding Path=GameLocation}" />
+                            <TextBlock Text="{Binding Location}" />
                         </StackPanel>
                     </StackPanel>
-
-
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
+        <!--Template for Red/Blue Team Colors-->
+        <DataTemplate x:Key="TeamColors">
+            <Border x:Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+                <TextBlock Foreground="White" Text="{Binding TeamName}" />
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Team}" Value="0">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="1">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66FF1D1D" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="2">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66000CFF" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="3">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
 
-    <Grid>
+    <Grid x:Name="DemoPlayerRoot">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="700" />
             <ColumnDefinition Width="340" />
@@ -88,48 +111,73 @@
         <!--Stackpanel container for file info, player, and chat msgs-->
         <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
             <!--Quick demo details-->
-            <ContentControl ContentTemplate="{StaticResource DemoQuickInfoTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="120" Width="695" />
+            <ContentControl Content="{Binding SelectedDemo}" ContentTemplate="{StaticResource DemoQuickInfoTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="120" Width="695" />
 
             <TextBlock Height="20" TextWrapping="Wrap" Text="Quake Live demo files" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
-            <!--File info listview-->
-            <ListView HorizontalAlignment="Left" Height="200" VerticalAlignment="Top" Width="699">
+            <!--User's Demo files listview-->
+            <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" VerticalAlignment="Top" Height="200" Width="699" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Demos}" SelectedItem="{Binding SelectedDemo}" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=DemoPlayerRoot}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Filename">
+                        <GridViewColumn Header="Filename" helpers:GridViewSort.PropertyName="Filename" DisplayMemberBinding="{Binding Filename}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Size">
+                        <GridViewColumn Header="Size" helpers:GridViewSort.PropertyName="Filesize" DisplayMemberBinding="{Binding Filesize}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Recorded by">
+                        <GridViewColumn Header="Recorded by" helpers:GridViewSort.PropertyName="RecordedBy" DisplayMemberBinding="{Binding RecordedBy}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Date">
+                        <GridViewColumn Header="Date" helpers:GridViewSort.PropertyName="Date" DisplayMemberBinding="{Binding Date}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Game">
+                        <GridViewColumn Header="Game" helpers:GridViewSort.PropertyName="GameTypeTitle">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}" />
+                                        <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Map">
+                        <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="Map" DisplayMemberBinding="{Binding Map}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Location">
+                        <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="Location" DisplayMemberBinding="{Binding Location}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Protocol">
+                        <GridViewColumn Header="Protocol" helpers:GridViewSort.PropertyName="Protocol" DisplayMemberBinding="{Binding Protocol}">
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
-            <!--Player info and chat message description text split stackpanel-->
+            <!--Player info header stackpanel-->
             <StackPanel Orientation="Horizontal"  Background="#FF931313">
                 <TextBlock Height="20" TextWrapping="Wrap" Text="Player information" Margin="5,0,200,0" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold" Width="699" />
                 <TextBlock Height="20" TextWrapping="Wrap" Text="Chat messages" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold" />
             </StackPanel>
-            <!--Stackpanel container for player and chat messages-->
+            <!--Stackpanel container for actual player info-->
             <StackPanel Orientation="Horizontal">
                 <!--Player info listview-->
-                <ListView HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="698">
+                <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="698"
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedDemo.FormattedDemoInfoPlayers}" SelectionMode="Single" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Team">
-                            </GridViewColumn>
+                            <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />
                             <GridViewColumn Header="Clan">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ClanTag}" Margin="0,4,0,0"/>
+                                            <TextBlock Text="{Binding ExtendedClan}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Player">
+                            <GridViewColumn Header="Player" helpers:GridViewSort.PropertyName="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0" />
+                                            <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0" />
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>

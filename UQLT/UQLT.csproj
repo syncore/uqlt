@@ -228,6 +228,8 @@
     <Compile Include="ViewModels\AddFriendViewModel.cs" />
     <Compile Include="ViewModels\ChatMessageViewModel.cs" />
     <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
+    <Compile Include="ViewModels\DemoInfoViewModel.cs" />
+    <Compile Include="ViewModels\DemoInfoPlayerViewModel.cs" />
     <Compile Include="ViewModels\DemoPlayerViewModel.cs" />
     <Compile Include="ViewModels\FriendViewModel.cs" />
     <Compile Include="ViewModels\GameInvitationViewModel.cs" />

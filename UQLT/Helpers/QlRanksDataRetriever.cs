@@ -130,7 +130,7 @@ namespace UQLT.Helpers
                 {
                     foreach (var player in s.Players)
                     {
-                        s.QlServer.SetPlayerElos();
+                        s.Server.SetPlayerElos();
                     }
 
                     // Now set the elos on the PlayerDetailsViewModel so that the UI can automatically receive updates as they come in.

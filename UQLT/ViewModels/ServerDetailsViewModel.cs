@@ -17,9 +17,10 @@ using UQLT.Models.QuakeLiveAPI;
 namespace UQLT.ViewModels
 {
     /// <summary>
-    /// Individual server viewmodel. This class wraps a Server class and exposes additional
+    /// Individual server viewmodel. This class wraps a <see cref="Server"/> class and exposes additional
     /// properties specific to the View (in this case, ServerBrowserView).
     /// </summary>
+    /// <remarks>This viewmodel does not have a separate view.</remarks>
     [Export(typeof(ServerDetailsViewModel))]
     public class ServerDetailsViewModel : PropertyChangedBase
     {
@@ -40,8 +41,8 @@ namespace UQLT.ViewModels
         [ImportingConstructor]
         public ServerDetailsViewModel(Server server)
         {
-            QlServer = server;
-            FormattedPlayerList = FormatPlayerCollection(QlServer.players);
+            this.Server = server;
+            FormattedPlayerList = FormatPlayerCollection(Server.players);
             DoTeamEloRetrieval();
         }
 
@@ -53,7 +54,7 @@ namespace UQLT.ViewModels
         /// </value>
         public long BlueTeamElo
         {
-            get { return QlServer.blueteamelo; }
+            get { return Server.blueteamelo; }
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.capturelimit;
+                return Server.capturelimit;
             }
         }
 
@@ -106,7 +107,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.cleanedip;
+                return Server.cleanedip;
             }
         }
 
@@ -118,7 +119,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.ECODE;
+                return Server.ECODE;
             }
         }
 
@@ -133,12 +134,12 @@ namespace UQLT.ViewModels
             {
                 try
                 {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/" + LocationId + ".gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/locationflags/" + LocationId + ".gif", UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Error: " + ex);
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/flags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/locationflags/unknown_flag.gif", UriKind.RelativeOrAbsolute));
                 }
             }
         }
@@ -178,7 +179,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.fraglimit;
+                return Server.fraglimit;
             }
         }
 
@@ -206,7 +207,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.game_type;
+                return Server.game_type;
             }
         }
 
@@ -225,7 +226,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Error: " + ex);
+                    Debug.WriteLine("Error: " + ex.Message);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/unknown_game_type.gif", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -239,7 +240,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.game_type_title;
+                return Server.game_type_title;
             }
         }
 
@@ -251,7 +252,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_bluescore;
+                return Server.g_bluescore;
             }
         }
 
@@ -263,7 +264,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_customSettings;
+                return Server.g_customSettings;
             }
         }
 
@@ -275,7 +276,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_gamestate;
+                return Server.g_gamestate;
             }
         }
 
@@ -287,7 +288,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_instagib;
+                return Server.g_instagib;
             }
         }
 
@@ -299,7 +300,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_levelstarttime;
+                return Server.g_levelstarttime;
             }
         }
 
@@ -311,7 +312,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_needpass;
+                return Server.g_needpass;
             }
         }
 
@@ -323,7 +324,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.g_redscore;
+                return Server.g_redscore;
             }
         }
 
@@ -335,7 +336,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.host_address;
+                return Server.host_address;
             }
         }
 
@@ -347,7 +348,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.host_name;
+                return Server.host_name;
             }
         }
 
@@ -480,7 +481,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.location_id;
+                return Server.location_id;
             }
         }
 
@@ -492,7 +493,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.map;
+                return Server.map;
             }
         }
 
@@ -525,7 +526,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.map_title;
+                return Server.map_title;
             }
         }
 
@@ -537,7 +538,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.max_clients;
+                return Server.max_clients;
             }
         }
 
@@ -562,7 +563,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.num_clients;
+                return Server.num_clients;
             }
         }
 
@@ -574,7 +575,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.num_players;
+                return Server.num_players;
             }
         }
 
@@ -586,7 +587,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.owner;
+                return Server.owner;
             }
         }
 
@@ -633,7 +634,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.players;
+                return Server.players;
             }
         }
 
@@ -645,7 +646,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.premium;
+                return Server.premium;
             }
         }
 
@@ -657,7 +658,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.public_id;
+                return Server.public_id;
             }
         }
 
@@ -676,7 +677,7 @@ namespace UQLT.ViewModels
         /// Gets the server that this viewmodel wraps.
         /// </summary>
         /// <value>The server that this viewmodel wraps.</value>
-        public Server QlServer
+        public Server Server
         {
             get;
             private set;
@@ -694,7 +695,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.ranked;
+                return Server.ranked;
             }
         }
 
@@ -706,7 +707,7 @@ namespace UQLT.ViewModels
         /// </value>
         public long RedTeamElo
         {
-            get { return QlServer.redteamelo; }
+            get { return Server.redteamelo; }
         }
 
         /// <summary>
@@ -746,7 +747,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.roundlimit;
+                return Server.roundlimit;
             }
         }
 
@@ -758,7 +759,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.roundtimelimit;
+                return Server.roundtimelimit;
             }
         }
 
@@ -770,7 +771,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.ruleset;
+                return Server.ruleset;
             }
         }
 
@@ -782,7 +783,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.scorelimit;
+                return Server.scorelimit;
             }
         }
 
@@ -843,7 +844,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.skillDelta;
+                return Server.skillDelta;
             }
         }
 
@@ -855,7 +856,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.teamsize;
+                return Server.teamsize;
             }
         }
 
@@ -867,7 +868,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return QlServer.timelimit;
+                return Server.timelimit;
             }
         }
 
@@ -1173,11 +1174,11 @@ namespace UQLT.ViewModels
             }
             if (team == 1)
             {
-                QlServer.redteamelo = totaleloteam / totalplayers;
+                Server.redteamelo = totaleloteam / totalplayers;
             }
             else
             {
-                QlServer.blueteamelo = totaleloteam / totalplayers;
+                Server.blueteamelo = totaleloteam / totalplayers;
             }
 
             return (totaleloteam / totalplayers);
@@ -1191,7 +1192,7 @@ namespace UQLT.ViewModels
         /// <remarks>This replaced <see cref="GridViewSort"/>for the player details, which required an observable collection to work properly (more overhead) and did not always work correctly.</remarks>
         private List<PlayerDetailsViewModel> FormatPlayerCollection(IEnumerable<Player> players)
         {
-            var sorted = players.Select(player => new PlayerDetailsViewModel(player, QlServer)).ToList();
+            var sorted = players.Select(player => new PlayerDetailsViewModel(player, Server)).ToList();
             return sorted.OrderByDescending(a => a.Score).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
     }

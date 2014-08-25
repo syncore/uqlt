@@ -52,172 +52,173 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\6.gif" />
+    <Resource Include="images\locationflags\6.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\10.gif" />
+    <Resource Include="images\locationflags\10.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\11.gif" />
+    <Resource Include="images\locationflags\11.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\12.gif" />
+    <Resource Include="images\locationflags\12.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\14.gif" />
+    <Resource Include="images\locationflags\14.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\16.gif" />
+    <Resource Include="images\locationflags\16.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\17.gif" />
+    <Resource Include="images\locationflags\17.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\18.gif" />
+    <Resource Include="images\locationflags\18.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\19.gif" />
+    <Resource Include="images\locationflags\19.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\20.gif" />
+    <Resource Include="images\locationflags\20.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\21.gif" />
+    <Resource Include="images\locationflags\21.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\22.gif" />
+    <Resource Include="images\locationflags\22.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\23.gif" />
+    <Resource Include="images\locationflags\23.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\24.gif" />
+    <Resource Include="images\locationflags\24.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\25.gif" />
+    <Resource Include="images\locationflags\25.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\26.gif" />
+    <Resource Include="images\locationflags\26.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\27.gif" />
+    <Resource Include="images\locationflags\27.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\28.gif" />
+    <Resource Include="images\locationflags\28.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\29.gif" />
+    <Resource Include="images\locationflags\29.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\30.gif" />
+    <Resource Include="images\locationflags\30.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\31.gif" />
+    <Resource Include="images\locationflags\31.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\32.gif" />
+    <Resource Include="images\locationflags\32.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\33.gif" />
+    <Resource Include="images\locationflags\33.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\34.gif" />
+    <Resource Include="images\locationflags\34.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\35.gif" />
+    <Resource Include="images\locationflags\35.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\36.gif" />
+    <Resource Include="images\locationflags\36.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\37.gif" />
+    <Resource Include="images\locationflags\37.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\38.gif" />
+    <Resource Include="images\locationflags\38.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\39.gif" />
+    <Resource Include="images\locationflags\39.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\40.gif" />
+    <Resource Include="images\locationflags\40.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\41.gif" />
+    <Resource Include="images\locationflags\41.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\42.gif" />
+    <Resource Include="images\locationflags\42.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\43.gif" />
+    <Resource Include="images\locationflags\43.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\44.gif" />
+    <Resource Include="images\locationflags\44.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\45.gif" />
+    <Resource Include="images\locationflags\45.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\46.gif" />
+    <Resource Include="images\locationflags\46.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\47.gif" />
+    <Resource Include="images\locationflags\47.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\48.gif" />
+    <Resource Include="images\locationflags\48.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\49.gif" />
+    <Resource Include="images\locationflags\49.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\50.gif" />
+    <Resource Include="images\locationflags\50.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\51.gif" />
+    <Resource Include="images\locationflags\51.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\52.gif" />
+    <Resource Include="images\locationflags\52.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\53.gif" />
+    <Resource Include="images\locationflags\53.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\54.gif" />
+    <Resource Include="images\locationflags\54.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\58.gif" />
+    <Resource Include="images\locationflags\58.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\59.gif" />
+    <Resource Include="images\locationflags\59.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\60.gif" />
+    <Resource Include="images\locationflags\60.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\62.gif" />
+    <Resource Include="images\locationflags\62.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\63.gif" />
+    <Resource Include="images\locationflags\63.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\64.gif" />
+    <Resource Include="images\locationflags\64.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\65.gif" />
+    <Resource Include="images\locationflags\65.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\66.gif" />
+    <Resource Include="images\locationflags\66.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\67.gif" />
+    <Resource Include="images\locationflags\67.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\68.gif" />
+    <Resource Include="images\locationflags\68.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\666.gif" />
+    <Resource Include="images\locationflags\666.gif" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\gametypes\0.gif" />
@@ -679,7 +680,7 @@
     <Resource Include="images\maps\windsongkeep.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\unknown_flag.gif" />
+    <Resource Include="images\locationflags\unknown_flag.gif" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\gametypes\unknown_gametype.gif" />
@@ -697,13 +698,13 @@
     <Resource Include="images\maps\wintersedge.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\69.gif" />
+    <Resource Include="images\locationflags\69.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\70.gif" />
+    <Resource Include="images\locationflags\70.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\flags\61.gif" />
+    <Resource Include="images\locationflags\61.gif" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\gametypes\12.gif" />
@@ -737,6 +738,252 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\maps\shakennotstirred.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\playerflags\ad.gif" />
+    <Resource Include="images\playerflags\ae.gif" />
+    <Resource Include="images\playerflags\af.gif" />
+    <Resource Include="images\playerflags\ag.gif" />
+    <Resource Include="images\playerflags\ai.gif" />
+    <Resource Include="images\playerflags\al.gif" />
+    <Resource Include="images\playerflags\am.gif" />
+    <Resource Include="images\playerflags\an.gif" />
+    <Resource Include="images\playerflags\ao.gif" />
+    <Resource Include="images\playerflags\ar.gif" />
+    <Resource Include="images\playerflags\as.gif" />
+    <Resource Include="images\playerflags\at.gif" />
+    <Resource Include="images\playerflags\au.gif" />
+    <Resource Include="images\playerflags\aw.gif" />
+    <Resource Include="images\playerflags\ax.gif" />
+    <Resource Include="images\playerflags\az.gif" />
+    <Resource Include="images\playerflags\ba.gif" />
+    <Resource Include="images\playerflags\bb.gif" />
+    <Resource Include="images\playerflags\bd.gif" />
+    <Resource Include="images\playerflags\be.gif" />
+    <Resource Include="images\playerflags\bf.gif" />
+    <Resource Include="images\playerflags\bg.gif" />
+    <Resource Include="images\playerflags\bh.gif" />
+    <Resource Include="images\playerflags\bi.gif" />
+    <Resource Include="images\playerflags\bj.gif" />
+    <Resource Include="images\playerflags\bm.gif" />
+    <Resource Include="images\playerflags\bn.gif" />
+    <Resource Include="images\playerflags\bo.gif" />
+    <Resource Include="images\playerflags\br.gif" />
+    <Resource Include="images\playerflags\bs.gif" />
+    <Resource Include="images\playerflags\bt.gif" />
+    <Resource Include="images\playerflags\bv.gif" />
+    <Resource Include="images\playerflags\bw.gif" />
+    <Resource Include="images\playerflags\by.gif" />
+    <Resource Include="images\playerflags\bz.gif" />
+    <Resource Include="images\playerflags\ca.gif" />
+    <Resource Include="images\playerflags\cc.gif" />
+    <Resource Include="images\playerflags\cd.gif" />
+    <Resource Include="images\playerflags\cf.gif" />
+    <Resource Include="images\playerflags\cg.gif" />
+    <Resource Include="images\playerflags\ch.gif" />
+    <Resource Include="images\playerflags\ci.gif" />
+    <Resource Include="images\playerflags\ck.gif" />
+    <Resource Include="images\playerflags\cl.gif" />
+    <Resource Include="images\playerflags\cm.gif" />
+    <Resource Include="images\playerflags\cn.gif" />
+    <Resource Include="images\playerflags\co.gif" />
+    <Resource Include="images\playerflags\cr.gif" />
+    <Resource Include="images\playerflags\cs.gif" />
+    <Resource Include="images\playerflags\cu.gif" />
+    <Resource Include="images\playerflags\cv.gif" />
+    <Resource Include="images\playerflags\cx.gif" />
+    <Resource Include="images\playerflags\cy.gif" />
+    <Resource Include="images\playerflags\cz.gif" />
+    <Resource Include="images\playerflags\de.gif" />
+    <Resource Include="images\playerflags\dj.gif" />
+    <Resource Include="images\playerflags\dk.gif" />
+    <Resource Include="images\playerflags\dm.gif" />
+    <Resource Include="images\playerflags\do.gif" />
+    <Resource Include="images\playerflags\dz.gif" />
+    <Resource Include="images\playerflags\ec.gif" />
+    <Resource Include="images\playerflags\ee.gif" />
+    <Resource Include="images\playerflags\eg.gif" />
+    <Resource Include="images\playerflags\eh.gif" />
+    <Resource Include="images\playerflags\er.gif" />
+    <Resource Include="images\playerflags\es.gif" />
+    <Resource Include="images\playerflags\et.gif" />
+    <Resource Include="images\playerflags\fi.gif" />
+    <Resource Include="images\playerflags\fj.gif" />
+    <Resource Include="images\playerflags\fk.gif" />
+    <Resource Include="images\playerflags\fm.gif" />
+    <Resource Include="images\playerflags\fo.gif" />
+    <Resource Include="images\playerflags\fr.gif" />
+    <Resource Include="images\playerflags\ga.gif" />
+    <Resource Include="images\playerflags\gb.gif" />
+    <Resource Include="images\playerflags\gd.gif" />
+    <Resource Include="images\playerflags\ge.gif" />
+    <Resource Include="images\playerflags\gf.gif" />
+    <Resource Include="images\playerflags\gg.gif" />
+    <Resource Include="images\playerflags\gh.gif" />
+    <Resource Include="images\playerflags\gi.gif" />
+    <Resource Include="images\playerflags\gl.gif" />
+    <Resource Include="images\playerflags\gm.gif" />
+    <Resource Include="images\playerflags\gn.gif" />
+    <Resource Include="images\playerflags\gp.gif" />
+    <Resource Include="images\playerflags\gq.gif" />
+    <Resource Include="images\playerflags\gr.gif" />
+    <Resource Include="images\playerflags\gs.gif" />
+    <Resource Include="images\playerflags\gt.gif" />
+    <Resource Include="images\playerflags\gu.gif" />
+    <Resource Include="images\playerflags\gw.gif" />
+    <Resource Include="images\playerflags\gy.gif" />
+    <Resource Include="images\playerflags\hk.gif" />
+    <Resource Include="images\playerflags\hm.gif" />
+    <Resource Include="images\playerflags\hn.gif" />
+    <Resource Include="images\playerflags\hr.gif" />
+    <Resource Include="images\playerflags\ht.gif" />
+    <Resource Include="images\playerflags\hu.gif" />
+    <Resource Include="images\playerflags\id.gif" />
+    <Resource Include="images\playerflags\ie.gif" />
+    <Resource Include="images\playerflags\il.gif" />
+    <Resource Include="images\playerflags\in.gif" />
+    <Resource Include="images\playerflags\io.gif" />
+    <Resource Include="images\playerflags\iq.gif" />
+    <Resource Include="images\playerflags\ir.gif" />
+    <Resource Include="images\playerflags\is.gif" />
+    <Resource Include="images\playerflags\it.gif" />
+    <Resource Include="images\playerflags\je.gif" />
+    <Resource Include="images\playerflags\jm.gif" />
+    <Resource Include="images\playerflags\jo.gif" />
+    <Resource Include="images\playerflags\jp.gif" />
+    <Resource Include="images\playerflags\ke.gif" />
+    <Resource Include="images\playerflags\kg.gif" />
+    <Resource Include="images\playerflags\kh.gif" />
+    <Resource Include="images\playerflags\ki.gif" />
+    <Resource Include="images\playerflags\km.gif" />
+    <Resource Include="images\playerflags\kn.gif" />
+    <Resource Include="images\playerflags\kp.gif" />
+    <Resource Include="images\playerflags\kr.gif" />
+    <Resource Include="images\playerflags\kw.gif" />
+    <Resource Include="images\playerflags\ky.gif" />
+    <Resource Include="images\playerflags\kz.gif" />
+    <Resource Include="images\playerflags\la.gif" />
+    <Resource Include="images\playerflags\lb.gif" />
+    <Resource Include="images\playerflags\lc.gif" />
+    <Resource Include="images\playerflags\li.gif" />
+    <Resource Include="images\playerflags\lk.gif" />
+    <Resource Include="images\playerflags\lr.gif" />
+    <Resource Include="images\playerflags\ls.gif" />
+    <Resource Include="images\playerflags\lt.gif" />
+    <Resource Include="images\playerflags\lu.gif" />
+    <Resource Include="images\playerflags\lv.gif" />
+    <Resource Include="images\playerflags\ly.gif" />
+    <Resource Include="images\playerflags\ma.gif" />
+    <Resource Include="images\playerflags\mc.gif" />
+    <Resource Include="images\playerflags\md.gif" />
+    <Resource Include="images\playerflags\mg.gif" />
+    <Resource Include="images\playerflags\mh.gif" />
+    <Resource Include="images\playerflags\mk.gif" />
+    <Resource Include="images\playerflags\ml.gif" />
+    <Resource Include="images\playerflags\mm.gif" />
+    <Resource Include="images\playerflags\mn.gif" />
+    <Resource Include="images\playerflags\mo.gif" />
+    <Resource Include="images\playerflags\mp.gif" />
+    <Resource Include="images\playerflags\mq.gif" />
+    <Resource Include="images\playerflags\mr.gif" />
+    <Resource Include="images\playerflags\ms.gif" />
+    <Resource Include="images\playerflags\mt.gif" />
+    <Resource Include="images\playerflags\mu.gif" />
+    <Resource Include="images\playerflags\mv.gif" />
+    <Resource Include="images\playerflags\mw.gif" />
+    <Resource Include="images\playerflags\mx.gif" />
+    <Resource Include="images\playerflags\my.gif" />
+    <Resource Include="images\playerflags\mz.gif" />
+    <Resource Include="images\playerflags\na.gif" />
+    <Resource Include="images\playerflags\nc.gif" />
+    <Resource Include="images\playerflags\ne.gif" />
+    <Resource Include="images\playerflags\nf.gif" />
+    <Resource Include="images\playerflags\ng.gif" />
+    <Resource Include="images\playerflags\ni.gif" />
+    <Resource Include="images\playerflags\nl.gif" />
+    <Resource Include="images\playerflags\no.gif" />
+    <Resource Include="images\playerflags\np.gif" />
+    <Resource Include="images\playerflags\nr.gif" />
+    <Resource Include="images\playerflags\nu.gif" />
+    <Resource Include="images\playerflags\nz.gif" />
+    <Resource Include="images\playerflags\om.gif" />
+    <Resource Include="images\playerflags\pa.gif" />
+    <Resource Include="images\playerflags\pe.gif" />
+    <Resource Include="images\playerflags\pf.gif" />
+    <Resource Include="images\playerflags\pg.gif" />
+    <Resource Include="images\playerflags\ph.gif" />
+    <Resource Include="images\playerflags\pk.gif" />
+    <Resource Include="images\playerflags\pl.gif" />
+    <Resource Include="images\playerflags\pm.gif" />
+    <Resource Include="images\playerflags\pn.gif" />
+    <Resource Include="images\playerflags\pr.gif" />
+    <Resource Include="images\playerflags\ps.gif" />
+    <Resource Include="images\playerflags\pt.gif" />
+    <Resource Include="images\playerflags\pw.gif" />
+    <Resource Include="images\playerflags\py.gif" />
+    <Resource Include="images\playerflags\qa.gif" />
+    <Resource Include="images\playerflags\re.gif" />
+    <Resource Include="images\playerflags\ro.gif" />
+    <Resource Include="images\playerflags\ru.gif" />
+    <Resource Include="images\playerflags\rw.gif" />
+    <Resource Include="images\playerflags\sa.gif" />
+    <Resource Include="images\playerflags\sb.gif" />
+    <Resource Include="images\playerflags\sc.gif" />
+    <Resource Include="images\playerflags\sd.gif" />
+    <Resource Include="images\playerflags\se.gif" />
+    <Resource Include="images\playerflags\sg.gif" />
+    <Resource Include="images\playerflags\sh.gif" />
+    <Resource Include="images\playerflags\si.gif" />
+    <Resource Include="images\playerflags\sj.gif" />
+    <Resource Include="images\playerflags\sk.gif" />
+    <Resource Include="images\playerflags\sl.gif" />
+    <Resource Include="images\playerflags\sm.gif" />
+    <Resource Include="images\playerflags\sn.gif" />
+    <Resource Include="images\playerflags\so.gif" />
+    <Resource Include="images\playerflags\sr.gif" />
+    <Resource Include="images\playerflags\st.gif" />
+    <Resource Include="images\playerflags\sv.gif" />
+    <Resource Include="images\playerflags\sy.gif" />
+    <Resource Include="images\playerflags\sz.gif" />
+    <Resource Include="images\playerflags\tc.gif" />
+    <Resource Include="images\playerflags\td.gif" />
+    <Resource Include="images\playerflags\tf.gif" />
+    <Resource Include="images\playerflags\tg.gif" />
+    <Resource Include="images\playerflags\th.gif" />
+    <Resource Include="images\playerflags\tj.gif" />
+    <Resource Include="images\playerflags\tk.gif" />
+    <Resource Include="images\playerflags\tl.gif" />
+    <Resource Include="images\playerflags\tm.gif" />
+    <Resource Include="images\playerflags\tn.gif" />
+    <Resource Include="images\playerflags\to.gif" />
+    <Resource Include="images\playerflags\tr.gif" />
+    <Resource Include="images\playerflags\tt.gif" />
+    <Resource Include="images\playerflags\tv.gif" />
+    <Resource Include="images\playerflags\tw.gif" />
+    <Resource Include="images\playerflags\tz.gif" />
+    <Resource Include="images\playerflags\ua.gif" />
+    <Resource Include="images\playerflags\ug.gif" />
+    <Resource Include="images\playerflags\um.gif" />
+    <Resource Include="images\playerflags\us.gif" />
+    <Resource Include="images\playerflags\uy.gif" />
+    <Resource Include="images\playerflags\uz.gif" />
+    <Resource Include="images\playerflags\va.gif" />
+    <Resource Include="images\playerflags\vc.gif" />
+    <Resource Include="images\playerflags\ve.gif" />
+    <Resource Include="images\playerflags\vg.gif" />
+    <Resource Include="images\playerflags\vi.gif" />
+    <Resource Include="images\playerflags\vn.gif" />
+    <Resource Include="images\playerflags\vu.gif" />
+    <Resource Include="images\playerflags\wf.gif" />
+    <Resource Include="images\playerflags\ws.gif" />
+    <Resource Include="images\playerflags\ye.gif" />
+    <Resource Include="images\playerflags\yt.gif" />
+    <Resource Include="images\playerflags\za.gif" />
+    <Resource Include="images\playerflags\zm.gif" />
+    <Resource Include="images\playerflags\zw.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\playerflags\unknown_flag.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

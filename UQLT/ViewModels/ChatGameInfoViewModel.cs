@@ -200,7 +200,7 @@ namespace UQLT.ViewModels
         /// <remarks>A List Sort is used rather than the <see cref="GridViewSort"/> helper class because the players are displayed in a tooltip, thus the listview is not selectable. Also used due <see cref="GridViewSort"/>'s inability to auto-sort with this particular use case.</remarks>
         private List<PlayerDetailsViewModel> SortServerPlayersForBuddyList(IEnumerable<Player> players)
         {
-            var sorted = players.Select(player => new PlayerDetailsViewModel(player, QlServer)).ToList();
+            var sorted = players.Select(player => new PlayerDetailsViewModel(player, Server)).ToList();
             return sorted.OrderByDescending(a => a.Score).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
     }

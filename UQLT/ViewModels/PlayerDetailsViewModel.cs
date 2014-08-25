@@ -12,11 +12,11 @@ namespace UQLT.ViewModels
     /// Viewmodel wrapper for the Player class. This class wraps the Player class and exposes
     /// additional view-related properties for the View (in this case, ServerBrowserView).
     /// </summary>
+    /// <remarks>This viewmodel does not have a separate view.</remarks>
     [Export(typeof(PlayerDetailsViewModel))]
     public class PlayerDetailsViewModel : PropertyChangedBase
     {
         private static readonly Regex NameColors = new Regex(@"[\^]\d");
-        private string _cleanedClan;
         private bool _isPlayerFoundInSearch;
         private long _playerElo;
         private string _teamName;
@@ -79,14 +79,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                _cleanedClan = NameColors.Replace(Clan, string.Empty);
-                return _cleanedClan;
-            }
-
-            set
-            {
-                _cleanedClan = value;
-                NotifyOfPropertyChange(() => CleanedClan);
+                return NameColors.Replace(Player.clan, string.Empty);
             }
         }
 

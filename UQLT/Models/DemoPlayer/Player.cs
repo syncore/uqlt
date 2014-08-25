@@ -24,8 +24,8 @@
         public string team { get; set; }
         public string xclan { get; set; }
         public string model { get; set; }
+        public string skill { get; set; }
         public string secondayweap { get; set; }
         public string wp { get; set; }
-        public string skill { get; set; }
     }
 }

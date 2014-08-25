@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
@@ -27,6 +28,8 @@ namespace UQLT.ViewModels
         private bool _isProcessingDemos;
         private double _processingProgress;
         private string _qlDemoDirectoryPath;
+        private DemoInfoViewModel _selectedDemo;
+        private ObservableCollection<DemoInfoViewModel> _demos = new ObservableCollection<DemoInfoViewModel>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DemoPlayerViewModel" /> class.
@@ -38,6 +41,42 @@ namespace UQLT.ViewModels
             DisplayName = "UQLT v0.1 - Demo Player";
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
+        }
+
+        /// <summary>
+        /// Gets or sets the selected demo.
+        /// </summary>
+        /// <value>The selected demo.</value>
+        public DemoInfoViewModel SelectedDemo
+        {
+            get
+            {
+                return _selectedDemo;
+            }
+
+            set
+            {
+                _selectedDemo = value;
+                NotifyOfPropertyChange(() => SelectedDemo);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the user's demos that this viewmodel will display in the view.
+        /// </summary>
+        /// <value>The demos that this viewmodel will display in the view.</value>
+        public ObservableCollection<DemoInfoViewModel> Demos
+        {
+            get
+            {
+                return _demos;
+            }
+
+            set
+            {
+                _demos = value;
+                NotifyOfPropertyChange(() => Demos);
+            }
         }
 
         /// <summary>
@@ -177,6 +216,9 @@ namespace UQLT.ViewModels
                 //await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
 
                 // send to list splitter/QLDemoDumper
+                var dumper = new DemoDumper(this);
+                var demos = dumper.CollectDemos(demofilepaths);
+                dumper.ProcessDemos(demos);
             }
         }
 
