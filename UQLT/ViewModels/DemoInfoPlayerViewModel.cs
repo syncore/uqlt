@@ -161,9 +161,17 @@ namespace UQLT.ViewModels
             {
                 try
                 {
+                    if (!string.IsNullOrEmpty(Country))
+                    {
+                        return
+                            new BitmapImage(
+                                new Uri(
+                                    "pack://application:,,,/QLImages;component/images/playerflags/" + Country + ".gif",
+                                    UriKind.RelativeOrAbsolute));
+                    }
                     return
                         new BitmapImage(
-                            new Uri("pack://application:,,,/QLImages;component/images/playerflags/" + Country + ".gif",
+                            new Uri("pack://application:,,,/QLImages;component/images/playerflags/unknown_flag.gif",
                                 UriKind.RelativeOrAbsolute));
                 }
                 catch (Exception ex)

@@ -48,27 +48,31 @@ namespace UQLT.Core.Modules.DemoPlayer
                 {
 
                     var serializer = new JsonSerializer();
-                    var demos = serializer.Deserialize<List<Demo>>(jsonTextReader);
-                    foreach (var d in demos)
+                    var jsondemos = serializer.Deserialize<List<Demo>>(jsonTextReader);
+                    foreach (var jd in jsondemos)
                     {
-                        var demo = new DemoInfoViewModel(d);
-                        if (!DpVm.Demos.Contains(demo))
+                        if (DpVm.Demos.Any(d => d.Filename == jd.filename))
                         {
-                            // Must be done on UI thread
-                            Execute.OnUIThread(() => {
-                                DpVm.Demos.Add(demo);
-                            });
-                            Debug.WriteLine(string.Format("Added demo {0} to user's demo list.", demo.Filename));
+                            Debug.WriteLine(string.Format("User's demo list already contains {0}. Skipping...",
+                                jd.filename));
                         }
                         else
                         {
-                            Debug.WriteLine(string.Format("User's file list already contained demo {0}", demo.Filename));
+                            var demotoadd = new DemoInfoViewModel(jd);
+                            // Must be done on UI thread
+                            Execute.OnUIThread(() =>
+                            {
+                                DpVm.Demos.Add(demotoadd);
+                            });
+                            Debug.WriteLine(string.Format("Added demo {0} to user's demo list.", jd.filename));    
                         }
                     }
                 }
                 
             }
         }
+
+        //private bool IsAlreadyInDemoList()
 
         /// <summary>
         /// Gets the demo json files that need to be parsed.

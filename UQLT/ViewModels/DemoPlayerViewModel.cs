@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Forms;
 using Caliburn.Micro;
 using UQLT.Core.Modules.DemoPlayer;
@@ -39,6 +41,7 @@ namespace UQLT.ViewModels
         {
             _windowManager = windowManager;
             DisplayName = "UQLT v0.1 - Demo Player";
+            DoDemoPlayerAutoSort("Filename");
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
         }
@@ -345,6 +348,17 @@ namespace UQLT.ViewModels
                             file.ToLowerInvariant().EndsWith("dm_90", StringComparison.OrdinalIgnoreCase)).ToList();
 
             return demosfrompath;
+        }
+
+        /// <summary>
+        /// Does the demo browser automatic sort based on specified criteria.
+        /// </summary>
+        /// <param name="property">The property criteria.</param>
+        private void DoDemoPlayerAutoSort(string property)
+        {
+            var view = CollectionViewSource.GetDefaultView(Demos);
+            var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
+            view.SortDescriptions.Add(sortDescription);
         }
     }
 }

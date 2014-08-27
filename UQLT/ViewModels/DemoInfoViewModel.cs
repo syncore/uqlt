@@ -55,6 +55,17 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets the demo server information.
+        /// </summary>
+        /// <value>
+        /// The demo server information.
+        /// </value>
+        public Srvinfo ServerInfo
+        {
+            get { return Demo.srvinfo; }
+        }
+
+        /// <summary>
         /// Gets the demo filename.
         /// </summary>
         /// <value>
@@ -198,9 +209,9 @@ namespace UQLT.ViewModels
         /// <value>
         /// The filesize.
         /// </value>
-        public double Filesize
+        public string Filesize
         {
-            get { return Demo.size; }
+            get { return string.Format("{0} MB", Demo.size.ToString("F2")); }
         }
 
         /// <summary>
@@ -234,5 +245,6 @@ namespace UQLT.ViewModels
             var sorted = players.Select(player => new DemoInfoPlayerViewModel(player)).ToList();
             return sorted.OrderByDescending(a => a.Name).GroupBy(a => a.Team).SelectMany(a => a.ToList()).ToList();
         }
+
     }
 }
