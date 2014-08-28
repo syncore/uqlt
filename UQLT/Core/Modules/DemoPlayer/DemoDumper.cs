@@ -7,7 +7,6 @@ using System.Management;
 using System.Text;
 using System.Threading;
 using System.Windows;
-using System.Windows.Shapes;
 using UQLT.ViewModels;
 using Path = System.IO.Path;
 
@@ -105,7 +104,8 @@ namespace UQLT.Core.Modules.DemoPlayer
             var demoPopulate = new DemoPopulate(DpVm);
             demoPopulate.PopulateUserDemoList();
             //File ops
-            Cleanup();
+            DeleteTempDemoTexts();
+            DeleteDemoDumperExecutable();
         }
 
         /// <summary>
@@ -114,7 +114,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         private void Cleanup()
         {
             DeleteDemoDumperExecutable();
-            DeleteTempDemoTexts();
             DeleteDemoParseTempDirectory();
         }
 
@@ -243,13 +242,13 @@ namespace UQLT.Core.Modules.DemoPlayer
             object[] parameters = data as object[];
             if (parameters == null) { return; }
             var processes = (Dictionary<Process, string>)parameters[0];
-            
+
             foreach (var process in processes)
             {
                 var proc = process.Key;
                 var tmpFile = process.Value;
                 _processOutputBuilder = new StringBuilder("");
-                
+
                 // Process cancellation received from the UI
                 if (DpVm.HasReceivedProcessCancelation)
                 {
@@ -314,11 +313,11 @@ namespace UQLT.Core.Modules.DemoPlayer
                 //StringBuilder is not thread-safe
                 //lock (_processOutputLock)
                 //{
-                    _processOutputBuilder.Append(Environment.NewLine + line.Data);
-                    if (line.Data.Contains("Traceback (most"))
-                    {
-                        MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
-                            MessageBoxImage.Error);
+                _processOutputBuilder.Append(Environment.NewLine + line.Data);
+                if (line.Data.Contains("Traceback (most"))
+                {
+                    MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                     //}
                 }
             }

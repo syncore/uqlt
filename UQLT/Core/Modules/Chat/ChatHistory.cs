@@ -219,9 +219,14 @@ namespace UQLT.Core.Modules.Chat
         /// </summary>
         private void DeleteHistoryDb()
         {
-            if (ChatHistoryDbExists())
+            if (!ChatHistoryDbExists()) return;
+            try
             {
                 File.Delete(_sqlDbPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Unable to delete chat history database: " + ex.Message);
             }
         }
 

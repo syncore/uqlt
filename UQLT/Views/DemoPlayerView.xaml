@@ -188,9 +188,9 @@
             <ListView helpers:GridViewSort.AutoSort="True" IsSynchronizedWithCurrentItem="True" HorizontalAlignment="Left" Height="138" VerticalAlignment="Top" Width="699" ItemsSource="{Binding SelectedDemo.ServerInfo}" SelectionMode="Single" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Cvar" DisplayMemberBinding="{Binding sv_ranked}">
+                        <GridViewColumn Header="Cvar" DisplayMemberBinding="{Binding Path=Key}">
                         </GridViewColumn>
-                        <GridViewColumn Header="Value">
+                        <GridViewColumn Header="Value" DisplayMemberBinding="{Binding Path=Value}">
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
@@ -232,7 +232,7 @@
             </StackPanel>
         </StackPanel>
         <!--Process demos grid/progress-->
-        <!--<Grid ColumnSpan="2" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
+        <Grid ColumnSpan="2" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,100">
             <Border Background="#333" Width="450" BorderBrush="Red" BorderThickness="2" Height="98" DockPanel.Dock="Top">
                     <StackPanel Orientation="Vertical">
@@ -249,6 +249,6 @@
                     </StackPanel>
             </Border>
         </DockPanel>
-        </Grid>-->
+        </Grid>
     </Grid>
 </Window>

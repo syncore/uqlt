@@ -263,6 +263,7 @@ namespace UQLT.ViewModels
         /// <summary>
         /// Cancels all demo processing.
         /// </summary>
+        /// <remarks>This is called from the view itself.</remarks>
         public void CancelAllProcessing()
         {
             HasReceivedProcessCancelation = true;

@@ -20,6 +20,7 @@ namespace UQLT.Core
         private const string CurrentFilterFile = "currentfilters.uql";
         private const string DataResourceLocation = "UQLT.Data.";
         private const string DataSoundsResourceLocation = "UQLT.Data.Sounds.";
+        private const string DemoDatabaseFile = "demdb.udb";
         private const string FriendRequestSound = "friendrequest.wav";
         private const string InviteSound = "invite.wav";
         private const string MessageSound = "notice.wav";
@@ -27,6 +28,7 @@ namespace UQLT.Core
         private const string QlImagesFile = "QLImages.dll";
         private const string SavedUserFilterFile = "savedfilters.uql";
         private static readonly string DataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+        private static readonly string DemoDatabasePath = Path.Combine(DataDirectory, DemoDatabaseFile);
         private static readonly string ConfigurationPath = Path.Combine(DataDirectory, ConfigurationFile);
         private static readonly string ChatHistoryPath = Path.Combine(DataDirectory, ChatHistoryDatabaseFile);
         private static readonly string CurrentFilterPath = Path.Combine(DataDirectory, CurrentFilterFile);
@@ -133,6 +135,15 @@ namespace UQLT.Core
         public static string GetChatHistoryDatabasePath()
         {
             return ChatHistoryPath;
+        }
+
+        /// <summary>
+        /// Gets the demo database's file path.
+        /// </summary>
+        /// <returns>The path to the demo database file as a string.</returns>
+        public static string GetDemoDatabasePath()
+        {
+            return DemoDatabasePath;
         }
         
         /// <summary>
