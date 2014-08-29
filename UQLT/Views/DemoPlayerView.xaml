@@ -231,24 +231,44 @@
                 <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198" />
             </StackPanel>
         </StackPanel>
-        <!--Process demos grid/progress-->
-        <Grid ColumnSpan="2" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
+        <!--Process/arcive demos grid and progress-->
+        <Grid ColumnSpan="2" Grid.Column="0"
+              Visibility="{Binding ShowBusyIndicator, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,100">
-            <Border Background="#333" Width="450" BorderBrush="Red" BorderThickness="2" Height="98" DockPanel.Dock="Top">
+                <Border Background="#333" Width="450" BorderBrush="Red" BorderThickness="2" Height="98" DockPanel.Dock="Top">
+
+                    <!--Stackpanel container for processing and archiving demos-->
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
-            		Text="Processing demos... This might take a while." Padding="20,0,0,0" Margin="8,17,-12,28" />
-                        <ProgressBar Value="{Binding ProcessingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
-                        <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelProcess}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <cal:ActionMessage MethodName="CancelAllProcessing" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                        <!--Processing demos stackpanel-->
+                        <StackPanel Orientation="Vertical" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
+            		Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
+                            <ProgressBar Value="{Binding ProcessingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
+                            <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelProcess}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <cal:ActionMessage MethodName="CancelDemoProcessing" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </StackPanel>
+                        <!--Archiving demos stackpanel-->
+                        <StackPanel Orientation="Vertical" Visibility="{Binding IsArchivingDemos, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
+                    Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
+                            <ProgressBar Value="{Binding ArchivingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
+                            <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelArchive}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <cal:ActionMessage MethodName="CancelDemoArchiving" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
-            </Border>
-        </DockPanel>
+                </Border>
+            </DockPanel>
         </Grid>
+
     </Grid>
 </Window>

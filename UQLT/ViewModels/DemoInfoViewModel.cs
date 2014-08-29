@@ -110,7 +110,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Error: " + ex.Message);
+                    Debug.WriteLine("Error loading gametype image {0}, info: {1}", GameType, ex.Message);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/gametypes/unknown_game_type.gif", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -163,7 +163,7 @@ namespace UQLT.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Error: " + ex);
+                    Debug.WriteLine("Error loading map image {0}, info: {1}", Map, ex.Message);
                     return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/maps/unknown_map.jpg", UriKind.RelativeOrAbsolute));
                 }
             }
@@ -201,7 +201,7 @@ namespace UQLT.ViewModels
         {
             get
             {
-                return NameColors.Replace(Demo.recorded_by, string.Empty);
+                return !string.IsNullOrEmpty(Demo.recorded_by) ? NameColors.Replace(Demo.recorded_by, string.Empty) : string.Empty;
             }
         }
 
@@ -234,7 +234,7 @@ namespace UQLT.ViewModels
         private Dictionary<string, string> CreateServerInfo()
         {
             var serverInfo = new Dictionary<string, string>();
-
+            // Create only the necessarry key-values; not all demos contain each cvar.
             if (!string.IsNullOrEmpty(Demo.srvinfo.bot_minplayers))
                 serverInfo["bot_minplayers"] = Demo.srvinfo.bot_minplayers;
             if (!string.IsNullOrEmpty(Demo.srvinfo.capturelimit))

@@ -24,14 +24,20 @@ namespace UQLT.ViewModels
     public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
     {
         private readonly IWindowManager _windowManager;
+        private string _actionText;
+        private double _archivingProgress;
+        private bool _canCancelArchive = true;
         private bool _canCancelProcess = true;
         private string _cancelText = "Cancel";
+        private ObservableCollection<DemoInfoViewModel> _demos = new ObservableCollection<DemoInfoViewModel>();
+        private volatile bool _hasReceivedArchiveCancelation;
         private volatile bool _hasReceivedProcessCancelation;
+        private bool _isArchivingDemos;
         private bool _isProcessingDemos;
         private double _processingProgress;
         private string _qlDemoDirectoryPath;
         private DemoInfoViewModel _selectedDemo;
-        private ObservableCollection<DemoInfoViewModel> _demos = new ObservableCollection<DemoInfoViewModel>();
+        private bool _showBusyIndicator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DemoPlayerViewModel" /> class.
@@ -44,41 +50,62 @@ namespace UQLT.ViewModels
             DoDemoPlayerAutoSort("Filename");
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
+            var s = StartupLoadDemoDatabase();
         }
 
         /// <summary>
-        /// Gets or sets the selected demo.
+        /// Gets the text used to display what type of action is occurring (processing or archiving) in UI
         /// </summary>
-        /// <value>The selected demo.</value>
-        public DemoInfoViewModel SelectedDemo
+        /// <value>
+        /// The action text.
+        /// </value>
+        public string ActionText
         {
-            get
-            {
-                return _selectedDemo;
-            }
-
+            get { return _actionText; }
             set
             {
-                _selectedDemo = value;
-                NotifyOfPropertyChange(() => SelectedDemo);
+                _actionText = value;
+                NotifyOfPropertyChange(() => ActionText);
             }
         }
 
         /// <summary>
-        /// Gets or sets the user's demos that this viewmodel will display in the view.
+        /// Gets or sets the demo archiving progress.
         /// </summary>
-        /// <value>The demos that this viewmodel will display in the view.</value>
-        public ObservableCollection<DemoInfoViewModel> Demos
+        /// <value>
+        /// The demo archiving progress.
+        /// </value>
+        public double ArchivingProgress
         {
             get
             {
-                return _demos;
+                return _archivingProgress;
             }
-
             set
             {
-                _demos = value;
-                NotifyOfPropertyChange(() => Demos);
+                _archivingProgress = value;
+                NotifyOfPropertyChange(() => ArchivingProgress);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance can still cancel archiving.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance can still cancel archiving; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This is used to disable the Cancel button in the UI once the user has already canceled.</remarks>
+        public bool CanCancelArchive
+        {
+            get
+            {
+                return _canCancelArchive;
+            }
+            set
+            {
+                _canCancelArchive = value;
+                CancelText = value ? "Cancel" : "Canceling... Please wait...";
+                NotifyOfPropertyChange(() => CanCancelArchive);
             }
         }
 
@@ -109,6 +136,7 @@ namespace UQLT.ViewModels
         /// <value>
         /// The cancel text.
         /// </value>
+        /// <remarks>This is the same for both cancellation of demo processing and archiving.</remarks>
         public string CancelText
         {
             get
@@ -123,9 +151,45 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets the user's demos that this viewmodel will display in the view.
+        /// </summary>
+        /// <value>The demos that this viewmodel will display in the view.</value>
+        public ObservableCollection<DemoInfoViewModel> Demos
+        {
+            get
+            {
+                return _demos;
+            }
+
+            set
+            {
+                _demos = value;
+                NotifyOfPropertyChange(() => Demos);
+            }
+        }
+
+        /// <summary>
         /// Gets or Sets the display name for this window.
         /// </summary>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has received a demo archiving cancelation request.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance has received a demo archiving cancelation request; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasReceivedArchiveCancelation
+        {
+            get
+            {
+                return _hasReceivedArchiveCancelation;
+            }
+            set
+            {
+                _hasReceivedArchiveCancelation = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance has received a demo process cancelation request.
@@ -146,11 +210,39 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether demos are currently being archived.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if demos are currently being archived; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>This also sets the appropriate action text and
+        /// notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
+        /// </remarks>
+        public bool IsArchivingDemos
+        {
+            get
+            {
+                return _isArchivingDemos;
+            }
+            set
+            {
+                _isArchivingDemos = value;
+                _actionText = "Archiving demos... This might take a while.";
+                ShowBusyIndicator = value;
+                NotifyOfPropertyChange(() => IsArchivingDemos);
+                NotifyOfPropertyChange(() => ActionText);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether demos are currently being processed.
         /// </summary>
         /// <value>
         /// <c>true</c> if demos are currently being processed; otherwise, <c>false</c>.
         /// </value>
+        /// <remarks>This also sets the appropriate action text and
+        /// notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
+        /// </remarks>
         public bool IsProcessingDemos
         {
             get
@@ -160,7 +252,10 @@ namespace UQLT.ViewModels
             set
             {
                 _isProcessingDemos = value;
+                _actionText = "Processing demos... This might take a while.";
+                ShowBusyIndicator = value;
                 NotifyOfPropertyChange(() => IsProcessingDemos);
+                NotifyOfPropertyChange(() => ActionText);
             }
         }
 
@@ -198,6 +293,45 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets the selected demo.
+        /// </summary>
+        /// <value>The selected demo.</value>
+        public DemoInfoViewModel SelectedDemo
+        {
+            get
+            {
+                return _selectedDemo;
+            }
+
+            set
+            {
+                _selectedDemo = value;
+                NotifyOfPropertyChange(() => SelectedDemo);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the transparent busy indicator should be shown
+        /// in the UI, indicating that demo processing or archiving is taking place.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if demo processing or archiving is taking place and indicator should be shown,
+        /// otherwise, <c>false</c>.
+        /// </value>
+        public bool ShowBusyIndicator
+        {
+            get
+            {
+                return _showBusyIndicator;
+            }
+            set
+            {
+                _showBusyIndicator = value;
+                NotifyOfPropertyChange(() => ShowBusyIndicator);
+            }
+        }
+
+        /// <summary>
         /// Handles the addition of one or more demos.
         /// </summary>
         public async Task AddDemo()
@@ -208,7 +342,7 @@ namespace UQLT.ViewModels
                 openfiledialog.CheckPathExists = true;
                 openfiledialog.Multiselect = true;
                 openfiledialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                openfiledialog.Filter = "Quake Live demo (*.dm_73)|*.dm_73|Quake Live demo (*.dm_90)|*.dm_90";
+                openfiledialog.Filter = "Quake Live demo (*.dm_90)|*.dm_90|Quake Live demo (*.dm_73)|*.dm_73";
 
                 if (openfiledialog.ShowDialog() != DialogResult.OK) return;
 
@@ -232,7 +366,7 @@ namespace UQLT.ViewModels
         {
             using (var openfolderdialog = new FolderBrowserDialog())
             {
-                openfolderdialog.Description = "Select a directory containing .dm_73 and/or .dm_90 QL demo files.";
+                openfolderdialog.Description = "Select a directory containing .dm_90 and/or .dm_73 QL demo files.";
                 openfolderdialog.ShowNewFolderButton = false;
                 openfolderdialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
@@ -261,10 +395,20 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Cancels all demo archiving.
+        /// </summary>
+        /// <remarks>This is called from the view itself.</remarks>
+        public void CancelDemoArchiving()
+        {
+            HasReceivedArchiveCancelation = true;
+            CanCancelArchive = false;
+        }
+
+        /// <summary>
         /// Cancels all demo processing.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
-        public void CancelAllProcessing()
+        public void CancelDemoProcessing()
         {
             HasReceivedProcessCancelation = true;
             CanCancelProcess = false;
@@ -335,6 +479,17 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Does the demo browser automatic sort based on specified criteria.
+        /// </summary>
+        /// <param name="property">The property criteria.</param>
+        private void DoDemoPlayerAutoSort(string property)
+        {
+            var view = CollectionViewSource.GetDefaultView(Demos);
+            var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
+            view.SortDescriptions.Add(sortDescription);
+        }
+
+        /// <summary>
         /// Gets the demos from specified directory path and it's sub-directories.
         /// </summary>
         /// <param name="directorypath">The directory path.</param>
@@ -352,14 +507,14 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Does the demo browser automatic sort based on specified criteria.
+        /// Populates the user's demo list from the SQLite demo database file.
         /// </summary>
-        /// <param name="property">The property criteria.</param>
-        private void DoDemoPlayerAutoSort(string property)
+        private async Task StartupLoadDemoDatabase()
         {
-            var view = CollectionViewSource.GetDefaultView(Demos);
-            var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
-            view.SortDescriptions.Add(sortDescription);
+            IsArchivingDemos = true;
+            var demoPopulater = new DemoPopulate(this);
+            await Task.Run(() => demoPopulater.PopulateDemoListFromDatabaseAsync());
+            IsArchivingDemos = false;
         }
     }
 }

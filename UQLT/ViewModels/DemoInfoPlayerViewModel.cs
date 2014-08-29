@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -27,78 +26,33 @@ namespace UQLT.ViewModels
         [ImportingConstructor]
         public DemoInfoPlayerViewModel(Player player)
         {
-            this.Player = player;
+            Player = player;
         }
 
         /// <summary>
-        /// Gets the demo associated with this viewmodel.
+        /// Gets the account type image.
         /// </summary>
-        /// <value>
-        /// The demo associated with this viewmodel.
-        /// </value>
-        public Player Player
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Gets the team.
-        /// </summary>
-        /// <value>
-        /// The team.
-        /// </value>
-        public string Team
-        {
-            get { return Player.team; }
-        }
-        
-        /// <summary>
-        /// Gets or sets the name of the team.
-        /// </summary>
-        /// <value>The name of the team.</value>
-        /// <remarks>This is a custom UI property.</remarks>
-        public string TeamName
+        /// <value>The account type image.</value>
+        /// <remarks>This is either 0 (no subscription) or 1 (subscription, no distinction between pro/prem).
+        /// It will not exist for demos prior to 2009, so just return a blank image (0.gif)
+        /// </remarks>
+        public ImageSource AccountImage
         {
             get
             {
-                switch (Team)
+                if (string.Equals(Subscription, "1"))
                 {
-                    case "0":
-                        _teamName = "None";
-                        break;
-
-                    case "1":
-                        _teamName = "Red";
-                        break;
-
-                    case "2":
-                        _teamName = "Blue";
-                        break;
-
-                    case "3":
-                        _teamName = "Spec";
-                        break;
+                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + Subscription + ".gif", UriKind.RelativeOrAbsolute));
                 }
-                return _teamName;
-            }
-            set
-            {
-                _teamName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the extended (full) clan name.
-        /// </summary>
-        /// <value>
-        /// The extended clan name.
-        /// </value>
-        /// <remarks>This does not exist for demos prior to 2011.</remarks>
-        public string ExtendedClan
-        {
-            get {
-                return !string.IsNullOrEmpty(Player.xclan) ? string.Format("({0})", Player.xclan) : Player.xclan;
+                if (string.Equals(Subscription, "0"))
+                {
+                    return
+                        new BitmapImage(
+                            new Uri(
+                                "pack://application:,,,/QLImages;component/images/accounttype/" + Subscription + ".gif",
+                                UriKind.RelativeOrAbsolute));
+                }
+                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/0.gif", UriKind.RelativeOrAbsolute));
             }
         }
 
@@ -111,18 +65,10 @@ namespace UQLT.ViewModels
         /// <remarks>It looks like this does not exist for demos prior to sometime in 2010.</remarks>
         public string ClanTag
         {
-            get { return NameColors.Replace(Player.clan, string.Empty); }
-        }
-
-        /// <summary>
-        /// Gets the player name.
-        /// </summary>
-        /// <value>
-        /// The player name.
-        /// </value>
-        public string Name
-        {
-            get { return NameColors.Replace(Player.name, string.Empty); }
+            get
+            {
+                return !string.IsNullOrEmpty(Player.clan) ? NameColors.Replace(Player.clan, string.Empty) : string.Empty;
+            }
         }
 
         /// <summary>
@@ -138,15 +84,18 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Gets the subscription.
+        /// Gets the extended (full) clan name.
         /// </summary>
         /// <value>
-        /// The subscription.
+        /// The extended clan name.
         /// </value>
-        /// <remarks>This does not exist for demos prior to 2009.</remarks>
-        public string Subscription
+        /// <remarks>This does not exist for demos prior to 2011.</remarks>
+        public string ExtendedClan
         {
-            get { return Player.subscription; }
+            get
+            {
+                return !string.IsNullOrEmpty(Player.xclan) ? string.Format("({0})", Player.xclan) : Player.xclan;
+            }
         }
 
         /// <summary>
@@ -184,33 +133,89 @@ namespace UQLT.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
-        /// Gets the account type image.
+        /// Gets the player name.
         /// </summary>
-        /// <value>The account type image.</value>
-        /// <remarks>This is either 0 (no subscription) or 1 (subscription, no distinction between pro/prem).
-        /// It will not exist for demos prior to 2009, so just return a blank image (0.gif)
-        /// </remarks>
-        public ImageSource AccountImage
+        /// <value>
+        /// The player name.
+        /// </value>
+        public string Name
         {
             get
             {
-                if (string.Equals(Subscription, "1"))
-                {
-                    return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/" + Subscription + ".gif", UriKind.RelativeOrAbsolute));
-                }
-                if (string.Equals(Subscription, "0"))
-                {
-                    return
-                        new BitmapImage(
-                            new Uri(
-                                "pack://application:,,,/QLImages;component/images/accounttype/" + Subscription + ".gif",
-                                UriKind.RelativeOrAbsolute));
-                }
-                return new BitmapImage(new Uri("pack://application:,,,/QLImages;component/images/accounttype/0.gif", UriKind.RelativeOrAbsolute));
+                return !string.IsNullOrEmpty(Player.name) ? NameColors.Replace(Player.name, string.Empty) : string.Empty;
             }
-        } 
-       
+        }
+
+        /// <summary>
+        /// Gets the demo associated with this viewmodel.
+        /// </summary>
+        /// <value>
+        /// The demo associated with this viewmodel.
+        /// </value>
+        public Player Player
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the subscription.
+        /// </summary>
+        /// <value>
+        /// The subscription.
+        /// </value>
+        /// <remarks>This does not exist for demos prior to 2009.</remarks>
+        public string Subscription
+        {
+            get { return Player.subscription; }
+        }
+
+        /// <summary>
+        /// Gets the team.
+        /// </summary>
+        /// <value>
+        /// The team.
+        /// </value>
+        public string Team
+        {
+            get { return Player.team; }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the team.
+        /// </summary>
+        /// <value>The name of the team.</value>
+        /// <remarks>This is a custom UI property.</remarks>
+        public string TeamName
+        {
+            get
+            {
+                switch (Team)
+                {
+                    case "0":
+                        _teamName = "None";
+                        break;
+
+                    case "1":
+                        _teamName = "Red";
+                        break;
+
+                    case "2":
+                        _teamName = "Blue";
+                        break;
+
+                    case "3":
+                        _teamName = "Spec";
+                        break;
+                }
+                return _teamName;
+            }
+            set
+            {
+                _teamName = value;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using UQLT.ViewModels;
 using Path = System.IO.Path;
@@ -17,7 +18,6 @@ namespace UQLT.Core.Modules.DemoPlayer
     /// </summary>
     public class DemoDumper
     {
-        private readonly object _processOutputLock = new Object();
         private Dictionary<Process, string> _processes;
         private volatile int _processesCompleted;
         private StringBuilder _processOutputBuilder;
@@ -92,7 +92,7 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// All demo processing processes have been completed (either by running through to termination or by being canceled).
         /// Resets various progress and process values.
         /// </summary>
-        private void AllProcessesCompleted()
+        private async Task AllProcessingCompleted()
         {
             _totalProcessesToComplete = 0;
             _processesCompleted = 0;
@@ -100,12 +100,12 @@ namespace UQLT.Core.Modules.DemoPlayer
             DpVm.ProcessingProgress = 0;
             DpVm.IsProcessingDemos = false;
             DpVm.CanCancelProcess = true;
-            // Populate
-            var demoPopulate = new DemoPopulate(DpVm);
-            demoPopulate.PopulateUserDemoList();
             //File ops
             DeleteTempDemoTexts();
             DeleteDemoDumperExecutable();
+            // Populate
+            var demoPopulate = new DemoPopulate(DpVm);
+            await demoPopulate.PopulateDemoListAsync();
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace UQLT.Core.Modules.DemoPlayer
                 {
                     // UI responsive
                     DpVm.IsProcessingDemos = false;
-                    AllProcessesCompleted();
+                    var a = AllProcessingCompleted();
                     return;
                 }
                 try
@@ -295,7 +295,7 @@ namespace UQLT.Core.Modules.DemoPlayer
             UpdateProgress();
             if (_processesCompleted == _totalProcessesToComplete)
             {
-                AllProcessesCompleted();
+                var a = AllProcessingCompleted();
             }
 
             Debug.WriteLine("Dumper process has exited.");
@@ -308,18 +308,13 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="line">The <see cref="DataReceivedEventArgs"/> instance containing the event data.</param>
         private void DumperProcessOutputHandler(object sender, DataReceivedEventArgs line)
         {
-            if (!string.IsNullOrEmpty(line.Data))
+            if (string.IsNullOrEmpty(line.Data)) return;
+
+            _processOutputBuilder.Append(Environment.NewLine + line.Data);
+            if (line.Data.Contains("Traceback (most"))
             {
-                //StringBuilder is not thread-safe
-                //lock (_processOutputLock)
-                //{
-                _processOutputBuilder.Append(Environment.NewLine + line.Data);
-                if (line.Data.Contains("Traceback (most"))
-                {
-                    MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    //}
-                }
+                MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
