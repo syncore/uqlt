@@ -236,9 +236,6 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <param name="data">The data.</param>
         private void DumperProcess(object data)
         {
-            // 0.1 sec
-            //int waitAmount = 100;
-
             object[] parameters = data as object[];
             if (parameters == null) { return; }
             var processes = (Dictionary<Process, string>)parameters[0];

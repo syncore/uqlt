@@ -372,7 +372,7 @@ namespace UQLT.Helpers
                         path = Path.Combine(GetLocalAppDataLowPath(),
                             "id Software\\quakelive\\home\\baseq3\\demos");
                     }
-                    Debug.WriteLine("[PROD]: Returned Quake Live demo directory path: " + path);
+                    //Debug.WriteLine("[PROD]: Returned Quake Live demo directory path: " + path);
                     break;
 
                 case QuakeLiveTypes.Focus:
@@ -386,7 +386,7 @@ namespace UQLT.Helpers
                         path = Path.Combine(GetLocalAppDataLowPath(),
                             "id Software\\focus\\home\\baseq3\\demos");
                     }
-                    Debug.WriteLine("[FOCUS]: Returned Quake Live demo directory path: " + path);
+                    //Debug.WriteLine("[FOCUS]: Returned Quake Live demo directory path: " + path);
                     break;
             }
             return path;

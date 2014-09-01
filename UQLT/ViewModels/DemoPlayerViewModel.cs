@@ -51,6 +51,8 @@ namespace UQLT.ViewModels
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
             var s = StartupLoadDemoDatabase();
+            //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
+            ScanForNewDemos(QuakeLiveTypes.Production);
         }
 
         /// <summary>
@@ -415,6 +417,20 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Rescans the user's demo directory for demos that are not contianed in the demo database,
+        /// and sends them off for processing if necessary. This calls <see cref="ScanForNewDemos"/> from
+        /// a button in the UI.
+        /// </summary>
+        /// <remarks>This is called directly from the view.</remarks>
+        public void RescanDemoDir()
+        {
+            // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
+            // This will need to get a variable that will determine QuakeLive type since we don't want to pass this from UI button click
+            Debug.WriteLine("....Re-scanning demo directory");
+            ScanForNewDemos(QuakeLiveTypes.Production);
+        }
+
+        /// <summary>
         /// Checks whether the additional demo directory (and sub-directories) that the user has
         /// specified contains Quake Live demo files.
         /// </summary>
@@ -479,7 +495,7 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Does the demo browser automatic sort based on specified criteria.
+        /// Performs the demo browser automatic sort based on specified criteria.
         /// </summary>
         /// <param name="property">The property criteria.</param>
         private void DoDemoPlayerAutoSort(string property)
@@ -504,6 +520,37 @@ namespace UQLT.ViewModels
                             file.ToLowerInvariant().EndsWith("dm_90", StringComparison.OrdinalIgnoreCase)).ToList();
 
             return demosfrompath;
+        }
+
+        /// <summary>
+        /// Scans the user's demo directory for demos that are not contained in the demo database
+        /// and sends them off for processing.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        private void ScanForNewDemos(QuakeLiveTypes qltype)
+        {
+            var currentDemoDirDemos = GetDemosFromSpecifiedDirectory(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype));
+            var populater = new DemoPopulate(this);
+            var databaseDemos = populater.GetDatabaseDemos();
+
+            var newDemosToProcess = new List<string>();
+            foreach (var curDemo in currentDemoDirDemos)
+            {
+                // just filename
+                var f = Path.GetFileName(curDemo);
+                if (!databaseDemos.Contains(f))
+                {
+                    newDemosToProcess.Add(curDemo);
+                    Debug.WriteLine(
+                        string.Format(
+                            "************ {0} is a new demo in the demo directory that should be added for processing.",
+                            f));
+                }
+            }
+
+            if (newDemosToProcess.Count == 0) return;
+            var dumper = new DemoDumper(this);
+            dumper.ProcessDemos(dumper.CollectDemos(newDemosToProcess));
         }
 
         /// <summary>

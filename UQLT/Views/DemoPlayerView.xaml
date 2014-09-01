@@ -89,7 +89,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                 <TextBlock TextWrapping="Wrap" Text="{Binding QlDemoDirectoryPath}" Margin="0,0,5,0" Width="700" FontWeight="Bold" Padding="0,3,0,0" />
             </StackPanel>
-            <!--Add demo buttons-->
+            <!--Add demo / re-scan / options buttons-->
             <StackPanel Orientation="Horizontal" Margin="5,10,0,0">
                 <Button Content="Add a demo directory" Margin="0,0,10,0">
                     <i:Interaction.Triggers>
@@ -105,6 +105,20 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
+                <Button Content="Re-scan demo directory" Margin="10,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="RescanDemoDir" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Options" Margin="40,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="ShowDemoOptions" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
             </StackPanel>
             <TextBlock TextWrapping="Wrap" Text="Adding a directory or demo will copy the demo(s) to to your QL demo directory." Margin="5,5,0,5" />
         </StackPanel>
@@ -113,7 +127,7 @@
             <!--Quick demo details-->
             <ContentControl Content="{Binding SelectedDemo}" ContentTemplate="{StaticResource DemoQuickInfoTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="110" Width="695" />
 
-            <TextBlock Height="20" TextWrapping="Wrap" Text="Quake Live demo files" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
+            <TextBlock Height="20" TextWrapping="Wrap" Text="{Binding Demos.Count, StringFormat='Quake Live demo files ({0} total)'}" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
             <!--User's Demo files listview-->
             <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" VerticalAlignment="Top" Height="200" Width="699" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Demos}" SelectedItem="{Binding SelectedDemo}" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=DemoPlayerRoot}">
                 <ListView.View>
@@ -236,10 +250,8 @@
               Visibility="{Binding ShowBusyIndicator, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
             <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,100">
                 <Border Background="#333" Width="450" BorderBrush="Red" BorderThickness="2" Height="98" DockPanel.Dock="Top">
-
                     <!--Stackpanel container for processing and archiving demos-->
                     <StackPanel Orientation="Vertical">
-                        <!--Processing demos stackpanel-->
                         <StackPanel Orientation="Vertical" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}">
                             <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
             		Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
@@ -252,7 +264,6 @@
                                 </i:Interaction.Triggers>
                             </Button>
                         </StackPanel>
-                        <!--Archiving demos stackpanel-->
                         <StackPanel Orientation="Vertical" Visibility="{Binding IsArchivingDemos, Converter={StaticResource BoolToVis}}">
                             <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
                     Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
@@ -269,6 +280,5 @@
                 </Border>
             </DockPanel>
         </Grid>
-
     </Grid>
 </Window>

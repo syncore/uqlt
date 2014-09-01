@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Newtonsoft.Json;
+using UQLT.Helpers;
 using UQLT.Models.DemoPlayer;
 using UQLT.ViewModels;
 
@@ -43,6 +44,45 @@ namespace UQLT.Core.Modules.DemoPlayer
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Gets a list of all the demos currently in the SQLite demo database.
+        /// </summary>
+        /// <returns>A list of the demo filenames currently stored in the SQLite demo database.</returns>
+        public List<string> GetDatabaseDemos()
+        {
+            VerifyDemoDatabase();
+            var dbDemos = new List<string>();
+            try
+            {
+                using (var sqlcon = new SQLiteConnection(_sqlConString))
+                {
+                    sqlcon.Open();
+
+                    using (var cmd = new SQLiteCommand(sqlcon))
+                    {
+                        cmd.CommandText = "SELECT * FROM demos ORDER BY filename DESC";
+                        cmd.Prepare();
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    dbDemos.Add((string)reader["filename"]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error getting demos from database: " + ex.Message);
+            }
+            return dbDemos;
         }
 
         /// <summary>
@@ -93,6 +133,7 @@ namespace UQLT.Core.Modules.DemoPlayer
         public void PopulateDemoListFromDatabaseAsync()
         {
             VerifyDemoDatabase();
+            var missingDemos = new List<string>();
 
             try
             {
@@ -115,7 +156,20 @@ namespace UQLT.Core.Modules.DemoPlayer
                                     // Wrap Demo object in DemoInfoViewModel ->
                                     // Add to user's demo list
                                     var demo = JsonConvert.DeserializeObject<Demo>((string)reader["demo_info"]);
-                                    Execute.OnUIThread(() => DpVm.Demos.Add(new DemoInfoViewModel(demo)));
+                                    // if filename still exists on the disk, then add:
+                                    // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
+                                    if (DemoFileExists(demo.filename, QuakeLiveTypes.Production))
+                                    {
+                                        Execute.OnUIThread(() => DpVm.Demos.Add(new DemoInfoViewModel(demo)));
+                                    }
+                                    else
+                                    {
+                                        // remove from database as well
+                                        missingDemos.Add(demo.filename);
+                                        Debug.WriteLine(
+                                            string.Format("------------- {0} has been removed since the last archival. Will delete from database.",
+                                                demo.filename));
+                                    }
                                 }
                             }
                             else
@@ -129,6 +183,10 @@ namespace UQLT.Core.Modules.DemoPlayer
             catch (Exception ex)
             {
                 Debug.WriteLine("Problem populating user demo list from database: " + ex.Message);
+            }
+            finally
+            {
+                DeleteMissingDemosFromDatabase(missingDemos);
             }
         }
 
@@ -196,6 +254,38 @@ namespace UQLT.Core.Modules.DemoPlayer
         }
 
         /// <summary>
+        /// Removes missing demos from the SQLite database.
+        /// </summary>
+        /// <param name="missingDemos">The missing demos to remove.</param>
+        private void DeleteMissingDemosFromDatabase(IEnumerable<string> missingDemos)
+        {
+            try
+            {
+                using (var sqlcon = new SQLiteConnection(_sqlConString))
+                {
+                    sqlcon.Open();
+
+                    foreach (var missingDemo in missingDemos)
+                    {
+                        using (var cmd = new SQLiteCommand(sqlcon))
+                        {
+                            cmd.CommandText = "DELETE FROM demos WHERE filename = @filename";
+                            cmd.Prepare();
+                            cmd.Parameters.AddWithValue("@filename", missingDemo);
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            Debug.WriteLine("Deleted {0} non-existant demo with filename: {1} from database", rowsAffected, missingDemo);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Problem deleting misisng demo from database: " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Deletes the parsed json files.
         /// </summary>
         private void DeleteParsedJsonFiles()
@@ -224,6 +314,15 @@ namespace UQLT.Core.Modules.DemoPlayer
         private bool DemoDatabaseExists()
         {
             return (File.Exists(_sqlDbPath));
+        }
+
+        /// <summary>
+        /// Checks whether the given demo still exists on the disk
+        /// </summary>
+        /// <returns><c>true</c> if the demo exists, otherwise <c>false</c>.</returns>
+        private bool DemoFileExists(string demofile, QuakeLiveTypes qltype)
+        {
+            return File.Exists(Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype), demofile));
         }
 
         /// <summary>
@@ -264,7 +363,7 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// </summary>
         private async Task PopulateDemoDatabaseAsync(int numDemosToArchive)
         {
-            if (DpVm.Demos.Count == 0) { return; }
+            if (numDemosToArchive == 0) { return; }
 
             DpVm.IsArchivingDemos = true;
             VerifyDemoDatabase();
@@ -273,6 +372,8 @@ namespace UQLT.Core.Modules.DemoPlayer
             try
             {
                 _totalArchivesToComplete = numDemosToArchive;
+                // Get current database demo list
+                var demosAlreadyInDatabase = GetDatabaseDemos();
                 using (var sqlcon = new SQLiteConnection(_sqlConString))
                 {
                     sqlcon.Open();
@@ -288,15 +389,19 @@ namespace UQLT.Core.Modules.DemoPlayer
                                 ResetDemoDatabaseAndUserDemos();
                                 return;
                             }
-                            var demoInfo = JsonConvert.SerializeObject(dpvmdemo.Demo);
-                            cmd.CommandText = "INSERT INTO demos(filename, demo_info) VALUES(@filename, @demo_info)";
-                            cmd.Prepare();
-                            cmd.Parameters.AddWithValue("@filename", dpvmdemo.Demo.filename);
-                            cmd.Parameters.AddWithValue("@demo_info", demoInfo);
-                            await cmd.ExecuteNonQueryAsync();
+                            // Not already in, then add
+                            if (!demosAlreadyInDatabase.Contains(dpvmdemo.Filename)) 
+                            {
+                                var demoInfo = JsonConvert.SerializeObject(dpvmdemo.Demo);
+                                cmd.CommandText = "INSERT INTO demos(filename, demo_info) VALUES(@filename, @demo_info)";
+                                cmd.Prepare();
+                                cmd.Parameters.AddWithValue("@filename", dpvmdemo.Demo.filename);
+                                cmd.Parameters.AddWithValue("@demo_info", demoInfo);
+                                await cmd.ExecuteNonQueryAsync();
+                                Debug.WriteLine(string.Format("Added demo {0} to demo database.", dpvmdemo.Demo.filename));
+                            }
                             ++_archivesCompleted;
                             UpdateProgress();
-                            Debug.WriteLine(string.Format("Added demo {0} to demo database.", dpvmdemo.Demo.filename));
                         }
 
                         // All done

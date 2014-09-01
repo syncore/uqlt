@@ -230,6 +230,7 @@
     <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
     <Compile Include="ViewModels\DemoInfoViewModel.cs" />
     <Compile Include="ViewModels\DemoInfoPlayerViewModel.cs" />
+    <Compile Include="ViewModels\DemoOptionsViewModel.cs" />
     <Compile Include="ViewModels\DemoPlayerViewModel.cs" />
     <Compile Include="ViewModels\FriendViewModel.cs" />
     <Compile Include="ViewModels\GameInvitationViewModel.cs" />
@@ -254,6 +255,9 @@
     </Compile>
     <Compile Include="Views\ChatOptionsView.xaml.cs">
       <DependentUpon>ChatOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DemoOptionsView.xaml.cs">
+      <DependentUpon>DemoOptionsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DemoPlayerView.xaml.cs">
       <DependentUpon>DemoPlayerView.xaml</DependentUpon>
@@ -322,6 +326,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ChatOptionsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DemoOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
