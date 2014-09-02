@@ -115,7 +115,7 @@
                 <Button Content="Options" Margin="40,0,0,0">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
-                            <cal:ActionMessage MethodName="ShowDemoOptions" />
+                            <cal:ActionMessage MethodName="OpenDemoOptionsWindow" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
@@ -241,7 +241,13 @@
             <!--Playlist play-->
             <StackPanel Orientation="Vertical">
                 <TextBlock Height="20" TextWrapping="Wrap" Text="Play Quake Live demos"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" />
-                <Button Content="Play selected demo" Margin="0,15,0,0" Width="165" />
+                <Button Content="Play selected demo" Margin="0,15,0,0" Width="165">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="PlayDemo"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
                 <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198" />
             </StackPanel>
         </StackPanel>

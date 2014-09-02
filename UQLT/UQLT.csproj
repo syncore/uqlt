@@ -145,6 +145,7 @@
     <Compile Include="Core\Modules\Chat\ChatSoundTypes.cs" />
     <Compile Include="Core\Modules\Chat\ChatStatusTypes.cs" />
     <Compile Include="Core\Modules\DemoPlayer\DemoDumper.cs" />
+    <Compile Include="Core\Modules\DemoPlayer\DemoPlayerTypes.cs" />
     <Compile Include="Core\Modules\DemoPlayer\DemoPopulate.cs" />
     <Compile Include="Core\Modules\ServerBrowser\EloSearchTypes.cs" />
     <Compile Include="Core\Modules\ServerBrowser\ServerBrowser.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Models\Configuration\ChatOptions.cs" />
     <Compile Include="Models\Configuration\ConfigurationHandler.cs" />
     <Compile Include="Models\Configuration\Configuration.cs" />
+    <Compile Include="Models\Configuration\DemoOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserEloItem.cs" />
     <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />

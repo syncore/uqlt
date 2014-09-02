@@ -46,6 +46,38 @@ namespace UQLT.Models.Configuration
         public bool ChatOptSound { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether WolfcamQL should be used to play old .dm_73 demos.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if WolfcamQL should be used to play old .dm_73 demos, otherwise, <c>false</c>.
+        /// </value>
+        public bool DemoOptUseWolfcamQl { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Wolf Whisperer should be used to play old .dm_73 demos.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if Wolf Whisperer should be used to play old .dm_73 demos, otherwise, <c>false</c>.
+        /// </value>
+        public bool DemoOptUseWolfWhisperer { get; set; }
+
+        /// <summary>
+        /// Gets or sets file path to the WolfcamQL executable.
+        /// </summary>
+        /// <value>
+        /// The WolfcamQL executable file path.
+        /// </value>
+        public string DemoOptWolfcamQlExePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file path to the Wolf Whisperer executable.
+        /// </summary>
+        /// <value>
+        /// The Wolf Whisperer executable file path.
+        /// </value>
+        public string DemoOptWolfWhispererExePath { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the server browser is set to automatically refresh.
         /// </summary>
         /// <value><c>true</c> if server browser is set to automatically refresh; otherwise, <c>false</c>.</value>
@@ -86,7 +118,7 @@ namespace UQLT.Models.Configuration
                     string json = sr.ReadToEnd();
                     var cfg = JsonConvert.DeserializeObject<Configuration>(json);
 
-                    // Set the properties Server browser
+                    // Server browser
                     SbOptAutoRefresh = cfg.serverbrowser_options.sb_auto_refresh;
                     SbOptAutoRefreshIndex = cfg.serverbrowser_options.sb_auto_refresh_index;
                     SbOptAutoRefreshSeconds = cfg.serverbrowser_options.sb_auto_refresh_seconds;
@@ -96,6 +128,12 @@ namespace UQLT.Models.Configuration
                     ChatOptSound = cfg.chat_options.chat_sound;
                     ChatOptDisableInGame = cfg.chat_options.chat_disable_ingame;
                     ChatFavoriteFriends = cfg.chat_options.chat_favorite_friends;
+                    // Demo Player
+                    DemoOptUseWolfcamQl = cfg.demo_options.demo_use_wolfcamql;
+                    DemoOptUseWolfWhisperer = cfg.demo_options.demo_use_wolfwhisperer;
+                    DemoOptWolfcamQlExePath = cfg.demo_options.demo_wolfcamql_exepath;
+                    DemoOptWolfWhispererExePath = cfg.demo_options.demo_wolfwhisperer_exepath;
+
                 }
             }
             catch (Exception ex)
@@ -125,11 +163,18 @@ namespace UQLT.Models.Configuration
                 chat_disable_ingame = true,
                 chat_favorite_friends = new List<string>()
             };
-
+            var demooptions = new DemoOptions()
+            {
+                demo_use_wolfcamql = false,
+                demo_use_wolfwhisperer = false,
+                demo_wolfcamql_exepath = string.Empty,
+                demo_wolfwhisperer_exepath = string.Empty
+            };
             var config = new Configuration()
             {
                 serverbrowser_options = serverbrowseroptions,
-                chat_options = chatoptions
+                chat_options = chatoptions,
+                demo_options = demooptions
             };
 
             // Write to disk.
@@ -183,6 +228,16 @@ namespace UQLT.Models.Configuration
                     {
                         RestoreDefaultConfig();
                     }
+                    // Demo options
+                    if (!cfg.demo_options.demo_use_wolfcamql && !cfg.demo_options.demo_use_wolfcamql == false)
+                    {
+                        RestoreDefaultConfig();
+                    }
+                    if (!cfg.demo_options.demo_use_wolfwhisperer && !cfg.demo_options.demo_use_wolfwhisperer == false)
+                    {
+                        RestoreDefaultConfig();
+                    }
+                    // not checking for valid WolfcamQL/Wolfwhisperer file path at this point
                 }
             }
             catch (Exception ex)
@@ -211,10 +266,18 @@ namespace UQLT.Models.Configuration
                 chat_disable_ingame = ChatOptDisableInGame,
                 chat_favorite_friends = ChatFavoriteFriends
             };
+            var demooptions = new DemoOptions()
+            {
+                demo_use_wolfcamql = DemoOptUseWolfcamQl,
+                demo_use_wolfwhisperer = DemoOptUseWolfWhisperer,
+                demo_wolfcamql_exepath = DemoOptWolfcamQlExePath,
+                demo_wolfwhisperer_exepath = DemoOptWolfWhispererExePath
+            };
             var config = new Configuration()
             {
                 serverbrowser_options = serverbrowseroptions,
-                chat_options = chatoptions
+                chat_options = chatoptions,
+                demo_options = demooptions
             };
             // write to disk
             string json = JsonConvert.SerializeObject(config);

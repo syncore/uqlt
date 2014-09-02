@@ -97,8 +97,13 @@ namespace UQLT.ViewModels
             return _dialogWindow;
         }
 
+        /// <summary>
+        /// Launches the demo player.
+        /// </summary>
         public void LaunchDemoPlayer()
         {
+            // Actually, this is a good way of doing it, because we need to provide the ability
+            // to watch demos offline, since quakelive.exe can be launched to watch demos without authenticating.
             _windowManager.ShowWindow(new DemoPlayerViewModel(_windowManager));
         }
     }

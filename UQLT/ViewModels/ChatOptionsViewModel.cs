@@ -102,7 +102,7 @@ namespace UQLT.ViewModels
             _dialogWindow = view as Window;
             if (ViewAttached != null)
             {
-                ViewAttached(this, new ViewAttachedEventArgs()
+                ViewAttached(this, new ViewAttachedEventArgs
                 {
                     Context = context,
                     View = view

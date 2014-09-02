@@ -1,0 +1,44 @@
+﻿using System.Collections.Generic;
+
+namespace UQLT.Models.Configuration
+{
+    /// <summary>
+    /// Model that represents the demo options.
+    /// </summary>
+    public class DemoOptions
+    {
+        /// <summary>
+        /// Gets or sets a value indicating whether WolfcamQL should be used to play old
+        /// .dm_73 demos.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if WolfcamQL should be used to play old .dm_73 demos; otherwise, <c>false</c>.
+        /// </value>
+        public bool demo_use_wolfcamql { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Wolf Whisperer should be used to play old
+        /// .dm_73 demos.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if Wolf Whisperer should be used to play old .dm_73 demos; otherwise, <c>false</c>.
+        /// </value>
+        public bool demo_use_wolfwhisperer { get; set; }
+
+        /// <summary>
+        /// Gets or sets file path to the WolfcamQL executable.
+        /// </summary>
+        /// <value>
+        /// The WolfcamQL executable file path.
+        /// </value>
+        public string demo_wolfcamql_exepath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file path to the Wolf Whisperer executable.
+        /// </summary>
+        /// <value>
+        /// The Wolf Whisperer executable file path.
+        /// </value>
+        public string demo_wolfwhisperer_exepath { get; set; }
+    }
+}

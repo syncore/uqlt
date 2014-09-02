@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,11 +25,13 @@ namespace UQLT.ViewModels
     public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
     {
         private readonly IWindowManager _windowManager;
+        private const string WolfCamDemoDir = "wolfcam-ql\\demos";
         private string _actionText;
         private double _archivingProgress;
         private bool _canCancelArchive = true;
         private bool _canCancelProcess = true;
         private string _cancelText = "Cancel";
+        private bool _canPlayDemo;
         private ObservableCollection<DemoInfoViewModel> _demos = new ObservableCollection<DemoInfoViewModel>();
         private volatile bool _hasReceivedArchiveCancelation;
         private volatile bool _hasReceivedProcessCancelation;
@@ -149,6 +152,26 @@ namespace UQLT.ViewModels
             {
                 _cancelText = value;
                 NotifyOfPropertyChange(() => CancelText);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a demo is selected and can be played.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if a demo is selected and can be played; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// This is also a Caliburn.Micro action guard that automatically hooks up IsEnabled in the View.
+        /// See: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        /// </remarks>
+        public bool CanPlayDemo
+        {
+            get { return _canPlayDemo; }
+            set
+            {
+                _canPlayDemo = value;
+                NotifyOfPropertyChange(() => CanPlayDemo);
             }
         }
 
@@ -308,6 +331,7 @@ namespace UQLT.ViewModels
             set
             {
                 _selectedDemo = value;
+                CanPlayDemo = value != null;
                 NotifyOfPropertyChange(() => SelectedDemo);
             }
         }
@@ -352,7 +376,7 @@ namespace UQLT.ViewModels
                 demofilepaths.AddRange(openfiledialog.FileNames);
 
                 // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
-                //await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
+                //await CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
 
                 // send to list splitter/QLDemoDumper
                 var dumper = new DemoDumper(this);
@@ -379,7 +403,7 @@ namespace UQLT.ViewModels
                     Debug.WriteLine("Selected directory " + openfolderdialog.SelectedPath + " DOES contain demo files!");
 
                     // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
-                    //await CopyDemosToDemoDirectoryAsync(QuakeLiveTypes.Production, GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
+                    //await CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes.Production, GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
 
                     // send to list splitter/QLDemoDumper
                     var dumper = new DemoDumper(this);
@@ -414,6 +438,64 @@ namespace UQLT.ViewModels
         {
             HasReceivedProcessCancelation = true;
             CanCancelProcess = false;
+        }
+
+        /// <summary>
+        /// Opens the demo options window.
+        /// </summary>
+        public void OpenDemoOptionsWindow()
+        {
+            dynamic settings = new ExpandoObject();
+            settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            _windowManager.ShowWindow(new DemoOptionsViewModel(), null, settings);
+        }
+
+        /// <summary>
+        /// Plays the demo.
+        /// </summary>
+        public async Task PlayDemo()
+        {
+            if (SelectedDemo == null) { return; }
+            var filename = SelectedDemo.Filename;
+
+            //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
+            var toCopy = new List<string> { Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production), SelectedDemo.Filename) };
+
+            if (filename.EndsWith(".dm_90", StringComparison.OrdinalIgnoreCase))
+            {
+                PlayDemoWithQuakeLive();
+            }
+            if (filename.EndsWith(".dm_73", StringComparison.OrdinalIgnoreCase))
+            {
+                VerifyWolfcamDemoDirectory();
+                var options = new DemoOptionsViewModel();
+                if (options.UseWolfcamQlForOldDemos)
+                {
+                    var wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
+                    // copy
+                    await CopyDemosToWolfcamDemoDirectoryAsync(toCopy, Path.Combine(wolfcamBase, WolfCamDemoDir));
+                    // play
+                    PlayDemoWithThirdPartyPlayer(DemoPlayerTypes.WolfcamQl, options.WolfcamQlExePath);
+                }
+                else if (options.UseWolfWhispererForOldDemos)
+                {
+                    // Wolf Whisperer has a built-in mechanism that automatically copies a demo to its
+                    // WolfcamQL\wolfcam-ql\demos directory. Manually copying it ourselves to that directory
+                    // will prevent Wolf Whisperer from playing the demo. So let Wolf Whisperer handle it.
+                    PlayDemoWithThirdPartyPlayer(DemoPlayerTypes.WolfWhisperer, options.WolfWhispererExePath);
+                }
+                else
+                {
+                    MessageBoxResult showDemoOptions =
+                        MessageBox.Show(
+                            "You have selected to play an old .dm_73 demo. You will need WolfcamQL or Wolf Whisperer to play this old demo. Would you like to open the options to configure your WolfcamQL or Wolf Whisperer settings?",
+                            "Demo player needed!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (showDemoOptions == MessageBoxResult.Yes)
+                    {
+                        OpenDemoOptionsWindow();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -455,7 +537,7 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <param name="qltype">The qltype.</param>
         /// <param name="demofilestocopy">The list of demo filenames to copy to the QL demo directory.</param>
-        private async Task CopyDemosToDemoDirectoryAsync(QuakeLiveTypes qltype, List<string> demofilestocopy)
+        private async Task CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes qltype, List<string> demofilestocopy)
         {
             foreach (string file in demofilestocopy)
             {
@@ -495,6 +577,51 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
+        /// Asynchronously copies the demo files to appropriate third-party demo player directory.
+        /// </summary>
+        /// <param name="demoFilesToCopy">The demo files to copy.</param>
+        /// <param name="directory">The path to Wolfcam's demo directory.</param>
+        /// <returns></returns>
+        private async Task CopyDemosToWolfcamDemoDirectoryAsync(IEnumerable<string> demoFilesToCopy, string directory)
+        {
+            foreach (string file in demoFilesToCopy)
+            {
+                var filename = Path.GetFileName(file);
+                Debug.WriteLine("File to copy to Wolfcam's demo directory is: " + filename);
+                using (FileStream sourceStream = File.Open(file, FileMode.Open))
+                {
+                    if (File.Exists(Path.Combine(directory, filename)))
+                    {
+                        MessageBoxResult shouldOverwrite =
+                            MessageBox.Show(
+                                string.Format(
+                                    "{0} already exists in Wolfcam's demo folder. Would you like to overwrite this file in Wolfcam's demo folder?",
+                                    file),
+                                "File already exists!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (shouldOverwrite != MessageBoxResult.Yes) continue;
+                        using (
+                            FileStream destinationStream =
+                                File.Create(Path.Combine(directory, filename)))
+                        {
+                            Debug.WriteLine("Overwriting existing file in demo directory: " + filename);
+                            await sourceStream.CopyToAsync(destinationStream);
+                        }
+                    }
+                    else
+                    {
+                        using (
+                            FileStream destinationStream =
+                                File.Create(Path.Combine(directory, filename)))
+                        {
+                            Debug.WriteLine(string.Format("{0} did not exist in demo directory. Copying to demo directory", filename));
+                            await sourceStream.CopyToAsync(destinationStream);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Performs the demo browser automatic sort based on specified criteria.
         /// </summary>
         /// <param name="property">The property criteria.</param>
@@ -520,6 +647,79 @@ namespace UQLT.ViewModels
                             file.ToLowerInvariant().EndsWith("dm_90", StringComparison.OrdinalIgnoreCase)).ToList();
 
             return demosfrompath;
+        }
+
+        /// <summary>
+        /// Plays the selected demo in the Quake Live client.
+        /// </summary>
+        private void PlayDemoWithQuakeLive()
+        {
+            var playerProcess = new Process();
+            //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
+            var basePathQlForwardSlashFormat = QLDirectoryUtils.GetQuakeLiveBasePath(QuakeLiveTypes.Production).Replace("\\", "/");
+            var homePathQlForwardSlashFormat = QLDirectoryUtils.GetQuakeLiveHomePath(QuakeLiveTypes.Production).Replace("\\", "/");
+            try
+            {
+                //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
+                playerProcess.StartInfo.FileName = QLDirectoryUtils.GetQuakeLiveExePath(QuakeLiveTypes.Production);
+                playerProcess.StartInfo.Arguments = string.Format("+set web_sess quakelive_sess= +set gt_user \"\"" +
+                                                                  " +set gt_pass \"\" +set gt_realm \"quakelive\" +set fs_basepath \"{0}\" +set fs_homepath \"{1}\"" +
+                                                                  " +demo {2}", basePathQlForwardSlashFormat, homePathQlForwardSlashFormat, SelectedDemo.Filename);
+                playerProcess.Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error launching Quake Live to view demo {0}, error: {1}", SelectedDemo.Filename, ex.Message);
+                MessageBox.Show(
+                        string.Format("Error launching Quake Live to view demo {0}", SelectedDemo.Filename),
+                        "Error launching Quke Live", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Plays the demo with a third party player (WolfcamQL or Wolf Whisperer).
+        /// </summary>
+        /// <param name="playerType">Type of third-party demo player.</param>
+        /// <param name="playerExePath">The path to the third-party demo player's executable file.</param>
+        private void PlayDemoWithThirdPartyPlayer(DemoPlayerTypes playerType, string playerExePath)
+        {
+            var playerProcess = new Process();
+            if (playerType == DemoPlayerTypes.WolfcamQl)
+            {
+                try
+                {
+                    playerProcess.StartInfo.FileName = playerExePath;
+                    // File has already been copied from QL demo dir -> wolfcam demo dir.
+                    // Now launching from wolfcamdir\wolfcam-ql\demos context at this point.
+                    playerProcess.StartInfo.Arguments = string.Format("+demo {0}", SelectedDemo.Filename);
+                    playerProcess.Start();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to start WolfcamQL to play demo: {0}, error: {1}", SelectedDemo.Filename, ex.Message);
+                    MessageBox.Show(
+                        string.Format("Unable to start WolfcamQL to play demo: {0}", SelectedDemo.Filename),
+                        "Error starting WolfcamQL", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else if (playerType == DemoPlayerTypes.WolfWhisperer)
+            {
+                try
+                {
+                    playerProcess.StartInfo.FileName = playerExePath;
+                    //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
+                    // Wolf Whisperer expects full demo filepath surrounded by double quotes, passed as a command line argument to its executable.
+                    playerProcess.StartInfo.Arguments = string.Format("\"{0}\"", Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production), SelectedDemo.Filename));
+                    playerProcess.Start();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Unable to start Wolf Whisperer to play demo: {0}, error: {1}", SelectedDemo.Filename, ex.Message);
+                    MessageBox.Show(
+                        string.Format("Unable to start Wolf Whisperer to play demo: {0}", SelectedDemo.Filename),
+                        "Error starting WolfcamQL", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         /// <summary>
@@ -562,6 +762,38 @@ namespace UQLT.ViewModels
             var demoPopulater = new DemoPopulate(this);
             await Task.Run(() => demoPopulater.PopulateDemoListFromDatabaseAsync());
             IsArchivingDemos = false;
+        }
+
+        /// <summary>
+        /// Checks to see if the WolfcamQL demo directory exists, and creates it if it does not.
+        /// </summary>
+        private void VerifyWolfcamDemoDirectory()
+        {
+            var options = new DemoOptionsViewModel();
+            if (options.UseWolfcamQlForOldDemos)
+            {
+                var wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
+                // should not be empty
+                if (!string.IsNullOrEmpty(wolfcamBase))
+                {
+                    var wolfDemoDir = Path.Combine(wolfcamBase, "wolfcam-ql\\demos");
+                    if (!Directory.Exists(wolfDemoDir))
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(wolfDemoDir);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Unable to create WolfcamQL demo directory: " + ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine(string.Format("WolfcamQL demo directory already exists at {0}", wolfDemoDir));
+                    }
+                }
+            }
         }
     }
 }

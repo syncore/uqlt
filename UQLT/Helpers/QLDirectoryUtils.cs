@@ -311,7 +311,7 @@ namespace UQLT.Helpers
         }
 
         /// <summary>
-        /// Determines whether the Quake Live or Quake Live Focus basepath exists.
+        /// Determines whether the Quake Live or Quake Live Focus homepath exists.
         /// </summary>
         /// <param name="qltype">The qltype.</param>
         /// <returns><c>True</c> if WindowsXP and: appdata%\id Software\quakelive\home or appdata%\id Software\focus\home exists, <c>true</c>
@@ -356,6 +356,49 @@ namespace UQLT.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Gets the Quake Live base path.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        /// <returns>
+        /// if WindowsXP: appdata%\id Software\quakelive or appdata%\id Software\focus
+        /// if Windows Vista or newer %AppData%\..\LocalLow\id Software\quakelive\ or %AppData%\..\LocalLow\id Software\focus
+        /// </returns>
+        public static string GetQuakeLiveBasePath(QuakeLiveTypes qltype)
+        {
+            var basePath = string.Empty;
+            if (qltype == QuakeLiveTypes.Production)
+            {
+                if ((IsWindowsXp()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Production)))
+                {
+                    basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "id Software\\quakelive");
+                }
+                if ((IsVistaOrNewer()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Production)))
+                {
+                    basePath = Path.Combine(GetLocalAppDataLowPath(), "id Software\\quakelive");
+                }
+            }
+
+            if (qltype != QuakeLiveTypes.Focus) return basePath;
+
+            if ((IsWindowsXp()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Focus)))
+            {
+                basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "id Software\\focus");
+            }
+            if ((IsVistaOrNewer()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Focus)))
+            {
+                basePath = Path.Combine(GetLocalAppDataLowPath(), "id Software\\focus");
+            }
+            return basePath;
+        }
+
+        /// <summary>
+        /// Gets the quake live demo directory path.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        /// <returns></returns>
         public static string GetQuakeLiveDemoDirectory(QuakeLiveTypes qltype)
         {
             var path = string.Empty;
@@ -390,6 +433,80 @@ namespace UQLT.Helpers
                     break;
             }
             return path;
+        }
+
+        /// <summary>
+        /// Gets the Quake Live game client executable path.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        /// <returns>The full path tho the Quake Live game client executable.</returns>
+        public static string GetQuakeLiveExePath(QuakeLiveTypes qltype)
+        {
+            var exePath = string.Empty;
+            if (qltype == QuakeLiveTypes.Production)
+            {
+                if ((IsWindowsXp()) && (IsQuakeLiveInstalled()))
+                {
+                    exePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "id Software\\quakelive\\quakelive.exe");
+                }
+                if ((IsVistaOrNewer()) && (IsQuakeLiveInstalled()))
+                {
+                    exePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "id Software\\quakelive\\quakelive.exe");
+                }
+            }
+            if (qltype != QuakeLiveTypes.Focus) return exePath;
+
+            if ((IsWindowsXp()) && (IsQuakeLiveFocusInstalled()))
+            {
+                exePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "id Software\\focus\\quakelive.exe");
+            }
+            if ((IsVistaOrNewer()) && (IsQuakeLiveFocusInstalled()))
+            {
+                exePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "id Software\\focus\\quakelive.exe");
+            }
+            return exePath;
+        }
+
+        /// <summary>
+        /// Gets the Quake Live base path.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        /// <returns>
+        /// if WindowsXP: appdata%\id Software\quakelive or appdata%\id Software\focus
+        /// if Windows Vista or newer %AppData%\..\LocalLow\id Software\quakelive\ or %AppData%\..\LocalLow\id Software\focus
+        /// </returns>
+        public static string GetQuakeLiveHomePath(QuakeLiveTypes qltype)
+        {
+            var homePath = string.Empty;
+            if (qltype == QuakeLiveTypes.Production)
+            {
+                if ((IsWindowsXp()) && (DoesQuakeLiveHomePathExist(QuakeLiveTypes.Production)))
+                {
+                    homePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "id Software\\quakelive\\home");
+                }
+                if ((IsVistaOrNewer()) && (DoesQuakeLiveHomePathExist(QuakeLiveTypes.Production)))
+                {
+                    homePath = Path.Combine(GetLocalAppDataLowPath(), "id Software\\quakelive\\home");
+                }
+            }
+
+            if (qltype != QuakeLiveTypes.Focus) return homePath;
+
+            if ((IsWindowsXp()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Focus)))
+            {
+                homePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "id Software\\focus\\home");
+            }
+            if ((IsVistaOrNewer()) && (DoesQuakeLiveBasePathExist(QuakeLiveTypes.Focus)))
+            {
+                homePath = Path.Combine(GetLocalAppDataLowPath(), "id Software\\focus\\home");
+            }
+            return homePath;
         }
 
         /// <summary>

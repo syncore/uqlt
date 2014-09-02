@@ -17,6 +17,18 @@
         }
 
         /// <summary>
+        /// Gets or sets the demo_options.
+        /// </summary>
+        /// <value>
+        /// The demo_options.
+        /// </value>
+        public DemoOptions demo_options
+        {
+            get;
+            set;
+        }
+        
+        /// <summary>
         /// Gets or sets the serverbrowser_options.
         /// </summary>
         /// <value>The serverbrowser_options.</value>
