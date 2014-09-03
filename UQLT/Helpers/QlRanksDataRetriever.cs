@@ -7,7 +7,7 @@ using System.Windows;
 using UQLT.Core;
 using UQLT.Interfaces;
 using UQLT.Models.QLRanks;
-using UQLT.ViewModels;
+using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.Helpers
 {

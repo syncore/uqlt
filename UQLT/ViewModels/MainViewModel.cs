@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using Caliburn.Micro;
 using UQLT.Events;
+using UQLT.ViewModels.Chat;
+using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.ViewModels
 {

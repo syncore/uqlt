@@ -1,0 +1,290 @@
+﻿<Window x:Class="UQLT.Views.DemoPlayer.DemoPlayerView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:helpers="clr-namespace:UQLT.Helpers"
+        Title="UQLT v0.1 - Demo Player" Height="782" Width="1040">
+
+    <Window.Resources>
+        <!--Template for Demo Summary-->
+        <DataTemplate x:Key="DemoQuickInfoTemplate">
+            <!--Outer container-->
+            <StackPanel Orientation="Vertical">
+                <TextBlock Height="20" TextWrapping="Wrap" Text="Demo summary" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
+                <StackPanel Orientation="Horizontal">
+                    <!--Map image stackpanel-->
+                    <StackPanel Orientation="Vertical">
+                        <Image Name="MapImage" Width="112" Height="84" Source="{Binding MapImage}" Margin="0,0,0,0" />
+                    </StackPanel>
+                    <!--Filename, map, recorded by, game date, type, location-->
+                    <StackPanel Orientation="Vertical" Margin="20,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="File name: " />
+                            <TextBlock Text="{Binding Filename}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Map: " />
+                            <TextBlock Text="{Binding Map}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Recorded by: " />
+                            <TextBlock Text="{Binding RecordedBy}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Game date: " />
+                            <TextBlock Text="{Binding Date}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Game type: " />
+                            <StackPanel Orientation="Horizontal">
+                                <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}" />
+                                <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Game location: " />
+                            <TextBlock Text="{Binding Location}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+        <!--Template for Red/Blue Team Colors-->
+        <DataTemplate x:Key="TeamColors">
+            <Border x:Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+                <TextBlock Foreground="White" Text="{Binding TeamName}" />
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Team}" Value="0">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="1">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66FF1D1D" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="2">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66000CFF" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="3">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid x:Name="DemoPlayerRoot">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="700" />
+            <ColumnDefinition Width="340" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="91*" />
+            <RowDefinition Height="661*" />
+        </Grid.RowDefinitions>
+
+        <!--Directory options-->
+        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0,5,0,0">
+            <!--Current demo directory-->
+            <TextBlock TextWrapping="Wrap" Text="Quake Live Demo Directory:" Margin="5,0" />
+            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                <TextBlock TextWrapping="Wrap" Text="{Binding QlDemoDirectoryPath}" Margin="0,0,5,0" Width="700" FontWeight="Bold" Padding="0,3,0,0" />
+            </StackPanel>
+            <!--Add demo / re-scan / options buttons-->
+            <StackPanel Orientation="Horizontal" Margin="5,10,0,0">
+                <Button Content="Add a demo directory" Margin="0,0,10,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="AddDemoDirectory" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Add demo(s)">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="AddDemo" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Re-scan demo directory" Margin="10,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="RescanDemoDir" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Options" Margin="40,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenDemoOptionsWindow" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </StackPanel>
+            <TextBlock TextWrapping="Wrap" Text="Adding a directory or demo will copy the demo(s) to to your QL demo directory." Margin="5,5,0,5" />
+        </StackPanel>
+        <!--Stackpanel container for file info, player, and chat msgs-->
+        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
+            <!--Quick demo details-->
+            <ContentControl Content="{Binding SelectedDemo}" ContentTemplate="{StaticResource DemoQuickInfoTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="110" Width="695" />
+
+            <TextBlock Height="20" TextWrapping="Wrap" Text="{Binding Demos.Count, StringFormat='Quake Live demo files ({0} total)'}" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
+            <!--User's Demo files listview-->
+            <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" VerticalAlignment="Top" Height="200" Width="699" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Demos}" SelectedItem="{Binding SelectedDemo}" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=DemoPlayerRoot}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Filename" helpers:GridViewSort.PropertyName="Filename" DisplayMemberBinding="{Binding Filename}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Size" helpers:GridViewSort.PropertyName="Filesize" DisplayMemberBinding="{Binding Filesize}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Recorded by" helpers:GridViewSort.PropertyName="RecordedBy" DisplayMemberBinding="{Binding RecordedBy}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Date" helpers:GridViewSort.PropertyName="Date" DisplayMemberBinding="{Binding Date}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Game" helpers:GridViewSort.PropertyName="GameTypeTitle">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Name="GameTypeImage" Width="16" Height="16" Margin="0,0,3,0" Source="{Binding GameTypeImage}" />
+                                        <TextBlock Name="GameTypeName" Text="{Binding GameTypeTitle}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Map" helpers:GridViewSort.PropertyName="Map" DisplayMemberBinding="{Binding Map}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Location" helpers:GridViewSort.PropertyName="Location" DisplayMemberBinding="{Binding Location}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Protocol" helpers:GridViewSort.PropertyName="Protocol" DisplayMemberBinding="{Binding Protocol}">
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <!--Player info header stackpanel-->
+            <StackPanel Orientation="Horizontal"  Background="#FF931313">
+                <TextBlock Height="20" TextWrapping="Wrap" Text="Player information" Margin="5,0,200,0" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold" Width="699" />
+                <TextBlock Height="20" TextWrapping="Wrap" Text="Chat messages" Padding="0,2,0,0"  Background="#FF931313" Foreground="White" FontWeight="Bold" />
+            </StackPanel>
+            <!--Stackpanel container for actual player info-->
+            <StackPanel Orientation="Horizontal">
+                <!--Player info listview-->
+                <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top" Width="698"
+                  IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding SelectedDemo.FormattedDemoInfoPlayers}" SelectionMode="Single" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Team" helpers:GridViewSort.PropertyName="Team" CellTemplate="{StaticResource TeamColors}" />
+                            <GridViewColumn Header="Clan">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ClanTag}" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding ExtendedClan}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Player" helpers:GridViewSort.PropertyName="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Name="FlagImage" Width="16" Height="11" Source="{Binding FlagImage}" Margin="0,0,5,0" />
+                                            <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0" />
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+            <TextBlock Height="20" TextWrapping="Wrap" Text="Extended demo server information"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" Width="697" HorizontalAlignment="Left" />
+            <!--Extended server info listview-->
+            <ListView helpers:GridViewSort.AutoSort="True" IsSynchronizedWithCurrentItem="True" HorizontalAlignment="Left" Height="138" VerticalAlignment="Top" Width="699" ItemsSource="{Binding SelectedDemo.ServerInfo}" SelectionMode="Single" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Cvar" DisplayMemberBinding="{Binding Path=Key}">
+                        </GridViewColumn>
+                        <GridViewColumn Header="Value" DisplayMemberBinding="{Binding Path=Value}">
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+        <!--Demo playlist-->
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Width="330" HorizontalAlignment="Left">
+            <TextBlock Height="20" TextWrapping="Wrap" Text="Demo playlist"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" />
+
+            <!--Playlist name and selection-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
+                <TextBlock Text="Name:" Margin="0,0,5,0" Padding="0,2,0,0" />
+                <ComboBox HorizontalAlignment="Center" VerticalAlignment="Top" Width="280" />
+            </StackPanel>
+            <!--Playlist combobox buttons-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <Button Content="Create" Width="80" Margin="0,0,12,0" />
+                <Button Content="Rename" Width="80" Margin="0,0,12,0" />
+                <Button Content="Delete" Width="80" />
+            </StackPanel>
+            <!--Rename-->
+            <StackPanel Orientation="Horizontal" Width="295" Margin="5,6,0,0" Visibility="{Binding IsRename, Converter={StaticResource BoolToVis}}">
+                <TextBox Height="23" TextWrapping="Wrap" Text="...Playlist name" Width="195" />
+                <Button Content="Save" Height="23" Width="75" Margin="8,0,0,0" />
+            </StackPanel>
+            <!--Playlist listbox-->
+            <ListBox Height="330" Width="320" Margin="0,10,0,0" />
+            <!--Playlist listbox buttons-->
+            
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,6,0,10">
+                <TextBlock Height="16" TextWrapping="Wrap" Text="Right-click to add/delete demos" HorizontalAlignment="Center" Margin="0,0,0,3" />
+                <TextBlock Height="16" TextWrapping="Wrap" Text="Drag playlist items to re-order" HorizontalAlignment="Center" Margin="0" />
+            </StackPanel>
+            <!--Playlist play-->
+            <StackPanel Orientation="Vertical">
+                <TextBlock Height="20" TextWrapping="Wrap" Text="Play Quake Live demos"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" />
+                <Button Content="Play selected demo" Margin="0,15,0,0" Width="165">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="PlayDemo"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198" />
+            </StackPanel>
+        </StackPanel>
+        <!--Process/arcive demos grid and progress-->
+        <!--<Grid ColumnSpan="2" Grid.Column="0"
+              Visibility="{Binding ShowBusyIndicator, Converter={StaticResource BoolToVis}}" Background="Gray" Opacity=".5" Grid.Row="1">
+            <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,100">
+                <Border Background="#333" Width="450" BorderBrush="Red" BorderThickness="2" Height="98" DockPanel.Dock="Top">
+                    --><!--Stackpanel container for processing and archiving demos--><!--
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Visibility="{Binding IsProcessingDemos, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
+            		Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
+                            <ProgressBar Value="{Binding ProcessingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
+                            <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelProcess}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <cal:ActionMessage MethodName="CancelDemoProcessing" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Visibility="{Binding IsArchivingDemos, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Foreground="White" FontSize="14" Width="450" VerticalAlignment="Top" HorizontalAlignment="Center"
+                    Text="{Binding ActionText}" Padding="20,0,0,0" Margin="8,17,-12,28" />
+                            <ProgressBar Value="{Binding ArchivingProgress, Mode=OneWay}" Height="20" Width="440"  Minimum="0" Maximum="100" VerticalAlignment="Center" Margin="0,-20,0,0" Background="#FFAEAEAE" Foreground="Red"/>
+                            <Button Content="{Binding CancelText}" Margin="0,5,0,0" Width="198" IsEnabled="{Binding CanCancelArchive}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <cal:ActionMessage MethodName="CancelDemoArchiving" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Grid>-->
+    </Grid>
+</Window>

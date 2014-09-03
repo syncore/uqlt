@@ -1,33 +1,42 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using agsXMPP;
 using Caliburn.Micro;
-using UQLT.ViewModels.DemoPlayer;
+using UQLT.Core.Modules.Chat;
+using Uri = System.Uri;
 
-namespace UQLT.ViewModels
+namespace UQLT.ViewModels.Chat
 {
     /// <summary>
-    /// The viewmodel for the LoginView, which serves as the starting point that the user sees when
-    /// launching the application.
+    /// Viewmodel representing an incoming friend request, FriendRequestView.
     /// </summary>
-    [Export(typeof(LoginViewModel))]
-    public class LoginViewModel : PropertyChangedBase, IHaveDisplayName, IViewAware
+    [Export(typeof(FriendRequestViewModel))]
+    public class FriendRequestViewModel : IHaveDisplayName, IViewAware
     {
-        private readonly IEventAggregator _events;
+        private readonly ChatHandler _handler;
+
+        private readonly Jid _jid;
+
         private readonly IWindowManager _windowManager;
+
         private Window _dialogWindow;
-        private string _displayName = "Login to Quake Live";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoginViewModel" /> class.
+        /// Initializes a new instance of the <see cref="FriendRequestViewModel"/> class.
         /// </summary>
+        /// <param name="jid">The jid.</param>
+        /// <param name="handler">The handler.</param>
         /// <param name="windowManager">The window manager.</param>
-        /// <param name="events">The events that this viewmodel publishes and/or subscribes to.</param>
         [ImportingConstructor]
-        public LoginViewModel(IWindowManager windowManager, IEventAggregator events)
+        public FriendRequestViewModel(Jid jid, ChatHandler handler, IWindowManager windowManager)
         {
+            _jid = jid;
+            _handler = handler;
             _windowManager = windowManager;
-            _events = events;
+            DisplayName = "Incoming friend request from " + _jid.User;
         }
 
         /// <summary>
@@ -36,18 +45,42 @@ namespace UQLT.ViewModels
         public event EventHandler<ViewAttachedEventArgs> ViewAttached;
 
         /// <summary>
-        /// Gets or Sets the display name for this window.
+        /// Gets or sets the name of this window.
         /// </summary>
-        public string DisplayName
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets the friend image.
+        /// </summary>
+        /// <value>The friend image.</value>
+        public ImageSource FriendImage
         {
             get
             {
-                return _displayName;
+                return new BitmapImage(new Uri("pack://application:,,,/UQLTRes;component/Images/Chat/friend.gif", UriKind.RelativeOrAbsolute));
             }
-            set
+        }
+
+        /// <summary>
+        /// Gets the name of the user who is sending the incoming friend request.
+        /// </summary>
+        /// <value>
+        /// The name of the user sending the incoming friend request.
+        /// </value>
+        public string RequestFrom
+        {
+            get
             {
-                _displayName = value;
+                return _jid.User;
             }
+        }
+
+        /// <summary>
+        /// Accepts the friend request.
+        /// </summary>
+        public void AcceptFriendRequest()
+        {
+            _handler.AcceptFriendRequest(_jid);
         }
 
         /// <summary>
@@ -60,7 +93,7 @@ namespace UQLT.ViewModels
             _dialogWindow = view as Window;
             if (ViewAttached != null)
             {
-                ViewAttached(this, new ViewAttachedEventArgs
+                ViewAttached(this, new ViewAttachedEventArgs()
                 {
                     Context = context,
                     View = view
@@ -78,17 +111,6 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Does the login.
-        /// </summary>
-        public void DoLogin()
-        {
-            // TODO: have some login logic here.. if successful then show main window and close this
-            //       current window
-            _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
-            CloseWin();
-        }
-
-        /// <summary>
         /// Gets a view previously attached to this instance.
         /// </summary>
         /// <param name="context">The context denoting which view to retrieve.</param>
@@ -99,13 +121,11 @@ namespace UQLT.ViewModels
         }
 
         /// <summary>
-        /// Launches the demo player.
+        /// Rejects the friend request.
         /// </summary>
-        public void LaunchDemoPlayer()
+        public void RejectFriendRequest()
         {
-            // Actually, this is a good way of doing it, because we need to provide the ability
-            // to watch demos offline, since quakelive.exe can be launched to watch demos without authenticating.
-            _windowManager.ShowWindow(new DemoPlayerViewModel(_windowManager));
+            _handler.RejectFriendRequest(_jid);
         }
     }
 }

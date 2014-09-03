@@ -1,0 +1,251 @@
+﻿<UserControl x:Class="UQLT.Views.Chat.ChatListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:cal="http://www.caliburnproject.org"
+             mc:Ignorable="d"
+             d:DesignHeight="782" d:DesignWidth="280" Width="340">
+
+    <UserControl.Resources>
+        <!--Template for Red/Blue Team Colors-->
+        <DataTemplate x:Key="TeamColors">
+            <Border Name="TeamBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="1">
+                <TextBlock Foreground="White" Text="{Binding TeamName}" />
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Team}" Value="0">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="1">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66FF1D1D" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="2">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="#66000CFF" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Team}" Value="3">
+                    <Setter Property="Background" TargetName="TeamBorder" Value="LightGray" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        <!--Template for displaying proper score formatting (i.e. Race times)-->
+        <DataTemplate x:Key="ScoreTemplate">
+            <TextBlock>
+                <TextBlock.Text>
+                    <MultiBinding Converter="{StaticResource ScoreToRace}">
+                        <Binding Path="PlayerGameType" />
+                        <Binding Path="Score" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid x:Name="ChatListRoot">
+        <StackPanel Orientation="Vertical">
+            <!--Buddy list-->
+            <TreeView HorizontalAlignment="Left" ItemsSource="{Binding BuddyList}" Width="336" Margin="4,4,0,0" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.IsDeferredScrollingEnabled="True">
+
+                <!-- Auto expand groups -->
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=IsAutoExpanded}" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <!-- RosterGroup Template -->
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Friends}">
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Source="/WpfTutorialSamples;component/Images/group.png" Margin="0,0,5,0" /> -->
+                            <TextBlock Text="{Binding GroupName}" />
+                            <TextBlock Text=" [" />
+                            <TextBlock Text="{Binding Friends.Count}" Foreground="Green" />
+                            <TextBlock Text="]" />
+                            <!--This is a menu strictly for the group headers-->
+                            <!--<StackPanel.ContextMenu>
+                            <ContextMenu cal:Action.TargetWithoutContext="{Binding DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Cut" cal:Message.Attach="Cut" />
+                                <MenuItem Header="Copy" cal:Message.Attach="Copy" />
+                                <MenuItem Header="Paste" cal:Message.Attach="Paste" />
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>-->
+                        </StackPanel>
+                        <!--This separate HDT.ItemContainerStyle is needed specifically for the ObservableDictionary. The general TreeView.ItemContainerStyle IsAutoExpanded
+                    property does not apply to this because it is a collection of KeyValuePair(s) and the IsAutoExpanded property is not found on KVP without this, though
+                    it is still a TreeViewItem-->
+                        <HierarchicalDataTemplate.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="TreeViewItem.IsExpanded" Value="{Binding Path=Value.IsAutoExpanded}" />
+                                <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action OpenChatWindow($dataContext)]; [Event Selected] = [Action UpdateFriendGameServerInfo($dataContext)]" />
+                            </Style>
+                        </HierarchicalDataTemplate.ItemContainerStyle>
+                        <!-- Individual friend template -->
+                        <HierarchicalDataTemplate.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,5" Tag="{Binding DataContext, ElementName=ChatListRoot}">
+                                    <Image Name="FriendImage" Width="16" Height="16" Source="{Binding Value.FriendImage}" HorizontalAlignment="Left" />
+                                    <Image Name="FavoriteImage" Width="16" Height="16" Source="{Binding Value.FavoriteImage}" Margin="0" Visibility="{Binding Value.IsFavorite, Converter ={StaticResource BoolToVis}}" HorizontalAlignment="Left" />
+                                    <Image Name="StatusImage" Width="16" Height="16" Source="{Binding Value.StatusImage}" HorizontalAlignment="Left" Visibility="{Binding Value.HasXmppStatus, Converter={StaticResource BoolToVis}}" />
+
+                                    <!--Start: individual friend stackpanel-->
+                                    <StackPanel Orientation="Vertical"
+                                                ToolTipService.InitialShowDelay="0"
+                                                ToolTipService.BetweenShowDelay="1000"
+                                                ToolTipService.ShowDuration="10000">
+
+                                        <TextBlock Name="IndividualFriend" Text="{Binding Value.FriendName}" Margin="10,0,0,0" />
+
+                                        <!-- Player's demo or practice game message (only shown if player is watching demo or in practice match) -->
+                                        <TextBlock Text="{Binding Value.PracticeDemoMessage}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding Value.IsPracticeOrDemo, Converter ={StaticResource BoolToVis}}" Margin="10,0,0,0" />
+
+                                        <!-- Player's game server information (only shown if player is in game) -->
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
+
+                                            <TextBlock Name="StatusGameType" Text="{Binding Value.Server.ShortGameTypeName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                                            <TextBlock Name="StatusGameMap" Text="{Binding Value.Server.MapTitle, StringFormat='on {0}'}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+
+                                            <Image Name="StatusGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left" />
+                                            <TextBlock Name="StatusGameLocation" Text="{Binding Value.Server.ShortLocationName}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                                            <TextBlock Name="StatusGamePlayerCount" Text="{Binding Value.Server.TotalPlayers}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                                        </StackPanel>
+
+                                        <!-- Tooltip displaying server info on hover -->
+                                        <StackPanel.ToolTip>
+                                            <StackPanel Visibility="{Binding Value.IsInGame, Converter={StaticResource BoolToVis}}">
+                                                <!--Start: tooltip stackpanel-->
+                                                <StackPanel>
+                                                    <!--Tooltip: location & ping information-->
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Image Name="TooltipGameFlagImage" Width="16" Height="16" Source="{Binding Value.Server.FlagImage}" HorizontalAlignment="Left" Margin="10,0,0,0" />
+                                                        <TextBlock TextWrapping="Wrap">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="{}{0} (ping: {1} ms)">
+                                                                    <Binding Path="Value.Server.ShortLocationName" />
+                                                                    <Binding Path="Value.Server.Ping" FallbackValue="0" />
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <!--Tooltip: gametype information-->
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
+                                                        <Image Name="TooltipGameTypeImage" Width="16" Height="16" Source="{Binding Value.Server.GameTypeImage}" HorizontalAlignment="Left" />
+                                                        <TextBlock Name="TooltipGameType" Text="{Binding Value.Server.GameTypeTitle}" HorizontalAlignment="Left" Margin="10,0,0,0" />
+                                                    </StackPanel>
+
+                                                    <!--Tooltip: map information-->
+                                                    <TextBlock Text="{Binding Value.Server.MapTitle}" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                                                    <Image Name="MapImage" Width="112" Height="84" Source="{Binding Value.Server.MapImage}" />
+
+                                                    <!--Tooltip: player count-->
+                                                    <TextBlock Text="{Binding Value.Server.TotalPlayers, StringFormat='Players: {0}'}" />
+
+                                                    <!--Tooltip: time left-->
+                                                    <TextBlock Text="{Binding Value.Server.TimeRemaining, StringFormat='Time Left: {0}'}" />
+
+                                                    <!--Tooltip: scoreboard and for team games-->
+                                                    <!--Red score greater than blue score. Display red first.-->
+                                                    <StackPanel Visibility="{Binding Value.Server.IsRedTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Red: " />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GRedScore}" />
+                                                        </StackPanel>
+
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Blue: " />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GBlueScore}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <!--Blue score greater than red score. Display blue first.-->
+                                                    <StackPanel Visibility="{Binding Value.Server.IsBlueTeamLeading, Converter={StaticResource BoolToVis}}">
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Blue: " />
+                                                            <TextBlock Text="{Binding Value.Server.BlueTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GBlueScore}" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Value.Server.IsTeamGame, Converter={StaticResource BoolToVis}}">
+                                                            <TextBlock Text="Red: " />
+                                                            <TextBlock Text="{Binding Value.Server.RedTeamEloAsAsyncValue.Result, StringFormat='({0} Elo): '}" Visibility="{Binding Value.Server.IsQlRanksSupportedTeamGame, Converter={StaticResource BoolToVis}}" />
+                                                            <TextBlock Text="{Binding Value.Server.GRedScore}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <!--Individual player scores listview-->
+                                                    <ListView Name="ToolTipPlayerDetails" HorizontalAlignment="Left" ItemsSource="{Binding Value.Server.ToolTipPlayers}" SelectionMode="Single">
+                                                        <!--<ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Team}" Value="1">
+                                                                        <Setter Property="Background" Value="#66FF1D1D" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Team}" Value="2">
+                                                                        <Setter Property="Background" Value="#66000CFF" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>-->
+                                                        <ListView.View>
+                                                            <GridView>
+                                                                <GridViewColumn Header="Team" CellTemplate="{StaticResource TeamColors}" />
+                                                                <GridViewColumn Header="Clan" DisplayMemberBinding="{Binding CleanedClan}" />
+                                                                <GridViewColumn Header="Name">
+                                                                    <GridViewColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Image Name="AcctTypeImage" Width="36" Height="12" Source="{Binding AccountImage}" Margin="0,0,5,0" />
+                                                                                <TextBlock Text="{Binding Name}" />
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </GridViewColumn.CellTemplate>
+                                                                </GridViewColumn>
+                                                                <GridViewColumn Header="Score" CellTemplate="{StaticResource ScoreTemplate}" />
+                                                                <GridViewColumn Header="Elo" DisplayMemberBinding="{Binding PlayerElo}" Width="{Binding Path=Value.Server.IsQlRanksSupportedAllGames, Converter={StaticResource QlRanksTypeToVis}, ConverterParameter=85}" />
+                                                            </GridView>
+                                                        </ListView.View>
+                                                    </ListView>
+                                                </StackPanel>
+                                                <!--End: tooltip stackpanel-->
+                                            </StackPanel>
+                                        </StackPanel.ToolTip>
+                                    </StackPanel>
+                                    <!--End: individual friend stackpanel-->
+
+                                    <!--Friend context menu actions-->
+                                    <StackPanel.ContextMenu>
+                                        <ContextMenu cal:Action.TargetWithoutContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="Open chat" cal:Message.Attach="OpenChatWindow($dataContext)" />
+                                            <MenuItem Header="Clear chat history" cal:Message.Attach="ClearChatHistory($dataContext)" />
+                                            <MenuItem Header="Delete friend" cal:Message.Attach="RemoveFriend($dataContext)" />
+                                            <MenuItem Header="Add friend to favorites" cal:Message.Attach="AddFavoriteFriend($dataContext)" />
+                                            <MenuItem Header="Remove friend from favorites" cal:Message.Attach="RemoveFavoriteFriend($dataContext)" />
+                                        </ContextMenu>
+                                    </StackPanel.ContextMenu>
+                                </StackPanel>
+                            </DataTemplate>
+                        </HierarchicalDataTemplate.ItemTemplate>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <!--Add a friend and chat options-->
+            <StackPanel Orientation="Horizontal" Width="250">
+                <Button Content="Add a friend" Margin="15,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenAddFriendWindow" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Chat options" VerticalAlignment="Center" Margin="15,0,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenChatOptionsWindow" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

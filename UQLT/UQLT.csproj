@@ -194,6 +194,8 @@
     <Compile Include="Models\Configuration\ServerBrowserOptions.cs" />
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
     <Compile Include="Models\DemoPlayer\Demo.cs" />
+    <Compile Include="Models\DemoPlayer\DemoPlaylist.cs" />
+    <Compile Include="Models\DemoPlayer\DemoPlaylistDemo.cs" />
     <Compile Include="Models\DemoPlayer\Player.cs" />
     <Compile Include="Models\DemoPlayer\Srvinfo.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
@@ -227,50 +229,51 @@
     <Compile Include="Core\UQltBootstrapper.cs" />
     <Compile Include="Core\UQltGlobals.cs" />
     <Compile Include="Core\UqltWindowManager.cs" />
-    <Compile Include="ViewModels\AddFriendViewModel.cs" />
-    <Compile Include="ViewModels\ChatMessageViewModel.cs" />
-    <Compile Include="ViewModels\ChatOptionsViewModel.cs" />
-    <Compile Include="ViewModels\DemoInfoViewModel.cs" />
-    <Compile Include="ViewModels\DemoInfoPlayerViewModel.cs" />
-    <Compile Include="ViewModels\DemoOptionsViewModel.cs" />
-    <Compile Include="ViewModels\DemoPlayerViewModel.cs" />
-    <Compile Include="ViewModels\FriendViewModel.cs" />
-    <Compile Include="ViewModels\GameInvitationViewModel.cs" />
-    <Compile Include="ViewModels\FriendRequestViewModel.cs" />
-    <Compile Include="ViewModels\RosterGroupViewModel.cs" />
-    <Compile Include="ViewModels\ChatListViewModel.cs" />
-    <Compile Include="ViewModels\FilterViewModel.cs" />
+    <Compile Include="ViewModels\Chat\AddFriendViewModel.cs" />
+    <Compile Include="ViewModels\Chat\ChatMessageViewModel.cs" />
+    <Compile Include="ViewModels\Chat\ChatOptionsViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\DemoInfoViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\DemoInfoPlayerViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\DemoOptionsViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\DemoPlayerViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\DemoPlaylistViewModel.cs" />
+    <Compile Include="ViewModels\Chat\FriendViewModel.cs" />
+    <Compile Include="ViewModels\Chat\GameInvitationViewModel.cs" />
+    <Compile Include="ViewModels\Chat\FriendRequestViewModel.cs" />
+    <Compile Include="ViewModels\Chat\RosterGroupViewModel.cs" />
+    <Compile Include="ViewModels\Chat\ChatListViewModel.cs" />
+    <Compile Include="ViewModels\ServerBrowser\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\PlayerDetailsViewModel.cs" />
-    <Compile Include="ViewModels\ServerBrowserViewModel.cs" />
-    <Compile Include="ViewModels\ServerDetailsViewModel.cs" />
-    <Compile Include="ViewModels\ChatGameInfoViewModel.cs" />
-    <Compile Include="Views\AddFriendView.xaml.cs">
+    <Compile Include="ViewModels\ServerBrowser\PlayerDetailsViewModel.cs" />
+    <Compile Include="ViewModels\ServerBrowser\ServerBrowserViewModel.cs" />
+    <Compile Include="ViewModels\ServerBrowser\ServerDetailsViewModel.cs" />
+    <Compile Include="ViewModels\Chat\ChatGameInfoViewModel.cs" />
+    <Compile Include="Views\Chat\AddFriendView.xaml.cs">
       <DependentUpon>AddFriendView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ChatListView.xaml.cs">
+    <Compile Include="Views\Chat\ChatListView.xaml.cs">
       <DependentUpon>ChatListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ChatMessageView.xaml.cs">
+    <Compile Include="Views\Chat\ChatMessageView.xaml.cs">
       <DependentUpon>ChatMessageView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ChatOptionsView.xaml.cs">
+    <Compile Include="Views\Chat\ChatOptionsView.xaml.cs">
       <DependentUpon>ChatOptionsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\DemoOptionsView.xaml.cs">
+    <Compile Include="Views\DemoPlayer\DemoOptionsView.xaml.cs">
       <DependentUpon>DemoOptionsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\DemoPlayerView.xaml.cs">
+    <Compile Include="Views\DemoPlayer\DemoPlayerView.xaml.cs">
       <DependentUpon>DemoPlayerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FilterView.xaml.cs">
+    <Compile Include="Views\ServerBrowser\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\GameInvitationView.xaml.cs">
+    <Compile Include="Views\Chat\GameInvitationView.xaml.cs">
       <DependentUpon>GameInvitationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FriendRequestView.xaml.cs">
+    <Compile Include="Views\Chat\FriendRequestView.xaml.cs">
       <DependentUpon>FriendRequestView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginView.xaml.cs">
@@ -279,7 +282,7 @@
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ServerBrowserView.xaml.cs">
+    <Compile Include="Views\ServerBrowser\ServerBrowserView.xaml.cs">
       <DependentUpon>ServerBrowserView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -315,39 +318,39 @@
     <Resource Include="Icons\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\AddFriendView.xaml">
+    <Page Include="Views\Chat\AddFriendView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ChatListView.xaml">
+    <Page Include="Views\Chat\ChatListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ChatMessageView.xaml">
+    <Page Include="Views\Chat\ChatMessageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ChatOptionsView.xaml">
+    <Page Include="Views\Chat\ChatOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DemoOptionsView.xaml">
+    <Page Include="Views\DemoPlayer\DemoOptionsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DemoPlayerView.xaml">
+    <Page Include="Views\DemoPlayer\DemoPlayerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FilterView.xaml">
+    <Page Include="Views\ServerBrowser\FilterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\GameInvitationView.xaml">
+    <Page Include="Views\Chat\GameInvitationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FriendRequestView.xaml">
+    <Page Include="Views\Chat\FriendRequestView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -359,7 +362,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ServerBrowserView.xaml">
+    <Page Include="Views\ServerBrowser\ServerBrowserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

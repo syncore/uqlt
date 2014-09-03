@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using UQLT.ViewModels;
+using UQLT.ViewModels.DemoPlayer;
 using Path = System.IO.Path;
 
 namespace UQLT.Core.Modules.DemoPlayer

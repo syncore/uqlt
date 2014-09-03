@@ -17,6 +17,7 @@ using UQLT.Helpers;
 using UQLT.Models.Chat;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
+using UQLT.ViewModels.Chat;
 
 namespace UQLT.Core.Modules.Chat
 {

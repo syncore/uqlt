@@ -7,6 +7,7 @@ using Caliburn.Micro;
 using UQLT.Events;
 using UQLT.Models.Configuration;
 using UQLT.ViewModels;
+using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.Core.Modules.ServerBrowser
 {

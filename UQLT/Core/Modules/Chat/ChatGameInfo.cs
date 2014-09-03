@@ -8,6 +8,7 @@ using UQLT.Core.Modules.ServerBrowser;
 using UQLT.Helpers;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
+using UQLT.ViewModels.Chat;
 
 namespace UQLT.Core.Modules.Chat
 {

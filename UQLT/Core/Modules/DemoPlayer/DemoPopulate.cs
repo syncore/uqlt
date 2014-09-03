@@ -10,7 +10,7 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Helpers;
 using UQLT.Models.DemoPlayer;
-using UQLT.ViewModels;
+using UQLT.ViewModels.DemoPlayer;
 
 namespace UQLT.Core.Modules.DemoPlayer
 {

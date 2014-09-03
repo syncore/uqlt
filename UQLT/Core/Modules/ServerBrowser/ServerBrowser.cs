@@ -16,6 +16,7 @@ using UQLT.Models.Filters.User;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
 using UQLT.ViewModels;
+using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.Core.Modules.ServerBrowser
 {

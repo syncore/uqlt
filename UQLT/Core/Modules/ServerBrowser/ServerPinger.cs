@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using UQLT.ViewModels;
+using UQLT.ViewModels.Chat;
+using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.Core.Modules.ServerBrowser
 {
