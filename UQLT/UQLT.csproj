@@ -169,6 +169,7 @@
     <Compile Include="Helpers\FocusBehavior.cs" />
     <Compile Include="Helpers\GridViewSort.cs" />
     <Compile Include="Helpers\KeyPressTrigger.cs" />
+    <Compile Include="Helpers\MsgBoxService.cs" />
     <Compile Include="Helpers\NumericTextBoxFilter.cs" />
     <Compile Include="Helpers\QLDirectoryUtils.cs" />
     <Compile Include="Helpers\QLFormatHelper.cs" />
@@ -181,6 +182,7 @@
     <Compile Include="Core\UQltFileUtils.cs" />
     <Compile Include="Helpers\WindowExtensions.cs" />
     <Compile Include="Interfaces\IFileService.cs" />
+    <Compile Include="Interfaces\IMsgBoxService.cs" />
     <Compile Include="Interfaces\IQlRanksUpdater.cs" />
     <Compile Include="Interfaces\IUqltConfiguration.cs" />
     <Compile Include="Models\Chat\RosterGroup.cs" />
@@ -195,7 +197,7 @@
     <Compile Include="Models\Configuration\ServerBrowserRefreshItem.cs" />
     <Compile Include="Models\DemoPlayer\Demo.cs" />
     <Compile Include="Models\DemoPlayer\DemoPlaylist.cs" />
-    <Compile Include="Models\DemoPlayer\DemoPlaylistDemo.cs" />
+    <Compile Include="Models\DemoPlayer\PlaylistDemo.cs" />
     <Compile Include="Models\DemoPlayer\Player.cs" />
     <Compile Include="Models\DemoPlayer\Srvinfo.cs" />
     <Compile Include="Models\Filters\Remote\QLAPIFilterServer.cs" />
@@ -232,6 +234,7 @@
     <Compile Include="ViewModels\Chat\AddFriendViewModel.cs" />
     <Compile Include="ViewModels\Chat\ChatMessageViewModel.cs" />
     <Compile Include="ViewModels\Chat\ChatOptionsViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\AddRenameDemoViewModel.cs" />
     <Compile Include="ViewModels\DemoPlayer\DemoInfoViewModel.cs" />
     <Compile Include="ViewModels\DemoPlayer\DemoInfoPlayerViewModel.cs" />
     <Compile Include="ViewModels\DemoPlayer\DemoOptionsViewModel.cs" />
@@ -242,6 +245,7 @@
     <Compile Include="ViewModels\Chat\FriendRequestViewModel.cs" />
     <Compile Include="ViewModels\Chat\RosterGroupViewModel.cs" />
     <Compile Include="ViewModels\Chat\ChatListViewModel.cs" />
+    <Compile Include="ViewModels\DemoPlayer\PlaylistDemoViewModel.cs" />
     <Compile Include="ViewModels\ServerBrowser\FilterViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -260,6 +264,9 @@
     </Compile>
     <Compile Include="Views\Chat\ChatOptionsView.xaml.cs">
       <DependentUpon>ChatOptionsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DemoPlayer\AddRenameDemoView.xaml.cs">
+      <DependentUpon>AddRenameDemoView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DemoPlayer\DemoOptionsView.xaml.cs">
       <DependentUpon>DemoOptionsView.xaml</DependentUpon>
@@ -331,6 +338,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Chat\ChatOptionsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DemoPlayer\AddRenameDemoView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

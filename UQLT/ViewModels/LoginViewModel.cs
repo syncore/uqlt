@@ -2,6 +2,7 @@
 using System.ComponentModel.Composition;
 using System.Windows;
 using Caliburn.Micro;
+using UQLT.Interfaces;
 using UQLT.ViewModels.DemoPlayer;
 
 namespace UQLT.ViewModels
@@ -15,6 +16,7 @@ namespace UQLT.ViewModels
     {
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
+        private readonly IMsgBoxService _msgBoxService;
         private Window _dialogWindow;
         private string _displayName = "Login to Quake Live";
 
@@ -23,11 +25,13 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <param name="windowManager">The window manager.</param>
         /// <param name="events">The events that this viewmodel publishes and/or subscribes to.</param>
+        /// <param name="msgBoxService">The MessageBox service.</param>
         [ImportingConstructor]
-        public LoginViewModel(IWindowManager windowManager, IEventAggregator events)
+        public LoginViewModel(IWindowManager windowManager, IEventAggregator events, IMsgBoxService msgBoxService)
         {
             _windowManager = windowManager;
             _events = events;
+            _msgBoxService = msgBoxService;
         }
 
         /// <summary>
@@ -84,7 +88,7 @@ namespace UQLT.ViewModels
         {
             // TODO: have some login logic here.. if successful then show main window and close this
             //       current window
-            _windowManager.ShowWindow(new MainViewModel(_windowManager, _events));
+            _windowManager.ShowWindow(new MainViewModel(_windowManager, _events, _msgBoxService));
             CloseWin();
         }
 
@@ -105,7 +109,7 @@ namespace UQLT.ViewModels
         {
             // Actually, this is a good way of doing it, because we need to provide the ability
             // to watch demos offline, since quakelive.exe can be launched to watch demos without authenticating.
-            _windowManager.ShowWindow(new DemoPlayerViewModel(_windowManager));
+            _windowManager.ShowWindow(new DemoPlayerViewModel(_windowManager, _msgBoxService));
         }
     }
 }

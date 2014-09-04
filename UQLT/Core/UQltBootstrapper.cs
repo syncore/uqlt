@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using Caliburn.Micro;
 using UQLT.Helpers;
+using UQLT.Interfaces;
 using UQLT.ViewModels;
 
 namespace UQLT.Core
@@ -18,6 +19,7 @@ namespace UQLT.Core
     public class UqltBootstrapper : BootstrapperBase
     {
         private CompositionContainer _container;
+        private MsgBoxService _msgBoxService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UqltBootstrapper"/> class.
@@ -41,6 +43,7 @@ namespace UQLT.Core
             // custom window manager implementation
             batch.AddExportedValue<IWindowManager>(new UqltWindowManager());
             batch.AddExportedValue<IEventAggregator>(new EventAggregator());
+            batch.AddExportedValue<IMsgBoxService>(new MsgBoxService());
             batch.AddExportedValue(_container);
 
             _container.Compose(batch);
@@ -87,7 +90,8 @@ namespace UQLT.Core
             if (!QLDirectoryUtils.IsQuakeLiveInstalled())
             {
                 Debug.WriteLine("Unable to locate Quake Live game executable.");
-                MessageBox.Show("Unable to locate Quake Live game exectuable.");
+                _msgBoxService = new MsgBoxService();
+                _msgBoxService.ShowError("Unable to locate Quake Live game exectuable.", "Cannot find Quake Live!");
             }
             else
             {

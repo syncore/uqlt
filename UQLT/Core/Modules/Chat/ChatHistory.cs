@@ -5,11 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Windows;
 using Caliburn.Micro;
 using UQLT.Events;
+using UQLT.Helpers;
 using UQLT.Models.Configuration;
-using UQLT.ViewModels;
 using UQLT.ViewModels.Chat;
 
 namespace UQLT.Core.Modules.Chat
@@ -21,6 +20,7 @@ namespace UQLT.Core.Modules.Chat
     {
         private readonly ConfigurationHandler _cfgHandler = new ConfigurationHandler();
         private readonly ChatMessageViewModel _cmvm;
+        private MsgBoxService _msgBoxService;
         private readonly IEventAggregator _events;
         private readonly string _sqlConString = "Data Source=" + UQltFileUtils.GetChatHistoryDatabasePath();
         private readonly string _sqlDbPath = UQltFileUtils.GetChatHistoryDatabasePath();
@@ -103,7 +103,8 @@ namespace UQLT.Core.Modules.Chat
                             _events.PublishOnUIThread(new ClearChatHistoryEvent(profile, otheruser));
                         }
 
-                        MessageBox.Show("Deleted all " + rowsAffected + " messages between " + profile + " and " + otheruser);
+                        _msgBoxService = new MsgBoxService();
+                        _msgBoxService.ShowSimpleMessage("Deleted all " + rowsAffected + " messages between " + profile + " and " + otheruser);
                     }
                 }
             }

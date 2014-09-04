@@ -13,6 +13,7 @@ using Caliburn.Micro;
 using HtmlAgilityPack;
 using UQLT.Core;
 using UQLT.Core.Modules.Chat;
+using UQLT.Helpers;
 using Uri = System.Uri;
 
 namespace UQLT.ViewModels.Chat
@@ -24,6 +25,7 @@ namespace UQLT.ViewModels.Chat
     public class AddFriendViewModel : PropertyChangedBase, IHaveDisplayName, IViewAware
     {
         private readonly ChatHandler _handler;
+        private MsgBoxService _msgBoxService;
         private Window _dialogWindow;
         private string _friendToAdd;
 
@@ -83,22 +85,23 @@ namespace UQLT.ViewModels.Chat
         /// </summary>
         public async Task AddFriendAsync()
         {
+            _msgBoxService = new MsgBoxService();
             if (string.IsNullOrEmpty(FriendToAdd))
             {
-                MessageBox.Show("The player name cannot be blank!", "Error: player name cannot be blank!", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService.ShowError("The player name cannot be blank!", "Player name cannot be blank!");
                 return;
             }
 
             if (FriendToAdd.Equals(_handler.MyJidUser()))
             {
-                MessageBox.Show("You cannot add yourself!", "Error: unable to add yourself.", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService.ShowError("You cannot add yourself!", "Error");
                 return;
             }
 
             if (ContactAlreadyExists())
             {
-                MessageBox.Show(string.Format("A request has already been sent to {0} or {0} is already on your friend list!", FriendToAdd),
-                    "Error: contact exists.", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService.ShowError(string.Format("A request has already been sent to {0} or {0} is already on your friend list!", FriendToAdd),
+                    "Contact exists.");
                 return;
             }
 
@@ -109,15 +112,13 @@ namespace UQLT.ViewModels.Chat
                 var jid = new Jid(friend + "@" + UQltGlobals.QlXmppDomain);
                 _handler.AddFriend(jid);
 
-                MessageBox.Show(string.Format("Friend request sent to player {0}", FriendToAdd), "Friend request sent.",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
+                _msgBoxService.ShowInfoMessage(string.Format("Friend request sent to player {0}", FriendToAdd), "Friend request sent.");
                 // Close the window from VM instead of view so the above success message can be sent.
                 CloseWin();
             }
             else
             {
-                MessageBox.Show(string.Format("Unable to add '{0}' because that is not a valid Quake Live player!", FriendToAdd), "Error: unable to add: " + FriendToAdd, MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService.ShowError(string.Format("Unable to add '{0}' because that is not a valid Quake Live player!", FriendToAdd), string.Format("Unable to add: {0}", FriendToAdd));
             }
         }
 
@@ -223,7 +224,11 @@ namespace UQLT.ViewModels.Chat
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show(string.Format("Unable to add '{0}' because an error occurred when attempting to access Quake Live server.", FriendToAdd), "Error: unable to access QL server", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _msgBoxService = new MsgBoxService();
+                    _msgBoxService.ShowError(
+                        (string.Format(
+                            "Unable to add '{0}' because an error occurred when attempting to access Quake Live server.",
+                            FriendToAdd)), "Error");
                     return false;
                 }
             }

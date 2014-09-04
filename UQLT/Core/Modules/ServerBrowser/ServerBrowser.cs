@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Windows;
 using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Events;
@@ -15,7 +14,6 @@ using UQLT.Models.Filters.Remote;
 using UQLT.Models.Filters.User;
 using UQLT.Models.QLRanks;
 using UQLT.Models.QuakeLiveAPI;
-using UQLT.ViewModels;
 using UQLT.ViewModels.ServerBrowser;
 
 namespace UQLT.Core.Modules.ServerBrowser
@@ -26,6 +24,7 @@ namespace UQLT.Core.Modules.ServerBrowser
     public class ServerBrowser
     {
         private readonly IEventAggregator _events;
+        private MsgBoxService _msgBoxService;
         private readonly Timer _serverRefreshTimer;
 
         /// <summary>
@@ -111,7 +110,8 @@ namespace UQLT.Core.Modules.ServerBrowser
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message); // TODO: create a debug log on the disk
-                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService = new MsgBoxService();
+                _msgBoxService.ShowError("Unable to load Quake Live server data. Refresh and try again.", "Error");
                 return null;
             }
         }
@@ -283,7 +283,8 @@ namespace UQLT.Core.Modules.ServerBrowser
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                MessageBox.Show("Unable to load Quake Live server data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService = new MsgBoxService();
+                _msgBoxService.ShowError("Unable to load Quake Live server data. Refresh and try again.", "Error");
                 return null;
             }
         }

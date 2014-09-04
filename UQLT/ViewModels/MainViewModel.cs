@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Caliburn.Micro;
 using UQLT.Events;
+using UQLT.Interfaces;
 using UQLT.ViewModels.Chat;
 using UQLT.ViewModels.ServerBrowser;
 
@@ -16,6 +17,7 @@ namespace UQLT.ViewModels
     {
         private readonly IEventAggregator _events;
         private readonly IWindowManager _windowManager;
+        private IMsgBoxService _msgBoxService;
         private string _arenaStatusTitle;
         private string _displayName = "UQLT v0.1";
         private int _eloSearchCountStatusTitle;
@@ -41,13 +43,15 @@ namespace UQLT.ViewModels
         /// </summary>
         /// <param name="windowManager">The window manager.</param>
         /// <param name="events">The events that this viewmodel publishes and/or subscribes to.</param>
+        /// <param name="msgBoxService">The message box service.</param>
         [ImportingConstructor]
-        public MainViewModel(IWindowManager windowManager, IEventAggregator events)
+        public MainViewModel(IWindowManager windowManager, IEventAggregator events, IMsgBoxService msgBoxService)
         {
             _windowManager = windowManager;
             _events = events;
-            events.Subscribe(this);
-            _filterViewModel = new FilterViewModel(_events);
+            _events.Subscribe(this);
+            _msgBoxService = msgBoxService;
+            _filterViewModel = new FilterViewModel(_events, _msgBoxService);
             ServerBrowserViewModel = new ServerBrowserViewModel(_events);
             ChatListViewModel = new ChatListViewModel(windowManager, _events);
             IsFilterStatusInfoVisible = true;

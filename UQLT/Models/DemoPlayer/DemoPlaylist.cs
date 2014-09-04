@@ -7,9 +7,10 @@ namespace UQLT.Models.DemoPlayer
     /// </summary>
     public class DemoPlaylist
     {
-        public DemoPlaylist()
+        public DemoPlaylist(string name)
         {
-            Demos = new List<DemoPlaylistDemo>();
+            Name = name;
+            Demos = new List<PlaylistDemo>();
         }
 
         /// <summary>
@@ -18,19 +19,19 @@ namespace UQLT.Models.DemoPlayer
         /// <value>
         /// The demos.
         /// </value>
-        public List<DemoPlaylistDemo> Demos
+        public List<PlaylistDemo> Demos
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the playlist_name.
+        /// Gets or sets the name of the playlist.
         /// </summary>
         /// <value>
         /// The playlist_name.
         /// </value>
-        public string playlist_name
+        public string Name
         {
             get;
             set;
@@ -44,7 +45,7 @@ namespace UQLT.Models.DemoPlayer
         /// </returns>
         public override string ToString()
         {
-            return playlist_name;
+            return Name;
         }
     }
 }

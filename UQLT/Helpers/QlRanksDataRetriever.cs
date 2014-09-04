@@ -17,6 +17,13 @@ namespace UQLT.Helpers
     /// </summary>
     public class QlRanksDataRetriever : IQlRanksUpdater
     {
+        private MsgBoxService _msgBoxService;
+
+        /// <summary>
+        /// Creates the elo data.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="players">The players.</param>
         public void CreateEloData<T>(IEnumerable<T> players)
         {
             foreach (var player in players)
@@ -140,7 +147,8 @@ namespace UQLT.Helpers
             }
             catch (Exception e)
             {
-                MessageBox.Show("Unable to load QLRanks player data. Refresh and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _msgBoxService = new MsgBoxService();
+                _msgBoxService.ShowError("Unable to load QLRanks player data. Refresh and try again.", "Error");
                 Debug.WriteLine(e);
             }
         }

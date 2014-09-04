@@ -13,7 +13,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="54,15,55,0">
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Demo Options" VerticalAlignment="Top" FontWeight="Bold" Margin="0,15,0,0" />
             <StackPanel Orientation="Vertical" Width="410">
-            <CheckBox IsChecked="{Binding UseWolfcamQlForOldDemos}" Content="Use WolfcamQL to play .dm__73 demo files" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,10,0,0">
+            <CheckBox IsChecked="{Binding UseWolfcamQlForOldDemos}" Content="Use WolfcamQL to play .dm__73 demo files" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,10,0,0">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Checked">
                         <cal:ActionMessage MethodName="SetWolfcamExePath" />
@@ -38,7 +38,7 @@
                 </Button>
                 </StackPanel>
             <StackPanel Orientation="Vertical" Width="410">
-                <CheckBox IsChecked="{Binding UseWolfWhispererForOldDemos}" Content="Use Wolf Whisperer to play .dm__73 demo files" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,17,0,0">
+                <CheckBox IsChecked="{Binding UseWolfWhispererForOldDemos}" Content="Use Wolf Whisperer to play .dm__73 demo files" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,17,0,0">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Checked">
                             <cal:ActionMessage MethodName="SetWolfWhispererExePath" />

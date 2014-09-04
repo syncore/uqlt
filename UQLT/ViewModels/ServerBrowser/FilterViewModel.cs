@@ -10,6 +10,7 @@ using Caliburn.Micro;
 using Newtonsoft.Json;
 using UQLT.Core;
 using UQLT.Events;
+using UQLT.Interfaces;
 using UQLT.Models.Filters.Remote;
 using UQLT.Models.Filters.User;
 
@@ -28,6 +29,8 @@ namespace UQLT.ViewModels.ServerBrowser
         private static readonly List<string> ArenaTag = new List<string>();
 
         private readonly IEventAggregator _events;
+
+        private IMsgBoxService _msgBoxService;
 
         // Loading filters: game visibility types don't depend on saved filter file
         private readonly List<string> _gameVisibility = new List<string> { "Public games", "Private games", "Invite-only games" };
@@ -52,10 +55,12 @@ namespace UQLT.ViewModels.ServerBrowser
         /// </summary>
         /// <param name="events">The events that this viewmodel publishes/subscribes to.</param>
         [ImportingConstructor]
-        public FilterViewModel(IEventAggregator events)
+        public FilterViewModel(IEventAggregator events, IMsgBoxService msgBoxService)
         {
             _events = events;
             _events.Subscribe(this);
+            _msgBoxService = msgBoxService;
+            
 
             //TODO: implement downloading of filter list functionality
             // Async: suppress warning - http://msdn.microsoft.com/en-us/library/hh965065.aspx
@@ -467,7 +472,7 @@ namespace UQLT.ViewModels.ServerBrowser
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unable to read filter data. Error: " + ex);
+                _msgBoxService.ShowError(string.Format("Unable to read filter data, error: {0}", ex.Message), "Error");
             }
 
             // Fire event to server browser
@@ -690,7 +695,7 @@ namespace UQLT.ViewModels.ServerBrowser
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to read filter data.");
+                    _msgBoxService.ShowError(string.Format("Unable to read filter data, error: {0}", ex.Message), "Error");
                     Debug.WriteLine(ex.Message);
 
                     // TODO: make this download filter from net, if that fails THEN load hard-coded filter

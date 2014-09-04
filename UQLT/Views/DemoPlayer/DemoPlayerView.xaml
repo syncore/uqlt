@@ -217,28 +217,40 @@
             <!--Playlist name and selection-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
                 <TextBlock Text="Name:" Margin="0,0,5,0" Padding="0,2,0,0" />
-                <ComboBox HorizontalAlignment="Center" VerticalAlignment="Top" Width="280" />
+                <ComboBox x:Name="PlaylistNameComboBox" ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist}" IsSynchronizedWithCurrentItem="True" HorizontalAlignment="Center" VerticalAlignment="Top" Width="280" />
             </StackPanel>
             <!--Playlist combobox buttons-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button Content="Create" Width="80" Margin="0,0,12,0" />
-                <Button Content="Rename" Width="80" Margin="0,0,12,0" />
-                <Button Content="Delete" Width="80" />
-            </StackPanel>
-            <!--Rename-->
-            <StackPanel Orientation="Horizontal" Width="295" Margin="5,6,0,0" Visibility="{Binding IsRename, Converter={StaticResource BoolToVis}}">
-                <TextBox Height="23" TextWrapping="Wrap" Text="...Playlist name" Width="195" />
-                <Button Content="Save" Height="23" Width="75" Margin="8,0,0,0" />
+                <Button Content="Create" Width="80" Margin="0,0,12,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenCreatePlaylistWindow"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Rename" Width="80" Margin="0,0,12,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="OpenRenamePlaylistWindow"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Delete" Width="80">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="DeletePlaylist"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
             </StackPanel>
             <!--Playlist listbox-->
-            <ListBox Height="330" Width="320" Margin="0,10,0,0" />
-            <!--Playlist listbox buttons-->
-            
+            <ListBox Height="330" Width="320" Margin="0,10,0,0" ItemsSource="{Binding SelectedPlaylist.Demos}" IsSynchronizedWithCurrentItem="True"/>
+            <!--Playlist instructions stackpanel-->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,6,0,10">
                 <TextBlock Height="16" TextWrapping="Wrap" Text="Right-click to add/delete demos" HorizontalAlignment="Center" Margin="0,0,0,3" />
                 <TextBlock Height="16" TextWrapping="Wrap" Text="Drag playlist items to re-order" HorizontalAlignment="Center" Margin="0" />
             </StackPanel>
-            <!--Playlist play-->
+            <!--Play demos or playlist of demos-->
             <StackPanel Orientation="Vertical">
                 <TextBlock Height="20" TextWrapping="Wrap" Text="Play Quake Live demos"  Background="#FF931313" Foreground="White"  FontWeight="Bold" Padding="0,2,0,0" />
                 <Button Content="Play selected demo" Margin="0,15,0,0" Width="165">

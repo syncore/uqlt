@@ -7,7 +7,7 @@ using System.Management;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using UQLT.Interfaces;
 using UQLT.ViewModels.DemoPlayer;
 using Path = System.IO.Path;
 
@@ -18,6 +18,7 @@ namespace UQLT.Core.Modules.DemoPlayer
     /// </summary>
     public class DemoDumper
     {
+        private readonly IMsgBoxService _msgBoxService;
         private Dictionary<Process, string> _processes;
         private volatile int _processesCompleted;
         private StringBuilder _processOutputBuilder;
@@ -26,10 +27,12 @@ namespace UQLT.Core.Modules.DemoPlayer
         /// <summary>
         /// Initializes a new instance of the <see cref="DemoDumper" /> class.
         /// </summary>
-        /// <param name="dpvm">The <see cref="DemoPlayerViewModel"/>associated with this class.</param>
-        public DemoDumper(DemoPlayerViewModel dpvm)
+        /// <param name="dpvm">The <see cref="DemoPlayerViewModel" />associated with this class.</param>
+        /// <param name="msgBoxService">The MessageBox service.</param>
+        public DemoDumper(DemoPlayerViewModel dpvm, IMsgBoxService msgBoxService)
         {
             DpVm = dpvm;
+            _msgBoxService = msgBoxService;
             Cleanup();
         }
 
@@ -145,8 +148,7 @@ namespace UQLT.Core.Modules.DemoPlayer
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to create demo parser directory", "Error", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    _msgBoxService.ShowError("Unable to create demo parser directory", "Error");
                     Debug.WriteLine(ex.Message);
                 }
             }
@@ -310,8 +312,7 @@ namespace UQLT.Core.Modules.DemoPlayer
             _processOutputBuilder.Append(Environment.NewLine + line.Data);
             if (line.Data.Contains("Traceback (most"))
             {
-                MessageBox.Show("Error occurred while parsing demos!", "Demo parse error", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                _msgBoxService.ShowError("Error occurred while parsing demos!", "Demo parse error");
             }
         }
 
