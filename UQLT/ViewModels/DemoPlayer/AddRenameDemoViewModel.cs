@@ -204,6 +204,14 @@ namespace UQLT.ViewModels.DemoPlayer
         private void RenamePlaylist()
         {
             Debug.WriteLine(string.Format("Renaming existing playlist to: {0}", PlaylistName));
+            var newPlaylist = new DemoPlaylistViewModel(new DemoPlaylist(PlaylistName));
+            foreach (var demo in DpVm.SelectedPlaylist.Demos)
+            {
+                newPlaylist.Demos.Add(demo);
+            }
+            DpVm.Playlists.Remove(DpVm.SelectedPlaylist);
+            DpVm.Playlists.Add(newPlaylist);
+            DpVm.SelectedPlaylist = newPlaylist;
         }
     }
 }

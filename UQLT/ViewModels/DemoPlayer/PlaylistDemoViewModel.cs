@@ -13,17 +13,17 @@ namespace UQLT.ViewModels.DemoPlayer
     /// </summary>
     public class PlaylistDemoViewModel : PropertyChangedBase
     {
-        
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlaylistDemoViewModel"/> class.
+        /// Initializes a new instance of the <see cref="PlaylistDemoViewModel" /> class.
         /// </summary>
-        /// <param name="playlistDemo">The <see cref="PlaylistDemo"/> that this viewmodel wraps.</param>
-        public PlaylistDemoViewModel(PlaylistDemo playlistDemo)
+        /// <param name="demo">The demo wrapped by this <see cref="PlaylistDemoViewModel"/></param>
+        public PlaylistDemoViewModel(Demo demo)
         {
-            this.PlaylistDemo = playlistDemo;
+            this.Demo = demo;
         }
 
-        public PlaylistDemo PlaylistDemo
+        public Demo Demo
         {
             get;
             private set;
@@ -37,15 +37,18 @@ namespace UQLT.ViewModels.DemoPlayer
         /// </value>
         public string Filename
         {
-            get
-            {
-                return PlaylistDemo.filename;
-            }
-            set
-            {
-                PlaylistDemo.filename = value;
-                NotifyOfPropertyChange(() => Filename);
-            }
+            get { return Demo.filename; }
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return Filename;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,9 +13,11 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
 using Caliburn.Micro;
+using GongSolutions.Wpf.DragDrop;
 using UQLT.Core.Modules.DemoPlayer;
 using UQLT.Helpers;
 using UQLT.Interfaces;
+using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 
 namespace UQLT.ViewModels.DemoPlayer
 {
@@ -22,7 +25,7 @@ namespace UQLT.ViewModels.DemoPlayer
     /// ViewModel for the DemoPlayerView
     /// </summary>
     [Export(typeof(DemoPlayerViewModel))]
-    public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName
+    public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName, IDropTarget
     {
         private const string WolfCamDemoDir = "wolfcam-ql\\demos";
         private readonly IMsgBoxService _msgBoxService;
@@ -43,6 +46,7 @@ namespace UQLT.ViewModels.DemoPlayer
         private string _qlDemoDirectoryPath;
         private DemoInfoViewModel _selectedDemo;
         private DemoPlaylistViewModel _selectedPlaylist;
+        private PlaylistDemoViewModel _selectedPlaylistDemo;
         private bool _showBusyIndicator;
 
         /// <summary>
@@ -379,6 +383,25 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
+        /// Gets or sets the selected playlist demo.
+        /// </summary>
+        /// <value>
+        /// The selected playlist demo.
+        /// </value>
+        public PlaylistDemoViewModel SelectedPlaylistDemo
+        {
+            get
+            {
+                return _selectedPlaylistDemo;
+            }
+            set
+            {
+                _selectedPlaylistDemo = value;
+                NotifyOfPropertyChange(() => SelectedPlaylistDemo);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the transparent busy indicator should be shown
         /// in the UI, indicating that demo processing or archiving is taking place.
         /// </summary>
@@ -468,9 +491,43 @@ namespace UQLT.ViewModels.DemoPlayer
             if (SelectedDemo == null) { return; }
             if (SelectedPlaylist == null)
             {
-                if (_msgBoxService.AskConfirmationMessage("No playlist is selected would you like to create a new playlist?", "No playlist selected"))
+                if (
+                    _msgBoxService.AskConfirmationMessage(
+                        "No playlist is selected would you like to create a new playlist?", "No playlist selected"))
                 {
                     OpenCreatePlaylistWindow();
+                }
+            }
+            else
+            {
+                bool allowDm73Demos = true;
+                bool allowDm90Demos = true;
+
+                foreach (var demo in SelectedPlaylist.Demos)
+                {
+                    if (IsProtocol73Demo(demo.Filename))
+                    {
+                        allowDm73Demos = true;
+                        allowDm90Demos = false;
+                    }
+                    else if (IsProtocol90Demo(demo.Filename))
+                    {
+                        allowDm73Demos = false;
+                        allowDm90Demos = true;
+                    }
+                    else
+                    {
+                        allowDm73Demos = true;
+                        allowDm90Demos = true;
+                    }
+                }
+                if ((IsProtocol73Demo(SelectedDemo.Filename) && allowDm73Demos) || (IsProtocol90Demo(SelectedDemo.Filename) && allowDm90Demos))
+                {
+                    SelectedPlaylist.Demos.Add(new PlaylistDemoViewModel(SelectedDemo.Demo));
+                }
+                else
+                {
+                    _msgBoxService.ShowError(string.Format("Playlist {0} is a {1} playlist and can only contain {1} demos!", SelectedPlaylist.PlaylistName, allowDm73Demos ? ".dm_73" : ".dm_90"), "Error");
                 }
             }
         }
@@ -505,6 +562,53 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 Playlists.Remove(SelectedPlaylist);
             }
+        }
+
+        /// <summary>
+        /// Updates the current drag state.
+        /// </summary>
+        /// <param name="dropInfo">Information about the drag.</param>
+        void IDropTarget.DragOver(IDropInfo dropInfo)
+        {
+            if (!(dropInfo.Data is PlaylistDemoViewModel) || !(dropInfo.TargetItem is PlaylistDemoViewModel)) return;
+            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+            dropInfo.Effects = System.Windows.DragDropEffects.Move;
+        }
+
+        /// <summary>
+        /// Performs a drop.
+        /// </summary>
+        /// <param name="dropInfo">Information about the drop.</param>
+        void IDropTarget.Drop(IDropInfo dropInfo)
+        {
+            // Original drop handler logic
+            var insertIndex = dropInfo.InsertIndex;
+            var destinationList = DDropGetList(dropInfo.TargetCollection);
+            var data = DDropExtractData(dropInfo.Data);
+
+            if (dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
+            {
+                var sourceList = DDropGetList(dropInfo.DragInfo.SourceCollection);
+
+                foreach (var o in data)
+                {
+                    var index = sourceList.IndexOf(o);
+
+                    if (index == -1) continue;
+                    sourceList.RemoveAt(index);
+
+                    if (sourceList == destinationList && index < insertIndex)
+                    {
+                        --insertIndex;
+                    }
+                }
+            }
+            foreach (var o in data)
+            {
+                destinationList.Insert(insertIndex++, o);
+            }
+            // Call our own configuration save method (write collection as it stands to json)
+            Debug.WriteLine("Dropped!");
         }
 
         /// <summary>
@@ -552,11 +656,11 @@ namespace UQLT.ViewModels.DemoPlayer
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             var toCopy = new List<string> { Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production), SelectedDemo.Filename) };
 
-            if (filename.EndsWith(".dm_90", StringComparison.OrdinalIgnoreCase))
+            if (IsProtocol90Demo(filename))
             {
                 PlayDemoWithQuakeLive();
             }
-            if (filename.EndsWith(".dm_73", StringComparison.OrdinalIgnoreCase))
+            if (IsProtocol73Demo(filename))
             {
                 VerifyWolfcamDemoDirectory();
                 var options = new DemoOptionsViewModel();
@@ -595,6 +699,30 @@ namespace UQLT.ViewModels.DemoPlayer
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Plays the playlist.
+        /// </summary>
+        /// <returns></returns>
+        public async Task PlayPlaylist()
+        {
+            if (SelectedPlaylist == null) { return; }
+            Debug.WriteLine("Will play demos in the following playlist and order:");
+            foreach (var demo in SelectedPlaylist.Demos)
+            {
+                Debug.WriteLine(demo.Filename);
+            }
+        }
+
+        /// <summary>
+        /// Removes the demo from playlist.
+        /// </summary>
+        public void RemoveDemoFromPlaylist()
+        {
+            if (SelectedPlaylist == null) { return; }
+            if (SelectedPlaylist == null) { return; }
+            SelectedPlaylist.Demos.Remove(SelectedPlaylistDemo);
         }
 
         /// <summary>
@@ -720,6 +848,46 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
+        /// Extracts the drop data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>The drop data as IEnumerable</returns>
+        /// <remarks>Taken from the default drop handler in
+        /// GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "ExtractData"</remarks>
+        private IEnumerable DDropExtractData(object data)
+        {
+            // Original drop handler logic
+            if (data is IEnumerable && !(data is string))
+            {
+                return (IEnumerable)data;
+            }
+            else
+            {
+                return Enumerable.Repeat(data, 1);
+            }
+        }
+
+        /// <summary>
+        /// Gets the drop destination list.
+        /// </summary>
+        /// <param name="enumerable">The enumerable.</param>
+        /// <returns>The drop destination list.</returns>
+        /// <remarks>Taken from the default drop handler in
+        /// GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "GetList"</remarks>
+        private IList DDropGetList(IEnumerable enumerable)
+        {
+            // Original drop handler logic
+            if (enumerable is ICollectionView)
+            {
+                return ((ICollectionView)enumerable).SourceCollection as IList;
+            }
+            else
+            {
+                return enumerable as IList;
+            }
+        }
+
+        /// <summary>
         /// Performs the demo browser automatic sort based on specified criteria.
         /// </summary>
         /// <param name="property">The property criteria.</param>
@@ -741,10 +909,30 @@ namespace UQLT.ViewModels.DemoPlayer
                 Directory.EnumerateFiles(directorypath, "*.*", SearchOption.AllDirectories)
                     .Where(
                         file =>
-                            file.ToLowerInvariant().EndsWith("dm_73", StringComparison.OrdinalIgnoreCase) ||
-                            file.ToLowerInvariant().EndsWith("dm_90", StringComparison.OrdinalIgnoreCase)).ToList();
+                            IsProtocol73Demo(file.ToLowerInvariant()) ||
+                            IsProtocol90Demo(file.ToLowerInvariant())).ToList();
 
             return demosfrompath;
+        }
+
+        /// <summary>
+        /// Determines whether the specified demo (filename) is of the older protocol 73 (dm_73) type.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns><c>true</c> if it is a protocol 73 .dm_73 demo, otherwise <c>false</c>.</returns>
+        private bool IsProtocol73Demo(string filename)
+        {
+            return filename.EndsWith("dm_73", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether the specified demo (filename) is of the newer protocol 90 (dm_90) type.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns><c>true</c> if it is a protocol 90 .dm_90 demo, otherwise <c>false</c>.</returns>
+        private bool IsProtocol90Demo(string filename)
+        {
+            return filename.EndsWith("dm_90", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

@@ -4,6 +4,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:helpers="clr-namespace:UQLT.Helpers"
+        xmlns:dragDrop="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
         Title="UQLT v0.1 - Demo Player" Height="782" Width="1040">
 
     <Window.Resources>
@@ -130,6 +131,17 @@
             <TextBlock Height="20" TextWrapping="Wrap" Text="{Binding Demos.Count, StringFormat='Quake Live demo files ({0} total)'}" FontWeight="Bold" Background="#FF931313" Foreground="White" Padding="0,2,0,0" />
             <!--User's Demo files listview-->
             <ListView helpers:GridViewSort.AutoSort="True" HorizontalAlignment="Left" VerticalAlignment="Top" Height="200" Width="699" IsSynchronizedWithCurrentItem="True" BorderThickness="0" SelectionMode="Single" SelectedIndex="0" ItemsSource="{Binding Demos}" SelectedItem="{Binding SelectedDemo}" ScrollViewer.IsDeferredScrollingEnabled="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" Tag="{Binding DataContext, ElementName=DemoPlayerRoot}">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Add demo to playlist">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="AddDemoToPlaylist" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Filename" helpers:GridViewSort.PropertyName="Filename" DisplayMemberBinding="{Binding Filename}">
@@ -244,7 +256,20 @@
                 </Button>
             </StackPanel>
             <!--Playlist listbox-->
-            <ListBox Height="330" Width="320" Margin="0,10,0,0" ItemsSource="{Binding SelectedPlaylist.Demos}" IsSynchronizedWithCurrentItem="True"/>
+            <ListBox Height="330" Width="320" Margin="0,10,0,0" ItemsSource="{Binding SelectedPlaylist.Demos}" IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding SelectedPlaylistDemo}" dragDrop:DragDrop.IsDragSource="True" dragDrop:DragDrop.IsDropTarget="True" dragDrop:DragDrop.DropHandler="{Binding}">
+                <ListBox.ContextMenu>
+                    <!--<ContextMenu IsEnabled="{Binding CanRemoveDemoFromPlaylist}">-->
+                    <ContextMenu>
+                    <MenuItem Header="Remove demo from playlist">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="RemoveDemoFromPlaylist"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
             <!--Playlist instructions stackpanel-->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,6,0,10">
                 <TextBlock Height="16" TextWrapping="Wrap" Text="Right-click to add/delete demos" HorizontalAlignment="Center" Margin="0,0,0,3" />
@@ -260,7 +285,13 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Button>
-                <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198" />
+                <Button Content="Play selected playlist" Margin="0,15,0,0" Width="198">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="PlayPlaylist"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
             </StackPanel>
         </StackPanel>
         <!--Process/arcive demos grid and progress-->
