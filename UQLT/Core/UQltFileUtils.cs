@@ -14,13 +14,14 @@ namespace UQLT.Core
     {
         // TODO: Configurations will be saved in sub-directory named after currently logged in Quake Live account (DataDirectory\User\file.uql)
 
+        private const string ChatHistoryDatabaseFile = "chist.udb";
         private const string ConfigurationFile = "uqltconfig.uql";
         private const string CoreResourceLocation = "UQLT.";
-        private const string ChatHistoryDatabaseFile = "chist.udb";
         private const string CurrentFilterFile = "currentfilters.uql";
         private const string DataResourceLocation = "UQLT.Data.";
         private const string DataSoundsResourceLocation = "UQLT.Data.Sounds.";
         private const string DemoDatabaseFile = "demdb.udb";
+        private const string DemoPlaylistFile = "dplaylist.uql";
         private const string FriendRequestSound = "friendrequest.wav";
         private const string InviteSound = "invite.wav";
         private const string MessageSound = "notice.wav";
@@ -28,12 +29,13 @@ namespace UQLT.Core
         private const string QlImagesFile = "QLImages.dll";
         private const string SavedUserFilterFile = "savedfilters.uql";
         private static readonly string DataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-        private static readonly string DemoDatabasePath = Path.Combine(DataDirectory, DemoDatabaseFile);
-        private static readonly string ConfigurationPath = Path.Combine(DataDirectory, ConfigurationFile);
         private static readonly string ChatHistoryPath = Path.Combine(DataDirectory, ChatHistoryDatabaseFile);
+        private static readonly string ConfigurationPath = Path.Combine(DataDirectory, ConfigurationFile);
         private static readonly string CurrentFilterPath = Path.Combine(DataDirectory, CurrentFilterFile);
         private static readonly string DataSoundsDirectory = Path.Combine(DataDirectory, "Sounds");
+        private static readonly string DemoDatabasePath = Path.Combine(DataDirectory, DemoDatabaseFile);
         private static readonly string DemoParseTempDirectory = Path.Combine(DataDirectory, "DParse");
+        private static readonly string DemoPlaylistPath = Path.Combine(DataDirectory, DemoPlaylistFile);
         private static readonly string QlDemoDumperPath = Path.Combine(DataDirectory, QlDemoDumperFile);
         private static readonly string SavedUserFilterPath = Path.Combine(DataDirectory, SavedUserFilterFile);
 
@@ -111,9 +113,7 @@ namespace UQLT.Core
                             fileStream.WriteByte((byte)stream.ReadByte());
                         }
                         fileStream.Close();
-                        Debug.WriteLine(string.Format("[RESOURCE EXTRACTED]: Wrote {0} from {1} to {2}", file, name,
-                            outputDir));
-
+                        Debug.WriteLine("[RESOURCE EXTRACTED]: Wrote {0} from {1} to {2}", file, name, outputDir);
                     }
                 }
             }
@@ -138,15 +138,6 @@ namespace UQLT.Core
         }
 
         /// <summary>
-        /// Gets the demo database's file path.
-        /// </summary>
-        /// <returns>The path to the demo database file as a string.</returns>
-        public static string GetDemoDatabasePath()
-        {
-            return DemoDatabasePath;
-        }
-        
-        /// <summary>
         /// Gets the UQLT configuration path.
         /// </summary>
         /// <returns>The path to the user's UQLT configuration file.</returns>
@@ -165,12 +156,30 @@ namespace UQLT.Core
         }
 
         /// <summary>
+        /// Gets the demo database's file path.
+        /// </summary>
+        /// <returns>The path to the demo database file as a string.</returns>
+        public static string GetDemoDatabasePath()
+        {
+            return DemoDatabasePath;
+        }
+
+        /// <summary>
         /// Gets temporary directory used for storing parsed demo information.
         /// </summary>
         /// <returns>The path to the demo parser temporary directory.</returns>
         public static string GetDemoParseTempDirectory()
         {
             return DemoParseTempDirectory;
+        }
+
+        /// <summary>
+        /// Gets the demo playlist's file path.
+        /// </summary>
+        /// <returns>The path to the demo playlist file as a string.</returns>
+        public static string GetDemoPlaylistPath()
+        {
+            return DemoPlaylistPath;
         }
 
         /// <summary>
@@ -342,7 +351,7 @@ namespace UQLT.Core
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(string.Format("Unable to load assembly with name: {0}, exception: {1}", name, ex.Message));
+                Debug.WriteLine("Unable to load assembly with name: {0}, exception: {1}", name, ex.Message);
             }
             return assembly;
         }

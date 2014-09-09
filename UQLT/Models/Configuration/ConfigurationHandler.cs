@@ -9,8 +9,7 @@ using UQLT.Core;
 namespace UQLT.Models.Configuration
 {
     /// <summary>
-    /// This class is responsible for examining the configuration file and loading default values if
-    /// there are problems.
+    /// Class responsible for handling various configuration options.
     /// </summary>
     public class ConfigurationHandler
     {
@@ -252,28 +251,28 @@ namespace UQLT.Models.Configuration
         /// </summary>
         public void WriteConfig()
         {
-            var serverbrowseroptions = new ServerBrowserOptions()
+            var serverbrowseroptions = new ServerBrowserOptions
             {
                 sb_auto_refresh = SbOptAutoRefresh,
                 sb_auto_refresh_index = SbOptAutoRefreshIndex,
                 sb_auto_refresh_seconds = SbOptAutoRefreshSeconds,
                 sb_display_elo_search = SbOptDisplayEloSearch
             };
-            var chatoptions = new ChatOptions()
+            var chatoptions = new ChatOptions
             {
                 chat_logging = ChatOptLogging,
                 chat_sound = ChatOptSound,
                 chat_disable_ingame = ChatOptDisableInGame,
                 chat_favorite_friends = ChatFavoriteFriends
             };
-            var demooptions = new DemoOptions()
+            var demooptions = new DemoOptions
             {
                 demo_use_wolfcamql = DemoOptUseWolfcamQl,
                 demo_use_wolfwhisperer = DemoOptUseWolfWhisperer,
                 demo_wolfcamql_exepath = DemoOptWolfcamQlExePath,
                 demo_wolfwhisperer_exepath = DemoOptWolfWhispererExePath
             };
-            var config = new Configuration()
+            var config = new Configuration
             {
                 serverbrowser_options = serverbrowseroptions,
                 chat_options = chatoptions,

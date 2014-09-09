@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -640,8 +641,12 @@ namespace UQLT.ViewModels.DemoPlayer
         {
             dynamic settings = new ExpandoObject();
             settings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            // Might need to verify if a playlist is actually selected first.
-            _windowManager.ShowWindow(new AddRenameDemoViewModel(this, SelectedPlaylist.PlaylistName, _msgBoxService, true), null, settings);
+            if (SelectedPlaylist != null)
+            {
+                _windowManager.ShowWindow(
+                    new AddRenameDemoViewModel(this, SelectedPlaylist.PlaylistName, _msgBoxService, true), null,
+                    settings);
+            }
         }
 
         /// <summary>
@@ -713,6 +718,7 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 Debug.WriteLine(demo.Filename);
             }
+            Debug.WriteLine(MakePlaylistConfig());
         }
 
         /// <summary>
@@ -933,6 +939,27 @@ namespace UQLT.ViewModels.DemoPlayer
         private bool IsProtocol90Demo(string filename)
         {
             return filename.EndsWith("dm_90", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Makes the playlist configuration (.cfg) file that will be read by QL/WolfcamQL/WolfWhisperer
+        /// </summary>
+        /// <remarks>This was adapted from the implementation in QLDP, starting @ QLDP-IO.js line 440</remarks>
+        private string MakePlaylistConfig()
+        {
+            if (SelectedPlaylist == null) { return string.Empty; }
+            if (SelectedPlaylist.Demos.Count == 0) { return string.Empty; }
+            var sb = new StringBuilder();
+            sb.Append("set endPlaylist \"\"\n");
+            for (int i = 0; i < SelectedPlaylist.Demos.Count; ++i)
+            {
+                sb.Append(string.Format("set plDemo{0} \"demo {1}; echo \"^3Playing demo ^1#{2} of {3}^3\";" +
+                                        " set next-demo \"vstr nextdemo\"; set prev-demo \"vstr plDemo{4}\"; set nextdemo vstr {5}\"\n ",
+                                        i, SelectedPlaylist.Demos[i].Filename, i + 1, SelectedPlaylist.Demos.Count, (i != 0 ? i - 1 : 0),
+                                        (i + 1 == SelectedPlaylist.Demos.Count ? "endPlaylist" : "plDemo" + (i + 1))));
+            }
+            sb.Append("vstr plDemo0\n");
+            return sb.ToString();
         }
 
         /// <summary>
