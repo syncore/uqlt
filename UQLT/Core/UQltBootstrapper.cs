@@ -99,7 +99,7 @@ namespace UQLT.Core
             }
             // Create Quake Live related directories.
             QLDirectoryUtils.CreateBaseQ3MapDirectory(QuakeLiveTypes.Production);
-            QLDirectoryUtils.CreateBaseQ3HomeDirectory(QuakeLiveTypes.Production);
+            QLDirectoryUtils.CreateHomeBaseQ3Directory(QuakeLiveTypes.Production);
             QLDirectoryUtils.CreateDemoDirectory(QuakeLiveTypes.Production);
             //TODO: more elaborate focus detection / have a secret method for allowing focus users to use UQLT
             //if (QLDirectoryUtils.IsQuakeLiveFocusInstalled())

@@ -18,7 +18,7 @@ namespace UQLT.Helpers
         /// </summary>
         /// <param name="qltype">The Quake Live type.</param>
         /// <remarks>This is the baseq3 directory inside of the home directory (id Software\qltype\quakelive\home\baseq3)</remarks>
-        public static void CreateBaseQ3HomeDirectory(QuakeLiveTypes qltype)
+        public static void CreateHomeBaseQ3Directory(QuakeLiveTypes qltype)
         {
             switch (qltype)
             {
@@ -356,6 +356,45 @@ namespace UQLT.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Gets the quake live home baseq3 directory path.
+        /// </summary>
+        /// <param name="qltype">The qltype.</param>
+        /// <returns>The path to the baseq3 directory inside of the home directory (id Software\qltype\quakelive\home\baseq3)</returns>
+        public static string GetQuakeLiveHomeBaseQ3Directory(QuakeLiveTypes qltype)
+        {
+            var path = string.Empty;
+            switch (qltype)
+            {
+                case QuakeLiveTypes.Production:
+                    if (IsWindowsXp())
+                    {
+                        path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            "id Software\\quakelive\\home\\baseq3");
+                    }
+                    if (IsVistaOrNewer())
+                    {
+                        path = Path.Combine(GetLocalAppDataLowPath(),
+                            "id Software\\quakelive\\home\\baseq3");
+                    }
+                    break;
+
+                case QuakeLiveTypes.Focus:
+                    if (IsWindowsXp())
+                    {
+                        path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            "id Software\\focus\\home\\baseq3");
+                    }
+                    if (IsVistaOrNewer())
+                    {
+                        path = Path.Combine(GetLocalAppDataLowPath(),
+                            "id Software\\focus\\home\\baseq3");
+                    }
+                    break;
+            }
+            return path;
+        }
+        
         /// <summary>
         /// Gets the Quake Live base path.
         /// </summary>

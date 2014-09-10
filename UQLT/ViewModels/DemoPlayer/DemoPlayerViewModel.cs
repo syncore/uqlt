@@ -775,7 +775,7 @@ namespace UQLT.ViewModels.DemoPlayer
             foreach (string file in demofilestocopy)
             {
                 var filename = file.Substring(file.LastIndexOf('\\'));
-                using (FileStream sourceStream = File.Open(file, FileMode.Open))
+                using (FileStream sourceStream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
                     if (File.Exists(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype) + filename))
                     {
@@ -820,7 +820,7 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 var filename = Path.GetFileName(file);
                 Debug.WriteLine("File to copy to Wolfcam's demo directory is: " + filename);
-                using (FileStream sourceStream = File.Open(file, FileMode.Open))
+                using (FileStream sourceStream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
                     if (filename != null && File.Exists(Path.Combine(directory, filename)))
                     {

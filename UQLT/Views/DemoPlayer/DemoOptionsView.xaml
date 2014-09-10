@@ -3,41 +3,65 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:cal="http://www.caliburnproject.org"
-        Title="Demo Options" Height="532" Width="547" ResizeMode="NoResize">
+        Title="Demo Options" Height="750" Width="580" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="455" />
-            <RowDefinition Height="47" />
+            <RowDefinition Height="605" />
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="61" />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="54,15,55,0">
+        <StackPanel Orientation="Vertical" Grid.Row="0" HorizontalAlignment="Left" Margin="5,0,0,0" Width="559" VerticalAlignment="Top">
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Demo Options" VerticalAlignment="Top" FontWeight="Bold" Margin="0,15,0,0" />
-            <StackPanel Orientation="Vertical" Width="410">
-            <CheckBox IsChecked="{Binding UseWolfcamQlForOldDemos}" Content="Use WolfcamQL to play .dm__73 demo files" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,10,0,0">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Checked">
-                        <cal:ActionMessage MethodName="SetWolfcamExePath" />
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="Unchecked">
-                        <cal:ActionMessage MethodName="UnsetWolfcamExePath" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </CheckBox>
-            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Quake Live's current protocol version is 90 (.dm_90), which cannot play old .dm_73 files. With this option you can use WolfcamQL to play these old demos." VerticalAlignment="Top" Margin="0,8,0,0" />
-
-                <TextBlock Visibility="{Binding UseWolfcamQlForOldDemos, Converter={StaticResource BoolToVis}}" TextWrapping="Wrap" Text="WolfcamQL .exe Location:" Margin="3,8,0,5" />
-            <TextBlock TextWrapping="Wrap" Text="{Binding WolfcamQlExePath}" FontWeight="Bold"/>
-                <Button Content="Download WolfcamQL" Width="220" Margin="0,10">
+            <StackPanel Orientation="Vertical">
+                <CheckBox IsChecked="{Binding UseQlCustomDemoCfg}" Content="Use custom Quake Live demo config" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,17,0,0">
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="Click">
-                        <cal:ActionMessage MethodName="DownloadThirdPartyPlayer">
-                            <cal:Parameter Value="http://sourceforge.net/projects/wolfcamql/files/latest/download?source=files"/>
-                        </cal:ActionMessage>
+                        <i:EventTrigger EventName="Checked">
+                            <cal:ActionMessage MethodName="SetQlCustomDemoCfgPath" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Unchecked">
+                            <cal:ActionMessage MethodName="UnsetQlCustomDemoCfgPath" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                </Button>
+                </CheckBox>
+                <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="This option allows you to use a custom demo .cfg for playing .dm_90 demos in the Quake Live client." VerticalAlignment="Top" Margin="0,8,0,0" />
+                <StackPanel Orientation="Vertical" Visibility="{Binding UseQlCustomDemoCfg, Converter={StaticResource BoolToVis}}">
+                    <TextBlock TextWrapping="Wrap" Text="Custom QL demo .cfg location:" Margin="3,8,0,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding QlCustomDemoCfgPath}"/>
                 </StackPanel>
-            <StackPanel Orientation="Vertical" Width="410">
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <CheckBox IsChecked="{Binding UseWolfcamQlForOldDemos}" Content="Use WolfcamQL to play .dm__73 demo files" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,10,0,0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <cal:ActionMessage MethodName="SetWolfcamExePath" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Unchecked">
+                            <cal:ActionMessage MethodName="UnsetWolfcamExePath" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </CheckBox>
+                <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Quake Live's current protocol version is 90 (.dm_90), which cannot play old .dm_73 files. With this option you can use WolfcamQL to play these old demos." VerticalAlignment="Top" Margin="0,8,0,0" />
+                <StackPanel Orientation="Vertical" Visibility="{Binding UseWolfcamQlForOldDemos, Converter={StaticResource BoolToVis}}">
+                    <TextBlock TextWrapping="Wrap" Text="WolfcamQL .exe location:" Margin="3,8,0,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding WolfcamQlExePath}"/>
+                    <CheckBox IsChecked="{Binding UseWolfcamQlCustomDemoCfg}" Content="Use custom WolfcamQL demo config (.cfg)" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,9,0,0">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <cal:ActionMessage MethodName="SetWolfcamQlCustomDemoCfgPath" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Unchecked">
+                                <cal:ActionMessage MethodName="UnsetWolfcamQlCustomDemoCfgPath" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </CheckBox>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="This option allows you to use a custom demo .cfg for playing .dm_73 demos in WolfcamQL." VerticalAlignment="Top" Margin="0,8,0,0" />
+                    <TextBlock TextWrapping="Wrap" Text="Custom WolfcamQL demo .cfg location:" Margin="3,8,0,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding WolfcamQlCustomDemoCfgPath}"/>
+                </StackPanel>
+
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
                 <CheckBox IsChecked="{Binding UseWolfWhispererForOldDemos}" Content="Use Wolf Whisperer to play .dm__73 demo files" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,17,0,0">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Checked">
@@ -49,10 +73,39 @@
                     </i:Interaction.Triggers>
                 </CheckBox>
                 <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Quake Live's current protocol version is 90 (.dm_90), which cannot play old .dm_73 files. With this option you can use Wolf Whisperer, which is a GUI front-end for WolfcamQL, to play these old demos." VerticalAlignment="Top" Margin="0,8,0,0" />
+                <StackPanel Orientation="Vertical" Visibility="{Binding UseWolfWhispererForOldDemos, Converter={StaticResource BoolToVis}}" VerticalAlignment="Top">
+                    <TextBlock TextWrapping="Wrap" Text="Wolf Whisperer .exe location:" Margin="3,8,0,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding WolfWhispererExePath}"/>
+                    <CheckBox IsChecked="{Binding UseWolfWhispererCustomDemoCfg}" Content="Use custom Wolf Whisperer demo config (.cfg)" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" Margin="0,9,0,0">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <cal:ActionMessage MethodName="SetWolfWhispererCustomDemoCfgPath" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Unchecked">
+                                <cal:ActionMessage MethodName="UnsetWolfWhispererCustomDemoCfgPath"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </CheckBox>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="This option allows you to use a custom demo .cfg for playing .dm_73 demos in Wolf Whisperer." VerticalAlignment="Top" Margin="0,8,0,0" />
+                    <TextBlock TextWrapping="Wrap" Text="Custom Wolf Whisperer demo .cfg location:" Margin="3,8,0,5" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding WolfWhispererCustomDemoCfgPath}"/>
+                </StackPanel>
+            </StackPanel>
 
-                <TextBlock Visibility="{Binding UseWolfWhispererForOldDemos, Converter={StaticResource BoolToVis}}" TextWrapping="Wrap" Text="Wolf Whisperer .exe Location:" Margin="3,8,0,5" />
-                <TextBlock TextWrapping="Wrap" Text="{Binding WolfWhispererExePath}" FontWeight="Bold"/>
-                <Button Content="Download Wolf Whisperer" Width="220" Margin="0,10">
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="1" VerticalAlignment="Top" >
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Download Third-Party Demo Players" VerticalAlignment="Top" FontWeight="Bold" Margin="5,0,0,0" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top">
+                <Button Content="Download WolfcamQL" Width="215" Margin="0,10">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <cal:ActionMessage MethodName="DownloadThirdPartyPlayer">
+                                <cal:Parameter Value="http://sourceforge.net/projects/wolfcamql/files/latest/download?source=files"/>
+                            </cal:ActionMessage>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+                <Button Content="Download Wolf Whisperer" Width="215" Margin="12,10,0,10">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Click">
                             <cal:ActionMessage MethodName="DownloadThirdPartyPlayer">
@@ -63,7 +116,8 @@
                 </Button>
             </StackPanel>
         </StackPanel>
-        <Button Content="Save Options" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="202,0,184,5" Width="116" Height="22" Grid.Row="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Center">
+        <Button Content="Save Options" HorizontalAlignment="Center" VerticalAlignment="Center"  Width="116" Height="22" Grid.Row="2" Margin="239,17,239,22">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <cal:ActionMessage MethodName="SaveConfig" />
@@ -71,6 +125,6 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Button>
-        
+        </StackPanel>
     </Grid>
 </Window>
