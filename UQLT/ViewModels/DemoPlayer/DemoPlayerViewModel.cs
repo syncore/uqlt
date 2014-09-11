@@ -18,12 +18,13 @@ using GongSolutions.Wpf.DragDrop;
 using UQLT.Core.Modules.DemoPlayer;
 using UQLT.Helpers;
 using UQLT.Interfaces;
+using DragDropEffects = System.Windows.DragDropEffects;
 using IDropTarget = GongSolutions.Wpf.DragDrop.IDropTarget;
 
 namespace UQLT.ViewModels.DemoPlayer
 {
     /// <summary>
-    /// ViewModel for the DemoPlayerView
+    ///     ViewModel for the DemoPlayerView
     /// </summary>
     [Export(typeof(DemoPlayerViewModel))]
     public class DemoPlayerViewModel : PropertyChangedBase, IHaveDisplayName, IDropTarget
@@ -37,12 +38,16 @@ namespace UQLT.ViewModels.DemoPlayer
         private bool _canCancelProcess = true;
         private string _cancelText = "Cancel";
         private bool _canPlayDemo;
+        private bool _canPlayPlaylist;
         private ObservableCollection<DemoInfoViewModel> _demos = new ObservableCollection<DemoInfoViewModel>();
         private volatile bool _hasReceivedArchiveCancelation;
         private volatile bool _hasReceivedProcessCancelation;
         private bool _isArchivingDemos;
         private bool _isProcessingDemos;
-        private ObservableCollection<DemoPlaylistViewModel> _playlists = new ObservableCollection<DemoPlaylistViewModel>();
+
+        private ObservableCollection<DemoPlaylistViewModel> _playlists =
+            new ObservableCollection<DemoPlaylistViewModel>();
+
         private double _processingProgress;
         private string _qlDemoDirectoryPath;
         private DemoInfoViewModel _selectedDemo;
@@ -51,7 +56,7 @@ namespace UQLT.ViewModels.DemoPlayer
         private bool _showBusyIndicator;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DemoPlayerViewModel" /> class.
+        ///     Initializes a new instance of the <see cref="DemoPlayerViewModel" /> class.
         /// </summary>
         [ImportingConstructor]
         public DemoPlayerViewModel(IWindowManager windowManager, IMsgBoxService msgBoxService)
@@ -62,20 +67,23 @@ namespace UQLT.ViewModels.DemoPlayer
             DoDemoPlayerAutoSort("Filename");
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             QlDemoDirectoryPath = QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production);
-            var s = StartupLoadDemoDatabase();
+            Task s = StartupLoadDemoDatabase();
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
             ScanForNewDemos(QuakeLiveTypes.Production);
         }
 
         /// <summary>
-        /// Gets the text used to display what type of action is occurring (processing or archiving) in UI
+        ///     Gets the text used to display what type of action is occurring (processing or archiving) in UI
         /// </summary>
         /// <value>
-        /// The action text.
+        ///     The action text.
         /// </value>
         public string ActionText
         {
-            get { return _actionText; }
+            get
+            {
+                return _actionText;
+            }
             set
             {
                 _actionText = value;
@@ -84,10 +92,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the demo archiving progress.
+        ///     Gets or sets the demo archiving progress.
         /// </summary>
         /// <value>
-        /// The demo archiving progress.
+        ///     The demo archiving progress.
         /// </value>
         public double ArchivingProgress
         {
@@ -103,10 +111,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance can still cancel archiving.
+        ///     Gets or sets a value indicating whether this instance can still cancel archiving.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance can still cancel archiving; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance can still cancel archiving; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>This is used to disable the Cancel button in the UI once the user has already canceled.</remarks>
         public bool CanCancelArchive
@@ -124,10 +132,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance can still cancel processes.
+        ///     Gets or sets a value indicating whether this instance can still cancel processes.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance can still cancel processes; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance can still cancel processes; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>This is used to disable the Cancel button in the UI once the user has already canceled.</remarks>
         public bool CanCancelProcess
@@ -145,10 +153,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the text used for the cancel button based on whether a cancelation is pending.
+        ///     Gets or sets the text used for the cancel button based on whether a cancelation is pending.
         /// </summary>
         /// <value>
-        /// The cancel text.
+        ///     The cancel text.
         /// </value>
         /// <remarks>This is the same for both cancellation of demo processing and archiving.</remarks>
         public string CancelText
@@ -165,18 +173,21 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether a demo is selected and can be played.
+        ///     Gets or sets a value indicating whether a demo is selected and can be played.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a demo is selected and can be played; otherwise, <c>false</c>.
+        ///     <c>true</c> if a demo is selected and can be played; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>
-        /// This is also a Caliburn.Micro action guard that automatically hooks up IsEnabled in the View.
-        /// See: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        ///     This is also a Caliburn.Micro action guard that automatically hooks up IsEnabled in the View.
+        ///     See: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
         /// </remarks>
         public bool CanPlayDemo
         {
-            get { return _canPlayDemo; }
+            get
+            {
+                return _canPlayDemo;
+            }
             set
             {
                 _canPlayDemo = value;
@@ -185,7 +196,30 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the user's demos that this viewmodel will display in the view.
+        ///     Gets or sets a value indicating whether a playlist is selected and can be played.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if a playlist is selected and can be played; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        ///     This is also a Caliburn.Micro action guard that automatically hooks up IsEnabled in the View.
+        ///     See: https://caliburnmicro.codeplex.com/wikipage?title=All%20About%20Actions
+        /// </remarks>
+        public bool CanPlayPlaylist
+        {
+            get
+            {
+                return _canPlayPlaylist;
+            }
+            set
+            {
+                _canPlayPlaylist = value;
+                NotifyOfPropertyChange(() => CanPlayPlaylist);
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the user's demos that this viewmodel will display in the view.
         /// </summary>
         /// <value>The demos that this viewmodel will display in the view.</value>
         public ObservableCollection<DemoInfoViewModel> Demos
@@ -194,7 +228,6 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 return _demos;
             }
-
             set
             {
                 _demos = value;
@@ -203,54 +236,43 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or Sets the display name for this window.
+        ///     Gets or Sets the display name for this window.
         /// </summary>
         public string DisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance has received a demo archiving cancelation request.
+        ///     Gets or sets a value indicating whether this instance has received a demo archiving cancelation request.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance has received a demo archiving cancelation request; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance has received a demo archiving cancelation request; otherwise, <c>false</c>.
         /// </value>
         public bool HasReceivedArchiveCancelation
         {
-            get
-            {
-                return _hasReceivedArchiveCancelation;
-            }
-            set
-            {
-                _hasReceivedArchiveCancelation = value;
-            }
+            get { return _hasReceivedArchiveCancelation; }
+            set { _hasReceivedArchiveCancelation = value; }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance has received a demo process cancelation request.
+        ///     Gets or sets a value indicating whether this instance has received a demo process cancelation request.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance has received a demo process cancelation request; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance has received a demo process cancelation request; otherwise, <c>false</c>.
         /// </value>
         public bool HasReceivedProcessCancelation
         {
-            get
-            {
-                return _hasReceivedProcessCancelation;
-            }
-            set
-            {
-                _hasReceivedProcessCancelation = value;
-            }
+            get { return _hasReceivedProcessCancelation; }
+            set { _hasReceivedProcessCancelation = value; }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether demos are currently being archived.
+        ///     Gets or sets a value indicating whether demos are currently being archived.
         /// </summary>
         /// <value>
-        /// <c>true</c> if demos are currently being archived; otherwise, <c>false</c>.
+        ///     <c>true</c> if demos are currently being archived; otherwise, <c>false</c>.
         /// </value>
-        /// <remarks>This also sets the appropriate action text and
-        /// notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
+        /// <remarks>
+        ///     This also sets the appropriate action text and
+        ///     notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
         /// </remarks>
         public bool IsArchivingDemos
         {
@@ -269,13 +291,14 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether demos are currently being processed.
+        ///     Gets or sets a value indicating whether demos are currently being processed.
         /// </summary>
         /// <value>
-        /// <c>true</c> if demos are currently being processed; otherwise, <c>false</c>.
+        ///     <c>true</c> if demos are currently being processed; otherwise, <c>false</c>.
         /// </value>
-        /// <remarks>This also sets the appropriate action text and
-        /// notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
+        /// <remarks>
+        ///     This also sets the appropriate action text and
+        ///     notifies the UI of whether the busy indicator (ShowBusyIndicator) should be shown.
         /// </remarks>
         public bool IsProcessingDemos
         {
@@ -294,10 +317,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the user's demo playlists.
+        ///     Gets or sets the user's demo playlists.
         /// </summary>
         /// <value>
-        /// The user's demo playlists.
+        ///     The user's demo playlists.
         /// </value>
         public ObservableCollection<DemoPlaylistViewModel> Playlists
         {
@@ -313,10 +336,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the demo processing progress.
+        ///     Gets or sets the demo processing progress.
         /// </summary>
         /// <value>
-        /// The demo processing progress.
+        ///     The demo processing progress.
         /// </value>
         public double ProcessingProgress
         {
@@ -332,12 +355,15 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the QL demo directory path.
+        ///     Gets or sets the QL demo directory path.
         /// </summary>
         /// <value>The QL demo directory path.</value>
         public string QlDemoDirectoryPath
         {
-            get { return _qlDemoDirectoryPath; }
+            get
+            {
+                return _qlDemoDirectoryPath;
+            }
             set
             {
                 _qlDemoDirectoryPath = value;
@@ -346,7 +372,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the selected demo.
+        ///     Gets or sets the selected demo.
         /// </summary>
         /// <value>The selected demo.</value>
         public DemoInfoViewModel SelectedDemo
@@ -355,7 +381,6 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 return _selectedDemo;
             }
-
             set
             {
                 _selectedDemo = value;
@@ -365,10 +390,10 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets the selected playlist.
+        ///     Gets or sets the selected playlist.
         /// </summary>
         /// <value>
-        /// The selected playlist.
+        ///     The selected playlist.
         /// </value>
         public DemoPlaylistViewModel SelectedPlaylist
         {
@@ -379,15 +404,16 @@ namespace UQLT.ViewModels.DemoPlayer
             set
             {
                 _selectedPlaylist = value;
+                CanPlayPlaylist = value != null;
                 NotifyOfPropertyChange(() => SelectedPlaylist);
             }
         }
 
         /// <summary>
-        /// Gets or sets the selected playlist demo.
+        ///     Gets or sets the selected playlist demo.
         /// </summary>
         /// <value>
-        /// The selected playlist demo.
+        ///     The selected playlist demo.
         /// </value>
         public PlaylistDemoViewModel SelectedPlaylistDemo
         {
@@ -403,12 +429,12 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the transparent busy indicator should be shown
-        /// in the UI, indicating that demo processing or archiving is taking place.
+        ///     Gets or sets a value indicating whether the transparent busy indicator should be shown
+        ///     in the UI, indicating that demo processing or archiving is taking place.
         /// </summary>
         /// <value>
-        /// <c>true</c> if demo processing or archiving is taking place and indicator should be shown,
-        /// otherwise, <c>false</c>.
+        ///     <c>true</c> if demo processing or archiving is taking place and indicator should be shown,
+        ///     otherwise, <c>false</c>.
         /// </value>
         public bool ShowBusyIndicator
         {
@@ -424,7 +450,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Handles the addition of one or more demos.
+        ///     Handles the addition of one or more demos.
         /// </summary>
         public async Task AddDemo()
         {
@@ -442,23 +468,26 @@ namespace UQLT.ViewModels.DemoPlayer
                 demofilepaths.AddRange(openfiledialog.FileNames);
 
                 // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
-                //await CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes.Production, demofilepaths);
+                // We want to copy any added demos to the QL demo directory. QL developers have hinted that there might be dual
+                // .dm_73 and .dm_90 demo playback in the future, plus the user likely already has old .dm_73 demos there. So do this for consistency.
+                await CopyDemosToDemoDirAsync(demofilepaths, DemoPlayerTypes.QuakeLive, QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production));
 
                 // send to list splitter/QLDemoDumper
                 var dumper = new DemoDumper(this, _msgBoxService);
-                var demos = dumper.CollectDemos(demofilepaths);
+                List<List<string>> demos = dumper.CollectDemos(demofilepaths);
                 dumper.ProcessDemos(demos);
             }
         }
 
         /// <summary>
-        /// Handles the addition of a demo directory.
+        ///     Handles the addition of a demo directory.
         /// </summary>
         public async Task AddDemoDirectory()
         {
             using (var openfolderdialog = new FolderBrowserDialog())
             {
-                openfolderdialog.Description = "Select a directory containing .dm_90 and/or .dm_73 QL demo files.";
+                openfolderdialog.Description =
+                    "Select a directory containing .dm_90 and/or .dm_73 QL demo files.";
                 openfolderdialog.ShowNewFolderButton = false;
                 openfolderdialog.RootFolder = Environment.SpecialFolder.MyComputer;
 
@@ -466,35 +495,45 @@ namespace UQLT.ViewModels.DemoPlayer
 
                 if (AdditionalDirContainsDemoFiles(openfolderdialog.SelectedPath))
                 {
-                    Debug.WriteLine("Selected directory " + openfolderdialog.SelectedPath + " DOES contain demo files!");
+                    Debug.WriteLine("Selected directory " + openfolderdialog.SelectedPath +
+                                    " CONTAINS demo files!");
 
                     // TODO: Fix the hard-coding of Production here. This method and the app in general need to detect if UQLT is being launched from Focus context.
-                    //await CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes.Production, GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
+                    // We want to copy any added demos to the QL demo directory. QL developers have hinted that there might be dual
+                    // .dm_73 and .dm_90 demo playback in the future, plus the user likely already has old .dm_73 demos there. So do this for consistency.
+                    await CopyDemosToDemoDirAsync(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath),
+                        DemoPlayerTypes.QuakeLive, QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production));
 
                     // send to list splitter/QLDemoDumper
                     var dumper = new DemoDumper(this, _msgBoxService);
-                    var demos = dumper.CollectDemos(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
+                    List<List<string>> demos =
+                        dumper.CollectDemos(GetDemosFromSpecifiedDirectory(openfolderdialog.SelectedPath));
                     dumper.ProcessDemos(demos);
                 }
                 else
                 {
-                    _msgBoxService.ShowError(string.Format("{0} and its sub-directories do not contain any Quake Live demo files!",
+                    _msgBoxService.ShowError(
+                        string.Format("{0} and its sub-directories do not contain any Quake Live demo files!",
                             openfolderdialog.SelectedPath), "No demo files found!");
                 }
             }
         }
 
         /// <summary>
-        /// Adds the demo to playlist.
+        ///     Adds the demo to playlist.
         /// </summary>
         public void AddDemoToPlaylist()
         {
-            if (SelectedDemo == null) { return; }
+            if (SelectedDemo == null)
+            {
+                return;
+            }
             if (SelectedPlaylist == null)
             {
                 if (
                     _msgBoxService.AskConfirmationMessage(
-                        "No playlist is selected would you like to create a new playlist?", "No playlist selected"))
+                        "No playlist is selected. Would you like to create a new playlist?",
+                        "No playlist selected"))
                 {
                     OpenCreatePlaylistWindow();
                 }
@@ -504,7 +543,7 @@ namespace UQLT.ViewModels.DemoPlayer
                 bool allowDm73Demos = true;
                 bool allowDm90Demos = true;
 
-                foreach (var demo in SelectedPlaylist.Demos)
+                foreach (PlaylistDemoViewModel demo in SelectedPlaylist.Demos)
                 {
                     if (IsProtocol73Demo(demo.Filename))
                     {
@@ -522,19 +561,22 @@ namespace UQLT.ViewModels.DemoPlayer
                         allowDm90Demos = true;
                     }
                 }
-                if ((IsProtocol73Demo(SelectedDemo.Filename) && allowDm73Demos) || (IsProtocol90Demo(SelectedDemo.Filename) && allowDm90Demos))
+                if ((IsProtocol73Demo(SelectedDemo.Filename) && allowDm73Demos) ||
+                    (IsProtocol90Demo(SelectedDemo.Filename) && allowDm90Demos))
                 {
                     SelectedPlaylist.Demos.Add(new PlaylistDemoViewModel(SelectedDemo.Demo));
                 }
                 else
                 {
-                    _msgBoxService.ShowError(string.Format("Playlist {0} is a {1} playlist and can only contain {1} demos!", SelectedPlaylist.PlaylistName, allowDm73Demos ? ".dm_73" : ".dm_90"), "Error");
+                    _msgBoxService.ShowError(
+                        string.Format("Playlist {0} is a {1} playlist and can only contain {1} demos!",
+                            SelectedPlaylist.PlaylistName, allowDm73Demos ? ".dm_73" : ".dm_90"), "Error");
                 }
             }
         }
 
         /// <summary>
-        /// Cancels all demo archiving.
+        ///     Cancels all demo archiving.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public void CancelDemoArchiving()
@@ -544,7 +586,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Cancels all demo processing.
+        ///     Cancels all demo processing.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public void CancelDemoProcessing()
@@ -554,46 +596,52 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Deletes the playlist.
+        ///     Deletes the playlist.
         /// </summary>
         public void DeletePlaylist()
         {
-            if (SelectedPlaylist == null) { return; }
-            if (_msgBoxService.AskConfirmationMessage(string.Format("Are you sure you want to delete: {0}?", SelectedPlaylist), "Are you sure?"))
+            if (SelectedPlaylist == null)
+            {
+                return;
+            }
+            if (
+                _msgBoxService.AskConfirmationMessage(
+                    string.Format("Are you sure you want to delete: {0}?", SelectedPlaylist), "Are you sure?"))
             {
                 Playlists.Remove(SelectedPlaylist);
             }
         }
 
         /// <summary>
-        /// Updates the current drag state.
+        ///     Updates the current drag state.
         /// </summary>
         /// <param name="dropInfo">Information about the drag.</param>
         void IDropTarget.DragOver(IDropInfo dropInfo)
         {
-            if (!(dropInfo.Data is PlaylistDemoViewModel) || !(dropInfo.TargetItem is PlaylistDemoViewModel)) return;
+            if (!(dropInfo.Data is PlaylistDemoViewModel) || !(dropInfo.TargetItem is PlaylistDemoViewModel))
+                return;
             dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-            dropInfo.Effects = System.Windows.DragDropEffects.Move;
+            dropInfo.Effects = DragDropEffects.Move;
         }
 
         /// <summary>
-        /// Performs a drop.
+        ///     Performs a drop.
         /// </summary>
         /// <param name="dropInfo">Information about the drop.</param>
         void IDropTarget.Drop(IDropInfo dropInfo)
         {
             // Original drop handler logic
-            var insertIndex = dropInfo.InsertIndex;
-            var destinationList = DDropGetList(dropInfo.TargetCollection);
-            var data = DDropExtractData(dropInfo.Data);
+            int insertIndex = dropInfo.InsertIndex;
+            IList destinationList = DDropGetList(dropInfo.TargetCollection);
+            IEnumerable data = DDropExtractData(dropInfo.Data);
 
             if (dropInfo.DragInfo.VisualSource == dropInfo.VisualTarget)
             {
-                var sourceList = DDropGetList(dropInfo.DragInfo.SourceCollection);
+                IList sourceList = DDropGetList(dropInfo.DragInfo.SourceCollection);
 
-                foreach (var o in data)
+                foreach (object o in data)
                 {
-                    var index = sourceList.IndexOf(o);
+                    int index = sourceList.IndexOf(o);
 
                     if (index == -1) continue;
                     sourceList.RemoveAt(index);
@@ -604,7 +652,7 @@ namespace UQLT.ViewModels.DemoPlayer
                     }
                 }
             }
-            foreach (var o in data)
+            foreach (object o in data)
             {
                 destinationList.Insert(insertIndex++, o);
             }
@@ -613,7 +661,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Opens the playlist creation window.
+        ///     Opens the playlist creation window.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public void OpenCreatePlaylistWindow()
@@ -624,7 +672,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Opens the demo options window.
+        ///     Opens the demo options window.
         /// </summary>
         public void OpenDemoOptionsWindow()
         {
@@ -634,7 +682,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Opens the playlist rename window.
+        ///     Opens the playlist rename window.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public void OpenRenamePlaylistWindow()
@@ -644,22 +692,30 @@ namespace UQLT.ViewModels.DemoPlayer
             if (SelectedPlaylist != null)
             {
                 _windowManager.ShowWindow(
-                    new AddRenameDemoViewModel(this, SelectedPlaylist.PlaylistName, _msgBoxService, true), null,
+                    new AddRenameDemoViewModel(this, SelectedPlaylist.PlaylistName, _msgBoxService, true),
+                    null,
                     settings);
             }
         }
 
         /// <summary>
-        /// Plays the demo.
+        ///     Plays the demo.
         /// </summary>
         /// <remarks>This is called from the view itself.</remarks>
         public async Task PlayDemo()
         {
-            if (SelectedDemo == null) { return; }
-            var filename = SelectedDemo.Filename;
+            if (SelectedDemo == null)
+            {
+                return;
+            }
+            string filename = SelectedDemo.Filename;
 
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
-            var toCopy = new List<string> { Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production), SelectedDemo.Filename) };
+            var toCopy = new List<string>
+            {
+                Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production),
+                    SelectedDemo.Filename)
+            };
 
             if (IsProtocol90Demo(filename))
             {
@@ -671,18 +727,21 @@ namespace UQLT.ViewModels.DemoPlayer
                 var options = new DemoOptionsViewModel();
                 if (options.UseWolfcamQlForOldDemos)
                 {
-                    var wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
+                    string wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
                     if (wolfcamBase != null)
                     {
                         // copy
-                        await CopyDemosToWolfcamDemoDirectoryAsync(toCopy, Path.Combine(wolfcamBase, WolfCamDemoDir));
+                        await
+                            CopyDemosToDemoDirAsync(toCopy, DemoPlayerTypes.WolfcamQl, Path.Combine(wolfcamBase, WolfCamDemoDir));
                         // play
                         PlayDemoWithThirdPartyPlayer(DemoPlayerTypes.WolfcamQl, options.WolfcamQlExePath);
                     }
                     else
                     {
-                        Debug.WriteLine("Problem finding WolfcamQL directory. Try resetting it in the options.");
-                        _msgBoxService.ShowError("Problem finding WolfcamQL directory. Try resetting it in the options.", "Error");
+                        Debug.WriteLine(
+                            "Problem finding WolfcamQL directory. Try resetting it in the options.");
+                        _msgBoxService.ShowError(
+                            "Problem finding WolfcamQL directory. Try resetting it in the options.", "Error");
                     }
                 }
                 else if (options.UseWolfWhispererForOldDemos)
@@ -707,14 +766,17 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Plays the playlist.
+        ///     Plays the playlist.
         /// </summary>
         /// <returns></returns>
         public async Task PlayPlaylist()
         {
-            if (SelectedPlaylist == null) { return; }
+            if (SelectedPlaylist == null)
+            {
+                return;
+            }
             Debug.WriteLine("Will play demos in the following playlist and order:");
-            foreach (var demo in SelectedPlaylist.Demos)
+            foreach (PlaylistDemoViewModel demo in SelectedPlaylist.Demos)
             {
                 Debug.WriteLine(demo.Filename);
             }
@@ -722,19 +784,25 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Removes the demo from playlist.
+        ///     Removes the demo from playlist.
         /// </summary>
         public void RemoveDemoFromPlaylist()
         {
-            if (SelectedPlaylist == null) { return; }
-            if (SelectedPlaylist == null) { return; }
+            if (SelectedPlaylist == null)
+            {
+                return;
+            }
+            if (SelectedPlaylist == null)
+            {
+                return;
+            }
             SelectedPlaylist.Demos.Remove(SelectedPlaylistDemo);
         }
 
         /// <summary>
-        /// Rescans the user's demo directory for demos that are not contianed in the demo database,
-        /// and sends them off for processing if necessary. This calls <see cref="ScanForNewDemos"/> from
-        /// a button in the UI.
+        ///     Rescans the user's demo directory for demos that are not contianed in the demo database,
+        ///     and sends them off for processing if necessary. This calls <see cref="ScanForNewDemos" /> from
+        ///     a button in the UI.
         /// </summary>
         /// <remarks>This is called directly from the view.</remarks>
         public void RescanDemoDir()
@@ -746,16 +814,16 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Checks whether the additional demo directory (and sub-directories) that the user has
-        /// specified contains Quake Live demo files.
+        ///     Checks whether the additional demo directory (and sub-directories) that the user has
+        ///     specified contains Quake Live demo files.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
-        /// <c>true</c> if the directory contains at least 1 file with the .dm_73 and/or .dm_90 extension.
+        ///     <c>true</c> if the directory contains at least 1 file with the .dm_73 and/or .dm_90 extension.
         /// </returns>
         private bool AdditionalDirContainsDemoFiles(string path)
         {
-            var files = GetDemosFromSpecifiedDirectory(path);
+            List<string> files = GetDemosFromSpecifiedDirectory(path);
 
             foreach (string file in files)
             {
@@ -766,76 +834,50 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Asynchronously copies the demo files to Quake Live demo directory.
-        /// </summary>
-        /// <param name="qltype">The qltype.</param>
-        /// <param name="demofilestocopy">The list of demo filenames to copy to the QL demo directory.</param>
-        private async Task CopyDemosToQlDemoDirectoryAsync(QuakeLiveTypes qltype, IEnumerable<string> demofilestocopy)
-        {
-            foreach (string file in demofilestocopy)
-            {
-                var filename = file.Substring(file.LastIndexOf('\\'));
-                using (FileStream sourceStream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                {
-                    if (File.Exists(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype) + filename))
-                    {
-                        if (_msgBoxService.AskConfirmationMessage(string.Format(
-                            "{0} already exists in your QL demo folder. Would you like to overwrite this file in your QL demo folder?",
-                            filename.Replace("\\", "")),
-                            "File already exists!"))
-                        {
-                            using (
-                            FileStream destinationStream =
-                                File.Create(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype) + filename))
-                            {
-                                Debug.WriteLine("Overwriting existing file in demo directory: " + filename);
-                                await sourceStream.CopyToAsync(destinationStream);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        using (
-                            FileStream destinationStream =
-                                File.Create(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype) + filename))
-                        {
-                            Debug.WriteLine(filename.Replace("\\", "") +
-                                            " did not exist in demo directory. Copying to demo directory");
-                            await sourceStream.CopyToAsync(destinationStream);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously copies the demo files to appropriate third-party demo player directory.
+        /// Asynchronously copies the demo files to appropriate demo player directory.
         /// </summary>
         /// <param name="demoFilesToCopy">The demo files to copy.</param>
-        /// <param name="directory">The path to Wolfcam's demo directory.</param>
+        /// <param name="playerType">Type of demo player.</param>
+        /// <param name="destinationDir">The destination demo directory.</param>
         /// <returns></returns>
-        private async Task CopyDemosToWolfcamDemoDirectoryAsync(IEnumerable<string> demoFilesToCopy, string directory)
+        private async Task CopyDemosToDemoDirAsync(IEnumerable<string> demoFilesToCopy,
+            DemoPlayerTypes playerType, string destinationDir)
         {
+            string type = string.Empty;
+            switch (playerType)
+            {
+                case DemoPlayerTypes.QuakeLive:
+                    type = "Quake Live";
+                    break;
+
+                case DemoPlayerTypes.WolfcamQl:
+                    type = "WolfcamQL";
+                    break;
+
+                case DemoPlayerTypes.WolfWhisperer:
+                    type = "Wolf Whisperer";
+                    break;
+            }
             foreach (string file in demoFilesToCopy)
             {
-                var filename = Path.GetFileName(file);
-                Debug.WriteLine("File to copy to Wolfcam's demo directory is: " + filename);
-                using (FileStream sourceStream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                string filename = Path.GetFileName(file);
+                Debug.WriteLine("To copy: {0} to {1}", filename, destinationDir);
+                using (
+                    FileStream sourceStream = File.Open(file, FileMode.Open, FileAccess.ReadWrite,
+                        FileShare.ReadWrite))
                 {
-                    if (filename != null && File.Exists(Path.Combine(directory, filename)))
+                    if (filename != null && File.Exists(Path.Combine(destinationDir, filename)))
                     {
-                        if (_msgBoxService.AskConfirmationMessage(string.Format(
-                            "{0} already exists in Wolfcam's demo folder. Would you like to overwrite this file in Wolfcam's demo folder?",
-                            file),
-                            "File already exists!"))
+                        if (!_msgBoxService.AskConfirmationMessage(string.Format(
+                            "Demo: {0} already exists in {1}'s demo folder. Would you like to overwrite {0} in: {2}?",
+                            filename, type, destinationDir),
+                            "File already exists!")) continue;
+                        using (
+                            FileStream destinationStream =
+                                File.Create(Path.Combine(destinationDir, filename)))
                         {
-                            using (
-                                FileStream destinationStream =
-                                    File.Create(Path.Combine(directory, filename)))
-                            {
-                                Debug.WriteLine("Overwriting existing file in demo directory: " + filename);
-                                await sourceStream.CopyToAsync(destinationStream);
-                            }
+                            Debug.WriteLine("Overwriting existing file in demo directory: " + filename);
+                            await sourceStream.CopyToAsync(destinationStream);
                         }
                     }
                     else
@@ -843,9 +885,11 @@ namespace UQLT.ViewModels.DemoPlayer
                         if (filename == null) continue;
                         using (
                             FileStream destinationStream =
-                                File.Create(Path.Combine(directory, filename)))
+                                File.Create(Path.Combine(destinationDir, filename)))
                         {
-                            Debug.WriteLine(string.Format("{0} did not exist in demo directory. Copying to demo directory", filename));
+                            Debug.WriteLine(
+                                string.Format(
+                                    "{0} did not exist in {1}. Copying...", filename, destinationDir));
                             await sourceStream.CopyToAsync(destinationStream);
                         }
                     }
@@ -854,12 +898,14 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Extracts the drop data.
+        ///     Extracts the drop data.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>The drop data as IEnumerable</returns>
-        /// <remarks>Taken from the default drop handler in
-        /// GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "ExtractData"</remarks>
+        /// <remarks>
+        ///     Taken from the default drop handler in
+        ///     GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "ExtractData"
+        /// </remarks>
         private IEnumerable DDropExtractData(object data)
         {
             // Original drop handler logic
@@ -867,19 +913,18 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 return (IEnumerable)data;
             }
-            else
-            {
-                return Enumerable.Repeat(data, 1);
-            }
+            return Enumerable.Repeat(data, 1);
         }
 
         /// <summary>
-        /// Gets the drop destination list.
+        ///     Gets the drop destination list.
         /// </summary>
         /// <param name="enumerable">The enumerable.</param>
         /// <returns>The drop destination list.</returns>
-        /// <remarks>Taken from the default drop handler in
-        /// GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "GetList"</remarks>
+        /// <remarks>
+        ///     Taken from the default drop handler in
+        ///     GongSolutions.Wpf.DragDrop\DefaultDropHandler.cs, original method "GetList"
+        /// </remarks>
         private IList DDropGetList(IEnumerable enumerable)
         {
             // Original drop handler logic
@@ -887,25 +932,22 @@ namespace UQLT.ViewModels.DemoPlayer
             {
                 return ((ICollectionView)enumerable).SourceCollection as IList;
             }
-            else
-            {
-                return enumerable as IList;
-            }
+            return enumerable as IList;
         }
 
         /// <summary>
-        /// Performs the demo browser automatic sort based on specified criteria.
+        ///     Performs the demo browser automatic sort based on specified criteria.
         /// </summary>
         /// <param name="property">The property criteria.</param>
         private void DoDemoPlayerAutoSort(string property)
         {
-            var view = CollectionViewSource.GetDefaultView(Demos);
+            ICollectionView view = CollectionViewSource.GetDefaultView(Demos);
             var sortDescription = new SortDescription(property, ListSortDirection.Ascending);
             view.SortDescriptions.Add(sortDescription);
         }
 
         /// <summary>
-        /// Gets the demos from specified directory path and it's sub-directories.
+        ///     Gets the demos from specified directory path and it's sub-directories.
         /// </summary>
         /// <param name="directorypath">The directory path.</param>
         /// <returns>A list of the demo filenames from a given input directory.</returns>
@@ -922,7 +964,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Determines whether the specified demo (filename) is of the older protocol 73 (dm_73) type.
+        ///     Determines whether the specified demo (filename) is of the older protocol 73 (dm_73) type.
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <returns><c>true</c> if it is a protocol 73 .dm_73 demo, otherwise <c>false</c>.</returns>
@@ -932,7 +974,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Determines whether the specified demo (filename) is of the newer protocol 90 (dm_90) type.
+        ///     Determines whether the specified demo (filename) is of the newer protocol 90 (dm_90) type.
         /// </summary>
         /// <param name="filename">The filename.</param>
         /// <returns><c>true</c> if it is a protocol 90 .dm_90 demo, otherwise <c>false</c>.</returns>
@@ -942,74 +984,106 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Makes the playlist configuration (.cfg) file that will be read by QL/WolfcamQL/WolfWhisperer
+        ///     Makes the playlist configuration (.cfg) file that will be read by QL/WolfcamQL/WolfWhisperer
         /// </summary>
         /// <remarks>This was adapted from the implementation in QLDP, starting @ QLDP-IO.js line 440</remarks>
         private string MakePlaylistConfig()
         {
-            if (SelectedPlaylist == null) { return string.Empty; }
-            if (SelectedPlaylist.Demos.Count == 0) { return string.Empty; }
+            if (SelectedPlaylist == null)
+            {
+                return string.Empty;
+            }
+            if (SelectedPlaylist.Demos.Count == 0)
+            {
+                return string.Empty;
+            }
             var sb = new StringBuilder();
             sb.Append("set endPlaylist \"\"\n");
             for (int i = 0; i < SelectedPlaylist.Demos.Count; ++i)
             {
                 sb.Append(string.Format("set plDemo{0} \"demo {1}; echo \"^3Playing demo ^1#{2} of {3}^3\";" +
                                         " set next-demo \"vstr nextdemo\"; set prev-demo \"vstr plDemo{4}\"; set nextdemo vstr {5}\"\n ",
-                                        i, SelectedPlaylist.Demos[i].Filename, i + 1, SelectedPlaylist.Demos.Count, (i != 0 ? i - 1 : 0),
-                                        (i + 1 == SelectedPlaylist.Demos.Count ? "endPlaylist" : "plDemo" + (i + 1))));
+                    i, SelectedPlaylist.Demos[i].Filename, i + 1, SelectedPlaylist.Demos.Count,
+                    (i != 0 ? i - 1 : 0),
+                    (i + 1 == SelectedPlaylist.Demos.Count ? "endPlaylist" : "plDemo" + (i + 1))));
             }
             sb.Append("vstr plDemo0\n");
             return sb.ToString();
         }
 
         /// <summary>
-        /// Plays the selected demo in the Quake Live client.
+        ///     Plays the selected demo in the Quake Live client.
         /// </summary>
         private void PlayDemoWithQuakeLive()
         {
             var playerProcess = new Process();
             //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
-            var basePathQlForwardSlashFormat = QLDirectoryUtils.GetQuakeLiveBasePath(QuakeLiveTypes.Production).Replace("\\", "/");
-            var homePathQlForwardSlashFormat = QLDirectoryUtils.GetQuakeLiveHomePath(QuakeLiveTypes.Production).Replace("\\", "/");
+            string basePathQlForwardSlashFormat =
+                QLDirectoryUtils.GetQuakeLiveBasePath(QuakeLiveTypes.Production).Replace("\\", "/");
+            string homePathQlForwardSlashFormat =
+                QLDirectoryUtils.GetQuakeLiveHomePath(QuakeLiveTypes.Production).Replace("\\", "/");
+            var sb = new StringBuilder();
+            sb.Append(string.Format("+set web_sess quakelive_sess= +set gt_user \"\"" +
+                                    " +set gt_pass \"\" +set gt_realm \"quakelive\" +set fs_basepath \"{0}\" +set fs_homepath \"{1}\"" +
+                                    " +demo {2}", basePathQlForwardSlashFormat, homePathQlForwardSlashFormat,
+                SelectedDemo.Filename));
+            var options = new DemoOptionsViewModel();
+            if (options.UseQlCustomDemoCfg && !string.IsNullOrEmpty(options.QlCustomDemoCfgPath))
+            {
+                sb.Append(string.Format(" +exec {0}", Path.GetFileName(options.QlCustomDemoCfgPath)));
+            }
             try
             {
                 //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
-                playerProcess.StartInfo.FileName = QLDirectoryUtils.GetQuakeLiveExePath(QuakeLiveTypes.Production);
-                playerProcess.StartInfo.Arguments = string.Format("+set web_sess quakelive_sess= +set gt_user \"\"" +
-                                                                  " +set gt_pass \"\" +set gt_realm \"quakelive\" +set fs_basepath \"{0}\" +set fs_homepath \"{1}\"" +
-                                                                  " +demo {2}", basePathQlForwardSlashFormat, homePathQlForwardSlashFormat, SelectedDemo.Filename);
+                playerProcess.StartInfo.FileName =
+                    QLDirectoryUtils.GetQuakeLiveExePath(QuakeLiveTypes.Production);
+                playerProcess.StartInfo.Arguments = sb.ToString();
+                Debug.WriteLine("Starting ql with arguments: " + sb);
                 playerProcess.Start();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error launching Quake Live to view demo {0}, error: {1}", SelectedDemo.Filename, ex.Message);
-                _msgBoxService.ShowError(string.Format("Error launching Quake Live to view demo {0}", SelectedDemo.Filename),
-                        "Error launching Quke Live");
+                Debug.WriteLine("Error launching Quake Live to view demo {0}, error: {1}",
+                    SelectedDemo.Filename, ex.Message);
+                _msgBoxService.ShowError(
+                    string.Format("Error launching Quake Live to view demo {0}", SelectedDemo.Filename),
+                    "Error launching Quke Live");
             }
         }
 
         /// <summary>
-        /// Plays the demo with a third party player (WolfcamQL or Wolf Whisperer).
+        ///     Plays the demo with a third party player (WolfcamQL or Wolf Whisperer).
         /// </summary>
         /// <param name="playerType">Type of third-party demo player.</param>
         /// <param name="playerExePath">The path to the third-party demo player's executable file.</param>
         private void PlayDemoWithThirdPartyPlayer(DemoPlayerTypes playerType, string playerExePath)
         {
             var playerProcess = new Process();
+            var wcqlArgs = new StringBuilder();
+            var options = new DemoOptionsViewModel();
             if (playerType == DemoPlayerTypes.WolfcamQl)
             {
                 try
                 {
+                    wcqlArgs.Append(string.Format("+demo {0}", SelectedDemo.Filename));
+                    if (options.UseWolfcamQlCustomDemoCfg &&
+                        !string.IsNullOrEmpty(options.WolfcamQlCustomDemoCfgPath))
+                    {
+                        wcqlArgs.Append(string.Format(" +exec {0}",
+                            Path.GetFileName(options.WolfcamQlCustomDemoCfgPath)));
+                    }
                     playerProcess.StartInfo.FileName = playerExePath;
                     // File has already been copied from QL demo dir -> wolfcam demo dir.
                     // Now launching from wolfcamdir\wolfcam-ql\demos context at this point.
-                    playerProcess.StartInfo.Arguments = string.Format("+demo {0}", SelectedDemo.Filename);
+                    playerProcess.StartInfo.Arguments = wcqlArgs.ToString();
                     playerProcess.Start();
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Unable to start WolfcamQL to play demo: {0}, error: {1}", SelectedDemo.Filename, ex.Message);
-                    _msgBoxService.ShowError(string.Format("Unable to start WolfcamQL to play demo: {0}", SelectedDemo.Filename),
+                    Debug.WriteLine("Unable to start WolfcamQL to play demo: {0}, error: {1}",
+                        SelectedDemo.Filename, ex.Message);
+                    _msgBoxService.ShowError(
+                        string.Format("Unable to start WolfcamQL to play demo: {0}", SelectedDemo.Filename),
                         "Error starting WolfcamQL");
                 }
             }
@@ -1020,34 +1094,40 @@ namespace UQLT.ViewModels.DemoPlayer
                     playerProcess.StartInfo.FileName = playerExePath;
                     //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
                     // Wolf Whisperer expects full demo filepath surrounded by double quotes, passed as a command line argument to its executable.
-                    playerProcess.StartInfo.Arguments = string.Format("\"{0}\"", Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production), SelectedDemo.Filename));
+                    playerProcess.StartInfo.Arguments = string.Format("\"{0}\"",
+                        Path.Combine(QLDirectoryUtils.GetQuakeLiveDemoDirectory(QuakeLiveTypes.Production),
+                            SelectedDemo.Filename));
                     playerProcess.Start();
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("Unable to start Wolf Whisperer to play demo: {0}, error: {1}", SelectedDemo.Filename, ex.Message);
-                    _msgBoxService.ShowError(string.Format("Unable to start Wolf Whisperer to play demo: {0}", SelectedDemo.Filename),
+                    Debug.WriteLine("Unable to start Wolf Whisperer to play demo: {0}, error: {1}",
+                        SelectedDemo.Filename, ex.Message);
+                    _msgBoxService.ShowError(
+                        string.Format("Unable to start Wolf Whisperer to play demo: {0}",
+                            SelectedDemo.Filename),
                         "Error starting WolfcamQL");
                 }
             }
         }
 
         /// <summary>
-        /// Scans the user's demo directory for demos that are not contained in the demo database
-        /// and sends them off for processing.
+        ///     Scans the user's demo directory for demos that are not contained in the demo database
+        ///     and sends them off for processing.
         /// </summary>
         /// <param name="qltype">The qltype.</param>
         private void ScanForNewDemos(QuakeLiveTypes qltype)
         {
-            var currentDemoDirDemos = GetDemosFromSpecifiedDirectory(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype));
+            List<string> currentDemoDirDemos =
+                GetDemosFromSpecifiedDirectory(QLDirectoryUtils.GetQuakeLiveDemoDirectory(qltype));
             var populater = new DemoPopulate(this);
-            var databaseDemos = populater.GetDatabaseDemos();
+            List<string> databaseDemos = populater.GetDatabaseDemos();
 
             var newDemosToProcess = new List<string>();
-            foreach (var curDemo in currentDemoDirDemos)
+            foreach (string curDemo in currentDemoDirDemos)
             {
                 // just filename
-                var f = Path.GetFileName(curDemo);
+                string f = Path.GetFileName(curDemo);
                 if (!databaseDemos.Contains(f))
                 {
                     newDemosToProcess.Add(curDemo);
@@ -1064,7 +1144,7 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Populates the user's demo list from the SQLite demo database file.
+        ///     Populates the user's demo list from the SQLite demo database file.
         /// </summary>
         private async Task StartupLoadDemoDatabase()
         {
@@ -1075,18 +1155,18 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Checks to see if the WolfcamQL demo directory exists, and creates it if it does not.
+        ///     Checks to see if the WolfcamQL demo directory exists, and creates it if it does not.
         /// </summary>
         private void VerifyWolfcamDemoDirectory()
         {
             var options = new DemoOptionsViewModel();
             if (options.UseWolfcamQlForOldDemos)
             {
-                var wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
+                string wolfcamBase = Path.GetDirectoryName(options.WolfcamQlExePath);
                 // should not be empty
                 if (!string.IsNullOrEmpty(wolfcamBase))
                 {
-                    var wolfDemoDir = Path.Combine(wolfcamBase, WolfCamDemoDir);
+                    string wolfDemoDir = Path.Combine(wolfcamBase, WolfCamDemoDir);
                     if (!Directory.Exists(wolfDemoDir))
                     {
                         try
@@ -1100,7 +1180,8 @@ namespace UQLT.ViewModels.DemoPlayer
                     }
                     else
                     {
-                        Debug.WriteLine(string.Format("WolfcamQL demo directory already exists at {0}", wolfDemoDir));
+                        Debug.WriteLine(string.Format("WolfcamQL demo directory already exists at {0}",
+                            wolfDemoDir));
                     }
                 }
             }

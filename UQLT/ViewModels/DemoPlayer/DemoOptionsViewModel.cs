@@ -25,11 +25,9 @@ namespace UQLT.ViewModels.DemoPlayer
         private bool _useQlCustomDemoCfg;
         private bool _useWolfcamQlCustomDemoCfg;
         private bool _useWolfcamQlForOldDemos;
-        private bool _useWolfWhispererCustomDemoCfg;
         private bool _useWolfWhispererForOldDemos;
         private string _wolfcamQlCustomDemoCfgPath;
         private string _wolfCamQlExePath;
-        private string _wolfWhispererCustomDemoCfgPath;
         private string _wolfWhispererExePath;
 
         [ImportingConstructor]
@@ -93,7 +91,6 @@ namespace UQLT.ViewModels.DemoPlayer
         /// <value>
         /// <c>true</c> if WolfcamQL should use a custom demo .cfg file when playing old .dm_73 demos.; otherwise, <c>false</c>.
         /// </value>
-        /// <remarks>This setting and <see cref="UseWolfWhispererCustomDemoCfg"/> are mutually exclusive.</remarks>
         public bool UseWolfcamQlCustomDemoCfg
         {
             get
@@ -103,12 +100,7 @@ namespace UQLT.ViewModels.DemoPlayer
             set
             {
                 _useWolfcamQlCustomDemoCfg = value;
-                if (value)
-                {
-                    UseWolfWhispererCustomDemoCfg = false;
-                }
                 NotifyOfPropertyChange(() => UseWolfcamQlCustomDemoCfg);
-                NotifyOfPropertyChange(() => UseWolfWhispererCustomDemoCfg);
             }
         }
 
@@ -134,31 +126,6 @@ namespace UQLT.ViewModels.DemoPlayer
                 }
                 NotifyOfPropertyChange(() => UseWolfcamQlForOldDemos);
                 NotifyOfPropertyChange(() => UseWolfWhispererForOldDemos);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether Wolf Whisperer should use a custom demo .cfg file when playing old .dm_73 demos.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if Wolf Whisperer should use a custom demo .cfg file when playing old .dm_73 demos.; otherwise, <c>false</c>.
-        /// </value>
-        /// <remarks>This setting and <see cref="UseWolfcamQlCustomDemoCfg"/> are mutually exclusive.</remarks>
-        public bool UseWolfWhispererCustomDemoCfg
-        {
-            get
-            {
-                return _useWolfWhispererCustomDemoCfg;
-            }
-            set
-            {
-                _useWolfWhispererCustomDemoCfg = value;
-                if (value)
-                {
-                    UseWolfcamQlCustomDemoCfg = false;
-                }
-                NotifyOfPropertyChange(() => UseWolfWhispererCustomDemoCfg);
-                NotifyOfPropertyChange(() => UseWolfcamQlCustomDemoCfg);
             }
         }
 
@@ -225,24 +192,6 @@ namespace UQLT.ViewModels.DemoPlayer
             }
         }
 
-        /// <summary>
-        /// Gets or sets the file path to the custom demo .cfg file for Wolf Whisperer.
-        /// </summary>
-        /// <value>
-        /// The file path to the custom demo .cfg file for Wolf Whisperer.
-        /// </value>
-        public string WolfWhispererCustomDemoCfgPath
-        {
-            get
-            {
-                return _wolfWhispererCustomDemoCfgPath;
-            }
-            set
-            {
-                _wolfWhispererCustomDemoCfgPath = value;
-                NotifyOfPropertyChange(() => WolfWhispererCustomDemoCfgPath);
-            }
-        }
 
         /// <summary>
         /// Gets or sets file path to the Wolf Whisperer executable.
@@ -335,12 +284,10 @@ namespace UQLT.ViewModels.DemoPlayer
             UseWolfWhispererForOldDemos = cfghandler.DemoOptUseWolfWhisperer;
             UseQlCustomDemoCfg = cfghandler.DemoOptUseCustomQlCfg;
             UseWolfcamQlCustomDemoCfg = cfghandler.DemoOptUseCustomWolfcamQlCfg;
-            UseWolfWhispererCustomDemoCfg = cfghandler.DemoOptUseCustomWolfWhispererCfg;
             QlCustomDemoCfgPath = cfghandler.DemoOptQlCfgPath;
             WolfcamQlExePath = cfghandler.DemoOptWolfcamQlExePath;
             WolfcamQlCustomDemoCfgPath = cfghandler.DemoOptWolfcamQlCfgPath;
             WolfWhispererExePath = cfghandler.DemoOptWolfWhispererExePath;
-            WolfWhispererCustomDemoCfgPath = cfghandler.DemoOptWolfWhispererCfgPath;
         }
 
         /// <summary>
@@ -366,10 +313,8 @@ namespace UQLT.ViewModels.DemoPlayer
             cfghandler.DemoOptWolfWhispererExePath = WolfWhispererExePath;
             cfghandler.DemoOptUseCustomQlCfg = UseQlCustomDemoCfg;
             cfghandler.DemoOptUseCustomWolfcamQlCfg = UseWolfcamQlCustomDemoCfg;
-            cfghandler.DemoOptUseCustomWolfWhispererCfg = UseWolfWhispererCustomDemoCfg;
             cfghandler.DemoOptQlCfgPath = QlCustomDemoCfgPath;
             cfghandler.DemoOptWolfcamQlCfgPath = WolfcamQlCustomDemoCfgPath;
-            cfghandler.DemoOptWolfWhispererCfgPath = WolfWhispererCustomDemoCfgPath;
 
             cfghandler.WriteConfig();
         }
@@ -451,32 +396,6 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Sets the Wolf Whisperer custom demo config file path.
-        /// </summary>
-        /// <remarks>This is called from the view itself</remarks>
-        public async Task SetWolfWhispererCustomDemoCfgPath()
-        {
-            using (var openfiledialog = new OpenFileDialog())
-            {
-                openfiledialog.CheckFileExists = true;
-                openfiledialog.CheckPathExists = true;
-                openfiledialog.Multiselect = false;
-                //TODO: Avoid Production hard-code. Detect if UQLT is being launched from Focus context and automatically set.
-                openfiledialog.InitialDirectory = QLDirectoryUtils.GetQuakeLiveBasePath(QuakeLiveTypes.Production);
-                openfiledialog.Filter = "Config file (*.cfg)|*.cfg";
-
-                if (openfiledialog.ShowDialog() != DialogResult.OK)
-                {
-                    UseWolfWhispererCustomDemoCfg = false;
-                    return;
-                }
-
-                WolfWhispererCustomDemoCfgPath = openfiledialog.FileName;
-                await CopyCustomCfgToDirAsync(DemoPlayerTypes.WolfWhisperer, openfiledialog.FileName);
-            }
-        }
-
-        /// <summary>
         /// Sets the Wolf Whisperer executable path.
         /// </summary>
         /// <remarks>This is called from the view itself</remarks>
@@ -528,15 +447,6 @@ namespace UQLT.ViewModels.DemoPlayer
         }
 
         /// <summary>
-        /// Unsets the Wolf Whisperer custom demo config file path.
-        /// </summary>
-        /// <remarks>This is called from the view itself</remarks>
-        public void UnsetWolfWhispererCustomDemoCfgPath()
-        {
-            WolfWhispererCustomDemoCfgPath = string.Empty;
-        }
-
-        /// <summary>
         /// Unsets the wolf whisperer executable path.
         /// </summary>
         /// <remarks>This is called from the view itself</remarks>
@@ -566,9 +476,6 @@ namespace UQLT.ViewModels.DemoPlayer
                     directory = Path.Combine(Path.GetDirectoryName(WolfcamQlExePath), "wolfcam-ql");
                     break;
 
-                case DemoPlayerTypes.WolfWhisperer:
-                    directory = Path.Combine(Path.GetDirectoryName(WolfWhispererExePath), "WolfcamQL\\wolfcam-ql");
-                    break;
             }
             // Don't perform file copy operation if the source and destination are the same (avoid 'in use by another process' exception)
             if (Path.GetFullPath(originalCfgLocation).Equals(Path.Combine(directory, filename)))
@@ -620,19 +527,13 @@ namespace UQLT.ViewModels.DemoPlayer
         /// <param name="newLocation">The full filepath to the demo config at its new location.</param>
         private void UpdateNewCfgFilePath(DemoPlayerTypes playerType, string newLocation)
         {
-            switch (playerType)
+            if (playerType == DemoPlayerTypes.QuakeLive)
             {
-                case DemoPlayerTypes.QuakeLive:
-                    QlCustomDemoCfgPath = newLocation;
-                    break;
-
-                case DemoPlayerTypes.WolfcamQl:
-                    WolfcamQlCustomDemoCfgPath = newLocation;
-                    break;
-
-                case DemoPlayerTypes.WolfWhisperer:
-                    WolfWhispererCustomDemoCfgPath = newLocation;
-                    break;
+            QlCustomDemoCfgPath = newLocation;
+            }
+            if (playerType == DemoPlayerTypes.WolfcamQl)
+            {
+                WolfcamQlCustomDemoCfgPath = newLocation;
             }
         }
     }

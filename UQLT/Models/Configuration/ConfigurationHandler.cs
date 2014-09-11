@@ -69,14 +69,6 @@ namespace UQLT.Models.Configuration
         public bool DemoOptUseCustomWolfcamQlCfg { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether a custom demo config should be used with Wolf Whisperer to play old .dm_73 demos.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> Use a custom demo cfg with Wolf Whisperer; otherwise, <c>false</c>.
-        /// </value>
-        public bool DemoOptUseCustomWolfWhispererCfg { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether WolfcamQL should be used to play old .dm_73 demos.
         /// </summary>
         /// <value>
@@ -107,14 +99,6 @@ namespace UQLT.Models.Configuration
         /// The WolfcamQL executable file path.
         /// </value>
         public string DemoOptWolfcamQlExePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets file path to the custom demo config to be used with Wolf Whisperer.
-        /// </summary>
-        /// <value>
-        /// File path to the custom demo config to be used with Wolf Whisperer.
-        /// </value>
-        public string DemoOptWolfWhispererCfgPath { get; set; }
 
         /// <summary>
         /// Gets or sets the file path to the Wolf Whisperer executable.
@@ -182,10 +166,8 @@ namespace UQLT.Models.Configuration
                     DemoOptWolfWhispererExePath = cfg.demo_options.demo_wolfwhisperer_exepath;
                     DemoOptQlCfgPath = cfg.demo_options.demo_ql_cfgpath;
                     DemoOptWolfcamQlCfgPath = cfg.demo_options.demo_wolfcamql_cfgpath;
-                    DemoOptWolfWhispererCfgPath = cfg.demo_options.demo_wolfwhisperer_cfgpath;
                     DemoOptUseCustomQlCfg = cfg.demo_options.demo_use_cust_ql_cfg;
                     DemoOptUseCustomWolfcamQlCfg = cfg.demo_options.demo_use_cust_wolfcamql_cfg;
-                    DemoOptUseCustomWolfWhispererCfg = cfg.demo_options.demo_use_cust_wolfwhisperer_cfg;
                 }
             }
             catch (Exception ex)
@@ -221,12 +203,10 @@ namespace UQLT.Models.Configuration
                 demo_use_wolfwhisperer = false,
                 demo_use_cust_ql_cfg = false,
                 demo_use_cust_wolfcamql_cfg = false,
-                demo_use_cust_wolfwhisperer_cfg = false,
                 demo_wolfcamql_exepath = string.Empty,
                 demo_wolfwhisperer_exepath = string.Empty,
                 demo_ql_cfgpath = string.Empty,
-                demo_wolfcamql_cfgpath = string.Empty,
-                demo_wolfwhisperer_cfgpath = string.Empty
+                demo_wolfcamql_cfgpath = string.Empty
             };
             var config = new Configuration()
             {
@@ -303,10 +283,6 @@ namespace UQLT.Models.Configuration
                     {
                         RestoreDefaultConfig();
                     }
-                    if (!cfg.demo_options.demo_use_cust_wolfwhisperer_cfg && !cfg.demo_options.demo_use_cust_wolfwhisperer_cfg == false)
-                    {
-                        RestoreDefaultConfig();
-                    }
                     // not checking for valid WolfcamQL/Wolfwhisperer file path at this point
                 }
             }
@@ -342,12 +318,10 @@ namespace UQLT.Models.Configuration
                 demo_use_wolfwhisperer = DemoOptUseWolfWhisperer,
                 demo_use_cust_ql_cfg = DemoOptUseCustomQlCfg,
                 demo_use_cust_wolfcamql_cfg = DemoOptUseCustomWolfcamQlCfg,
-                demo_use_cust_wolfwhisperer_cfg = DemoOptUseCustomWolfWhispererCfg,
                 demo_wolfcamql_exepath = DemoOptWolfcamQlExePath,
                 demo_wolfwhisperer_exepath = DemoOptWolfWhispererExePath,
                 demo_ql_cfgpath = DemoOptQlCfgPath,
-                demo_wolfcamql_cfgpath = DemoOptWolfcamQlCfgPath,
-                demo_wolfwhisperer_cfgpath = DemoOptWolfWhispererCfgPath
+                demo_wolfcamql_cfgpath = DemoOptWolfcamQlCfgPath
             };
             var config = new Configuration
             {
