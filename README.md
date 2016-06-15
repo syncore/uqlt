@@ -1,0 +1,1 @@
+First ever C# project. Used to teach myself C#/WPF/MVVM
