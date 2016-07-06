@@ -385,10 +385,8 @@ namespace UQLT.Core.Modules.Chat
         /// </summary>
         private void ConnectToXmpp()
         {
-            //XmppCon.Username = ***REMOVED***;
-            XmppCon.Username = ***REMOVED***;
-            //XmppCon.Password = ***REMOVED***;
-            XmppCon.Password = ***REMOVED***;
+            XmppCon.Username = "";
+            XmppCon.Password = "";
             XmppCon.Server = UQltGlobals.QlXmppDomain;
             XmppCon.Port = 5222;
             XmppCon.Resource = "uqlt";

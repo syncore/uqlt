@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("UQLTRes")]
 [assembly: AssemblyDescription("UQLT Resources")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany(***REMOVED***)]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UQLTRes")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
